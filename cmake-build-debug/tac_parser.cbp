@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="tac_parser"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="tac_parser">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="D:/programming/c/tac_parser/driver"/>
+					<Add directory="D:/programming/c/tac_parser/tac_worker"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 tac_parser"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="tac_parser/fast">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="D:/programming/c/tac_parser/driver"/>
+					<Add directory="D:/programming/c/tac_parser/tac_worker"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 tac_parser/fast"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Driver">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/Driver.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/driver"/>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 Driver"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Driver/fast">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/Driver.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/driver"/>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 Driver/fast"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="TacWorker">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/TacWorker.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/tac_worker"/>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 TacWorker"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="TacWorker/fast">
+				<Option output="D:/programming/c/tac_parser/cmake-build-debug/TacWorker.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="D:/programming/c/tac_parser/tac_worker"/>
+					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 TacWorker/fast"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 edit_cache"/>
+					<CompileFile command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f D:\programming\c\tac_parser\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="D:/programming/c/tac_parser/DotWriter/DotWriter.cpp">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/DotWriter/DotWriter.h">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp.rule">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.cpp">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.cpp.rule">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.hpp">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/driver/driver.cpp">
+			<Option target="Driver"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/driver/driver.hpp">
+			<Option target="Driver"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/main.cpp">
+			<Option target="tac_parser"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp">
+			<Option target="TacWorker"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/tac_worker/quadruple.hpp">
+			<Option target="TacWorker"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/tac_worker/source.cpp">
+			<Option target="TacWorker"/>
+		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

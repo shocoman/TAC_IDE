@@ -1,0 +1,19 @@
+  a = 3
+  b = 0
+  $t0 = a<5
+$L0:
+  ifFalse $t1 goto $L0
+  b = 1
+  goto $L2
+$L1:
+  b = 2
+  b = 2
+  b = 2
+  b = 2
+  b = 2
+  b = 2
+  goto $L3
+$L2:
+  halt
+$L3:
+  W=W

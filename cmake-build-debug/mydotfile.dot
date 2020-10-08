@@ -1,0 +1,22 @@
+digraph D {
+
+node [shape=record fontname="Comic Sans MS"]
+edge [fontname="Comic Sans MS"]
+
+"Node 1" [label="{Node 1|a = 3\lb = 0\l$t0 = a\<5\l}"]
+"Node 2" [label="{Label: $L0;\lNode 2|ifFalse $t1 goto $L0\l}"]
+"Node 3" [label="{Node 3|b = 1\lgoto $L2\l}"]
+"Node 4" [label="{Label: $L1;\lNode 4|b = 2\lb = 2\lb = 2\lb = 2\lb = 2\lb = 2\lgoto $L3\l}"]
+"Node 5" [label="{Label: $L2;\lNode 5|halt\l}"]
+"Node 6" [label="{Label: $L3;\lNode 6|W = W\l}"]
+
+"Node 1" -> "Node 2" [label="$L0"]
+"Node 2" -> "Node 3"
+"Node 2" -> "Node 2" [label="$L0"]
+"Node 3" -> "Node 4" [label="$L1"]
+"Node 3" -> "Node 5" [label="$L2"]
+"Node 4" -> "Node 6" [label="$L3"]
+"Node 4" -> "Node 5" [label="$L2"]
+"Node 5" -> "Node 6" [label="$L3"]
+
+}
