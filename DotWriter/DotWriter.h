@@ -11,6 +11,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <gvc.h>
 
 class DotWriter {
     std::map<std::string, std::string> node_names;
@@ -21,7 +22,8 @@ public:
     void set_node_text(const std::string &node_name, const std::vector<std::string> &lines);
     void set_node_name(const std::string &node, const std::string &name);
     void add_edge(std::string node1, std::string node2, std::string edge_label = "");
-    void save_to_file(const std::string &filename);
+    void write_dot_to_file(const std::string &filename);
+    void render_to_file(const std::string &filename);
 };
 
 

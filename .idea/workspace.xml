@@ -5,8 +5,6 @@
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="tac_parser" targetName="TacWorker" />
-      <config projectName="tac_parser" targetName="Driver" />
       <config projectName="tac_parser" targetName="tac_parser" />
     </generated>
   </component>
@@ -39,38 +37,28 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/cmake-build-debug" />
-    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.C/C++" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\programming\c\tac_parser\cmake-build-debug" />
-      <recent name="D:\programming\c\tac_parser" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\programming\c\tac_parser\cmake" />
       <recent name="D:\programming\c\tac_parser\DotWriter" />
       <recent name="D:\programming\c\tac_parser\tac_worker" />
       <recent name="D:\programming\c\tac_parser\parser" />
       <recent name="D:\programming\c\tac_parser" />
-      <recent name="D:\programming\c\tac_parser\parser\driver" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\programming\c\tac_parser\cmake-build-debug" />
+      <recent name="D:\programming\c\tac_parser" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.tac_parser">
-    <configuration name="Driver" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tac_parser" TARGET_NAME="Driver" CONFIG_NAME="Debug">
+  <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TacWorker" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tac_parser" TARGET_NAME="TacWorker" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="tac_parser" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="../myfile" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tac_parser" TARGET_NAME="tac_parser" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="tac_parser" RUN_TARGET_NAME="tac_parser">
+    <configuration name="tac_parser" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="dot " REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tac_parser" TARGET_NAME="tac_parser" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="tac_parser" RUN_TARGET_NAME="tac_parser">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -80,27 +68,27 @@
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <list>
-      <item itemvalue="CMake Application.Driver" />
-      <item itemvalue="CMake Application.tac_parser" />
-      <item itemvalue="CMake Application.TacWorker" />
-    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Makefile.gen_lexer" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.y" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="414" y="179" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602003642970">
+    <state x="414" y="179" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602585655234">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="382" y="210" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1601907989047" />
-    <state x="414" y="179" width="1092" height="739" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1602003642970" />
-    <state x="729" y="319" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1602000078396">
+    <state x="414" y="179" width="1092" height="739" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1602585655234" />
+    <state x="729" y="319" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1602262118302">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="729" y="319" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1601908009782" />
-    <state x="729" y="319" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1050@0.0.1920.1050" timestamp="1602000078396" />
+    <state x="729" y="319" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1050@0.0.1920.1050" timestamp="1602262118302" />
     <state x="733" y="241" key="#com.intellij.ide.util.MemberChooser" timestamp="1602050402501">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
@@ -114,34 +102,39 @@
     </state>
     <state x="740" y="291" key="FileChooserDialogImpl/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1601904044554" />
     <state x="740" y="291" key="FileChooserDialogImpl/0.0.1920.1050@0.0.1920.1050" timestamp="1601958546646" />
-    <state width="1921" height="275" key="GridCell.Tab.0.bottom" timestamp="1602168674790">
+    <state width="1899" height="241" key="GridCell.Tab.0.bottom" timestamp="1602607507635">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state width="1921" height="275" key="GridCell.Tab.0.bottom/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602167670173" />
+    <state width="1160" height="1236" key="GridCell.Tab.0.bottom/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602508398759" />
     <state width="1201" height="986" key="GridCell.Tab.0.bottom/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602153268167" />
-    <state width="1921" height="275" key="GridCell.Tab.0.bottom/0.0.1920.1050@0.0.1920.1050" timestamp="1602168674790" />
-    <state width="1921" height="275" key="GridCell.Tab.0.center" timestamp="1602168674790">
+    <state width="1899" height="241" key="GridCell.Tab.0.bottom/0.0.1920.1050@0.0.1920.1050" timestamp="1602607507635" />
+    <state width="1899" height="241" key="GridCell.Tab.0.center" timestamp="1602607507635">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state width="1921" height="275" key="GridCell.Tab.0.center/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602167670173" />
+    <state width="1160" height="1236" key="GridCell.Tab.0.center/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602508398759" />
     <state width="1201" height="986" key="GridCell.Tab.0.center/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602153268167" />
-    <state width="1921" height="275" key="GridCell.Tab.0.center/0.0.1920.1050@0.0.1920.1050" timestamp="1602168674790" />
-    <state width="1921" height="275" key="GridCell.Tab.0.left" timestamp="1602168674790">
+    <state width="1899" height="241" key="GridCell.Tab.0.center/0.0.1920.1050@0.0.1920.1050" timestamp="1602607507635" />
+    <state width="1899" height="241" key="GridCell.Tab.0.left" timestamp="1602607507635">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state width="1921" height="275" key="GridCell.Tab.0.left/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602167670173" />
+    <state width="1160" height="1236" key="GridCell.Tab.0.left/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602508398759" />
     <state width="1201" height="986" key="GridCell.Tab.0.left/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602153268167" />
-    <state width="1921" height="275" key="GridCell.Tab.0.left/0.0.1920.1050@0.0.1920.1050" timestamp="1602168674790" />
-    <state width="1921" height="275" key="GridCell.Tab.0.right" timestamp="1602168674790">
+    <state width="1899" height="241" key="GridCell.Tab.0.left/0.0.1920.1050@0.0.1920.1050" timestamp="1602607507635" />
+    <state width="1899" height="241" key="GridCell.Tab.0.right" timestamp="1602607507635">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state width="1921" height="275" key="GridCell.Tab.0.right/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602167670173" />
+    <state width="1160" height="1236" key="GridCell.Tab.0.right/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602508398759" />
     <state width="1201" height="986" key="GridCell.Tab.0.right/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602153268167" />
-    <state width="1921" height="275" key="GridCell.Tab.0.right/0.0.1920.1050@0.0.1920.1050" timestamp="1602168674790" />
-    <state x="461" y="170" key="SettingsEditor" timestamp="1602137768679">
+    <state width="1899" height="241" key="GridCell.Tab.0.right/0.0.1920.1050@0.0.1920.1050" timestamp="1602607507635" />
+    <state x="461" y="170" width="1355" height="710" key="SettingsEditor" timestamp="1602502475228">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="461" y="170" key="SettingsEditor/0.0.1920.1050@0.0.1920.1050" timestamp="1602137768679" />
+    <state x="461" y="170" width="1355" height="710" key="SettingsEditor/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602502475228" />
+    <state x="461" y="170" key="SettingsEditor/0.0.1920.1050@0.0.1920.1050" timestamp="1602311237303" />
+    <state width="498" height="446" key="SwitcherDM" timestamp="1602601388887">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="498" height="446" key="SwitcherDM/0.0.1920.1050@0.0.1920.1050" timestamp="1602601388887" />
     <state x="855" y="189" key="com.intellij.tools.ToolSelectDialog.dimensionServiceKey" timestamp="1601888636000">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
@@ -195,18 +188,25 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="489" y="-23" width="1016" height="1736" maximized="true" key="dock-window-9/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602148556266" />
-    <state x="785" y="310" width="550" height="417" key="refactoring.ChangeSignatureDialog" timestamp="1602091369308">
+    <state width="634" height="245" key="javadoc.popup.new" timestamp="1602605684550">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="785" y="310" width="550" height="417" key="refactoring.ChangeSignatureDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1602091369308" />
-    <state x="616" y="243" key="run.anything.popup" timestamp="1601895760333">
+    <state width="634" height="143" key="javadoc.popup.new/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602508238481" />
+    <state width="634" height="245" key="javadoc.popup.new/0.0.1920.1050@0.0.1920.1050" timestamp="1602605684550" />
+    <state x="785" y="310" width="550" height="409" key="refactoring.ChangeSignatureDialog" timestamp="1602604769725">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
+    <state x="838" y="447" key="refactoring.ChangeSignatureDialog/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602502926278" />
+    <state x="785" y="310" width="550" height="409" key="refactoring.ChangeSignatureDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1602604769725" />
+    <state x="616" y="243" key="run.anything.popup" timestamp="1602503948515">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="616" y="243" key="run.anything.popup/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602503948515" />
     <state x="616" y="243" key="run.anything.popup/0.0.1920.1050@0.0.1920.1050" timestamp="1601895760333" />
-    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1602162401754">
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1602496273869">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602162401754" />
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050/1920.-450.1200.1920@0.0.1920.1050" timestamp="1602496273869" />
     <state x="2309" y="-35" width="672" height="1240" key="search.everywhere.popup/0.0.1920.1050/1920.-450.1200.1920@1920.-450.1200.1920" timestamp="1602143718091" />
     <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050@0.0.1920.1050" timestamp="1601885419433" />
   </component>

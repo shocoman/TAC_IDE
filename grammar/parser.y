@@ -9,13 +9,8 @@
 
 %code requires {
     #include <string>
-
-
     struct driver;
-
     #include "../tac_worker/quadruple.hpp"
-
-
 }
 
 %param { driver& drv }
@@ -26,7 +21,7 @@
 %define parse.lac full
 
 %code {
-    #include "driver.hpp"
+    #include "../driver/driver.hpp"
 }
 
 %define api.token.prefix {TOK_}
@@ -38,6 +33,7 @@
     CALL    "call"
     PARAM   "param"
     NOP     "nop"
+    RETURN  "return"
     NEWLINE "newline"
 
     ASSIGN  "="
@@ -45,6 +41,7 @@
     MINUS   "-"
     MULT    "*"
     DIV     "/"
+    REF     "&"
 
     CMP_LT  "<"
     CMP_GT  ">"
@@ -98,7 +95,8 @@ quadruple:
 |   "halt"                          { $$ = Quadruple({}, {}, OperationType::Halt); };
 |   "param" term                    { $$ = Quadruple($term, {}, OperationType::Param); };
 |   "call"  "identifier"[id] term   { $$ = Quadruple($id, $term, OperationType::Call); };
-|   "nop"  "identifier"[id] term    { $$ = Quadruple($id, $term, OperationType::Nop); };
+|   "nop"                           { $$ = Quadruple({}, {}, OperationType::Nop); };
+|   "return"        { $$ = Quadruple({}, {}, OperationType::Return); };
 ;
 
 assignment: dest "=" value { $value.dest = $dest; $$ = $value; };
@@ -129,6 +127,7 @@ value:
     term                    { $$ = Quadruple($1, {}, OperationType::Copy); }
 |   "*" term                { $$ = Quadruple($2, {}, OperationType::Deref); }
 |   "-" term                { $$ = Quadruple($2, {}, OperationType::UMinus); }
+|   "&" term                { $$ = Quadruple($2, {}, OperationType::Ref); }
 |   term "[" term "]"       { $$ = Quadruple($1, $3, OperationType::ArrayGet); }
 |   term "+"  term          { $$ = Quadruple($1, $3, OperationType::Add); }
 |   term "-"  term          { $$ = Quadruple($1, $3, OperationType::Sub); }

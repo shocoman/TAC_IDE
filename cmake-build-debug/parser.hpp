@@ -48,15 +48,10 @@
 #line 10 "D:/programming/c/tac_parser/grammar/parser.y"
 
     #include <string>
-
-
     struct driver;
-
     #include "../tac_worker/quadruple.hpp"
 
-
-
-#line 60 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
+#line 55 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -190,7 +185,7 @@
 #endif
 
 namespace yy {
-#line 194 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
+#line 189 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
 
 
 
@@ -482,25 +477,27 @@ namespace yy {
     TOK_CALL = 7,                  // "call"
     TOK_PARAM = 8,                 // "param"
     TOK_NOP = 9,                   // "nop"
-    TOK_NEWLINE = 10,              // "newline"
-    TOK_ASSIGN = 11,               // "="
-    TOK_PLUS = 12,                 // "+"
-    TOK_MINUS = 13,                // "-"
-    TOK_MULT = 14,                 // "*"
-    TOK_DIV = 15,                  // "/"
-    TOK_CMP_LT = 16,               // "<"
-    TOK_CMP_GT = 17,               // ">"
-    TOK_CMP_EQ = 18,               // "=="
-    TOK_CMP_NEQ = 19,              // "!="
-    TOK_LPAREN = 20,               // "("
-    TOK_RPAREN = 21,               // ")"
-    TOK_LBRACKET = 22,             // "["
-    TOK_RBRACKET = 23,             // "]"
-    TOK_SEMI = 24,                 // ";"
-    TOK_COLON = 25,                // ":"
-    TOK_IDENTIFIER = 26,           // "identifier"
-    TOK_INT = 27,                  // "int"
-    TOK_FLOAT = 28                 // "float"
+    TOK_RETURN = 10,               // "return"
+    TOK_NEWLINE = 11,              // "newline"
+    TOK_ASSIGN = 12,               // "="
+    TOK_PLUS = 13,                 // "+"
+    TOK_MINUS = 14,                // "-"
+    TOK_MULT = 15,                 // "*"
+    TOK_DIV = 16,                  // "/"
+    TOK_REF = 17,                  // "&"
+    TOK_CMP_LT = 18,               // "<"
+    TOK_CMP_GT = 19,               // ">"
+    TOK_CMP_EQ = 20,               // "=="
+    TOK_CMP_NEQ = 21,              // "!="
+    TOK_LPAREN = 22,               // "("
+    TOK_RPAREN = 23,               // ")"
+    TOK_LBRACKET = 24,             // "["
+    TOK_RBRACKET = 25,             // "]"
+    TOK_SEMI = 26,                 // ";"
+    TOK_COLON = 27,                // ":"
+    TOK_IDENTIFIER = 28,           // "identifier"
+    TOK_INT = 29,                  // "int"
+    TOK_FLOAT = 30                 // "float"
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -517,7 +514,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 29, ///< Number of tokens.
+        YYNTOKENS = 31, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -529,38 +526,40 @@ namespace yy {
         S_CALL = 7,                              // "call"
         S_PARAM = 8,                             // "param"
         S_NOP = 9,                               // "nop"
-        S_NEWLINE = 10,                          // "newline"
-        S_ASSIGN = 11,                           // "="
-        S_PLUS = 12,                             // "+"
-        S_MINUS = 13,                            // "-"
-        S_MULT = 14,                             // "*"
-        S_DIV = 15,                              // "/"
-        S_CMP_LT = 16,                           // "<"
-        S_CMP_GT = 17,                           // ">"
-        S_CMP_EQ = 18,                           // "=="
-        S_CMP_NEQ = 19,                          // "!="
-        S_LPAREN = 20,                           // "("
-        S_RPAREN = 21,                           // ")"
-        S_LBRACKET = 22,                         // "["
-        S_RBRACKET = 23,                         // "]"
-        S_SEMI = 24,                             // ";"
-        S_COLON = 25,                            // ":"
-        S_IDENTIFIER = 26,                       // "identifier"
-        S_INT = 27,                              // "int"
-        S_FLOAT = 28,                            // "float"
-        S_YYACCEPT = 29,                         // $accept
-        S_dest = 30,                             // dest
-        S_value = 31,                            // value
-        S_quadruple = 32,                        // quadruple
-        S_if_statement = 33,                     // if_statement
-        S_goto = 34,                             // goto
-        S_assignment = 35,                       // assignment
-        S_term = 36,                             // term
-        S_label = 37,                            // label
-        S_stmts = 38,                            // stmts
-        S_stmt = 39,                             // stmt
-        S_mb_newline = 40,                       // mb_newline
-        S_newlines = 41                          // newlines
+        S_RETURN = 10,                           // "return"
+        S_NEWLINE = 11,                          // "newline"
+        S_ASSIGN = 12,                           // "="
+        S_PLUS = 13,                             // "+"
+        S_MINUS = 14,                            // "-"
+        S_MULT = 15,                             // "*"
+        S_DIV = 16,                              // "/"
+        S_REF = 17,                              // "&"
+        S_CMP_LT = 18,                           // "<"
+        S_CMP_GT = 19,                           // ">"
+        S_CMP_EQ = 20,                           // "=="
+        S_CMP_NEQ = 21,                          // "!="
+        S_LPAREN = 22,                           // "("
+        S_RPAREN = 23,                           // ")"
+        S_LBRACKET = 24,                         // "["
+        S_RBRACKET = 25,                         // "]"
+        S_SEMI = 26,                             // ";"
+        S_COLON = 27,                            // ":"
+        S_IDENTIFIER = 28,                       // "identifier"
+        S_INT = 29,                              // "int"
+        S_FLOAT = 30,                            // "float"
+        S_YYACCEPT = 31,                         // $accept
+        S_dest = 32,                             // dest
+        S_value = 33,                            // value
+        S_quadruple = 34,                        // quadruple
+        S_if_statement = 35,                     // if_statement
+        S_goto = 36,                             // goto
+        S_assignment = 37,                       // assignment
+        S_term = 38,                             // term
+        S_label = 39,                            // label
+        S_stmts = 40,                            // stmts
+        S_stmt = 41,                             // stmt
+        S_mb_newline = 42,                       // mb_newline
+        S_newlines = 43                          // newlines
       };
     };
 
@@ -849,13 +848,13 @@ switch (yykind)
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
       {
-        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_IFTRUE || tok == token::TOK_IFFALSE || tok == token::TOK_GOTO || tok == token::TOK_HALT || tok == token::TOK_CALL || tok == token::TOK_PARAM || tok == token::TOK_NOP || tok == token::TOK_NEWLINE || tok == token::TOK_ASSIGN || tok == token::TOK_PLUS || tok == token::TOK_MINUS || tok == token::TOK_MULT || tok == token::TOK_DIV || tok == token::TOK_CMP_LT || tok == token::TOK_CMP_GT || tok == token::TOK_CMP_EQ || tok == token::TOK_CMP_NEQ || tok == token::TOK_LPAREN || tok == token::TOK_RPAREN || tok == token::TOK_LBRACKET || tok == token::TOK_RBRACKET || tok == token::TOK_SEMI || tok == token::TOK_COLON);
+        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_IFTRUE || tok == token::TOK_IFFALSE || tok == token::TOK_GOTO || tok == token::TOK_HALT || tok == token::TOK_CALL || tok == token::TOK_PARAM || tok == token::TOK_NOP || tok == token::TOK_RETURN || tok == token::TOK_NEWLINE || tok == token::TOK_ASSIGN || tok == token::TOK_PLUS || tok == token::TOK_MINUS || tok == token::TOK_MULT || tok == token::TOK_DIV || tok == token::TOK_REF || tok == token::TOK_CMP_LT || tok == token::TOK_CMP_GT || tok == token::TOK_CMP_EQ || tok == token::TOK_CMP_NEQ || tok == token::TOK_LPAREN || tok == token::TOK_RPAREN || tok == token::TOK_LBRACKET || tok == token::TOK_RBRACKET || tok == token::TOK_SEMI || tok == token::TOK_COLON);
       }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
       {
-        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_IFTRUE || tok == token::TOK_IFFALSE || tok == token::TOK_GOTO || tok == token::TOK_HALT || tok == token::TOK_CALL || tok == token::TOK_PARAM || tok == token::TOK_NOP || tok == token::TOK_NEWLINE || tok == token::TOK_ASSIGN || tok == token::TOK_PLUS || tok == token::TOK_MINUS || tok == token::TOK_MULT || tok == token::TOK_DIV || tok == token::TOK_CMP_LT || tok == token::TOK_CMP_GT || tok == token::TOK_CMP_EQ || tok == token::TOK_CMP_NEQ || tok == token::TOK_LPAREN || tok == token::TOK_RPAREN || tok == token::TOK_LBRACKET || tok == token::TOK_RBRACKET || tok == token::TOK_SEMI || tok == token::TOK_COLON);
+        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_IFTRUE || tok == token::TOK_IFFALSE || tok == token::TOK_GOTO || tok == token::TOK_HALT || tok == token::TOK_CALL || tok == token::TOK_PARAM || tok == token::TOK_NOP || tok == token::TOK_RETURN || tok == token::TOK_NEWLINE || tok == token::TOK_ASSIGN || tok == token::TOK_PLUS || tok == token::TOK_MINUS || tok == token::TOK_MULT || tok == token::TOK_DIV || tok == token::TOK_REF || tok == token::TOK_CMP_LT || tok == token::TOK_CMP_GT || tok == token::TOK_CMP_EQ || tok == token::TOK_CMP_NEQ || tok == token::TOK_LPAREN || tok == token::TOK_RPAREN || tok == token::TOK_LBRACKET || tok == token::TOK_RBRACKET || tok == token::TOK_SEMI || tok == token::TOK_COLON);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1098,6 +1097,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_RETURN (location_type l)
+      {
+        return symbol_type (token::TOK_RETURN, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_RETURN (const location_type& l)
+      {
+        return symbol_type (token::TOK_RETURN, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_NEWLINE (location_type l)
       {
         return symbol_type (token::TOK_NEWLINE, std::move (l));
@@ -1183,6 +1197,21 @@ switch (yykind)
       make_DIV (const location_type& l)
       {
         return symbol_type (token::TOK_DIV, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_REF (location_type l)
+      {
+        return symbol_type (token::TOK_REF, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_REF (const location_type& l)
+      {
+        return symbol_type (token::TOK_REF, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -1724,7 +1753,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 67,     ///< Last index in yytable_.
+      yylast_ = 69,     ///< Last index in yytable_.
       yynnts_ = 13,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
@@ -1894,7 +1923,7 @@ switch (yykind)
   }
 
 } // yy
-#line 1898 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
+#line 1927 "D:/programming/c/tac_parser/cmake-build-debug/parser.hpp"
 
 
 

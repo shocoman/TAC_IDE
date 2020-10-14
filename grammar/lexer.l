@@ -1,14 +1,11 @@
 %{
-    #pragma warning (disable : 4005)
-    #include <cerrno>
+    //#pragma warning (disable : 4005)
     #include <climits>
-    #include <cstdlib>
     #include <cstring>
     #include <string>
     #include <functional>
     #include <map>
-    #include "driver.hpp"
-    #include "parser.hpp"
+    #include "../driver/driver.hpp"
 %}
 
 %option noyywrap nounput noinput batch debug
@@ -24,6 +21,8 @@ id  [a-zA-Z$_][a-zA-Z_0-9]*
 int [0-9]+
 float {int}\.{int}?
 blank [ \t\r]
+line_comment "//".*\n
+only_newline ^{blank}*\n$
 
 %%
 
@@ -32,21 +31,22 @@ blank [ \t\r]
     loc.step();
 %}
 
-{blank}+    loc.step();
-\n+         { loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc); }
-
+{only_newline}*             loc.lines(yyleng); loc.step();
+\n                          loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc);
+{blank}+                    loc.step();
+{line_comment}              loc.step();
 
 "="     return yy::parser::make_ASSIGN(loc);
 "+"     return yy::parser::make_PLUS(loc);
 "-"     return yy::parser::make_MINUS(loc);
 "*"     return yy::parser::make_MULT(loc);
 "/"     return yy::parser::make_DIV(loc);
+"&"     return yy::parser::make_REF(loc);
 
 "<"     return yy::parser::make_CMP_LT(loc);
 ">"     return yy::parser::make_CMP_GT(loc);
 "=="    return yy::parser::make_CMP_EQ(loc);
 "!="    return yy::parser::make_CMP_NEQ(loc);
-
 
 
 ";"     return yy::parser::make_SEMI(loc);
@@ -91,6 +91,7 @@ yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::
             {"param", yy::parser::make_PARAM },
             {"call", yy::parser::make_CALL },
             {"nop", yy::parser::make_NOP },
+            {"return", yy::parser::make_RETURN },
     };
 
     if (auto f = keywords.find(s); f != keywords.end()) return f->second(loc);
@@ -100,6 +101,7 @@ yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::
 void driver::scan_begin()
 {
     yy_flex_debug = trace_scanning;
+    // yy_flex_debug = 1;
     if (file.empty() || file == "-")
         yyin = stdin;
     else if (!(yyin = fopen(file.c_str(), "r")))

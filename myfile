@@ -1,19 +1,19 @@
-  a = 3
-  b = 0
-  $t0 = a<5
-$L0:
-  ifFalse $t1 goto $L0
-  b = 1
-  goto $L2
-$L1:
-  b = 2
-  b = 2
-  b = 2
-  b = 2
-  b = 2
-  b = 2
-  goto $L3
-$L2:
-  halt
-$L3:
-  W=W
+
+// 'a' to the power of 'b'
+    a = 4
+    b=4
+    b = 6 - a
+    tmp = a
+$LOOP_START:
+    rel = b == 0
+    if rel goto $END
+
+    tmp = tmp * a
+    a = b + 2
+    z = b
+    b = b - 1
+    goto $LOOP_START
+    a=b
+    a=b
+$END:
+    return
