@@ -15,7 +15,7 @@
 
 class DotWriter {
     std::map<std::string, std::string> node_names;
-    std::map<std::string, std::vector<std::string>> node_texts;
+    std::vector<std::pair<std::string, std::vector<std::string>>> node_texts;
     std::vector<std::tuple<std::string, std::string, std::string>> edges;
 
 public:

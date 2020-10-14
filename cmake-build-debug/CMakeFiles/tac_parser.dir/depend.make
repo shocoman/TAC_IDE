@@ -42,6 +42,7 @@ CMakeFiles/tac_parser.dir/main.cpp.obj: C:/Program\ Files/Graphviz\ 2.44.1/inclu
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../DotWriter/DotWriter.h
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../driver/driver.hpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../main.cpp
+CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/LoopFinder.cpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/dataflow_graph.hpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/quadruple.hpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: location.hh
@@ -52,6 +53,8 @@ CMakeFiles/tac_parser.dir/parser.cpp.obj: parser.cpp
 CMakeFiles/tac_parser.dir/parser.cpp.obj: parser.hpp
 CMakeFiles/tac_parser.dir/parser.cpp.obj: ../driver/driver.hpp
 CMakeFiles/tac_parser.dir/parser.cpp.obj: ../tac_worker/quadruple.hpp
+
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: ../tac_worker/LoopFinder.cpp
 
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: C:/Program\ Files/Graphviz\ 2.44.1/include/graphviz/arith.h
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: C:/Program\ Files/Graphviz\ 2.44.1/include/graphviz/cdt.h
@@ -65,6 +68,7 @@ CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: C:/Program\ Files/G
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: C:/Program\ Files/Graphviz\ 2.44.1/include/graphviz/types.h
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: C:/Program\ Files/Graphviz\ 2.44.1/include/graphviz/usershape.h
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../DotWriter/DotWriter.h
+CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/LoopFinder.cpp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/dataflow_graph.cpp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/dataflow_graph.hpp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/quadruple.hpp

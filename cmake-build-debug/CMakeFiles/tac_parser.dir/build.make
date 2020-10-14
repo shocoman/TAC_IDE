@@ -143,10 +143,24 @@ CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.s"
 	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp -o CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.s
 
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: ../tac_worker/LoopFinder.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj"
+	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.obj -c D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp
+
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.i"
+	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp > CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.i
+
+CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.s"
+	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.s
+
 CMakeFiles/tac_parser.dir/parser.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/parser.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/parser.cpp.obj: parser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tac_parser.dir/parser.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tac_parser.dir/parser.cpp.obj"
 	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\parser.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\parser.cpp
 
 CMakeFiles/tac_parser.dir/parser.cpp.i: cmake_force
@@ -161,7 +175,7 @@ CMakeFiles/tac_parser.dir/lexer.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: lexer.cpp
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: parser.hpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tac_parser.dir/lexer.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tac_parser.dir/lexer.cpp.obj"
 	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\lexer.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp
 
 CMakeFiles/tac_parser.dir/lexer.cpp.i: cmake_force
@@ -178,6 +192,7 @@ tac_parser_OBJECTS = \
 "CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj" \
 "CMakeFiles/tac_parser.dir/driver/driver.cpp.obj" \
 "CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj" \
+"CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj" \
 "CMakeFiles/tac_parser.dir/parser.cpp.obj" \
 "CMakeFiles/tac_parser.dir/lexer.cpp.obj"
 
@@ -188,6 +203,7 @@ tac_parser.exe: CMakeFiles/tac_parser.dir/main.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/driver/driver.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj
+tac_parser.exe: CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/parser.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/lexer.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/build.make
@@ -198,7 +214,7 @@ tac_parser.exe: D:/programming/_mingw730_64/lib/pathplan.lib
 tac_parser.exe: CMakeFiles/tac_parser.dir/linklibs.rsp
 tac_parser.exe: CMakeFiles/tac_parser.dir/objects1.rsp
 tac_parser.exe: CMakeFiles/tac_parser.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable tac_parser.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable tac_parser.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\tac_parser.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

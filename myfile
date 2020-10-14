@@ -1,5 +1,6 @@
 
 // 'a' to the power of 'b'
+$START:
     a = 4
     b=4
     b = 6 - a
@@ -12,8 +13,7 @@ $LOOP_START:
     a = b + 2
     z = b
     b = b - 1
-    goto $LOOP_START
-    a=b
-    a=b
+    if 0 goto $LOOP_START
+    goto $START
 $END:
     return

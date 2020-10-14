@@ -12,8 +12,14 @@ void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &node
 
 
 void add_exit_block(std::vector<std::unique_ptr<Node>> &nodes) {
+    auto entry_block = std::make_unique<Node>();
+    entry_block->node_name = "Entry block";
+    entry_block->id = 0;
+    entry_block->add_successor(nodes.front().get());
+
     auto exit_node = std::make_unique<Node>();
     exit_node->node_name = "Exit block";
+    exit_node->id = nodes.back()->id+1;
     exit_node->quads.emplace_back(Quadruple({}, {}, OperationType::Return));
 
     // find blocks without successors (ending blocks) and connect them with exit block
@@ -23,7 +29,41 @@ void add_exit_block(std::vector<std::unique_ptr<Node>> &nodes) {
         }
     }
 
-    nodes.emplace_back(std::move(exit_node));
+    nodes.insert(nodes.begin(), std::move(entry_block));
+    nodes.push_back(std::move(exit_node));
+}
+
+
+void print_loops(std::vector<std::unique_ptr<Node>> &nodes) {
+
+    // generate ids for node names
+    std::map<int, std::string> name_by_id;
+    std::map<std::string, int> id_by_name;
+    int counter = 0;
+    for (const auto &n: nodes) {
+        name_by_id[counter] = n->node_name;
+        id_by_name[n->node_name] = counter;
+        ++counter;
+    }
+
+    std::map<int, std::list<int>> adjacency_list;
+    for (const auto &n: nodes) {
+        adjacency_list[id_by_name[n->node_name]] = {};
+        for (const auto &s: n->successors) {
+            adjacency_list[id_by_name[n->node_name]].emplace_back(id_by_name[s->node_name]);
+        }
+    }
+
+    LoopFinder l = LoopFinder(adjacency_list);
+    l.find();
+
+    std::cout << "Loops: " << std::endl;
+    for (const auto &loop : l.loops) {
+        for (const auto &i : loop) {
+            std::cout << name_by_id.at(i) << " -> ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quadruple> &&quads) {
@@ -48,11 +88,12 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quadruple> &&quad
     remove_blocks_without_predecessors(nodes);
     add_exit_block(nodes);
 //    constant_folding(nodes);
-    liveness_analyses(nodes);
-
+//    liveness_analyses(nodes);
+    print_loops(nodes);
 
     print_cfg(nodes, "after.png");
 }
+
 
 void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &nodes) {
     for (int i = nodes.size() - 1; i > 0; --i) {
@@ -157,7 +198,7 @@ void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, std::string file
     DotWriter dot_writer;
     std::set<std::string> visited;
     // print edges
-    for (auto &n : nodes) {
+    for (const auto &n : nodes) {
         if (visited.find(n->node_name) == visited.end()) {
             visited.insert(n->node_name);
 
@@ -223,6 +264,7 @@ auto get_basicblocks_from_indices(const std::vector<Quadruple> &quads,
                 nodes.emplace_back(curr_node);
             }
             curr_node = new Node();
+            curr_node->id = node_number;
             curr_node->node_name = "Node " + std::to_string(node_number++);
 
             if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())

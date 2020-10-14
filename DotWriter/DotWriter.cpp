@@ -14,7 +14,7 @@ void DotWriter::set_node_name(const std::string &node, const std::string &name) 
 }
 
 void DotWriter::set_node_text(const std::string &node_name, const std::vector<std::string> &lines) {
-    node_texts.emplace(node_name, lines);
+    node_texts.emplace_back(node_name, lines);
 }
 
 void DotWriter::write_dot_to_file(const std::string &filename) {
@@ -80,6 +80,7 @@ void DotWriter::render_to_file(const std::string &filename) {
 
     GVC_t *gvc = gvContext();
     Agraph_t *g = agopen((char *) "g", Agdirected, nullptr);
+
 
     for (auto &[node, label_lines] : node_texts) {
         std::string final_label;

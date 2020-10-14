@@ -82,12 +82,28 @@ iostream
 gvc.h
 -
 
+D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
+vector
+-
+iostream
+-
+algorithm
+-
+list
+-
+map
+-
+
 D:/programming/c/tac_parser/tac_worker/dataflow_graph.cpp
 dataflow_graph.hpp
 D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
 
 D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
 set
+-
+list
+-
+map
 -
 algorithm
 -
@@ -97,6 +113,8 @@ quadruple.hpp
 D:/programming/c/tac_parser/tac_worker/quadruple.hpp
 ../DotWriter/DotWriter.h
 D:/programming/c/tac_parser/DotWriter/DotWriter.h
+../tac_worker/LoopFinder.cpp
+D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
 
 D:/programming/c/tac_parser/tac_worker/quadruple.hpp
 string

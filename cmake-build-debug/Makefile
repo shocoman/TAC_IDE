@@ -277,6 +277,33 @@ parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\tac_parser.dir\build.make CMakeFiles/tac_parser.dir/parser.cpp.s
 .PHONY : parser.cpp.s
 
+tac_worker/LoopFinder.obj: tac_worker/LoopFinder.cpp.obj
+
+.PHONY : tac_worker/LoopFinder.obj
+
+# target to build an object file
+tac_worker/LoopFinder.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tac_parser.dir\build.make CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj
+.PHONY : tac_worker/LoopFinder.cpp.obj
+
+tac_worker/LoopFinder.i: tac_worker/LoopFinder.cpp.i
+
+.PHONY : tac_worker/LoopFinder.i
+
+# target to preprocess a source file
+tac_worker/LoopFinder.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tac_parser.dir\build.make CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.i
+.PHONY : tac_worker/LoopFinder.cpp.i
+
+tac_worker/LoopFinder.s: tac_worker/LoopFinder.cpp.s
+
+.PHONY : tac_worker/LoopFinder.s
+
+# target to generate assembly for a file
+tac_worker/LoopFinder.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\tac_parser.dir\build.make CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.s
+.PHONY : tac_worker/LoopFinder.cpp.s
+
 tac_worker/dataflow_graph.obj: tac_worker/dataflow_graph.cpp.obj
 
 .PHONY : tac_worker/dataflow_graph.obj
@@ -328,6 +355,9 @@ help:
 	@echo ... parser.obj
 	@echo ... parser.i
 	@echo ... parser.s
+	@echo ... tac_worker/LoopFinder.obj
+	@echo ... tac_worker/LoopFinder.i
+	@echo ... tac_worker/LoopFinder.s
 	@echo ... tac_worker/dataflow_graph.obj
 	@echo ... tac_worker/dataflow_graph.i
 	@echo ... tac_worker/dataflow_graph.s

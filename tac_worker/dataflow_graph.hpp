@@ -2,19 +2,28 @@
 #define TAC_PARSER_DATAFLOW_GRAPH_HPP
 
 #include <set>
+#include <list>
+#include <map>
+
 #include <algorithm>
 #include <memory>
 
 #include "quadruple.hpp"
 #include "../DotWriter/DotWriter.h"
+#include "../tac_worker/LoopFinder.cpp"
 
 struct Node {
+    int id;
     std::string node_name;
     std::optional<std::string> lbl_name;
     std::vector<Quadruple> quads;
     std::optional<std::string> jumps_to;
     std::set<Node *> successors;
     std::set<Node *> predecessors;
+
+    std::string get_name() {
+        return "Node " + std::to_string(id);
+    }
 
     std::string fmt() const
     {

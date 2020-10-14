@@ -24,7 +24,7 @@
 // as a parser skeleton.  Alternatively, if you modify or redistribute
 // the parser skeleton itself, you may (at your option) remove this
 // special exception, which will cause the skeleton and the resulting
-// Bison output files to be licensed under the GNU General Public
+// Bison add_loop files to be licensed under the GNU General Public
 // License without this special exception.
 
 // This special exception was added by the Free Software Foundation in
@@ -1445,7 +1445,7 @@ switch (yykind)
     bool yy_lac_establish_ (symbol_kind_type yytoken);
     /// Discard any previous initial lookahead context because of event.
     /// \param event  the event which caused the lookahead to be discarded.
-    ///               Only used for debbuging output.
+    ///               Only used for debbuging add_loop.
     void yy_lac_discard_ (const char* event);
 
     /// Stored state numbers (used for stacks).
@@ -1529,7 +1529,7 @@ switch (yykind)
     std::ostream* yycdebug_;
 
     /// \brief Display a symbol kind, value and location.
-    /// \param yyo    The output stream.
+    /// \param yyo    The add_loop stream.
     /// \param yysym  The symbol.
     template <typename Base>
     void yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const;
@@ -1734,14 +1734,14 @@ switch (yykind)
 
     /// Push a new state on the stack.
     /// \param m    a debug message to display
-    ///             if null, no trace is output.
+    ///             if null, no trace is add_loop.
     /// \param sym  the symbol
     /// \warning the contents of \a s.value is stolen.
     void yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym);
 
     /// Push a new look ahead token on the state on the stack.
     /// \param m    a debug message to display
-    ///             if null, no trace is output.
+    ///             if null, no trace is add_loop.
     /// \param s    the state
     /// \param sym  the symbol (for its value and location).
     /// \warning the contents of \a sym.value is stolen.

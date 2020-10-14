@@ -24,7 +24,7 @@
 // as a parser skeleton.  Alternatively, if you modify or redistribute
 // the parser skeleton itself, you may (at your option) remove this
 // special exception, which will cause the skeleton and the resulting
-// Bison output files to be licensed under the GNU General Public
+// Bison add_loop files to be licensed under the GNU General Public
 // License without this special exception.
 
 // This special exception was added by the Free Software Foundation in
@@ -1088,7 +1088,7 @@ namespace yy {
 
 #if YYDEBUG
     // Execute LAC once. We don't care if it is successful, we
-    // only do it for the sake of debugging output.
+    // only do it for the sake of debugging add_loop.
     if (!yyparser_.yy_lac_established_)
       yyparser_.yy_lac_check_ (yyla_.kind ());
 #endif

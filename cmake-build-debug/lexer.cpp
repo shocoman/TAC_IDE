@@ -678,7 +678,7 @@ static int input ( void );
 #endif /* __ia64__ */
 #endif
 
-/* Copy whatever the last rule matched to the standard output. */
+/* Copy whatever the last rule matched to the standard add_loop. */
 #ifndef ECHO
 /* %if-c-only Standard (non-C++) definition */
 /* This used to be an fputs(), but since the string might contain NUL's,
@@ -1986,7 +1986,7 @@ FILE *yyget_in  (void)
         return yyin;
 }
 
-/** Get the output stream.
+/** Get the add_loop stream.
  * 
  */
 FILE *yyget_out  (void)
