@@ -44,6 +44,7 @@ CMakeFiles/tac_parser.dir/main.cpp.obj
  D:/programming/c/tac_parser/driver/driver.hpp
  D:/programming/c/tac_parser/main.cpp
  D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
+ D:/programming/c/tac_parser/tac_worker/dag.h
  D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
  D:/programming/c/tac_parser/tac_worker/quadruple.hpp
  location.hh

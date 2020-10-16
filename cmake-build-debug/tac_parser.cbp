@@ -117,6 +117,9 @@
 		<Unit filename="D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
+		<Unit filename="D:/programming/c/tac_parser/tac_worker/dag.h">
+			<Option target="tac_parser"/>
+		</Unit>
 		<Unit filename="D:/programming/c/tac_parser/tac_worker/dataflow_graph.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
