@@ -11,12 +11,14 @@
 #include "quadruple.hpp"
 #include "../DotWriter/DotWriter.h"
 #include "../tac_worker/LoopFinder.cpp"
+#include "../tac_worker/local_value_numbering.h"
+
 
 struct Node {
     int id;
     std::string node_name;
     std::optional<std::string> lbl_name;
-    std::vector<Quadruple> quads;
+    std::vector<Quad> quads;
     std::optional<std::string> jumps_to;
     std::set<Node *> successors;
     std::set<Node *> predecessors;
@@ -49,8 +51,8 @@ struct Node {
 
     bool allows_fallthrough()
     {
-        return quads.back().operation != OperationType::Goto
-               && quads.back().operation != OperationType::Return;
+        return quads.back().type != Quad::Type::Goto
+               && quads.back().type != Quad::Type::Return;
     }
 };
 
@@ -60,18 +62,18 @@ void print_nodes(const std::vector<std::unique_ptr<Node>> &nodes);
 void add_successors(std::vector<std::unique_ptr<Node>> &nodes);
 
 
-auto get_basicblocks_from_indices(const std::vector<Quadruple> &quads, std::map<int, std::string> &labels_rev,
+auto get_basicblocks_from_indices(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev,
                                   std::map<int, std::optional<std::string>> &leader_indexes)
 -> std::vector<std::unique_ptr<Node>>;
 
-auto get_leading_quads_indices(const std::vector<Quadruple> &quads,
+auto get_leading_quads_indices(const std::vector<Quad> &quads,
                                std::map<int, std::string> &) -> std::map<int, std::optional<std::string>>;
 
-void print_quads(const std::vector<Quadruple> &quads, std::map<int, std::string> &labels_rev);
+void print_quads(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev);
 
 
-void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, std::string filename);
+void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, const std::string& filename);
 
-void make_cfg(std::map<std::string, int> &&labels, std::vector<Quadruple> &&quads);
+void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads);
 
 #endif //TAC_PARSER_DATAFLOW_GRAPH_HPP

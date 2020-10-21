@@ -61,10 +61,10 @@
 %token <double> FLOAT "float"
 
 
-%nterm <Destination> dest
-%nterm <Quadruple> value quadruple if_statement goto assignment
+%nterm <Dest> dest
+%nterm <Quad> value quadruple if_statement goto assignment
 %nterm <std::string> term label
-//%nterm <std::vector<Quadruple>> stmts
+//%nterm <std::vector<Quad>> stmts
 
 %left "<" ">" "==" "!="
 %left "+" "-";
@@ -92,31 +92,31 @@ quadruple:
     assignment
 |   if_statement
 |   goto
-|   "halt"                          { $$ = Quadruple({}, {}, OperationType::Halt); };
-|   "param" term                    { $$ = Quadruple($term, {}, OperationType::Param); };
-|   "call"  "identifier"[id] term   { $$ = Quadruple($id, $term, OperationType::Call); };
-|   "nop"                           { $$ = Quadruple({}, {}, OperationType::Nop); };
-|   "return"        { $$ = Quadruple({}, {}, OperationType::Return); };
+|   "halt"                          { $$ = Quad({}, {}, Quad::Type::Halt); };
+|   "param" term                    { $$ = Quad($term, {}, Quad::Type::Param); };
+|   "call"  "identifier"[id] term   { $$ = Quad($id, $term, Quad::Type::Call); };
+|   "nop"                           { $$ = Quad({}, {}, Quad::Type::Nop); };
+|   "return"        { $$ = Quad({}, {}, Quad::Type::Return); };
 ;
 
 assignment: dest "=" value { $value.dest = $dest; $$ = $value; };
 
 if_statement:
-    "if" term "goto" "identifier"[id]        { $$ = Quadruple($term, {}, OperationType::IfTrue);
-                                                $$.dest = Destination($id, {}, DestinationType::JumpLabel); }
-|   "ifFalse" term "goto" "identifier"[id]   { $$ = Quadruple($term, {}, OperationType::IfFalse);
-                                                $$.dest = Destination($id, {}, DestinationType::JumpLabel);}
+    "if" term "goto" "identifier"[id]        { $$ = Quad($term, {}, Quad::Type::IfTrue);
+                                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel); }
+|   "ifFalse" term "goto" "identifier"[id]   { $$ = Quad($term, {}, Quad::Type::IfFalse);
+                                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel);}
 ;
 
-goto: "goto" "identifier"[id]   { $$ = Quadruple({}, {}, OperationType::Goto);
-                                $$.dest = Destination($id, {}, DestinationType::JumpLabel);};
+goto: "goto" "identifier"[id]   { $$ = Quad({}, {}, Quad::Type::Goto);
+                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel);};
 
 
 
 dest:
-    "identifier"                { $$ = Destination($1, {}, DestinationType::Var); }
-|   "*" "identifier"            { $$ = Destination($2, {}, DestinationType::Deref); }
-|   "identifier" "[" term "]"   { $$ = Destination($1, $term, DestinationType::ArraySet); }
+    "identifier"                { $$ = Dest($1, {}, Dest::Type::Var); }
+|   "*" "identifier"            { $$ = Dest($2, {}, Dest::Type::Deref); }
+|   "identifier" "[" term "]"   { $$ = Dest($1, $term, Dest::Type::ArraySet); }
 
 label:
     "identifier" ":" { $$ = $1; }
@@ -124,19 +124,19 @@ label:
 
 
 value:
-    term                    { $$ = Quadruple($1, {}, OperationType::Copy); }
-|   "*" term                { $$ = Quadruple($2, {}, OperationType::Deref); }
-|   "-" term                { $$ = Quadruple($2, {}, OperationType::UMinus); }
-|   "&" term                { $$ = Quadruple($2, {}, OperationType::Ref); }
-|   term "[" term "]"       { $$ = Quadruple($1, $3, OperationType::ArrayGet); }
-|   term "+"  term          { $$ = Quadruple($1, $3, OperationType::Add); }
-|   term "-"  term          { $$ = Quadruple($1, $3, OperationType::Sub); }
-|   term "*"  term          { $$ = Quadruple($1, $3, OperationType::Mult); }
-|   term "/"  term          { $$ = Quadruple($1, $3, OperationType::Div); }
-|   term "<"  term          { $$ = Quadruple($1, $3, OperationType::Lt); }
-|   term ">"  term          { $$ = Quadruple($1, $3, OperationType::Gt); }
-|   term "==" term          { $$ = Quadruple($1, $3, OperationType::Eq); }
-|   term "!=" term          { $$ = Quadruple($1, $3, OperationType::Neq); }
+    term                    { $$ = Quad($1, {}, Quad::Type::Assign); }
+|   "*" term                { $$ = Quad($2, {}, Quad::Type::Deref); }
+|   "-" term                { $$ = Quad($2, {}, Quad::Type::UMinus); }
+|   "&" term                { $$ = Quad($2, {}, Quad::Type::Ref); }
+|   term "[" term "]"       { $$ = Quad($1, $3, Quad::Type::ArrayGet); }
+|   term "+"  term          { $$ = Quad($1, $3, Quad::Type::Add); }
+|   term "-"  term          { $$ = Quad($1, $3, Quad::Type::Sub); }
+|   term "*"  term          { $$ = Quad($1, $3, Quad::Type::Mult); }
+|   term "/"  term          { $$ = Quad($1, $3, Quad::Type::Div); }
+|   term "<"  term          { $$ = Quad($1, $3, Quad::Type::Lt); }
+|   term ">"  term          { $$ = Quad($1, $3, Quad::Type::Gt); }
+|   term "==" term          { $$ = Quad($1, $3, Quad::Type::Eq); }
+|   term "!=" term          { $$ = Quad($1, $3, Quad::Type::Neq); }
 ;
 
 term:

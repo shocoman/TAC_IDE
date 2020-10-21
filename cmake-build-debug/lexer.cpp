@@ -678,7 +678,7 @@ static int input ( void );
 #endif /* __ia64__ */
 #endif
 
-/* Copy whatever the last rule matched to the standard add_loop. */
+/* Assign whatever the last rule matched to the standard add_loop. */
 #ifndef ECHO
 /* %if-c-only Standard (non-C++) definition */
 /* This used to be an fputs(), but since the string might contain NUL's,

@@ -2,13 +2,11 @@
 
 #include "driver/driver.hpp"
 #include "tac_worker/dataflow_graph.hpp"
-#include "tac_worker/dag.h"
 
 int main(int argc, char *argv[]) {
 
-    test();
 
-    exit(999);
+
 
     int res = 0;
     driver drv;

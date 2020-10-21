@@ -43,8 +43,8 @@ CMakeFiles/tac_parser.dir/main.cpp.obj: ../DotWriter/DotWriter.h
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../driver/driver.hpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../main.cpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/LoopFinder.cpp
-CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/dag.h
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/dataflow_graph.hpp
+CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/local_value_numbering.h
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../tac_worker/quadruple.hpp
 CMakeFiles/tac_parser.dir/main.cpp.obj: location.hh
 CMakeFiles/tac_parser.dir/main.cpp.obj: parser.hpp
@@ -72,5 +72,6 @@ CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../DotWriter/DotWri
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/LoopFinder.cpp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/dataflow_graph.cpp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/dataflow_graph.hpp
+CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/local_value_numbering.h
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/quadruple.hpp
 

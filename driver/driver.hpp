@@ -10,14 +10,14 @@
     yy::parser::symbol_type yylex (driver& drv)
 YY_DECL;
 
-struct Quadruple;
+struct Quad;
 
 struct driver {
     driver();
 
     std::map<std::string, int> variables;
     std::map<std::string, int> labels;
-    std::vector<Quadruple> quadruples;
+    std::vector<Quad> quadruples;
 
     int result;
 

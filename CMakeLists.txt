@@ -8,7 +8,7 @@ set(SOURCE_FILES
         main.cpp
         DotWriter/DotWriter.cpp
         driver/driver.cpp
-        tac_worker/dataflow_graph.cpp tac_worker/LoopFinder.cpp tac_worker/dag.h)
+        tac_worker/dataflow_graph.cpp tac_worker/LoopFinder.cpp tac_worker/local_value_numbering.h)
 
 # Flex/Bison
 find_package(BISON)

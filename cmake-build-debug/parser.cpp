@@ -24,7 +24,7 @@
 // as a parser skeleton.  Alternatively, if you modify or redistribute
 // the parser skeleton itself, you may (at your option) remove this
 // special exception, which will cause the skeleton and the resulting
-// Bison add_loop files to be licensed under the GNU General Public
+// Bison output files to be licensed under the GNU General Public
 // License without this special exception.
 
 // This special exception was added by the Free Software Foundation in
@@ -208,7 +208,7 @@ namespace yy {
     switch (that.kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.YY_MOVE_OR_COPY< Destination > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< Dest > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_value: // value
@@ -216,7 +216,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.YY_MOVE_OR_COPY< Quadruple > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< Quad > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -249,7 +249,7 @@ namespace yy {
     switch (that.kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.move< Destination > (YY_MOVE (that.value));
+        value.move< Dest > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_value: // value
@@ -257,7 +257,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.move< Quadruple > (YY_MOVE (that.value));
+        value.move< Quad > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -290,7 +290,7 @@ namespace yy {
     switch (that.kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.copy< Destination > (that.value);
+        value.copy< Dest > (that.value);
         break;
 
       case symbol_kind::S_value: // value
@@ -298,7 +298,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.copy< Quadruple > (that.value);
+        value.copy< Quad > (that.value);
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -330,7 +330,7 @@ namespace yy {
     switch (that.kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.move< Destination > (that.value);
+        value.move< Dest > (that.value);
         break;
 
       case symbol_kind::S_value: // value
@@ -338,7 +338,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.move< Quadruple > (that.value);
+        value.move< Quad > (that.value);
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -625,7 +625,7 @@ namespace yy {
       switch (yyr1_[yyn])
     {
       case symbol_kind::S_dest: // dest
-        yylhs.value.emplace< Destination > ();
+        yylhs.value.emplace< Dest > ();
         break;
 
       case symbol_kind::S_value: // value
@@ -633,7 +633,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        yylhs.value.emplace< Quadruple > ();
+        yylhs.value.emplace< Quad > ();
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -678,100 +678,100 @@ namespace yy {
 
   case 5: // stmt: quadruple newlines
 #line 85 "D:/programming/c/tac_parser/grammar/parser.y"
-                           { drv.quadruples.push_back(yystack_[1].value.as < Quadruple > ()); }
+                           { drv.quadruples.push_back(yystack_[1].value.as < Quad > ()); }
 #line 683 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 11: // quadruple: assignment
 #line 92 "D:/programming/c/tac_parser/grammar/parser.y"
-    { yylhs.value.as < Quadruple > () = yystack_[0].value.as < Quadruple > (); }
+    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 689 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 12: // quadruple: if_statement
 #line 93 "D:/programming/c/tac_parser/grammar/parser.y"
-    { yylhs.value.as < Quadruple > () = yystack_[0].value.as < Quadruple > (); }
+    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 695 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 13: // quadruple: goto
 #line 94 "D:/programming/c/tac_parser/grammar/parser.y"
-    { yylhs.value.as < Quadruple > () = yystack_[0].value.as < Quadruple > (); }
+    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 701 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 14: // quadruple: "halt"
 #line 95 "D:/programming/c/tac_parser/grammar/parser.y"
-                                    { yylhs.value.as < Quadruple > () = Quadruple({}, {}, OperationType::Halt); }
+                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Halt); }
 #line 707 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 15: // quadruple: "param" term
 #line 96 "D:/programming/c/tac_parser/grammar/parser.y"
-                                    { yylhs.value.as < Quadruple > () = Quadruple(yystack_[0].value.as < std::string > (), {}, OperationType::Param); }
+                                    { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Param); }
 #line 713 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 16: // quadruple: "call" "identifier" term
 #line 97 "D:/programming/c/tac_parser/grammar/parser.y"
-                                    { yylhs.value.as < Quadruple > () = Quadruple(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Call); }
+                                    { yylhs.value.as < Quad > () = Quad(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Call); }
 #line 719 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 17: // quadruple: "nop"
 #line 98 "D:/programming/c/tac_parser/grammar/parser.y"
-                                    { yylhs.value.as < Quadruple > () = Quadruple({}, {}, OperationType::Nop); }
+                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Nop); }
 #line 725 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 18: // quadruple: "return"
 #line 99 "D:/programming/c/tac_parser/grammar/parser.y"
-                    { yylhs.value.as < Quadruple > () = Quadruple({}, {}, OperationType::Return); }
+                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Return); }
 #line 731 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 19: // assignment: dest "=" value
 #line 102 "D:/programming/c/tac_parser/grammar/parser.y"
-                           { yystack_[0].value.as < Quadruple > ().dest = yystack_[2].value.as < Destination > (); yylhs.value.as < Quadruple > () = yystack_[0].value.as < Quadruple > (); }
+                           { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 737 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 20: // if_statement: "if" term "goto" "identifier"
 #line 105 "D:/programming/c/tac_parser/grammar/parser.y"
-                                             { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), {}, OperationType::IfTrue);
-                                                yylhs.value.as < Quadruple > ().dest = Destination(yystack_[0].value.as < std::string > (), {}, DestinationType::JumpLabel); }
+                                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfTrue);
+                                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel); }
 #line 744 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 21: // if_statement: "ifFalse" term "goto" "identifier"
 #line 107 "D:/programming/c/tac_parser/grammar/parser.y"
-                                             { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), {}, OperationType::IfFalse);
-                                                yylhs.value.as < Quadruple > ().dest = Destination(yystack_[0].value.as < std::string > (), {}, DestinationType::JumpLabel);}
+                                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfFalse);
+                                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
 #line 751 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 22: // goto: "goto" "identifier"
 #line 111 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Quadruple > () = Quadruple({}, {}, OperationType::Goto);
-                                yylhs.value.as < Quadruple > ().dest = Destination(yystack_[0].value.as < std::string > (), {}, DestinationType::JumpLabel);}
+                                { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
+                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
 #line 758 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 23: // dest: "identifier"
 #line 117 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Destination > () = Destination(yystack_[0].value.as < std::string > (), {}, DestinationType::Var); }
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
 #line 764 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 24: // dest: "*" "identifier"
 #line 118 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Destination > () = Destination(yystack_[0].value.as < std::string > (), {}, DestinationType::Deref); }
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
 #line 770 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 25: // dest: "identifier" "[" term "]"
 #line 119 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Destination > () = Destination(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), DestinationType::ArraySet); }
+                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Dest::Type::ArraySet); }
 #line 776 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
@@ -783,79 +783,79 @@ namespace yy {
 
   case 27: // value: term
 #line 127 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[0].value.as < std::string > (), {}, OperationType::Copy); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Assign); }
 #line 788 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 28: // value: "*" term
 #line 128 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[0].value.as < std::string > (), {}, OperationType::Deref); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Deref); }
 #line 794 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 29: // value: "-" term
 #line 129 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[0].value.as < std::string > (), {}, OperationType::UMinus); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::UMinus); }
 #line 800 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 30: // value: "&" term
 #line 130 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[0].value.as < std::string > (), {}, OperationType::Ref); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Ref); }
 #line 806 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 31: // value: term "[" term "]"
 #line 131 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), OperationType::ArrayGet); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Quad::Type::ArrayGet); }
 #line 812 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 32: // value: term "+" term
 #line 132 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Add); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Add); }
 #line 818 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 33: // value: term "-" term
 #line 133 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Sub); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Sub); }
 #line 824 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 34: // value: term "*" term
 #line 134 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Mult); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Mult); }
 #line 830 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 35: // value: term "/" term
 #line 135 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Div); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Div); }
 #line 836 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 36: // value: term "<" term
 #line 136 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Lt); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Lt); }
 #line 842 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 37: // value: term ">" term
 #line 137 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Gt); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Gt); }
 #line 848 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 38: // value: term "==" term
 #line 138 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Eq); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Eq); }
 #line 854 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 39: // value: term "!=" term
 #line 139 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quadruple > () = Quadruple(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), OperationType::Neq); }
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Neq); }
 #line 860 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
@@ -1088,7 +1088,7 @@ namespace yy {
 
 #if YYDEBUG
     // Execute LAC once. We don't care if it is successful, we
-    // only do it for the sake of debugging add_loop.
+    // only do it for the sake of debugging output.
     if (!yyparser_.yy_lac_established_)
       yyparser_.yy_lac_check_ (yyla_.kind ());
 #endif

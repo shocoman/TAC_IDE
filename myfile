@@ -4,6 +4,7 @@ $START:
     a = 4
     b=4
     b = 6 - a
+    c = 6 - a
     tmp = a
 $LOOP_START:
     rel = b == 0

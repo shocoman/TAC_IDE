@@ -20,7 +20,7 @@ void add_exit_block(std::vector<std::unique_ptr<Node>> &nodes) {
     auto exit_node = std::make_unique<Node>();
     exit_node->node_name = "Exit block";
     exit_node->id = nodes.back()->id+1;
-    exit_node->quads.emplace_back(Quadruple({}, {}, OperationType::Return));
+    exit_node->quads.emplace_back(Quad({}, {}, Quad::Type::Return));
 
     // find blocks without successors (ending blocks) and connect them with exit block
     for (auto &n : nodes) {
@@ -66,33 +66,6 @@ void print_loops(std::vector<std::unique_ptr<Node>> &nodes) {
     }
 }
 
-void make_cfg(std::map<std::string, int> &&labels, std::vector<Quadruple> &&quads) {
-    // revert map of labels
-    std::map<int, std::string> labels_rev;
-    for (auto &[a, b] : labels) {
-        labels_rev.emplace(b, a);
-    }
-
-//    print_quads(quads, labels_rev);
-
-    // gather indexes of leading blocks
-    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
-    auto nodes = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
-    add_successors(nodes);
-
-//    print_nodes(nodes);
-//    print_cfg(nodes, "before.png");
-
-
-    // remove blocks without predecessors (except the first one)
-    remove_blocks_without_predecessors(nodes);
-    add_exit_block(nodes);
-//    constant_folding(nodes);
-//    liveness_analyses(nodes);
-    print_loops(nodes);
-
-    print_cfg(nodes, "after.png");
-}
 
 
 void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &nodes) {
@@ -152,49 +125,62 @@ void liveness_analyses(const std::vector<std::unique_ptr<Node>> &nodes) {
             std::cout << n->quads[i].fmt() << ";\t";
             auto &l = block_liveness_data[i];
             for (auto &[name, liveness] : l) {
-                std::cout << "[ " << name << "; Live: " << liveness.live << "; Next use: " << liveness.next_use
-                          << " ]; ";
+                std::cout << "[ " << name << "; Live: " << liveness.live << "; Next use: " << liveness.next_use << " ]; ";
             }
             std::cout << std::endl;
         }
         std::cout << std::endl;
-    }
+
+        // remove dead quads
+//        for (int i = n->quads.size()-1; i >= 0; --i) {
+//            auto &q = n->quads[i];
+//            if (q.dest.has_value()) {
+//                std::string lhs = q.dest.value().dest_name;
+//                auto &l = block_liveness_data[i];
+//                if (!l.at(lhs).live) {
+//                    n->quads.erase(n->quads.begin() + i);
+//                }
+//            }
+//        }
+
+
+        }
 }
 
 void constant_folding(std::vector<std::unique_ptr<Node>> &nodes) {
     for (auto &n : nodes) {
         for (auto &q : n->quads) {
-            if (q.operand_1.is_number() && q.operand_2.is_number()) {
+            if (q.op1.is_number() && q.op2.is_number()) {
                 double d = 0;
-                double o1 = q.operand_1.get_double();
-                double o2 = q.operand_2.get_double();
-                switch (q.operation) {
-                    case OperationType::Add:
+                double o1 = q.op1.get_double();
+                double o2 = q.op2.get_double();
+                switch (q.type) {
+                    case Quad::Type::Add:
                         d = o1 + o2;
                         break;
-                    case OperationType::Sub:
+                    case Quad::Type::Sub:
                         d = o1 - o2;
                         break;
-                    case OperationType::Mult:
+                    case Quad::Type::Mult:
                         d = o1 * o2;
                         break;
-                    case OperationType::Div:
+                    case Quad::Type::Div:
                         d = o1 / o2;
                         break;
                 }
 
-                if (q.operand_1.is_int() && q.operand_2.is_int())
-                    q.operand_1 = Operand(std::to_string((int) d));
+                if (q.op1.is_int() && q.op2.is_int())
+                    q.op1 = Operand(std::to_string((int) d));
                 else
-                    q.operand_1 = Operand(std::to_string(d));
-                q.operation = OperationType::Copy;
+                    q.op1 = Operand(std::to_string(d));
+                q.type = Quad::Type::Assign;
             }
         }
     }
 }
 
 
-void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, std::string filename) {
+void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, const std::string& filename) {
     DotWriter dot_writer;
     std::set<std::string> visited;
     // print edges
@@ -228,7 +214,7 @@ void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, std::string file
 }
 
 
-void print_quads(const std::vector<Quadruple> &quads, std::map<int, std::string> &labels_rev) {
+void print_quads(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev) {
     for (int i = 0; i < quads.size(); i++) {
         if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
             std::cout << lbl->second << ": \n";
@@ -236,22 +222,22 @@ void print_quads(const std::vector<Quadruple> &quads, std::map<int, std::string>
     }
 }
 
-auto get_leading_quads_indices(const std::vector<Quadruple> &quads,
+auto get_leading_quads_indices(const std::vector<Quad> &quads,
                                std::map<int, std::string> &labels_rev) -> std::map<int, std::optional<std::string>> {
     std::map<int, std::optional<std::string>> leader_indexes = {{0, std::nullopt}};
     for (int i = 0; i < quads.size(); i++) {
         if (auto lbl = labels_rev.find(i); lbl != labels_rev.end()) leader_indexes.insert({i, std::nullopt});
-        switch (quads[i].operation) {
-            case OperationType::IfFalse:
-            case OperationType::IfTrue:
-            case OperationType::Goto:
+        switch (quads[i].type) {
+            case Quad::Type::IfFalse:
+            case Quad::Type::IfTrue:
+            case Quad::Type::Goto:
                 leader_indexes.insert({i + 1, quads[i].dest.value().dest_name});
         }
     }
     return leader_indexes;
 }
 
-auto get_basicblocks_from_indices(const std::vector<Quadruple> &quads,
+auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                                   std::map<int, std::string> &labels_rev,
                                   std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<Node>> {
     std::vector<std::unique_ptr<Node>> nodes;
@@ -301,4 +287,35 @@ void print_nodes(const std::vector<std::unique_ptr<Node>> &nodes) {
                   << "; Jumps to " << n->jumps_to.value_or("NONE") << "; Successors: " << n->successors.size()
                   << " \n" << n->fmt() << std::endl;
     }
+}
+
+void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
+    // revert map of labels
+    std::map<int, std::string> labels_rev;
+    for (auto &[a, b] : labels) {
+        labels_rev.emplace(b, a);
+    }
+
+//    print_quads(quads, labels_rev);
+
+    // gather indexes of leading blocks
+    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
+    auto nodes = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
+    add_successors(nodes);
+
+//    print_nodes(nodes);
+//    print_cfg(nodes, "before.png");
+
+
+    // remove blocks without predecessors (except the first one)
+    remove_blocks_without_predecessors(nodes);
+//    add_exit_block(nodes);
+//    constant_folding(nodes);
+    liveness_analyses(nodes);
+//    print_loops(nodes);
+
+//    for (auto &n : nodes)
+//        local_value_numbering(n->quads);
+
+    print_cfg(nodes, "after.png");
 }

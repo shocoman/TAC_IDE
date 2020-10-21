@@ -24,7 +24,7 @@
 // as a parser skeleton.  Alternatively, if you modify or redistribute
 // the parser skeleton itself, you may (at your option) remove this
 // special exception, which will cause the skeleton and the resulting
-// Bison add_loop files to be licensed under the GNU General Public
+// Bison output files to be licensed under the GNU General Public
 // License without this special exception.
 
 // This special exception was added by the Free Software Foundation in
@@ -353,7 +353,7 @@ namespace yy {
     }
 #endif
 
-    /// Copy the content of \a that to this.
+    /// Assign the content of \a that to this.
     template <typename T>
     void
     copy (const self_type& that)
@@ -400,14 +400,14 @@ namespace yy {
     union union_type
     {
       // dest
-      char dummy1[sizeof (Destination)];
+      char dummy1[sizeof (Dest)];
 
       // value
       // quadruple
       // if_statement
       // goto
       // assignment
-      char dummy2[sizeof (Quadruple)];
+      char dummy2[sizeof (Quad)];
 
       // "float"
       char dummy3[sizeof (double)];
@@ -597,7 +597,7 @@ namespace yy {
         switch (this->kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.move< Destination > (std::move (that.value));
+        value.move< Dest > (std::move (that.value));
         break;
 
       case symbol_kind::S_value: // value
@@ -605,7 +605,7 @@ namespace yy {
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.move< Quadruple > (std::move (that.value));
+        value.move< Quad > (std::move (that.value));
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -629,7 +629,7 @@ namespace yy {
       }
 #endif
 
-      /// Copy constructor.
+      /// Assign constructor.
       basic_symbol (const basic_symbol& that);
 
       /// Constructor for valueless symbols, and symbols from each type.
@@ -645,26 +645,26 @@ namespace yy {
       {}
 #endif
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, Destination&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, Dest&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const Destination& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const Dest& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
       {}
 #endif
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, Quadruple&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, Quad&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const Quadruple& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const Quad& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -733,7 +733,7 @@ namespace yy {
 switch (yykind)
     {
       case symbol_kind::S_dest: // dest
-        value.template destroy< Destination > ();
+        value.template destroy< Dest > ();
         break;
 
       case symbol_kind::S_value: // value
@@ -741,7 +741,7 @@ switch (yykind)
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.template destroy< Quadruple > ();
+        value.template destroy< Quad > ();
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -804,7 +804,7 @@ switch (yykind)
       by_kind (by_kind&& that);
 #endif
 
-      /// Copy constructor.
+      /// Assign constructor.
       by_kind (const by_kind& that);
 
       /// The symbol kind as needed by the constructor.
@@ -1445,7 +1445,7 @@ switch (yykind)
     bool yy_lac_establish_ (symbol_kind_type yytoken);
     /// Discard any previous initial lookahead context because of event.
     /// \param event  the event which caused the lookahead to be discarded.
-    ///               Only used for debbuging add_loop.
+    ///               Only used for debbuging output.
     void yy_lac_discard_ (const char* event);
 
     /// Stored state numbers (used for stacks).
@@ -1529,7 +1529,7 @@ switch (yykind)
     std::ostream* yycdebug_;
 
     /// \brief Display a symbol kind, value and location.
-    /// \param yyo    The add_loop stream.
+    /// \param yyo    The output stream.
     /// \param yysym  The symbol.
     template <typename Base>
     void yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const;
@@ -1555,7 +1555,7 @@ switch (yykind)
       /// Constructor.
       by_state (kind_type s) YY_NOEXCEPT;
 
-      /// Copy constructor.
+      /// Assign constructor.
       by_state (const by_state& that) YY_NOEXCEPT;
 
       /// Record that this symbol is empty.
@@ -1734,14 +1734,14 @@ switch (yykind)
 
     /// Push a new state on the stack.
     /// \param m    a debug message to display
-    ///             if null, no trace is add_loop.
+    ///             if null, no trace is output.
     /// \param sym  the symbol
     /// \warning the contents of \a s.value is stolen.
     void yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym);
 
     /// Push a new look ahead token on the state on the stack.
     /// \param m    a debug message to display
-    ///             if null, no trace is add_loop.
+    ///             if null, no trace is output.
     /// \param s    the state
     /// \param sym  the symbol (for its value and location).
     /// \warning the contents of \a sym.value is stolen.
@@ -1781,7 +1781,7 @@ switch (yykind)
     switch (this->kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.copy< Destination > (YY_MOVE (that.value));
+        value.copy< Dest > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_value: // value
@@ -1789,7 +1789,7 @@ switch (yykind)
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.copy< Quadruple > (YY_MOVE (that.value));
+        value.copy< Quad > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_FLOAT: // "float"
@@ -1836,7 +1836,7 @@ switch (yykind)
     switch (this->kind ())
     {
       case symbol_kind::S_dest: // dest
-        value.move< Destination > (YY_MOVE (s.value));
+        value.move< Dest > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_value: // value
@@ -1844,7 +1844,7 @@ switch (yykind)
       case symbol_kind::S_if_statement: // if_statement
       case symbol_kind::S_goto: // goto
       case symbol_kind::S_assignment: // assignment
-        value.move< Quadruple > (YY_MOVE (s.value));
+        value.move< Quad > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_FLOAT: // "float"

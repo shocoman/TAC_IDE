@@ -8,29 +8,22 @@
 #include <optional>
 #include <iostream>
 
-enum class OperationType {
-    Nop, Add, Sub, Mult, Div, UMinus,
-    Lt, Gt, Eq, Neq,
-    Copy, Deref, Ref, ArrayGet,
-    IfTrue, IfFalse, Goto, Halt, Call, Param, Return,
-};
 
+struct Dest {
+    enum class Type {
+        None, Var, ArraySet, Deref, JumpLabel,
+    };
 
-enum class DestinationType {
-    None, Var, ArraySet, Deref, JumpLabel,
-};
-
-struct Destination {
-    DestinationType dest_type{};
+    Type dest_type{};
     std::string dest_name;
     std::optional<std::string> element_name;
 
-    Destination(std::string dest_name, std::optional<std::string> element_name, DestinationType dest_type)
+    Dest(std::string dest_name, std::optional<std::string> element_name, Type dest_type)
             : dest_name(std::move(dest_name)), element_name(std::move(element_name)), dest_type(dest_type) {}
 
-    Destination() = default;
+    Dest() = default;
 
-    friend std::ostream &operator<<(std::ostream &os, const Destination &destination) {
+    friend std::ostream &operator<<(std::ostream &os, const Dest &destination) {
         const char *type_names[] = {"None", "Var", "ArraySet", "Deref", "JumpLabel"};
         os << "dest_type: " << type_names[static_cast<int>(destination.dest_type)]
            << "; dest_name: " << destination.dest_name;
@@ -40,13 +33,13 @@ struct Destination {
 
     std::optional<std::string> fmt() const {
         switch (dest_type) {
-            case DestinationType::Var:
+            case Type::Var:
                 return dest_name;
-            case DestinationType::ArraySet:
+            case Type::ArraySet:
                 return dest_name + "[" + element_name.value() + "]";
-            case DestinationType::Deref:
+            case Type::Deref:
                 return "*" + dest_name;
-            case DestinationType::JumpLabel:
+            case Type::JumpLabel:
                 return dest_name;
             default:
                 return {};
@@ -67,14 +60,16 @@ struct Operand {
 
     Operand(std::string s, Type t) : value(std::move(s)), type(t) {}
 
-    Operand(std::string &&s) {
+    Operand(const std::string &s) {
         char *end = nullptr;
-        if (long i = strtol(s.c_str(), &end, 10); end != s.c_str() && *end == '\0') {
+        if (strtol(s.c_str(), &end, 10); end != s.c_str() && *end == '\0') {
             type = Type::LInt;
-        } else if (double d = strtod(s.c_str(), &end); end != s.c_str() && *end == '\0') {
+        } else if (strtod(s.c_str(), &end); end != s.c_str() && *end == '\0') {
             type = Type::LDouble;
         } else if (!s.empty()) {
             type = Type::Var;
+        } else {
+            type = Type::None;
         }
         value = s;
     }
@@ -93,28 +88,53 @@ struct Operand {
         return strtod(value.c_str(), &end);
     }
 
-    bool is_var() { return type == Type::Var; }
+    bool is_var() const { return type == Type::Var; }
 
-    bool is_int() { return type == Type::LInt; }
+    bool is_int() const { return type == Type::LInt; }
 
-    bool is_double() { return type == Type::LDouble; }
+    bool is_double() const { return type == Type::LDouble; }
 
-    bool is_number() {
+    bool is_number() const {
         return type == Type::LInt || type == Type::LDouble;
     }
+
+    void clear() {
+        value.clear();
+        type = Type::None;
+    }
+
+    bool operator==(const Operand &rhs) const {
+        if (is_number() && rhs.is_number())
+            return get_double() == rhs.get_double();
+        else
+            return value == rhs.value;
+    }
+
 };
 
-struct Quadruple {
+struct Quad {
+    enum class Type {
+        Nop, Add, Sub, Mult, Div, UMinus,
+        Lt, Gt, Eq, Neq,
+        Assign, Deref, Ref, ArrayGet,
+        IfTrue, IfFalse, Goto, Halt, Call, Param, Return,
+    };
 
-    std::optional<Destination> dest{};
-    Operand operand_1{};
-    Operand operand_2{};
-    OperationType operation{};
+    std::optional<Dest> dest{};
+    Operand op1{};
+    Operand op2{};
+    Type type{};
 
-    Quadruple(std::string op1, std::string op2, OperationType op_type)
-            : operand_1(std::move(op1)), operand_2(std::move((op2))), operation(op_type), dest({}) {}
 
-    Quadruple() = default;
+    Quad(std::string op1, std::string op2, Type op_type, const Dest &dest = {})
+            : op1(std::move(op1)), op2(std::move(op2)), type(op_type), dest(dest) {}
+
+    Quad() = default;
+
+    static bool is_commutative(Type t) {
+        return t == Type::Add || t == Type::Mult || t == Type::Assign
+               || t == Type::Eq || t == Type::Neq;
+    }
 
 
     std::vector<std::string> get_used_vars() {
@@ -136,31 +156,31 @@ struct Quadruple {
     std::vector<std::string> get_rhs() {
         std::vector<std::string> rhs_vars;
         if (dest) {
-            if (dest.value().dest_type == DestinationType::ArraySet)
+            if (dest.value().dest_type == Dest::Type::ArraySet)
                 rhs_vars.push_back(dest.value().element_name.value());
         }
-        if (operand_1.is_var()) rhs_vars.push_back(operand_1.get_string());
-        if (operand_2.is_var()) rhs_vars.push_back(operand_2.get_string());
+        if (!op1.value.empty()) rhs_vars.push_back(op1.get_string());
+        if (!op2.value.empty()) rhs_vars.push_back(op2.get_string());
         return rhs_vars;
     }
 
-    bool is_jump() {
-        return operation == OperationType::Goto
-               || operation == OperationType::IfTrue
-               || operation == OperationType::IfFalse;
+    bool is_jump() const {
+        return type == Type::Goto
+               || type == Type::IfTrue
+               || type == Type::IfFalse;
     }
 
 
-    friend std::ostream &operator<<(std::ostream &os, const Quadruple &quadruple) {
-        const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Copy",
+    friend std::ostream &operator<<(std::ostream &os, const Quad &quad) {
+        const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Assign",
                                     "Deref", "Ref", "ArrayGet", "IfTrue", "IfFalse", "Goto", "Halt", "Call", "Param",
                                     "Return"};
-        if (quadruple.dest.has_value()) os << "dest: { " << quadruple.dest.value() << "}" << "; ";
-        if (quadruple.operand_1.type != Operand::Type::None)
-            os << "operand_1: " << quadruple.operand_1.get_string() << "; ";
-        if (quadruple.operand_2.type != Operand::Type::None)
-            os << "operand_2: " << quadruple.operand_2.get_string() << "; ";
-        os << "operation: " << type_names[static_cast<int>(quadruple.operation)];
+        if (quad.dest.has_value()) os << "dest: { " << quad.dest.value() << "}" << "; ";
+        if (quad.op1.type != Operand::Type::None)
+            os << "op1: " << quad.op1.get_string() << "; ";
+        if (quad.op2.type != Operand::Type::None)
+            os << "op2: " << quad.op2.get_string() << "; ";
+        os << "type: " << type_names[static_cast<int>(quad.type)];
         return os;
     }
 
@@ -175,68 +195,68 @@ struct Quadruple {
 
         std::optional<std::string> op;
         std::optional<std::string> unary_op;
-        switch (operation) {
-            case OperationType::Add:
+        switch (type) {
+            case Type::Add:
                 op = "+";
                 break;
-            case OperationType::Sub:
+            case Type::Sub:
                 op = "-";
                 break;
-            case OperationType::Mult:
+            case Type::Mult:
                 op = "*";
                 break;
-            case OperationType::Div:
+            case Type::Div:
                 op = "/";
                 break;
-            case OperationType::UMinus:
+            case Type::UMinus:
                 unary_op = "-";
                 break;
-            case OperationType::Lt:
+            case Type::Lt:
                 op = "<";
                 break;
-            case OperationType::Gt:
+            case Type::Gt:
                 op = ">";
                 break;
-            case OperationType::Eq:
+            case Type::Eq:
                 op = "==";
                 break;
-            case OperationType::Neq:
+            case Type::Neq:
                 op = "!=";
                 break;
-            case OperationType::Copy:
+            case Type::Assign:
                 unary_op = "";
                 break;
-            case OperationType::Deref:
+            case Type::Deref:
                 unary_op = "*";
                 break;
-            case OperationType::Ref:
+            case Type::Ref:
                 unary_op = "&";
                 break;
-            case OperationType::ArrayGet:
-                return destination.value() + " = " + operand_1.get_string() + "[" + operand_2.get_string() + "]";
-            case OperationType::IfTrue:
-                return "if " + operand_1.get_string() + " goto " + destination.value();
-            case OperationType::IfFalse:
-                return "ifFalse " + operand_1.get_string() + " goto " + destination.value();
-            case OperationType::Goto:
+            case Type::ArrayGet:
+                return destination.value() + " = " + op1.get_string() + "[" + op2.get_string() + "]";
+            case Type::IfTrue:
+                return "if " + op1.get_string() + " goto " + destination.value();
+            case Type::IfFalse:
+                return "ifFalse " + op1.get_string() + " goto " + destination.value();
+            case Type::Goto:
                 return "goto " + destination.value();
-            case OperationType::Halt:
+            case Type::Halt:
                 return "halt";
-            case OperationType::Call:
-                return "call " + operand_1.get_string() + " " + operand_2.get_string();
-            case OperationType::Param:
-                return "param " + operand_1.get_string();
-            case OperationType::Nop:
+            case Type::Call:
+                return "call " + op1.get_string() + " " + op2.get_string();
+            case Type::Param:
+                return "param " + op1.get_string();
+            case Type::Nop:
                 return "nop";
-            case OperationType::Return:
+            case Type::Return:
                 return "return";
 
         }
 
         if (unary_op.has_value()) {
-            return destination.value() + " = " + unary_op.value() + operand_1.get_string();
+            return destination.value() + " = " + unary_op.value() + op1.get_string();
         } else {
-            return destination.value() + " = " + operand_1.get_string() + op.value() + operand_2.get_string();
+            return destination.value() + " = " + op1.get_string() + op.value() + op2.get_string();
         }
     }
 };
