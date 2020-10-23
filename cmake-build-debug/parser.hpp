@@ -353,7 +353,7 @@ namespace yy {
     }
 #endif
 
-    /// Assign the content of \a that to this.
+    /// Copy the content of \a that to this.
     template <typename T>
     void
     copy (const self_type& that)
@@ -629,7 +629,7 @@ namespace yy {
       }
 #endif
 
-      /// Assign constructor.
+      /// Copy constructor.
       basic_symbol (const basic_symbol& that);
 
       /// Constructor for valueless symbols, and symbols from each type.
@@ -804,7 +804,7 @@ switch (yykind)
       by_kind (by_kind&& that);
 #endif
 
-      /// Assign constructor.
+      /// Copy constructor.
       by_kind (const by_kind& that);
 
       /// The symbol kind as needed by the constructor.
@@ -1555,7 +1555,7 @@ switch (yykind)
       /// Constructor.
       by_state (kind_type s) YY_NOEXCEPT;
 
-      /// Assign constructor.
+      /// Copy constructor.
       by_state (const by_state& that) YY_NOEXCEPT;
 
       /// Record that this symbol is empty.

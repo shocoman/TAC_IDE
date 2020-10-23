@@ -5,6 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/tac_parser.dir/main.cpp.obj"
   "CMakeFiles/tac_parser.dir/parser.cpp.obj"
   "CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj"
+  "CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj"
   "CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj"
   "lexer.cpp"
   "libtac_parser.dll.a"

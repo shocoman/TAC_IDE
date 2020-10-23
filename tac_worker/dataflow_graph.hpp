@@ -14,57 +14,16 @@
 #include "../tac_worker/local_value_numbering.h"
 
 
-struct Node {
-    int id;
-    std::string node_name;
-    std::optional<std::string> lbl_name;
-    std::vector<Quad> quads;
-    std::optional<std::string> jumps_to;
-    std::set<Node *> successors;
-    std::set<Node *> predecessors;
-
-    std::string get_name() {
-        return "Node " + std::to_string(id);
-    }
-
-    std::string fmt() const
-    {
-        std::string out;
-        for (auto &q : quads)
-            out += q.fmt() + "\n";
-        return out;
-    }
-
-    void add_successor(Node *s)
-    {
-        successors.emplace(s);
-        s->predecessors.emplace(this);
-    }
-
-    void remove_successors()
-    {
-        for (auto &s: successors) {
-            s->predecessors.erase(this);
-        }
-        successors.erase(successors.begin(), successors.end());
-    }
-
-    bool allows_fallthrough()
-    {
-        return quads.back().type != Quad::Type::Goto
-               && quads.back().type != Quad::Type::Return;
-    }
-};
 
 
-void print_nodes(const std::vector<std::unique_ptr<Node>> &nodes);
+void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
-void add_successors(std::vector<std::unique_ptr<Node>> &nodes);
+void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
 
 auto get_basicblocks_from_indices(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev,
                                   std::map<int, std::optional<std::string>> &leader_indexes)
--> std::vector<std::unique_ptr<Node>>;
+-> std::vector<std::unique_ptr<BasicBlock>>;
 
 auto get_leading_quads_indices(const std::vector<Quad> &quads,
                                std::map<int, std::string> &) -> std::map<int, std::optional<std::string>>;
@@ -72,7 +31,7 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
 void print_quads(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev);
 
 
-void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, const std::string& filename);
+void print_cfg(const std::vector<std::unique_ptr<BasicBlock>> &nodes, const std::string &filename);
 
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads);
 

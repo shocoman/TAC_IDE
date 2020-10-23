@@ -4,22 +4,22 @@
 
 #include "dataflow_graph.hpp"
 
-void constant_folding(std::vector<std::unique_ptr<Node>> &nodes);
+void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
-void liveness_analyses(const std::vector<std::unique_ptr<Node>> &nodes);
+void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
-void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &nodes);
+void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
 
-void add_exit_block(std::vector<std::unique_ptr<Node>> &nodes) {
-    auto entry_block = std::make_unique<Node>();
+void add_exit_block(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+    auto entry_block = std::make_unique<BasicBlock>();
     entry_block->node_name = "Entry block";
     entry_block->id = 0;
     entry_block->add_successor(nodes.front().get());
 
-    auto exit_node = std::make_unique<Node>();
+    auto exit_node = std::make_unique<BasicBlock>();
     exit_node->node_name = "Exit block";
-    exit_node->id = nodes.back()->id+1;
+    exit_node->id = nodes.back()->id + 1;
     exit_node->quads.emplace_back(Quad({}, {}, Quad::Type::Return));
 
     // find blocks without successors (ending blocks) and connect them with exit block
@@ -34,7 +34,7 @@ void add_exit_block(std::vector<std::unique_ptr<Node>> &nodes) {
 }
 
 
-void print_loops(std::vector<std::unique_ptr<Node>> &nodes) {
+void print_loops(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 
     // generate ids for node names
     std::map<int, std::string> name_by_id;
@@ -67,8 +67,7 @@ void print_loops(std::vector<std::unique_ptr<Node>> &nodes) {
 }
 
 
-
-void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &nodes) {
+void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (int i = nodes.size() - 1; i > 0; --i) {
         auto &n = nodes[i];
         if (n->predecessors.empty()) {
@@ -78,7 +77,7 @@ void remove_blocks_without_predecessors(std::vector<std::unique_ptr<Node>> &node
     }
 }
 
-void liveness_analyses(const std::vector<std::unique_ptr<Node>> &nodes) {
+void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     // block level liveness analyses
     struct LivenessState {
         bool live;
@@ -125,7 +124,8 @@ void liveness_analyses(const std::vector<std::unique_ptr<Node>> &nodes) {
             std::cout << n->quads[i].fmt() << ";\t";
             auto &l = block_liveness_data[i];
             for (auto &[name, liveness] : l) {
-                std::cout << "[ " << name << "; Live: " << liveness.live << "; Next use: " << liveness.next_use << " ]; ";
+                std::cout << "[ " << name << "; Live: " << liveness.live << "; Next use: " << liveness.next_use
+                          << " ]; ";
             }
             std::cout << std::endl;
         }
@@ -144,10 +144,10 @@ void liveness_analyses(const std::vector<std::unique_ptr<Node>> &nodes) {
 //        }
 
 
-        }
+    }
 }
 
-void constant_folding(std::vector<std::unique_ptr<Node>> &nodes) {
+void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (auto &n : nodes) {
         for (auto &q : n->quads) {
             if (q.op1.is_number() && q.op2.is_number()) {
@@ -180,7 +180,7 @@ void constant_folding(std::vector<std::unique_ptr<Node>> &nodes) {
 }
 
 
-void print_cfg(const std::vector<std::unique_ptr<Node>> &nodes, const std::string& filename) {
+void print_cfg(const std::vector<std::unique_ptr<BasicBlock>> &nodes, const std::string &filename) {
     DotWriter dot_writer;
     std::set<std::string> visited;
     // print edges
@@ -239,9 +239,9 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
 
 auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                                   std::map<int, std::string> &labels_rev,
-                                  std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<Node>> {
-    std::vector<std::unique_ptr<Node>> nodes;
-    Node *curr_node = nullptr;
+                                  std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<BasicBlock>> {
+    std::vector<std::unique_ptr<BasicBlock>> nodes;
+    BasicBlock *curr_node = nullptr;
     for (int i = 0, node_number = 1; i < quads.size(); i++) {
         // if current quad is a leader
         if (auto leader_index = leader_indexes.find(i); leader_index != leader_indexes.end()) {
@@ -249,9 +249,9 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                 curr_node->jumps_to = leader_index->second;
                 nodes.emplace_back(curr_node);
             }
-            curr_node = new Node();
+            curr_node = new BasicBlock();
             curr_node->id = node_number;
-            curr_node->node_name = "Node " + std::to_string(node_number++);
+            curr_node->node_name = "BasicBlock " + std::to_string(node_number++);
 
             if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
                 curr_node->lbl_name = lbl->second;
@@ -262,7 +262,7 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
     return nodes;
 }
 
-void add_successors(std::vector<std::unique_ptr<Node>> &nodes) {
+void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (int i = 0; i < nodes.size(); ++i) {
         if (i != nodes.size() - 1 && nodes[i]->allows_fallthrough()) {
             nodes[i]->successors.insert(nodes[i + 1].get());
@@ -280,14 +280,89 @@ void add_successors(std::vector<std::unique_ptr<Node>> &nodes) {
     }
 }
 
-void print_nodes(const std::vector<std::unique_ptr<Node>> &nodes) {
+void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (auto &n : nodes) {
-        std::cout << "\tNode: " << n->node_name << "; "
+        std::cout << "\tBasicBlock: " << n->node_name << "; "
                   << n->lbl_name.value_or("NONE")
                   << "; Jumps to " << n->jumps_to.value_or("NONE") << "; Successors: " << n->successors.size()
                   << " \n" << n->fmt() << std::endl;
     }
 }
+
+
+void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+
+    struct BlockLiveState {
+        std::set<std::string> UEVar;
+        std::set<std::string> VarKill;
+        std::set<std::string> LiveOut;
+    };
+    std::map<int, BlockLiveState> block_live_states;
+
+    // save UEVar and VarKill
+    for (auto &b: blocks) {
+        BlockLiveState b_state;
+
+        for (const auto &q : b->quads) {
+            for (auto &r: q.get_rhs(false))
+                if (b_state.VarKill.find(r) == b_state.VarKill.end())
+                    b_state.UEVar.emplace(r);
+
+            if (auto lhs = q.get_lhs(); lhs.has_value())
+                b_state.VarKill.insert(lhs.value());
+        }
+
+        block_live_states[b->id] = b_state;
+    }
+
+    auto live_out = [&block_live_states](BasicBlock *b) {
+
+        std::set<std::string> &live_out_state = block_live_states.at(b->id).LiveOut;
+        auto prev_live_out_state = live_out_state;
+
+        for (const auto &s : b->successors) {
+            auto &state = block_live_states.at(s->id);
+
+            std::set_union(live_out_state.begin(), live_out_state.end(), state.UEVar.begin(), state.UEVar.end(),
+                           std::inserter(live_out_state, live_out_state.end()));
+
+            std::set<std::string> live_without_varkill;
+            std::set_difference(state.LiveOut.begin(), state.LiveOut.end(), state.VarKill.begin(), state.VarKill.end(),
+                                std::inserter(live_without_varkill, live_without_varkill.end()));
+
+            std::set_union(live_out_state.begin(), live_out_state.end(), live_without_varkill.begin(),
+                           live_without_varkill.end(), std::inserter(live_out_state, live_out_state.end()));
+
+        }
+
+        return prev_live_out_state != live_out_state;
+    };
+
+
+    bool changed = true;
+    int iter = 1;
+    while (changed) {
+        changed = false;
+        for (const auto &b : blocks) {
+            if (live_out(b.get()))
+                changed = true;
+        }
+
+        std::cout << "Iteration " << iter++ << std::endl;
+        // print
+        for (auto &[i, b] : block_live_states) {
+            std::cout << "Liveout for BB " << i << ": ";
+            for (auto &a : b.LiveOut) {
+                std::cout << a << "; ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
+
+}
+
 
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     // revert map of labels
@@ -300,22 +375,32 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 
     // gather indexes of leading blocks
     auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
-    auto nodes = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
-    add_successors(nodes);
+    auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
+    add_successors(blocks);
 
-//    print_nodes(nodes);
-//    print_cfg(nodes, "before.png");
+//    print_nodes(blocks);
+//    print_cfg(blocks, "before.png");
 
 
     // remove blocks without predecessors (except the first one)
-    remove_blocks_without_predecessors(nodes);
-//    add_exit_block(nodes);
-//    constant_folding(nodes);
-    liveness_analyses(nodes);
-//    print_loops(nodes);
+    remove_blocks_without_predecessors(blocks);
+//    add_exit_block(blocks);
+//    constant_folding(blocks);
+//    liveness_analyses(blocks);
+//    print_loops(blocks);
 
-//    for (auto &n : nodes)
-//        local_value_numbering(n->quads);
 
-    print_cfg(nodes, "after.png");
+//    print_cfg(blocks, "before.png");
+
+//    for (auto &n : blocks) {
+//        ValueNumberTableStack t;
+//        t.push_table();
+//        local_value_numbering(n->quads, t);
+//    }
+
+    live_analyses(blocks);
+
+//    superlocal_value_numbering(blocks);
+
+    print_cfg(blocks, "after.png");
 }

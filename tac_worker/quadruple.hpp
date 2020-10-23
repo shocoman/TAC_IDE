@@ -136,8 +136,11 @@ struct Quad {
                || t == Type::Eq || t == Type::Neq;
     }
 
+    static bool is_jump(Type t) {
+        return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
+    }
 
-    std::vector<std::string> get_used_vars() {
+    std::vector<std::string> get_used_vars() const {
         auto used_vars = get_rhs();
         if (auto l = get_lhs(); l.has_value()) {
             used_vars.push_back(l.value());
@@ -145,7 +148,7 @@ struct Quad {
         return used_vars;
     }
 
-    std::optional<std::string> get_lhs() {
+    std::optional<std::string> get_lhs() const {
         if (dest && !is_jump()) {
             return (dest.value().dest_name);
         } else {
@@ -153,14 +156,14 @@ struct Quad {
         }
     }
 
-    std::vector<std::string> get_rhs() {
+    std::vector<std::string> get_rhs(bool include_constants = true) const {
         std::vector<std::string> rhs_vars;
         if (dest) {
             if (dest.value().dest_type == Dest::Type::ArraySet)
                 rhs_vars.push_back(dest.value().element_name.value());
         }
-        if (!op1.value.empty()) rhs_vars.push_back(op1.get_string());
-        if (!op2.value.empty()) rhs_vars.push_back(op2.get_string());
+        if (!op1.value.empty() && (include_constants || op1.is_var())) rhs_vars.push_back(op1.get_string());
+        if (!op2.value.empty() && (include_constants || op2.is_var())) rhs_vars.push_back(op2.get_string());
         return rhs_vars;
     }
 

@@ -6,7 +6,12 @@
 int main(int argc, char *argv[]) {
 
 
-
+//    ValueNumberTableStack t;
+//    t.push_table();
+//    auto z = std::vector<Quad>{};
+//    local_value_numbering(z, t);
+//
+//    exit(22);
 
     int res = 0;
     driver drv;

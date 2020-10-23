@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "D:/programming/c/tac_parser/main.cpp" "D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir/main.cpp.obj"
   "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp" "D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir/parser.cpp.obj"
   "D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp" "D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj"
+  "D:/programming/c/tac_parser/tac_worker/basic_block.cpp" "D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj"
   "D:/programming/c/tac_parser/tac_worker/dataflow_graph.cpp" "D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
