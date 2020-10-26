@@ -1,4 +1,5 @@
 #include <iostream>
+#include <numeric>
 
 #include "driver/driver.hpp"
 #include "tac_worker/dataflow_graph.hpp"
@@ -6,14 +7,13 @@
 int main(int argc, char *argv[]) {
 
 
-//    ValueNumberTableStack t;
-//    t.push_table();
-//    auto z = std::vector<Quad>{};
-//    local_value_numbering(z, t);
-//
+
+
+
+
+
 //    exit(22);
 
-    int res = 0;
     driver drv;
 //    for (int i = 1; i < argc; ++i)
 //        if (argv[i] == std::string ("-p"))

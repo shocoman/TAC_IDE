@@ -2,6 +2,7 @@
 // Created by shoco on 10/7/2020.
 //
 
+#include <numeric>
 #include "dataflow_graph.hpp"
 
 void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes);
@@ -226,13 +227,11 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
                                std::map<int, std::string> &labels_rev) -> std::map<int, std::optional<std::string>> {
     std::map<int, std::optional<std::string>> leader_indexes = {{0, std::nullopt}};
     for (int i = 0; i < quads.size(); i++) {
-        if (auto lbl = labels_rev.find(i); lbl != labels_rev.end()) leader_indexes.insert({i, std::nullopt});
-        switch (quads[i].type) {
-            case Quad::Type::IfFalse:
-            case Quad::Type::IfTrue:
-            case Quad::Type::Goto:
+        if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
+            leader_indexes.insert({i, std::nullopt});
+        if (quads[i].is_jump())
                 leader_indexes.insert({i + 1, quads[i].dest.value().dest_name});
-        }
+
     }
     return leader_indexes;
 }
@@ -242,7 +241,7 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                                   std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<BasicBlock>> {
     std::vector<std::unique_ptr<BasicBlock>> nodes;
     BasicBlock *curr_node = nullptr;
-    for (int i = 0, node_number = 1; i < quads.size(); i++) {
+    for (int i = 0, node_number = 1; i <= quads.size(); i++) {
         // if current quad is a leader
         if (auto leader_index = leader_indexes.find(i); leader_index != leader_indexes.end()) {
             if (curr_node != nullptr) {
@@ -250,15 +249,16 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                 nodes.emplace_back(curr_node);
             }
             curr_node = new BasicBlock();
-            curr_node->id = node_number;
-            curr_node->node_name = "BasicBlock " + std::to_string(node_number++);
+            curr_node->id = node_number++;
+            curr_node->node_name = curr_node->get_name();
 
             if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
                 curr_node->lbl_name = lbl->second;
         }
-        curr_node->quads.push_back(quads[i]);
+        if (i < quads.size())
+            curr_node->quads.push_back(quads[i]);
     }
-    if (curr_node) nodes.emplace_back(curr_node);
+    if (curr_node && !curr_node->quads.empty()) nodes.emplace_back(curr_node);
     return nodes;
 }
 
@@ -364,6 +364,64 @@ void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
 }
 
 
+void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+    std::map<int, std::set<int>> id_to_dominators;
+    std::map<int, BasicBlock *> id_to_blocks;
+
+    std::set<int> N;
+    for (auto &b : blocks) {
+        N.insert(b->id);
+    }
+
+    for (auto &b : blocks) {
+        id_to_dominators[b->id] = N;
+    }
+
+    int iterations = 0;
+    bool changed = true;
+    while (changed) {
+        iterations++;
+        changed = false;
+        for (auto &b : blocks) {
+            id_to_blocks[b->id] = b.get();
+            // get intersection of sets of predecessors
+            std::set<int> pred_intersect;
+            for (auto &pred : b->predecessors) {
+                if (id_to_dominators.find(pred->id) == id_to_dominators.end()) continue;
+                auto pred_dominators = id_to_dominators.at(pred->id);
+                if (!pred_intersect.empty()) {
+                    std::set<int> intersection;
+                    std::set_intersection(pred_intersect.begin(), pred_intersect.end(),
+                                          pred_dominators.begin(), pred_dominators.end(),
+                                          std::inserter(intersection, intersection.end()));
+                    pred_intersect = intersection;
+                } else {
+                    pred_intersect = pred_dominators;
+                }
+            }
+
+            pred_intersect.insert(b->id);
+            if (pred_intersect != id_to_dominators[b->id]) {
+                id_to_dominators[b->id] = pred_intersect;
+                changed = true;
+            }
+        }
+    }
+
+    std::cout << "-- PRINT --" << std::endl;
+    for (auto &[id, doms] : id_to_dominators) {
+        std::cout << id << "(" << id_to_blocks.at(id)->node_name << ", " << id_to_blocks.at(id)->successors.size()
+                  << "): ";
+        for (auto &d : doms) {
+            std::cout << d << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "Iterations: " << iterations << std::endl;
+    std::cout << "-- END_PRINT --" << std::endl;
+}
+
+
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     // revert map of labels
     std::map<int, std::string> labels_rev;
@@ -378,12 +436,19 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
     add_successors(blocks);
 
+//    for (auto &[id, str] : leader_indexes) {
+//        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
+//    }
+//    std::cout << std::endl;
+//    for (auto &b : blocks) {
+//        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE") << std::endl;
+//    }
+
 //    print_nodes(blocks);
 //    print_cfg(blocks, "before.png");
 
 
-    // remove blocks without predecessors (except the first one)
-    remove_blocks_without_predecessors(blocks);
+//    remove_blocks_without_predecessors(blocks);
 //    add_exit_block(blocks);
 //    constant_folding(blocks);
 //    liveness_analyses(blocks);
@@ -398,9 +463,12 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //        local_value_numbering(n->quads, t);
 //    }
 
-    live_analyses(blocks);
+//    live_analyses(blocks);
 
 //    superlocal_value_numbering(blocks);
+
+
+    dominators(blocks);
 
     print_cfg(blocks, "after.png");
 }
