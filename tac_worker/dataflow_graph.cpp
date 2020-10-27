@@ -78,6 +78,7 @@ void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>>
     }
 }
 
+[[deprecated]]
 void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     // block level liveness analyses
     struct LivenessState {
@@ -151,10 +152,10 @@ void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (auto &n : nodes) {
         for (auto &q : n->quads) {
-            if (q.op1.is_number() && q.op2.is_number()) {
+            if (q.get_op(0)->is_number() && q.get_op(1)->is_number()) {
                 double d = 0;
-                double o1 = q.op1.get_double();
-                double o2 = q.op2.get_double();
+                double o1 = q.get_op(0)->get_double();
+                double o2 = q.get_op(1)->get_double();
                 switch (q.type) {
                     case Quad::Type::Add:
                         d = o1 + o2;
@@ -170,10 +171,10 @@ void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
                         break;
                 }
 
-                if (q.op1.is_int() && q.op2.is_int())
-                    q.op1 = Operand(std::to_string((int) d));
+                if (q.get_op(0)->is_int() && q.get_op(1)->is_int())
+                    q.ops[0] = Operand(std::to_string((int) d));
                 else
-                    q.op1 = Operand(std::to_string(d));
+                    q.ops[0] = Operand(std::to_string(d));
                 q.type = Quad::Type::Assign;
             }
         }
@@ -230,7 +231,7 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
         if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
             leader_indexes.insert({i, std::nullopt});
         if (quads[i].is_jump())
-                leader_indexes.insert({i + 1, quads[i].dest.value().dest_name});
+            leader_indexes.insert({i + 1, quads[i].dest.value().dest_name});
 
     }
     return leader_indexes;
@@ -241,7 +242,7 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                                   std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<BasicBlock>> {
     std::vector<std::unique_ptr<BasicBlock>> nodes;
     BasicBlock *curr_node = nullptr;
-    for (int i = 0, node_number = 1; i <= quads.size(); i++) {
+    for (int i = 0, node_number = 0; i <= quads.size(); i++) {
         // if current quad is a leader
         if (auto leader_index = leader_indexes.find(i); leader_index != leader_indexes.end()) {
             if (curr_node != nullptr) {
@@ -348,33 +349,35 @@ void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
                 changed = true;
         }
 
-        std::cout << "Iteration " << iter++ << std::endl;
-        // print
-        for (auto &[i, b] : block_live_states) {
-            std::cout << "Liveout for BB " << i << ": ";
-            for (auto &a : b.LiveOut) {
-                std::cout << a << "; ";
-            }
-            std::cout << std::endl;
+
+    }
+    std::cout << "Iteration " << iter++ << std::endl;
+    // print
+    for (auto &[i, b] : block_live_states) {
+        std::cout << "Liveout for BB " << i << ": ";
+        for (auto &a : b.LiveOut) {
+            std::cout << a << "; ";
         }
         std::cout << std::endl;
     }
-
+    std::cout << std::endl;
 
 }
 
 
 void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
-    std::map<int, std::set<int>> id_to_dominators;
-    std::map<int, BasicBlock *> id_to_blocks;
+    std::map<int, std::set<int>> id_to_dominator;
+    std::map<int, BasicBlock *> id_to_block;
 
     std::set<int> N;
     for (auto &b : blocks) {
         N.insert(b->id);
     }
 
+
     for (auto &b : blocks) {
-        id_to_dominators[b->id] = N;
+        id_to_dominator[b->id] = N;
+        id_to_block[b->id] = b.get();
     }
 
     int iterations = 0;
@@ -383,12 +386,11 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
         iterations++;
         changed = false;
         for (auto &b : blocks) {
-            id_to_blocks[b->id] = b.get();
             // get intersection of sets of predecessors
             std::set<int> pred_intersect;
             for (auto &pred : b->predecessors) {
-                if (id_to_dominators.find(pred->id) == id_to_dominators.end()) continue;
-                auto pred_dominators = id_to_dominators.at(pred->id);
+                if (id_to_dominator.find(pred->id) == id_to_dominator.end()) continue;
+                auto pred_dominators = id_to_dominator.at(pred->id);
                 if (!pred_intersect.empty()) {
                     std::set<int> intersection;
                     std::set_intersection(pred_intersect.begin(), pred_intersect.end(),
@@ -401,24 +403,99 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
             }
 
             pred_intersect.insert(b->id);
-            if (pred_intersect != id_to_dominators[b->id]) {
-                id_to_dominators[b->id] = pred_intersect;
+            if (pred_intersect != id_to_dominator[b->id]) {
+                id_to_dominator[b->id] = pred_intersect;
                 changed = true;
             }
         }
     }
 
+    std::cout << " BEFORE" << std::endl;
+
+    // now find immediate dominator for every node
+    std::map<int, int> id_to_immediate_dominator;
+    for (auto &[id, doms] : id_to_dominator) {
+        auto current_node = id_to_block.at(id);
+        while (true) {
+            if (current_node->id != id && doms.find(current_node->id) != doms.end()) {
+                id_to_immediate_dominator[id] = current_node->id;
+                break;
+            } else if (current_node->predecessors.empty()) {
+                id_to_immediate_dominator[id] = -1;
+                break;
+            } else
+                current_node = *current_node->predecessors.begin();
+        }
+    }
+
+    std::cout << " AFTER" << std::endl;
+
+    // compute dominance frontier for every node
+    std::map<int, std::set<int>> id_to_dominance_frontier;
+    for (const auto &b : blocks) {
+        id_to_dominance_frontier[b->id] = {};
+    }
+    for (const auto &b : blocks) {
+        if (b->predecessors.size() > 1) {
+            for (const auto &pred: b->predecessors) {
+                int runner_id = pred->id;
+                while (runner_id != id_to_immediate_dominator.at(b->id)) {
+                    id_to_dominance_frontier[runner_id].insert(b->id);
+                    runner_id = id_to_immediate_dominator.at(runner_id);
+                }
+            }
+        }
+    }
+
     std::cout << "-- PRINT --" << std::endl;
-    for (auto &[id, doms] : id_to_dominators) {
-        std::cout << id << "(" << id_to_blocks.at(id)->node_name << ", " << id_to_blocks.at(id)->successors.size()
-                  << "): ";
+    for (auto &[id, doms] : id_to_dominator) {
+        std::cout << id << "(" << id_to_block.at(id)->node_name << "): ";
         for (auto &d : doms) {
             std::cout << d << ", ";
         }
+        std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
+
+        std::cout << "; DomFrontier: ";
+        for (auto &df : id_to_dominance_frontier.at(id)) {
+            std::cout << id_to_block.at(df)->get_name() << ", ";
+        }
+
         std::cout << std::endl;
     }
     std::cout << "Iterations: " << iterations << std::endl;
     std::cout << "-- END_PRINT --" << std::endl;
+
+
+//    // finding global names
+//    std::map<std::string, std::set<BasicBlock *>> var_to_block;
+//    std::set<std::string> global_names;
+//    for (auto &b: blocks) {
+//        std::set<std::string> var_kill;
+//        for (const auto &q : b->quads) {
+//            for (auto &r: q.get_rhs(false))
+//                if (var_kill.find(r) == var_kill.end())
+//                    global_names.insert(r);
+//            if (auto lhs = q.get_lhs(); lhs.has_value()) {
+//                var_kill.insert(lhs.value());
+//                var_to_block[lhs.value()].insert(b.get());
+//            }
+//        }
+//    }
+//
+//    for (auto &name : global_names) {
+//        std::vector<BasicBlock*> work_list;
+//        auto &work_list_set = var_to_block.at(name);
+//        std::copy(work_list_set.begin(), work_list_set.end(), std::back_inserter(work_list));
+//
+//        for (int i = 0; i < work_list.size(); ++i) {
+//            for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
+//                if (auto d_block = id_to_block.at(d); !d_block->has_phi_function_for(name)) {
+//                    d_block->add_phi_function(name, {});
+//                }
+//            }
+//        }
+//
+//    }
 }
 
 

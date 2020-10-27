@@ -76,10 +76,10 @@ struct ValueNumberTableStack {
 
 
 static void constant_folding(Quad &n) {
-    double l = n.op1.get_double();
-    double r = n.op2.get_double();
-    bool is_lnum = n.op1.is_number();
-    bool is_rnum = n.op2.is_number();
+    double l = n.get_op(0)->get_double();
+    double r = n.get_op(1)->get_double();
+    bool is_lnum = n.get_op(0)->is_number();
+    bool is_rnum = n.get_op(1)->is_number();
 
     if (is_lnum && is_rnum) {
         double res = 0;
@@ -99,44 +99,44 @@ static void constant_folding(Quad &n) {
             default:
                 break;
         }
-        n.op1 = std::to_string(res);
+        n.ops[0] = std::to_string(res);
         n.type = Quad::Type::Assign;
-        n.op2.clear();
+        n.clear_op(1);
         return;
     }
 
     // algebraic identities
     // a - a = 0
-    if (n.type == Quad::Type::Sub && n.op1 == n.op2) {
-        n.op1 = Operand("0");
-        n.op2.clear();
+    if (n.type == Quad::Type::Sub && n.get_op(0) == n.get_op(1)) {
+        n.ops[0] = Operand("0");
+        n.clear_op(1);
         n.type = Quad::Type::Assign;
     }
     // a / a = 1, a != 0
-    if (n.type == Quad::Type::Div && n.op1 == n.op2 && n.op2.value != "0") {
-        n.op1 = Operand("1");
-        n.op2.clear();
+    if (n.type == Quad::Type::Div && n.get_op(0) == n.get_op(1) && n.get_op(1)->value != "0") {
+        n.ops[0] = Operand("1");
+        n.clear_op(1);
         n.type = Quad::Type::Assign;
     }
 
     if (is_lnum || is_rnum) {
         // a * 0 = 0
         if (n.type == Quad::Type::Mult && (l == 0 && is_lnum || r == 0 && is_rnum)) {
-            n.op1 = Operand("0");
-            n.op2.clear();
+            n.get_op(0) = Operand("0").value;
+            n.clear_op(1);
             n.type = Quad::Type::Assign;
         }
 
         if (is_lnum) {
             // 0 + a = a OR 1 * a = a
             if (n.type == Quad::Type::Add && l == 0 || n.type == Quad::Type::Mult && l == 1) {
-                n.op1 = n.op2;
-                n.op2.clear();
+                n.ops[0] = n.get_op(1).value();
+                n.clear_op(1);
                 n.type = Quad::Type::Assign;
             }
                 // 2 * a = a + a
             else if (n.type == Quad::Type::Mult && l == 2) {
-                n.op1 = n.op2;
+                n.ops[0] = n.get_op(1).value();
                 n.type = Quad::Type::Add;
             }
         }
@@ -147,12 +147,12 @@ static void constant_folding(Quad &n) {
                 || n.type == Quad::Type::Mult && r == 1
                 || n.type == Quad::Type::Sub && r == 0
                 || n.type == Quad::Type::Div && r == 1) {
-                n.op2.clear();
+                n.clear_op(1);
                 n.type = Quad::Type::Assign;
             }
                 // a * 2 = a + a
             else if (n.type == Quad::Type::Mult && r == 2) {
-                n.op2 = n.op1;
+                n.ops[1] = n.get_op(0).value();
                 n.type = Quad::Type::Add;
             }
         }
@@ -217,8 +217,9 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
             op_value = op.value();
 
             q.type = Quad::Type::Assign;
-            q.op1 = Operand(t.get_name_by_value_number(op_value).value());
-            q.op2.clear();
+            q.ops[0] = Operand(t.get_name_by_value_number(op_value).value());
+            q.clear_op(1);
+
         } else {
             t.set_operation_value(op_hash_key, t.current_number);
             op_value = t.current_number;
@@ -234,8 +235,8 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
 //            op_value = op->second;
 //
 //            q.type = Quad::Type::Assign;
-//            q.op1 = Operand(value_numbers_to_names.at(op_value));
-//            q.op2.clear();
+//            q.get_op(0) = Operand(value_numbers_to_names.at(op_value));
+//            q.clear_op(1);
 //        } else {
 //            operations[op_hash_key] = current_number;
 //            op_value = current_number;

@@ -118,16 +118,22 @@ struct Quad {
         Lt, Gt, Eq, Neq,
         Assign, Deref, Ref, ArrayGet,
         IfTrue, IfFalse, Goto, Halt, Call, Param, Return,
+        PhiNode,
     };
 
     std::optional<Dest> dest{};
-    Operand op1{};
-    Operand op2{};
+
+    std::vector<Operand> ops{};
+//    Operand op1{};
+//    Operand op2{};
     Type type{};
 
 
     Quad(std::string op1, std::string op2, Type op_type, const Dest &dest = {})
-            : op1(std::move(op1)), op2(std::move(op2)), type(op_type), dest(dest) {}
+            : type(op_type), dest(dest) {
+        if (!op1.empty()) ops.emplace_back(std::move(op1));
+        if (!op2.empty()) ops.emplace_back(std::move(op2));
+    }
 
     Quad() = default;
 
@@ -156,14 +162,27 @@ struct Quad {
         }
     }
 
+    void clear_op(int i) {
+        ops.erase(ops.begin() + i);
+    }
+
+    std::optional<Operand> get_op(int i) const {
+        if (!ops.empty())
+            return ops.at(i);
+        else return {};
+    }
+
     std::vector<std::string> get_rhs(bool include_constants = true) const {
         std::vector<std::string> rhs_vars;
         if (dest) {
             if (dest.value().dest_type == Dest::Type::ArraySet)
                 rhs_vars.push_back(dest.value().element_name.value());
         }
-        if (!op1.value.empty() && (include_constants || op1.is_var())) rhs_vars.push_back(op1.get_string());
-        if (!op2.value.empty() && (include_constants || op2.is_var())) rhs_vars.push_back(op2.get_string());
+        auto op1 = get_op(0);
+        auto op2 = get_op(1);
+
+        if (op1 && !op1->value.empty() && (include_constants || op1->is_var())) rhs_vars.push_back(op1->get_string());
+        if (op2 && !op2->value.empty() && (include_constants || op2->is_var())) rhs_vars.push_back(op2->get_string());
         return rhs_vars;
     }
 
@@ -177,12 +196,12 @@ struct Quad {
     friend std::ostream &operator<<(std::ostream &os, const Quad &quad) {
         const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Assign",
                                     "Deref", "Ref", "ArrayGet", "IfTrue", "IfFalse", "Goto", "Halt", "Call", "Param",
-                                    "Return"};
+                                    "Return", "PhiNode"};
         if (quad.dest.has_value()) os << "dest: { " << quad.dest.value() << "}" << "; ";
-        if (quad.op1.type != Operand::Type::None)
-            os << "op1: " << quad.op1.get_string() << "; ";
-        if (quad.op2.type != Operand::Type::None)
-            os << "op2: " << quad.op2.get_string() << "; ";
+        if (quad.get_op(0)->type != Operand::Type::None)
+            os << "op1: " << quad.get_op(0)->get_string() << "; ";
+        if (quad.get_op(1)->type != Operand::Type::None)
+            os << "op2: " << quad.get_op(1)->get_string() << "; ";
         os << "type: " << type_names[static_cast<int>(quad.type)];
         return os;
     }
@@ -236,30 +255,34 @@ struct Quad {
                 unary_op = "&";
                 break;
             case Type::ArrayGet:
-                return destination.value() + " = " + op1.get_string() + "[" + op2.get_string() + "]";
+                return destination.value() + " = " + get_op(0)->get_string() + "[" + get_op(1)->get_string() + "]";
             case Type::IfTrue:
-                return "if " + op1.get_string() + " goto " + destination.value();
+                return "if " + get_op(0)->get_string() + " goto " + destination.value();
             case Type::IfFalse:
-                return "ifFalse " + op1.get_string() + " goto " + destination.value();
+                return "ifFalse " + get_op(0)->get_string() + " goto " + destination.value();
             case Type::Goto:
                 return "goto " + destination.value();
             case Type::Halt:
                 return "halt";
             case Type::Call:
-                return "call " + op1.get_string() + " " + op2.get_string();
+                return "call " + get_op(0)->get_string() + " " + get_op(0)->get_string();
             case Type::Param:
-                return "param " + op1.get_string();
+                return "param " + get_op(0)->get_string();
             case Type::Nop:
                 return "nop";
             case Type::Return:
                 return "return";
-
+            case Type::PhiNode:
+                std::string output;
+                for (auto &op : ops)
+                    output += op.value + " ";
+                return "phi node ( " + output + ")";
         }
 
         if (unary_op.has_value()) {
-            return destination.value() + " = " + unary_op.value() + op1.get_string();
+            return destination.value() + " = " + unary_op.value() + get_op(0)->get_string();
         } else {
-            return destination.value() + " = " + op1.get_string() + op.value() + op2.get_string();
+            return destination.value() + " = " + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
         }
     }
 };

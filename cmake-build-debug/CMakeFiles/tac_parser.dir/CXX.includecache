@@ -6,6 +6,20 @@
 
 #IncludeRegexTransform: 
 
+../tac_worker/quadruple.hpp
+string
+-
+ostream
+-
+utility
+-
+vector
+-
+optional
+-
+iostream
+-
+
 C:/Program Files/Graphviz 2.44.1/include/graphviz/arith.h
 limits.h
 -
@@ -82,6 +96,26 @@ iostream
 gvc.h
 -
 
+D:/programming/c/tac_parser/driver/driver.hpp
+string
+-
+map
+-
+utility
+-
+parser.hpp
+D:/programming/c/tac_parser/driver/parser.hpp
+
+D:/programming/c/tac_parser/main.cpp
+iostream
+-
+numeric
+-
+driver/driver.hpp
+D:/programming/c/tac_parser/driver/driver.hpp
+tac_worker/dataflow_graph.hpp
+D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
+
 D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
 vector
 -
@@ -104,6 +138,8 @@ vector
 set
 -
 map
+-
+algorithm
 -
 quadruple.hpp
 D:/programming/c/tac_parser/tac_worker/quadruple.hpp
@@ -160,5 +196,35 @@ vector
 optional
 -
 iostream
+-
+
+location.hh
+iostream
+-
+string
+-
+
+parser.hpp
+string
+-
+../tac_worker/quadruple.hpp
+../tac_worker/quadruple.hpp
+cassert
+-
+cstdlib
+-
+iostream
+-
+stdexcept
+-
+string
+-
+vector
+-
+location.hh
+location.hh
+typeinfo
+-
+cassert
 -
 
