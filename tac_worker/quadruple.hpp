@@ -167,7 +167,7 @@ struct Quad {
     }
 
     std::optional<Operand> get_op(int i) const {
-        if (!ops.empty())
+        if (ops.size() > i)
             return ops.at(i);
         else return {};
     }
@@ -276,7 +276,7 @@ struct Quad {
                 std::string output;
                 for (auto &op : ops)
                     output += op.value + " ";
-                return "phi node ( " + output + ")";
+                return destination.value() + " = phi ( " + output + ")";
         }
 
         if (unary_op.has_value()) {

@@ -410,12 +410,11 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
         }
     }
 
-    std::cout << " BEFORE" << std::endl;
-
     // now find immediate dominator for every node
     std::map<int, int> id_to_immediate_dominator;
     for (auto &[id, doms] : id_to_dominator) {
         auto current_node = id_to_block.at(id);
+        std::set<int> visited{};
         while (true) {
             if (current_node->id != id && doms.find(current_node->id) != doms.end()) {
                 id_to_immediate_dominator[id] = current_node->id;
@@ -423,12 +422,17 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
             } else if (current_node->predecessors.empty()) {
                 id_to_immediate_dominator[id] = -1;
                 break;
-            } else
-                current_node = *current_node->predecessors.begin();
+            } else {
+                for (auto &n : current_node->predecessors) {
+                    if (visited.find(n->id) == visited.end()) {
+                        visited.insert(n->id);
+                        current_node = n;
+                        break;
+                    }
+                }
+            }
         }
     }
-
-    std::cout << " AFTER" << std::endl;
 
     // compute dominance frontier for every node
     std::map<int, std::set<int>> id_to_dominance_frontier;
@@ -466,36 +470,43 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
     std::cout << "-- END_PRINT --" << std::endl;
 
 
-//    // finding global names
-//    std::map<std::string, std::set<BasicBlock *>> var_to_block;
-//    std::set<std::string> global_names;
-//    for (auto &b: blocks) {
-//        std::set<std::string> var_kill;
-//        for (const auto &q : b->quads) {
-//            for (auto &r: q.get_rhs(false))
-//                if (var_kill.find(r) == var_kill.end())
-//                    global_names.insert(r);
-//            if (auto lhs = q.get_lhs(); lhs.has_value()) {
-//                var_kill.insert(lhs.value());
-//                var_to_block[lhs.value()].insert(b.get());
-//            }
-//        }
-//    }
-//
-//    for (auto &name : global_names) {
-//        std::vector<BasicBlock*> work_list;
-//        auto &work_list_set = var_to_block.at(name);
-//        std::copy(work_list_set.begin(), work_list_set.end(), std::back_inserter(work_list));
-//
-//        for (int i = 0; i < work_list.size(); ++i) {
-//            for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
-//                if (auto d_block = id_to_block.at(d); !d_block->has_phi_function_for(name)) {
-//                    d_block->add_phi_function(name, {});
-//                }
-//            }
-//        }
-//
-//    }
+    // finding global names
+    std::map<std::string, std::set<BasicBlock *>> var_to_block;
+    std::set<std::string> global_names;
+    for (auto &b: blocks) {
+        std::set<std::string> var_kill;
+        for (const auto &q : b->quads) {
+            for (auto &r: q.get_rhs(false))
+                if (var_kill.find(r) == var_kill.end())
+                    global_names.insert(r);
+            if (auto lhs = q.get_lhs(); lhs.has_value()) {
+                var_kill.insert(lhs.value());
+                var_to_block[lhs.value()].insert(b.get());
+            }
+        }
+    }
+
+
+    for (auto &name : global_names) {
+        std::vector<BasicBlock*> work_list;
+        auto &work_list_set = var_to_block.at(name);
+        std::copy(work_list_set.begin(), work_list_set.end(), std::back_inserter(work_list));
+        std::set<int> visited_blocks;
+
+        for (int i = 0; i < work_list.size(); ++i) {
+            for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
+                if (auto d_block = id_to_block.at(d); !d_block->has_phi_function_for(name)) {
+                    d_block->add_phi_function(name, {});
+
+                    if (visited_blocks.find(d_block->id) == visited_blocks.end()) {
+                        work_list.push_back(d_block);
+                        visited_blocks.insert(d_block->id);
+                    }
+                }
+            }
+        }
+
+    }
 }
 
 
