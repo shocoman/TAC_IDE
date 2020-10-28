@@ -1,4 +1,4 @@
-# Install script for directory: D:/programming/c/tac_parser
+# Install script for directory: C:/Users/shoco/Desktop/tac_parser
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/programming/c/tac_parser/cmake-build-debug-coverage/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/shoco/Desktop/tac_parser/cmake-build-debug-coverage/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

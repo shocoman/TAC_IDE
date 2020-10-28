@@ -76,11 +76,11 @@ struct ValueNumberTableStack {
 
 
 static void constant_folding(Quad &n) {
-    double l = n.get_op(0)->get_double();
-    double r = n.get_op(1)->get_double();
     bool is_lnum = n.get_op(0)->is_number();
     bool is_rnum = n.get_op(1)->is_number();
 
+    double l = n.get_op(0)->get_double();
+    double r = n.get_op(1)->get_double();
     if (is_lnum && is_rnum) {
         double res = 0;
         switch (n.type) {
@@ -122,7 +122,7 @@ static void constant_folding(Quad &n) {
     if (is_lnum || is_rnum) {
         // a * 0 = 0
         if (n.type == Quad::Type::Mult && (l == 0 && is_lnum || r == 0 && is_rnum)) {
-            n.get_op(0) = Operand("0").value;
+            n.ops[0] = Operand("0", Operand::Type::LInt);
             n.clear_op(1);
             n.type = Quad::Type::Assign;
         }
@@ -165,13 +165,17 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
 //    std::map<std::string, int> value_numbers;
 //    std::map<int, std::string> value_numbers_to_names;
 //    std::map<OpRecord, int> operations;
-
+//    quads.clear();
 //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("a", {}, Dest::Type::Var)));
 //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("b", {}, Dest::Type::Var)));
-//    quads.emplace_back(Quad("17", "4", Quad::Type::Div, Dest("Z", {}, Dest::Type::Var)));
+//    quads.emplace_back(Quad("x", "0", Quad::Type::Mult, Dest("a", {}, Dest::Type::Var)));
 //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("c", {}, Dest::Type::Var)));
 //    quads.emplace_back(Quad("t1", {}, Quad::Type::IfTrue, Dest("LABEL2", {}, Dest::Type::JumpLabel)));
 //    quads.emplace_back(Quad("t1", {}, Quad::Type::IfTrue, Dest("LABEL2", {}, Dest::Type::JumpLabel)));
+//    quads.emplace_back(Quad("0", {}, Quad::Type::Assign, Dest("a", {}, Dest::Type::Var)));
+//    quads.emplace_back(Quad("0", {}, Quad::Type::Assign, Dest("b", {}, Dest::Type::Var)));
+//    quads.emplace_back(Quad("0", {}, Quad::Type::Assign, Dest("c", {}, Dest::Type::Var)));
+//    quads.emplace_back(Quad("0", {}, Quad::Type::Assign, Dest("d", {}, Dest::Type::Var)));
 
 
     for (auto &q : quads) {
@@ -180,8 +184,8 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
             continue;
         }
 
-        if (q.type != Quad::Type::Assign) {
-            //constant_folding(q);
+        if (Quad::is_foldable(q.type)) {
+            constant_folding(q);
         }
 
         // generate and/or save value number for every operand
@@ -217,7 +221,8 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
             op_value = op.value();
 
             q.type = Quad::Type::Assign;
-            q.ops[0] = Operand(t.get_name_by_value_number(op_value).value());
+            std::string val = t.get_name_by_value_number(op_value).value();
+            q.ops[0] = Operand(val);
             q.clear_op(1);
 
         } else {
@@ -255,7 +260,7 @@ static void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> 
 
     using SVNFuncType = std::function<void(BasicBlock *, ValueNumberTableStack &)>;
     SVNFuncType SVN = [&](BasicBlock *b, ValueNumberTableStack &t) {
-        visited_blocks.insert(b->id);
+        std::cout << " LOL " << std::endl;
         t.push_table();
         local_value_numbering(b->quads, t);
 
@@ -263,6 +268,7 @@ static void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> 
             if (s->predecessors.size() == 1) {
                 SVN(s, t);
             } else if (visited_blocks.find(b->id) == visited_blocks.end()) {
+                visited_blocks.insert(b->id);
                 work_list.push_back(s);
             }
         }

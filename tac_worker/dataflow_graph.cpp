@@ -590,6 +590,7 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
                     next_name = name;
                 }
                 Operand op(next_name, Operand::Type::Var);
+                op.payload = block->get_name();
                 phi.ops.push_back(op);
             }
         }
@@ -645,7 +646,7 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 
 
 //    print_cfg(blocks, "before.png");
-
+//
 //    for (auto &n : blocks) {
 //        ValueNumberTableStack t;
 //        t.push_table();

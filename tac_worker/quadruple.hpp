@@ -54,6 +54,7 @@ struct Operand {
     };
 
     std::string value;
+    std::string payload;
     Type type;
 
     Operand() : type(Type::None) {}
@@ -146,6 +147,10 @@ struct Quad {
         return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
     }
 
+    static bool is_foldable(Type t) {
+        return !(t == Type::Goto || t == Type::Return || t == Type::Assign || t == Type::PhiNode);
+    }
+
     std::vector<std::string> get_used_vars() const {
         auto used_vars = get_rhs();
         if (auto l = get_lhs(); l.has_value()) {
@@ -163,7 +168,8 @@ struct Quad {
     }
 
     void clear_op(int i) {
-        ops.erase(ops.begin() + i);
+        if (i < ops.size())
+            ops.erase(ops.begin() + i);
     }
 
     std::optional<Operand> get_op(int i) const {
@@ -180,7 +186,6 @@ struct Quad {
         }
         auto op1 = get_op(0);
         auto op2 = get_op(1);
-
         if (op1 && !op1->value.empty() && (include_constants || op1->is_var())) rhs_vars.push_back(op1->get_string());
         if (op2 && !op2->value.empty() && (include_constants || op2->is_var())) rhs_vars.push_back(op2->get_string());
         return rhs_vars;

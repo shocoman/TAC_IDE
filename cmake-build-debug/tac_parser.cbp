@@ -8,23 +8,23 @@
 		<Option virtualFolders="CMake Files\;CMake Files\cmake\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option working_dir="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tac_parser">
-				<Option output="D:/programming/c/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option output="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 					<Add directory="C:/Program Files/Graphviz 2.44.1/include/graphviz"/>
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++"/>
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32"/>
@@ -34,20 +34,20 @@
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser"/>
-					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tac_parser/fast">
-				<Option output="D:/programming/c/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option output="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/tac_parser.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
+					<Add directory="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 					<Add directory="C:/Program Files/Graphviz 2.44.1/include/graphviz"/>
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++"/>
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32"/>
@@ -57,85 +57,85 @@
 					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser/fast"/>
-					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser/fast"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option working_dir="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
+				<Option working_dir="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="D:/programming/c/tac_parser/DotWriter/DotWriter.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/DotWriter/DotWriter.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/DotWriter/DotWriter.h">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/DotWriter/DotWriter.h">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/lexer.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp.rule">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/lexer.cpp.rule">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/parser.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.cpp.rule">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/parser.cpp.rule">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake-build-debug/parser.hpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake-build-debug/parser.hpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/driver/driver.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/driver/driver.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/driver/driver.hpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/driver/driver.hpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/main.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/main.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/LoopFinder.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/basic_block.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/basic_block.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/basic_block.h">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/basic_block.h">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/dataflow_graph.cpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/dataflow_graph.cpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/dataflow_graph.hpp">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/tac_worker/local_value_numbering.h">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/tac_worker/local_value_numbering.h">
 			<Option target="tac_parser"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/CMakeLists.txt">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="D:/programming/c/tac_parser/cmake/FindGraphviz.cmake">
+		<Unit filename="C:/Users/shoco/Desktop/tac_parser/cmake/FindGraphviz.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
 	</Project>
