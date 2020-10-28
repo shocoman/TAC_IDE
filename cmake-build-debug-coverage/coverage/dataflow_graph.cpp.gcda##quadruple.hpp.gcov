@@ -1,0 +1,646 @@
+        -:    0:Source:D:/programming/c/tac_parser/tac_worker/quadruple.hpp
+        -:    0:Graph:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.gcno
+        -:    0:Data:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#ifndef TAC_PARSER_QUADRUPLE_HPP
+        -:    2:#define TAC_PARSER_QUADRUPLE_HPP
+        -:    3:
+        -:    4:#include <string>
+        -:    5:#include <ostream>
+        -:    6:#include <utility>
+        -:    7:#include <vector>
+        -:    8:#include <optional>
+        -:    9:#include <iostream>
+        -:   10:
+        -:   11:
+        -:   12:struct Dest {
+        -:   13:    enum class Type {
+        -:   14:        None, Var, ArraySet, Deref, JumpLabel,
+        -:   15:    };
+        -:   16:
+        -:   17:    Type dest_type{};
+        -:   18:    std::string dest_name;
+        -:   19:    std::optional<std::string> element_name;
+        -:   20:
+       37:   21:    Dest(std::string dest_name, std::optional<std::string> element_name, Type dest_type)
+       37:   22:            : dest_name(std::move(dest_name)), element_name(std::move(element_name)), dest_type(dest_type) {}
+       37:   22-block  0
+        -:   23:
+       48:   24:    Dest() = default;
+       48:   24-block  0
+       48:   24-block  1
+    $$$$$:   24-block  2
+        -:   25:
+        -:   26:    friend std::ostream &operator<<(std::ostream &os, const Dest &destination) {
+        -:   27:        const char *type_names[] = {"None", "Var", "ArraySet", "Deref", "JumpLabel"};
+        -:   28:        os << "dest_type: " << type_names[static_cast<int>(destination.dest_type)]
+        -:   29:           << "; dest_name: " << destination.dest_name;
+        -:   30:        if (destination.element_name.has_value()) os << "; element_name: " << destination.element_name.value();
+        -:   31:        return os;
+        -:   32:    }
+        -:   33:
+    #####:   34:    std::optional<std::string> fmt() const {
+    #####:   35:        switch (dest_type) {
+    %%%%%:   35-block  0
+    #####:   36:            case Type::Var:
+    #####:   37:                return dest_name;
+    %%%%%:   37-block  0
+    #####:   38:            case Type::ArraySet:
+    #####:   39:                return dest_name + "[" + element_name.value() + "]";
+    %%%%%:   39-block  0
+    %%%%%:   39-block  1
+    %%%%%:   39-block  2
+    %%%%%:   39-block  3
+    %%%%%:   39-block  4
+    $$$$$:   39-block  5
+    $$$$$:   39-block  6
+    $$$$$:   39-block  7
+    $$$$$:   39-block  8
+    $$$$$:   39-block  9
+    $$$$$:   39-block 10
+    #####:   40:            case Type::Deref:
+    #####:   41:                return "*" + dest_name;
+    %%%%%:   41-block  0
+    %%%%%:   41-block  1
+    %%%%%:   41-block  2
+    $$$$$:   41-block  3
+    #####:   42:            case Type::JumpLabel:
+    #####:   43:                return dest_name;
+    %%%%%:   43-block  0
+    #####:   44:            default:
+    #####:   45:                return {};
+    %%%%%:   45-block  0
+        -:   46:        }
+        -:   47:    }
+        -:   48:};
+        -:   49:
+        -:   50:
+        -:   51:struct Operand {
+        -:   52:    enum class Type {
+        -:   53:        None, Var, LInt, LDouble, LBool, LChar
+        -:   54:    };
+        -:   55:
+        -:   56:    std::string value;
+        -:   57:    Type type;
+        -:   58:
+        -:   59:    Operand() : type(Type::None) {}
+        -:   60:
+       22:   61:    Operand(std::string s, Type t) : value(std::move(s)), type(t) {}
+       22:   61-block  0
+        -:   62:
+    #####:   63:    Operand(const std::string &s) {
+    %%%%%:   63-block  0
+    $$$$$:   63-block  1
+    #####:   64:        char *end = nullptr;
+    #####:   65:        if (strtol(s.c_str(), &end, 10); end != s.c_str() && *end == '\0') {
+    %%%%%:   65-block  0
+    %%%%%:   65-block  1
+    %%%%%:   65-block  2
+    %%%%%:   65-block  3
+    #####:   66:            type = Type::LInt;
+    %%%%%:   66-block  0
+    #####:   67:        } else if (strtod(s.c_str(), &end); end != s.c_str() && *end == '\0') {
+    %%%%%:   67-block  0
+    %%%%%:   67-block  1
+    %%%%%:   67-block  2
+    %%%%%:   67-block  3
+    %%%%%:   67-block  4
+    #####:   68:            type = Type::LDouble;
+    %%%%%:   68-block  0
+    #####:   69:        } else if (!s.empty()) {
+    %%%%%:   69-block  0
+    #####:   70:            type = Type::Var;
+    %%%%%:   70-block  0
+        -:   71:        } else {
+    #####:   72:            type = Type::None;
+    %%%%%:   72-block  0
+        -:   73:        }
+    #####:   74:        value = s;
+    %%%%%:   74-block  0
+    #####:   75:    }
+    %%%%%:   75-block  0
+        -:   76:
+    #####:   77:    std::string get_string() const {
+    #####:   78:        return value;
+    %%%%%:   78-block  0
+        -:   79:    }
+        -:   80:
+        -:   81:    int get_int() const {
+        -:   82:        char *end = nullptr;
+        -:   83:        return strtol(value.c_str(), &end, 10);
+        -:   84:    }
+        -:   85:
+    #####:   86:    double get_double() const {
+    #####:   87:        char *end = nullptr;
+    #####:   88:        return strtod(value.c_str(), &end);
+    %%%%%:   88-block  0
+        -:   89:    }
+        -:   90:
+    #####:   91:    bool is_var() const { return type == Type::Var; }
+    %%%%%:   91-block  0
+        -:   92:
+    #####:   93:    bool is_int() const { return type == Type::LInt; }
+    %%%%%:   93-block  0
+        -:   94:
+        -:   95:    bool is_double() const { return type == Type::LDouble; }
+        -:   96:
+    #####:   97:    bool is_number() const {
+    #####:   98:        return type == Type::LInt || type == Type::LDouble;
+    %%%%%:   98-block  0
+    %%%%%:   98-block  1
+    %%%%%:   98-block  2
+    %%%%%:   98-block  3
+    %%%%%:   98-block  4
+        -:   99:    }
+        -:  100:
+        -:  101:    void clear() {
+        -:  102:        value.clear();
+        -:  103:        type = Type::None;
+        -:  104:    }
+        -:  105:
+    #####:  106:    bool operator==(const Operand &rhs) const {
+    #####:  107:        if (is_number() && rhs.is_number())
+    %%%%%:  107-block  0
+    %%%%%:  107-block  1
+    %%%%%:  107-block  2
+    %%%%%:  107-block  3
+    %%%%%:  107-block  4
+    #####:  108:            return get_double() == rhs.get_double();
+    %%%%%:  108-block  0
+        -:  109:        else
+    #####:  110:            return value == rhs.value;
+    %%%%%:  110-block  0
+        -:  111:    }
+        -:  112:
+        -:  113:};
+        -:  114:
+        -:  115:struct Quad {
+        -:  116:    enum class Type {
+        -:  117:        Nop, Add, Sub, Mult, Div, UMinus,
+        -:  118:        Lt, Gt, Eq, Neq,
+        -:  119:        Assign, Deref, Ref, ArrayGet,
+        -:  120:        IfTrue, IfFalse, Goto, Halt, Call, Param, Return,
+        -:  121:        PhiNode,
+        -:  122:    };
+        -:  123:
+        -:  124:    std::optional<Dest> dest{};
+        -:  125:
+        -:  126:    std::vector<Operand> ops{};
+        -:  127://    Operand op1{};
+        -:  128://    Operand op2{};
+        -:  129:    Type type{};
+        -:  130:
+        -:  131:
+       38:  132:    Quad(std::string op1, std::string op2, Type op_type, const Dest &dest = {})
+       38:  133:            : type(op_type), dest(dest) {
+       38:  133-block  0
+    $$$$$:  133-block  1
+    $$$$$:  133-block  2
+       38:  134:        if (!op1.empty()) ops.emplace_back(std::move(op1));
+       24:  134-block  0
+       38:  135:        if (!op2.empty()) ops.emplace_back(std::move(op2));
+       38:  135-block  0
+        6:  135-block  1
+       38:  136:    }
+       38:  136-block  0
+        -:  137:
+        -:  138:    Quad() = default;
+        -:  139:
+    #####:  140:    static bool is_commutative(Type t) {
+    #####:  141:        return t == Type::Add || t == Type::Mult || t == Type::Assign
+    %%%%%:  141-block  0
+    %%%%%:  141-block  1
+    #####:  142:               || t == Type::Eq || t == Type::Neq;
+    %%%%%:  142-block  0
+    %%%%%:  142-block  1
+    %%%%%:  142-block  2
+    %%%%%:  142-block  3
+    %%%%%:  142-block  4
+    %%%%%:  142-block  5
+        -:  143:    }
+        -:  144:
+        -:  145:    static bool is_jump(Type t) {
+        -:  146:        return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
+        -:  147:    }
+        -:  148:
+    #####:  149:    std::vector<std::string> get_used_vars() const {
+    #####:  150:        auto used_vars = get_rhs();
+    %%%%%:  150-block  0
+    #####:  151:        if (auto l = get_lhs(); l.has_value()) {
+    %%%%%:  151-block  0
+    %%%%%:  151-block  1
+    $$$$$:  151-block  2
+    #####:  152:            used_vars.push_back(l.value());
+    %%%%%:  152-block  0
+    %%%%%:  152-block  1
+        -:  153:        }
+    #####:  154:        return used_vars;
+    %%%%%:  154-block  0
+        -:  155:    }
+        -:  156:
+       27:  157:    std::optional<std::string> get_lhs() const {
+       27:  158:        if (dest && !is_jump()) {
+       27:  158-block  0
+       27:  158-block  1
+       22:  158-block  2
+        5:  158-block  3
+       27:  158-block  4
+       22:  159:            return (dest.value().dest_name);
+       22:  159-block  0
+        -:  160:        } else {
+        5:  161:            return {};
+        5:  161-block  0
+        -:  162:        }
+        -:  163:    }
+        -:  164:
+    #####:  165:    void clear_op(int i) {
+    #####:  166:        ops.erase(ops.begin() + i);
+    %%%%%:  166-block  0
+    $$$$$:  166-block  1
+    $$$$$:  166-block  2
+    #####:  167:    }
+    %%%%%:  167-block  0
+        -:  168:
+    #####:  169:    std::optional<Operand> get_op(int i) const {
+    #####:  170:        if (ops.size() > i)
+    %%%%%:  170-block  0
+    #####:  171:            return ops.at(i);
+    %%%%%:  171-block  0
+    #####:  172:        else return {};
+    %%%%%:  172-block  0
+        -:  173:    }
+        -:  174:
+    #####:  175:    std::vector<std::string> get_rhs(bool include_constants = true) const {
+    #####:  176:        std::vector<std::string> rhs_vars;
+    %%%%%:  176-block  0
+    #####:  177:        if (dest) {
+    #####:  178:            if (dest.value().dest_type == Dest::Type::ArraySet)
+    %%%%%:  178-block  0
+    %%%%%:  178-block  1
+    #####:  179:                rhs_vars.push_back(dest.value().element_name.value());
+    %%%%%:  179-block  0
+    %%%%%:  179-block  1
+    %%%%%:  179-block  2
+        -:  180:        }
+    #####:  181:        auto op1 = get_op(0);
+    %%%%%:  181-block  0
+    $$$$$:  181-block  1
+    #####:  182:        auto op2 = get_op(1);
+    %%%%%:  182-block  0
+    %%%%%:  182-block  1
+    $$$$$:  182-block  2
+        -:  183:
+    #####:  184:        if (op1 && !op1->value.empty() && (include_constants || op1->is_var())) rhs_vars.push_back(op1->get_string());
+    %%%%%:  184-block  0
+    %%%%%:  184-block  1
+    %%%%%:  184-block  2
+    %%%%%:  184-block  3
+    %%%%%:  184-block  4
+    %%%%%:  184-block  5
+    %%%%%:  184-block  6
+    %%%%%:  184-block  7
+    %%%%%:  184-block  8
+    %%%%%:  184-block  9
+    $$$$$:  184-block 10
+    $$$$$:  184-block 11
+    #####:  185:        if (op2 && !op2->value.empty() && (include_constants || op2->is_var())) rhs_vars.push_back(op2->get_string());
+    %%%%%:  185-block  0
+    %%%%%:  185-block  1
+    %%%%%:  185-block  2
+    %%%%%:  185-block  3
+    %%%%%:  185-block  4
+    %%%%%:  185-block  5
+    %%%%%:  185-block  6
+    %%%%%:  185-block  7
+    %%%%%:  185-block  8
+    %%%%%:  185-block  9
+    $$$$$:  185-block 10
+    $$$$$:  185-block 11
+    #####:  186:        return rhs_vars;
+    %%%%%:  186-block  0
+    %%%%%:  186-block  1
+        -:  187:    }
+        -:  188:
+    #####:  189:    bool is_jump() const {
+    #####:  190:        return type == Type::Goto
+    #####:  191:               || type == Type::IfTrue
+    %%%%%:  191-block  0
+    #####:  192:               || type == Type::IfFalse;
+    %%%%%:  192-block  0
+    %%%%%:  192-block  1
+    %%%%%:  192-block  2
+    %%%%%:  192-block  3
+    %%%%%:  192-block  4
+        -:  193:    }
+        -:  194:
+        -:  195:
+        -:  196:    friend std::ostream &operator<<(std::ostream &os, const Quad &quad) {
+        -:  197:        const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Assign",
+        -:  198:                                    "Deref", "Ref", "ArrayGet", "IfTrue", "IfFalse", "Goto", "Halt", "Call", "Param",
+        -:  199:                                    "Return", "PhiNode"};
+        -:  200:        if (quad.dest.has_value()) os << "dest: { " << quad.dest.value() << "}" << "; ";
+        -:  201:        if (quad.get_op(0)->type != Operand::Type::None)
+        -:  202:            os << "op1: " << quad.get_op(0)->get_string() << "; ";
+        -:  203:        if (quad.get_op(1)->type != Operand::Type::None)
+        -:  204:            os << "op2: " << quad.get_op(1)->get_string() << "; ";
+        -:  205:        os << "type: " << type_names[static_cast<int>(quad.type)];
+        -:  206:        return os;
+        -:  207:    }
+        -:  208:
+        -:  209:
+    #####:  210:    std::string fmt() const {
+    #####:  211:        std::optional<std::string> destination = dest.has_value() ? dest.value().fmt() : std::nullopt;
+    %%%%%:  211-block  0
+    %%%%%:  211-block  1
+    %%%%%:  211-block  2
+    %%%%%:  211-block  3
+    %%%%%:  211-block  4
+    $$$$$:  211-block  5
+    $$$$$:  211-block  6
+        -:  212:
+    #####:  213:        std::string command;
+    %%%%%:  213-block  0
+    $$$$$:  213-block  1
+    #####:  214:        if (destination.has_value()) {
+    #####:  215:            command += destination.value() + " = ";
+    %%%%%:  215-block  0
+    %%%%%:  215-block  1
+    %%%%%:  215-block  2
+    %%%%%:  215-block  3
+    $$$$$:  215-block  4
+    $$$$$:  215-block  5
+        -:  216:        }
+        -:  217:
+    #####:  218:        std::optional<std::string> op;
+    $$$$$:  218-block  0
+    #####:  219:        std::optional<std::string> unary_op;
+    %%%%%:  219-block  0
+    $$$$$:  219-block  1
+    #####:  220:        switch (type) {
+    %%%%%:  220-block  0
+    #####:  221:            case Type::Add:
+    #####:  222:                op = "+";
+    %%%%%:  222-block  0
+    #####:  223:                break;
+    %%%%%:  223-block  0
+    %%%%%:  223-block  1
+    #####:  224:            case Type::Sub:
+    #####:  225:                op = "-";
+    %%%%%:  225-block  0
+    #####:  226:                break;
+    %%%%%:  226-block  0
+    #####:  227:            case Type::Mult:
+    #####:  228:                op = "*";
+    %%%%%:  228-block  0
+    #####:  229:                break;
+    %%%%%:  229-block  0
+    #####:  230:            case Type::Div:
+    #####:  231:                op = "/";
+    %%%%%:  231-block  0
+    #####:  232:                break;
+    %%%%%:  232-block  0
+    #####:  233:            case Type::UMinus:
+    #####:  234:                unary_op = "-";
+    %%%%%:  234-block  0
+    #####:  235:                break;
+    %%%%%:  235-block  0
+    #####:  236:            case Type::Lt:
+    #####:  237:                op = "<";
+    %%%%%:  237-block  0
+    #####:  238:                break;
+    %%%%%:  238-block  0
+    #####:  239:            case Type::Gt:
+    #####:  240:                op = ">";
+    %%%%%:  240-block  0
+    #####:  241:                break;
+    %%%%%:  241-block  0
+    #####:  242:            case Type::Eq:
+    #####:  243:                op = "==";
+    %%%%%:  243-block  0
+    #####:  244:                break;
+    %%%%%:  244-block  0
+    #####:  245:            case Type::Neq:
+    #####:  246:                op = "!=";
+    %%%%%:  246-block  0
+    #####:  247:                break;
+    %%%%%:  247-block  0
+    #####:  248:            case Type::Assign:
+    #####:  249:                unary_op = "";
+    %%%%%:  249-block  0
+    #####:  250:                break;
+    %%%%%:  250-block  0
+    #####:  251:            case Type::Deref:
+    #####:  252:                unary_op = "*";
+    %%%%%:  252-block  0
+    #####:  253:                break;
+    %%%%%:  253-block  0
+    #####:  254:            case Type::Ref:
+    #####:  255:                unary_op = "&";
+    %%%%%:  255-block  0
+    #####:  256:                break;
+    %%%%%:  256-block  0
+    #####:  257:            case Type::ArrayGet:
+    #####:  258:                return destination.value() + " = " + get_op(0)->get_string() + "[" + get_op(1)->get_string() + "]";
+    %%%%%:  258-block  0
+    %%%%%:  258-block  1
+    %%%%%:  258-block  2
+    %%%%%:  258-block  3
+    %%%%%:  258-block  4
+    %%%%%:  258-block  5
+    %%%%%:  258-block  6
+    %%%%%:  258-block  7
+    %%%%%:  258-block  8
+    %%%%%:  258-block  9
+    %%%%%:  258-block 10
+    %%%%%:  258-block 11
+    $$$$$:  258-block 12
+    $$$$$:  258-block 13
+    $$$$$:  258-block 14
+    $$$$$:  258-block 15
+    $$$$$:  258-block 16
+    $$$$$:  258-block 17
+    $$$$$:  258-block 18
+    $$$$$:  258-block 19
+    $$$$$:  258-block 20
+    $$$$$:  258-block 21
+    $$$$$:  258-block 22
+    $$$$$:  258-block 23
+    $$$$$:  258-block 24
+    $$$$$:  258-block 25
+    $$$$$:  258-block 26
+    $$$$$:  258-block 27
+    #####:  259:            case Type::IfTrue:
+    #####:  260:                return "if " + get_op(0)->get_string() + " goto " + destination.value();
+    %%%%%:  260-block  0
+    %%%%%:  260-block  1
+    %%%%%:  260-block  2
+    %%%%%:  260-block  3
+    %%%%%:  260-block  4
+    %%%%%:  260-block  5
+    %%%%%:  260-block  6
+    %%%%%:  260-block  7
+    $$$$$:  260-block  8
+    $$$$$:  260-block  9
+    $$$$$:  260-block 10
+    $$$$$:  260-block 11
+    $$$$$:  260-block 12
+    $$$$$:  260-block 13
+    $$$$$:  260-block 14
+    $$$$$:  260-block 15
+    #####:  261:            case Type::IfFalse:
+    #####:  262:                return "ifFalse " + get_op(0)->get_string() + " goto " + destination.value();
+    %%%%%:  262-block  0
+    %%%%%:  262-block  1
+    %%%%%:  262-block  2
+    %%%%%:  262-block  3
+    %%%%%:  262-block  4
+    %%%%%:  262-block  5
+    %%%%%:  262-block  6
+    %%%%%:  262-block  7
+    $$$$$:  262-block  8
+    $$$$$:  262-block  9
+    $$$$$:  262-block 10
+    $$$$$:  262-block 11
+    $$$$$:  262-block 12
+    $$$$$:  262-block 13
+    $$$$$:  262-block 14
+    $$$$$:  262-block 15
+    #####:  263:            case Type::Goto:
+    #####:  264:                return "goto " + destination.value();
+    %%%%%:  264-block  0
+    %%%%%:  264-block  1
+    %%%%%:  264-block  2
+    #####:  265:            case Type::Halt:
+    #####:  266:                return "halt";
+    %%%%%:  266-block  0
+    %%%%%:  266-block  1
+    $$$$$:  266-block  2
+    $$$$$:  266-block  3
+    #####:  267:            case Type::Call:
+    #####:  268:                return "call " + get_op(0)->get_string() + " " + get_op(0)->get_string();
+    %%%%%:  268-block  0
+    %%%%%:  268-block  1
+    %%%%%:  268-block  2
+    %%%%%:  268-block  3
+    %%%%%:  268-block  4
+    %%%%%:  268-block  5
+    %%%%%:  268-block  6
+    %%%%%:  268-block  7
+    %%%%%:  268-block  8
+    $$$$$:  268-block  9
+    $$$$$:  268-block 10
+    $$$$$:  268-block 11
+    $$$$$:  268-block 12
+    $$$$$:  268-block 13
+    $$$$$:  268-block 14
+    $$$$$:  268-block 15
+    $$$$$:  268-block 16
+    $$$$$:  268-block 17
+    $$$$$:  268-block 18
+    $$$$$:  268-block 19
+    $$$$$:  268-block 20
+    #####:  269:            case Type::Param:
+    #####:  270:                return "param " + get_op(0)->get_string();
+    %%%%%:  270-block  0
+    %%%%%:  270-block  1
+    %%%%%:  270-block  2
+    %%%%%:  270-block  3
+    %%%%%:  270-block  4
+    $$$$$:  270-block  5
+    $$$$$:  270-block  6
+    $$$$$:  270-block  7
+    $$$$$:  270-block  8
+    #####:  271:            case Type::Nop:
+    #####:  272:                return "nop";
+    %%%%%:  272-block  0
+    %%%%%:  272-block  1
+    $$$$$:  272-block  2
+    $$$$$:  272-block  3
+    #####:  273:            case Type::Return:
+    #####:  274:                return "return";
+    %%%%%:  274-block  0
+    %%%%%:  274-block  1
+    $$$$$:  274-block  2
+    $$$$$:  274-block  3
+    #####:  275:            case Type::PhiNode:
+    #####:  276:                std::string output;
+    %%%%%:  276-block  0
+    $$$$$:  276-block  1
+    #####:  277:                for (auto &op : ops)
+    %%%%%:  277-block  0
+    %%%%%:  277-block  1
+    #####:  278:                    output += op.value + " ";
+    %%%%%:  278-block  0
+    %%%%%:  278-block  1
+    $$$$$:  278-block  2
+    $$$$$:  278-block  3
+    #####:  279:                return destination.value() + " = phi ( " + output + ")";
+    %%%%%:  279-block  0
+    %%%%%:  279-block  1
+    %%%%%:  279-block  2
+    %%%%%:  279-block  3
+    %%%%%:  279-block  4
+    %%%%%:  279-block  5
+    $$$$$:  279-block  6
+    $$$$$:  279-block  7
+    $$$$$:  279-block  8
+    $$$$$:  279-block  9
+        -:  280:        }
+        -:  281:
+    #####:  282:        if (unary_op.has_value()) {
+    %%%%%:  282-block  0
+    #####:  283:            return destination.value() + " = " + unary_op.value() + get_op(0)->get_string();
+    %%%%%:  283-block  0
+    %%%%%:  283-block  1
+    %%%%%:  283-block  2
+    %%%%%:  283-block  3
+    %%%%%:  283-block  4
+    %%%%%:  283-block  5
+    %%%%%:  283-block  6
+    %%%%%:  283-block  7
+    %%%%%:  283-block  8
+    $$$$$:  283-block  9
+    $$$$$:  283-block 10
+    $$$$$:  283-block 11
+    $$$$$:  283-block 12
+    $$$$$:  283-block 13
+    $$$$$:  283-block 14
+    $$$$$:  283-block 15
+    $$$$$:  283-block 16
+        -:  284:        } else {
+    #####:  285:            return destination.value() + " = " + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
+    %%%%%:  285-block  0
+    %%%%%:  285-block  1
+    %%%%%:  285-block  2
+    %%%%%:  285-block  3
+    %%%%%:  285-block  4
+    %%%%%:  285-block  5
+    %%%%%:  285-block  6
+    %%%%%:  285-block  7
+    %%%%%:  285-block  8
+    %%%%%:  285-block  9
+    %%%%%:  285-block 10
+    %%%%%:  285-block 11
+    $$$$$:  285-block 12
+    $$$$$:  285-block 13
+    $$$$$:  285-block 14
+    $$$$$:  285-block 15
+    $$$$$:  285-block 16
+    $$$$$:  285-block 17
+    $$$$$:  285-block 18
+    $$$$$:  285-block 19
+    $$$$$:  285-block 20
+    $$$$$:  285-block 21
+    $$$$$:  285-block 22
+    $$$$$:  285-block 23
+    $$$$$:  285-block 24
+    $$$$$:  285-block 25
+        -:  286:        }
+        -:  287:    }
+        -:  288:};
+        -:  289:
+        -:  290:
+        -:  291:#endif //TAC_PARSER_QUADRUPLE_HPP
+        -:  292:
+        -:  293:

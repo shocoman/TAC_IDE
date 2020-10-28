@@ -365,6 +365,31 @@ void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
 }
 
 
+void print_dominator_tree(std::map<int, BasicBlock *> &id_to_block, int entry_id,
+                          std::map<int, int> &id_to_immediate_dominator) {
+
+    DotWriter writer;
+
+    for (auto &[block_id, block] : id_to_block) {
+        for (auto &[id1, id2] : id_to_immediate_dominator) {
+            if (id2 == block_id) {
+                // blocks[id1] and blocks[block_id] are connected
+                auto name1 = id_to_block.at(block_id)->get_name();
+                auto name2 = id_to_block.at(id1)->get_name();
+                writer.set_node_name(name1, name1);
+                writer.set_node_name(name2, name2);
+                writer.set_node_text(name1, {});
+                writer.set_node_text(name2, {});
+                writer.add_edge(name1, name2);
+            }
+        }
+    }
+
+    writer.render_to_file("dominator_tree.png");
+    system("dominator_tree.png");
+}
+
+
 void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
     std::map<int, std::set<int>> id_to_dominator;
     std::map<int, BasicBlock *> id_to_block;
@@ -486,16 +511,16 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
         }
     }
 
-
+    // placing phi functions
     for (auto &name : global_names) {
-        std::vector<BasicBlock*> work_list;
+        std::vector<BasicBlock *> work_list;
         auto &work_list_set = var_to_block.at(name);
         std::copy(work_list_set.begin(), work_list_set.end(), std::back_inserter(work_list));
         std::set<int> visited_blocks;
 
         for (int i = 0; i < work_list.size(); ++i) {
             for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
-                if (auto d_block = id_to_block.at(d); !d_block->has_phi_function_for(name)) {
+                if (auto d_block = id_to_block.at(d); !d_block->has_phi_function(name)) {
                     d_block->add_phi_function(name, {});
 
                     if (visited_blocks.find(d_block->id) == visited_blocks.end()) {
@@ -505,8 +530,84 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
                 }
             }
         }
-
     }
+
+    // rename variables
+    std::map<std::string, int> name_to_counter;
+    std::map<std::string, std::vector<int>> name_to_stack;
+    for (auto &name: global_names) {
+        name_to_counter[name] = 0;
+        name_to_stack[name] = {};
+    }
+
+
+    auto new_name = [&](std::string name) {
+        int i = name_to_counter.at(name);
+        name_to_counter.at(name)++;
+        name_to_stack.at(name).push_back(i);
+        return name + "." + std::to_string(i);
+    };
+
+
+    std::function<void(int)> rename = [&](int block_id) {
+        std::vector<std::string> pushed_names;
+        auto block = id_to_block.at(block_id);
+
+        // rename phi functions
+        for (int i = 0; i < block->phi_functions; ++i) {
+            auto &phi = block->quads[i];
+            pushed_names.push_back(phi.dest->dest_name);
+            phi.dest->dest_name = new_name(phi.dest->dest_name);
+        }
+
+        // rename other operations of form 'x = y + z'
+        for (int i = block->phi_functions; i < block->quads.size(); ++i) {
+            auto &q = block->quads[i];
+            if (auto op1 = q.get_op(0); op1 && op1->is_var() && name_to_stack.find(op1->value) != name_to_stack.end()) {
+                q.ops[0].value += "." + std::to_string(name_to_stack.at(op1->value).back());
+            }
+            if (auto op2 = q.get_op(1); op2 && op2->is_var() && name_to_stack.find(op2->value) != name_to_stack.end()) {
+                q.ops[1].value += "." + std::to_string(name_to_stack.at(op2->value).back());
+            }
+            if (q.dest && global_names.find(q.dest->dest_name) != global_names.end()) {
+                pushed_names.push_back(q.dest->dest_name);
+                q.dest->dest_name = new_name(q.dest->dest_name);
+            }
+        }
+
+        // fill phi function parameters for every successor
+        for (auto &s : block->successors) {
+            for (int i = 0; i < s->phi_functions; ++i) {
+                auto &phi = s->quads[i];
+                auto name = phi.dest.value().dest_name;
+                auto name_without_dot = name.substr(0, name.find_first_of('.', 0));
+
+                std::string next_name;
+                if (name_to_stack.find(name_without_dot) != name_to_stack.end() &&
+                    !name_to_stack.at(name_without_dot).empty()) {
+                    next_name = name_without_dot + "." + std::to_string(name_to_stack.at(name_without_dot).back());
+                } else {
+                    next_name = name;
+                }
+                Operand op(next_name, Operand::Type::Var);
+                phi.ops.push_back(op);
+            }
+        }
+
+        // call for each successor in dominant tree
+        for (auto &[id1, id2] : id_to_immediate_dominator)
+            if (id2 == block_id)
+                rename(id1);
+
+        for (auto &n : pushed_names)
+            name_to_stack.at(n).pop_back();
+    };
+
+    int entry_block_id = 0;
+    rename(entry_block_id);
+
+
+    print_dominator_tree(id_to_block, 0, id_to_immediate_dominator);
 }
 
 

@@ -1,0 +1,304 @@
+        -:    0:Source:D:/programming/c/tac_parser/DotWriter/DotWriter.cpp
+        -:    0:Graph:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.gcno
+        -:    0:Data:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://
+        -:    2:// Created by shoco on 10/8/2020.
+        -:    3://
+        -:    4:
+        -:    5:#include "DotWriter.h"
+        -:    6:
+        -:    7:
+       19:    8:void DotWriter::add_edge(std::string node1, std::string node2, std::string edge_label) {
+       19:    9:    edges.emplace_back(std::move(node1), std::move(node2), std::move(edge_label));
+       19:    9-block  0
+       19:   10:}
+        -:   11:
+       25:   12:void DotWriter::set_node_name(const std::string &node, const std::string &name) {
+       25:   13:    node_names.emplace(node, name);
+       25:   13-block  0
+       25:   14:}
+        -:   15:
+       25:   16:void DotWriter::set_node_text(const std::string &node_name, const std::vector<std::string> &lines) {
+       25:   17:    node_texts.emplace_back(node_name, lines);
+       25:   17-block  0
+       25:   18:}
+        -:   19:
+    #####:   20:void DotWriter::write_dot_to_file(const std::string &filename) {
+    #####:   21:    std::ofstream f(filename);
+    %%%%%:   21-block  0
+    %%%%%:   21-block  1
+    $$$$$:   21-block  2
+    #####:   22:    if (f.is_open()) {
+    %%%%%:   22-block  0
+    %%%%%:   22-block  1
+        -:   23:        // write here
+        -:   24:        // write header
+    #####:   25:        f << "digraph D {" << std::endl << std::endl;
+    %%%%%:   25-block  0
+    %%%%%:   25-block  1
+    %%%%%:   25-block  2
+        -:   26:
+        -:   27:        // write node and edge default settings
+    #####:   28:        f << "node [shape=record fontname=\"Comic Sans MS\"]" << std::endl;
+    %%%%%:   28-block  0
+    %%%%%:   28-block  1
+    #####:   29:        f << "edge [fontname=\"Comic Sans MS\"]" << std::endl << std::endl;
+    %%%%%:   29-block  0
+    %%%%%:   29-block  1
+    %%%%%:   29-block  2
+        -:   30:
+        -:   31:        // write labels
+    #####:   32:        for (auto &[node, label_lines] : node_texts) {
+    %%%%%:   32-block  0
+    %%%%%:   32-block  1
+    %%%%%:   32-block  2
+    #####:   33:            std::string final_label;
+    $$$$$:   33-block  0
+    #####:   34:            std::string xlabel;
+    %%%%%:   34-block  0
+    $$$$$:   34-block  1
+    #####:   35:            if (auto n = node_names.find(node); n != node_names.end()) {
+    %%%%%:   35-block  0
+        -:   36:                // xlabel += "" + n->second + "";
+    #####:   37:                final_label += "Label: " + n->second + ";\\l";
+    %%%%%:   37-block  0
+    %%%%%:   37-block  1
+    %%%%%:   37-block  2
+    %%%%%:   37-block  3
+    $$$$$:   37-block  4
+    $$$$$:   37-block  5
+    $$$$$:   37-block  6
+    $$$$$:   37-block  7
+        -:   38:            }
+    #####:   39:            final_label += "" + node + "|";
+    %%%%%:   39-block  0
+    %%%%%:   39-block  1
+    %%%%%:   39-block  2
+    %%%%%:   39-block  3
+    $$$$$:   39-block  4
+    $$$$$:   39-block  5
+    $$$$$:   39-block  6
+    $$$$$:   39-block  7
+        -:   40:
+        -:   41:
+    #####:   42:            for (auto l : label_lines) {
+    %%%%%:   42-block  0
+    %%%%%:   42-block  1
+    $$$$$:   42-block  2
+        -:   43:                //escape utility symbols (<, >, ...)
+    #####:   44:                for (int i = l.size() - 1; i >= 0; --i) {
+    %%%%%:   44-block  0
+    %%%%%:   44-block  1
+    %%%%%:   44-block  2
+    #####:   45:                    auto c = l.at(i);
+    %%%%%:   45-block  0
+    #####:   46:                    if (c == '<' || c == '>') {
+    %%%%%:   46-block  0
+    %%%%%:   46-block  1
+    #####:   47:                        l.insert(i, 1, c);
+    %%%%%:   47-block  0
+    #####:   48:                        l[i] = '\\';
+    %%%%%:   48-block  0
+    %%%%%:   48-block  1
+        -:   49:                    }
+        -:   50:                }
+        -:   51:                // align line to the left side with \l
+    #####:   52:                final_label += l + "\\l";
+    %%%%%:   52-block  0
+    %%%%%:   52-block  1
+    %%%%%:   52-block  2
+    $$$$$:   52-block  3
+    $$$$$:   52-block  4
+        -:   53:            }
+    #####:   54:            f << "\"" << node << "\"" << " [label=\"{" << final_label << "}\"]" << std::endl;
+    %%%%%:   54-block  0
+    %%%%%:   54-block  1
+    %%%%%:   54-block  2
+    %%%%%:   54-block  3
+    %%%%%:   54-block  4
+    %%%%%:   54-block  5
+    %%%%%:   54-block  6
+        -:   55:        }
+    #####:   56:        f << std::endl;
+    %%%%%:   56-block  0
+        -:   57:
+        -:   58:        // write edges
+    #####:   59:        for (auto &[node1, node2, edge_name] : edges) {
+    %%%%%:   59-block  0
+    %%%%%:   59-block  1
+    %%%%%:   59-block  2
+    %%%%%:   59-block  3
+    #####:   60:            f << "\"" << node1 << "\"" << " -> " << "\"" << node2 << "\"";
+    %%%%%:   60-block  0
+    %%%%%:   60-block  1
+    %%%%%:   60-block  2
+    %%%%%:   60-block  3
+    %%%%%:   60-block  4
+    %%%%%:   60-block  5
+    #####:   61:            if (!edge_name.empty())
+    %%%%%:   61-block  0
+    #####:   62:                f << " [label=\"" + edge_name + "\"]";
+    %%%%%:   62-block  0
+    %%%%%:   62-block  1
+    %%%%%:   62-block  2
+    %%%%%:   62-block  3
+    $$$$$:   62-block  4
+    $$$$$:   62-block  5
+    $$$$$:   62-block  6
+    $$$$$:   62-block  7
+    #####:   63:            f << std::endl;
+    %%%%%:   63-block  0
+        -:   64:        }
+    #####:   65:        f << std::endl;
+    %%%%%:   65-block  0
+        -:   66:
+        -:   67:        // write footer
+    #####:   68:        f << "}" << std::endl;
+    %%%%%:   68-block  0
+    %%%%%:   68-block  1
+        -:   69:
+    #####:   70:        f.close();
+    %%%%%:   70-block  0
+        -:   71:    } else {
+    #####:   72:        std::cout << "File error: '" << filename << "'" << std::endl;
+    %%%%%:   72-block  0
+    %%%%%:   72-block  1
+    %%%%%:   72-block  2
+    %%%%%:   72-block  3
+        -:   73:    }
+    #####:   74:}
+        -:   75:
+        -:   76:
+        2:   77:void DotWriter::render_to_file(const std::string &filename) {
+        4:   78:    std::map<std::string, Agnode_t *> ag_nodes;
+        2:   78-block  0
+    $$$$$:   78-block  1
+        4:   79:    std::map<std::string, Agedge_t *> ag_edges;
+        2:   79-block  0
+    $$$$$:   79-block  1
+        -:   80:
+        2:   81:    GVC_t *gvc = gvContext();
+        2:   82:    Agraph_t *g = agopen((char *) "g", Agdirected, nullptr);
+        2:   82-block  0
+        -:   83:
+        -:   84:
+       27:   85:    for (auto &[node, label_lines] : node_texts) {
+        2:   85-block  0
+       27:   85-block  1
+       25:   85-block  2
+       25:   86:        std::string final_label;
+    $$$$$:   86-block  0
+       25:   87:        if (auto n = node_names.find(node); n != node_names.end()) {
+       25:   87-block  0
+       25:   88:            final_label += "Label: " + n->second + ";\\l";
+       25:   88-block  0
+       25:   88-block  1
+       25:   88-block  2
+       25:   88-block  3
+    $$$$$:   88-block  4
+    $$$$$:   88-block  5
+    $$$$$:   88-block  6
+    $$$$$:   88-block  7
+        -:   89:        }
+       25:   90:        final_label += node + "|";
+       25:   90-block  0
+       25:   90-block  1
+       25:   90-block  2
+    $$$$$:   90-block  3
+    $$$$$:   90-block  4
+        -:   91:
+       63:   92:        for (auto l : label_lines) {
+       63:   92-block  0
+       38:   92-block  1
+    $$$$$:   92-block  2
+        -:   93:            //escape utility symbols (<, >, ...)
+      488:   94:            for (int i = l.size() - 1; i >= 0; --i) {
+       38:   94-block  0
+      488:   94-block  1
+      450:   94-block  2
+      450:   95:                auto c = l.at(i);
+      450:   95-block  0
+      450:   96:                if (c == '<' || c == '>') {
+      450:   96-block  0
+      447:   96-block  1
+        3:   97:                    l.insert(i, 1, c);
+        3:   97-block  0
+        3:   98:                    l[i] = '\\';
+        3:   98-block  0
+        3:   98-block  1
+        -:   99:                }
+        -:  100:            }
+        -:  101:            // align line to the left side with \l
+       38:  102:            final_label += l + "\\l";
+       38:  102-block  0
+       38:  102-block  1
+       38:  102-block  2
+    $$$$$:  102-block  3
+    $$$$$:  102-block  4
+        -:  103:        }
+        -:  104:        // for correct vertical label formatting
+       25:  105:        final_label.insert(0, "{");
+       25:  105-block  0
+       25:  106:        final_label.append("}");
+       25:  106-block  0
+        -:  107:
+       25:  108:        Agnode_t *ag_node = agnode(g, (char *) node.c_str(), 1);
+       25:  108-block  0
+       25:  109:        agsafeset(ag_node, (char *) "label", (char *) final_label.c_str(), (char *) "");
+       25:  109-block  0
+        -:  110:
+       25:  111:        ag_nodes.emplace(node, ag_node);
+       25:  111-block  0
+       25:  111-block  1
+        -:  112:    }
+        -:  113:
+       21:  114:    for (auto &[node1, node2, edge_name] : edges) {
+        2:  114-block  0
+       21:  114-block  1
+       19:  114-block  2
+       19:  115:        auto n1 = ag_nodes.find(node1)->second;
+       19:  115-block  0
+       19:  116:        auto n2 = ag_nodes.find(node2)->second;
+       19:  116-block  0
+        -:  117:
+       19:  118:        Agedge_t *e = agedge(g, n1, n2, (char *) edge_name.c_str(), 1);
+       19:  119:        agsafeset(e, (char *) "label", (char *) edge_name.c_str(), (char *) "");
+       19:  119-block  0
+        -:  120://        agsafeset(e, (char *) "headport", (char *) "n", (char *) "");
+        -:  121://        agsafeset(e, (char *) "tailport", (char *) "s", (char *) "");
+        -:  122://        agsafeset(e, (char *) "constraint", (char *) "false", (char *) "");
+       19:  123:        ag_edges.emplace(edge_name, e);
+       19:  123-block  0
+       19:  123-block  1
+        -:  124:    }
+        -:  125:
+        -:  126:    // set shape and font for nodes and edges
+        2:  127:    agsafeset(ag_nodes.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
+        2:  127-block  0
+    $$$$$:  127-block  1
+        2:  128:    agsafeset(ag_nodes.begin()->second, (char *) "shape", (char *) "record", (char *) "record");
+        2:  128-block  0
+    $$$$$:  128-block  1
+        2:  129:    agsafeset(ag_edges.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
+        2:  129-block  0
+    $$$$$:  129-block  1
+        -:  130:
+        2:  131:    gvLayout(gvc, g, "dot");
+        2:  131-block  0
+        2:  132:    int res = gvRenderFilename(gvc, g, "png", (char *) filename.c_str());
+        2:  132-block  0
+        2:  133:    if (res) {
+        2:  133-block  0
+    #####:  134:        printf("Graphviz error. Something wrong with graph rendering: %i", res);
+    %%%%%:  134-block  0
+        -:  135:    }
+        -:  136:
+        2:  137:    gvFreeLayout(gvc, g);
+        2:  137-block  0
+        2:  138:    agclose(g);
+        2:  138-block  0
+        2:  139:    gvFreeContext(gvc);
+        2:  139-block  0
+        2:  140:}

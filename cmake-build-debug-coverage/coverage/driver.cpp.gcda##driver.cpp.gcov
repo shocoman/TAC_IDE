@@ -1,0 +1,33 @@
+        -:    0:Source:D:/programming/c/tac_parser/driver/driver.cpp
+        -:    0:Graph:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\driver\driver.cpp.gcno
+        -:    0:Data:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\driver\driver.cpp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:
+        -:    2:#include "driver.hpp"
+        -:    3:
+        1:    4:driver::driver() : trace_parsing(false), trace_scanning(false) {
+        1:    4-block  0
+        -:    5:
+        1:    6:}
+        -:    7:
+        1:    8:int driver::parse(const std::string& f) {
+        1:    9:    file = f;
+        1:    9-block  0
+        1:   10:    location.initialize(&file);
+        1:   10-block  0
+        1:   11:    scan_begin();
+        1:   12:    yy::parser parse(*this);
+        1:   12-block  0
+    $$$$$:   12-block  1
+        1:   13:    parse.set_debug_level(trace_parsing);
+        1:   13-block  0
+        1:   14:    int res = parse();
+        1:   14-block  0
+        1:   15:    scan_end();
+        1:   15-block  0
+        2:   16:    return res;
+        1:   16-block  0
+        1:   16-block  1
+        -:   17:}
+        -:   18:

@@ -11,10 +11,10 @@
 				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tac_parser">
@@ -26,18 +26,18 @@
 				<Compiler>
 					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
 					<Add directory="C:/Program Files/Graphviz 2.44.1/include/graphviz"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/../../../../x86_64-w64-mingw32/include"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser"/>
-					<CompileFile command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tac_parser/fast">
@@ -49,38 +49,38 @@
 				<Compiler>
 					<Add directory="D:/programming/c/tac_parser/cmake-build-debug"/>
 					<Add directory="C:/Program Files/Graphviz 2.44.1/include/graphviz"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/x86_64-w64-mingw32"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include/c++/backward"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed"/>
-					<Add directory="D:/programming/_mingw730_64/bin/../lib/gcc/x86_64-w64-mingw32/7.3.0/../../../../x86_64-w64-mingw32/include"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="D:/programming/mingwW64/mingw64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser/fast"/>
-					<CompileFile command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 tac_parser/fast"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
 				<Option working_dir="D:/programming/c/tac_parser/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="D:/programming/_mingw730_64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="D:/programming/mingwW64/mingw64/bin/mingw32-make.exe -f &quot;D:/programming/c/tac_parser/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>

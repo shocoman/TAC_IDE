@@ -1,4 +1,4 @@
-ToolSet: w64 6.0 (local)@D:\programming\_mingw730_64
+ToolSet: w64 6.0 (local)@D:\programming\mingwW64\mingw64
 Options: 
 
 Options:

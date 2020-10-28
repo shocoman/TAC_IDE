@@ -1,0 +1,1991 @@
+        -:    0:Source:D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp
+        -:    0:Graph:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\parser.cpp.gcno
+        -:    0:Data:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\parser.cpp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:// A Bison parser, made by GNU Bison 3.7.1.
+        -:    2:
+        -:    3:// Skeleton implementation for Bison LALR(1) parsers in C++
+        -:    4:
+        -:    5:// Copyright (C) 2002-2015, 2018-2020 Free Software Foundation, Inc.
+        -:    6:
+        -:    7:// This program is free software: you can redistribute it and/or modify
+        -:    8:// it under the terms of the GNU General Public License as published by
+        -:    9:// the Free Software Foundation, either version 3 of the License, or
+        -:   10:// (at your option) any later version.
+        -:   11:
+        -:   12:// This program is distributed in the hope that it will be useful,
+        -:   13:// but WITHOUT ANY WARRANTY; without even the implied warranty of
+        -:   14:// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        -:   15:// GNU General Public License for more details.
+        -:   16:
+        -:   17:// You should have received a copy of the GNU General Public License
+        -:   18:// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+        -:   19:
+        -:   20:// As a special exception, you may create a larger work that contains
+        -:   21:// part or all of the Bison parser skeleton and distribute that work
+        -:   22:// under terms of your choice, so long as that work isn't itself a
+        -:   23:// parser generator using the skeleton or a modified version thereof
+        -:   24:// as a parser skeleton.  Alternatively, if you modify or redistribute
+        -:   25:// the parser skeleton itself, you may (at your option) remove this
+        -:   26:// special exception, which will cause the skeleton and the resulting
+        -:   27:// Bison output files to be licensed under the GNU General Public
+        -:   28:// License without this special exception.
+        -:   29:
+        -:   30:// This special exception was added by the Free Software Foundation in
+        -:   31:// version 2.2 of Bison.
+        -:   32:
+        -:   33:// DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+        -:   34:// especially those whose name start with YY_ or yy_.  They are
+        -:   35:// private implementation details that can be changed or removed.
+        -:   36:
+        -:   37:
+        -:   38:
+        -:   39:
+        -:   40:
+        -:   41:#include "parser.hpp"
+        -:   42:
+        -:   43:
+        -:   44:// Unqualified %code blocks.
+        -:   45:#line 23 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:   46:
+        -:   47:    #include "../driver/driver.hpp"
+        -:   48:
+        -:   49:#line 50 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        -:   50:
+        -:   51:
+        -:   52:#ifndef YY_
+        -:   53:# if defined YYENABLE_NLS && YYENABLE_NLS
+        -:   54:#  if ENABLE_NLS
+        -:   55:#   include <libintl.h> // FIXME: INFRINGES ON USER NAME SPACE.
+        -:   56:#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+        -:   57:#  endif
+        -:   58:# endif
+        -:   59:# ifndef YY_
+        -:   60:#  define YY_(msgid) msgid
+        -:   61:# endif
+        -:   62:#endif
+        -:   63:
+        -:   64:
+        -:   65:// Whether we are compiled with exception support.
+        -:   66:#ifndef YY_EXCEPTIONS
+        -:   67:# if defined __GNUC__ && !defined __EXCEPTIONS
+        -:   68:#  define YY_EXCEPTIONS 0
+        -:   69:# else
+        -:   70:#  define YY_EXCEPTIONS 1
+        -:   71:# endif
+        -:   72:#endif
+        -:   73:
+        -:   74:#define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+        -:   75:/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
+        -:   76:   If N is 0, then set CURRENT to the empty location which ends
+        -:   77:   the previous symbol: RHS[0] (always defined).  */
+        -:   78:
+        -:   79:# ifndef YYLLOC_DEFAULT
+        -:   80:#  define YYLLOC_DEFAULT(Current, Rhs, N)                               \
+        -:   81:    do                                                                  \
+        -:   82:      if (N)                                                            \
+        -:   83:        {                                                               \
+        -:   84:          (Current).begin  = YYRHSLOC (Rhs, 1).begin;                   \
+        -:   85:          (Current).end    = YYRHSLOC (Rhs, N).end;                     \
+        -:   86:        }                                                               \
+        -:   87:      else                                                              \
+        -:   88:        {                                                               \
+        -:   89:          (Current).begin = (Current).end = YYRHSLOC (Rhs, 0).end;      \
+        -:   90:        }                                                               \
+        -:   91:    while (false)
+        -:   92:# endif
+        -:   93:
+        -:   94:
+        -:   95:// Enable debugging if requested.
+        -:   96:#if YYDEBUG
+        -:   97:
+        -:   98:// A pseudo ostream that takes yydebug_ into account.
+        -:   99:# define YYCDEBUG if (yydebug_) (*yycdebug_)
+        -:  100:
+        -:  101:# define YY_SYMBOL_PRINT(Title, Symbol)         \
+        -:  102:  do {                                          \
+        -:  103:    if (yydebug_)                               \
+        -:  104:    {                                           \
+        -:  105:      *yycdebug_ << Title << ' ';               \
+        -:  106:      yy_print_ (*yycdebug_, Symbol);           \
+        -:  107:      *yycdebug_ << '\n';                       \
+        -:  108:    }                                           \
+        -:  109:  } while (false)
+        -:  110:
+        -:  111:# define YY_REDUCE_PRINT(Rule)          \
+        -:  112:  do {                                  \
+        -:  113:    if (yydebug_)                       \
+        -:  114:      yy_reduce_print_ (Rule);          \
+        -:  115:  } while (false)
+        -:  116:
+        -:  117:# define YY_STACK_PRINT()               \
+        -:  118:  do {                                  \
+        -:  119:    if (yydebug_)                       \
+        -:  120:      yy_stack_print_ ();                \
+        -:  121:  } while (false)
+        -:  122:
+        -:  123:#else // !YYDEBUG
+        -:  124:
+        -:  125:# define YYCDEBUG if (false) std::cerr
+        -:  126:# define YY_SYMBOL_PRINT(Title, Symbol)  YYUSE (Symbol)
+        -:  127:# define YY_REDUCE_PRINT(Rule)           static_cast<void> (0)
+        -:  128:# define YY_STACK_PRINT()                static_cast<void> (0)
+        -:  129:
+        -:  130:#endif // !YYDEBUG
+        -:  131:
+        -:  132:#define yyerrok         (yyerrstatus_ = 0)
+        -:  133:#define yyclearin       (yyla.clear ())
+        -:  134:
+        -:  135:#define YYACCEPT        goto yyacceptlab
+        -:  136:#define YYABORT         goto yyabortlab
+        -:  137:#define YYERROR         goto yyerrorlab
+        -:  138:#define YYRECOVERING()  (!!yyerrstatus_)
+        -:  139:
+        -:  140:namespace yy {
+        -:  141:#line 142 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        -:  142:
+        -:  143:  /// Build a parser object.
+        1:  144:  parser::parser (driver& drv_yyarg)
+        -:  145:#if YYDEBUG
+        -:  146:    : yydebug_ (false),
+        -:  147:      yycdebug_ (&std::cerr),
+        -:  148:#else
+        -:  149:    :
+        -:  150:#endif
+        -:  151:      yy_lac_established_ (false),
+        1:  152:      drv (drv_yyarg)
+        1:  152-block  0
+        1:  153:  {}
+        -:  154:
+       1*:  155:  parser::~parser ()
+       1*:  156:  {}
+------------------
+_ZN2yy6parserD0Ev:
+    #####:  155:  parser::~parser ()
+    #####:  156:  {}
+    %%%%%:  156-block  0
+------------------
+_ZN2yy6parserD2Ev:
+        1:  155:  parser::~parser ()
+        1:  155-block  0
+        1:  156:  {}
+------------------
+        -:  157:
+    #####:  158:  parser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
+    #####:  159:  {}
+------------------
+_ZN2yy6parser12syntax_errorD0Ev:
+    #####:  158:  parser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
+    #####:  159:  {}
+    %%%%%:  159-block  0
+------------------
+_ZN2yy6parser12syntax_errorD2Ev:
+    #####:  158:  parser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
+    %%%%%:  158-block  0
+    #####:  159:  {}
+------------------
+        -:  160:
+        -:  161:  /*---------------.
+        -:  162:  | symbol kinds.  |
+        -:  163:  `---------------*/
+        -:  164:
+        -:  165:
+        -:  166:
+        -:  167:  // by_state.
+      837:  168:  parser::by_state::by_state () YY_NOEXCEPT
+      837:  169:    : state (empty_state)
+      837:  170:  {}
+        -:  171:
+    #####:  172:  parser::by_state::by_state (const by_state& that) YY_NOEXCEPT
+    #####:  173:    : state (that.state)
+    #####:  174:  {}
+        -:  175:
+        -:  176:  void
+     1767:  177:  parser::by_state::clear () YY_NOEXCEPT
+        -:  178:  {
+     1767:  179:    state = empty_state;
+     1767:  180:  }
+        -:  181:
+        -:  182:  void
+      391:  183:  parser::by_state::move (by_state& that)
+        -:  184:  {
+      391:  185:    state = that.state;
+      391:  186:    that.clear ();
+      391:  186-block  0
+      391:  187:  }
+        -:  188:
+      539:  189:  parser::by_state::by_state (state_type s) YY_NOEXCEPT
+      539:  190:    : state (s)
+      539:  191:  {}
+        -:  192:
+        -:  193:  parser::symbol_kind_type
+     2158:  194:  parser::by_state::kind () const YY_NOEXCEPT
+        -:  195:  {
+     2158:  196:    if (state == empty_state)
+     2158:  196-block  0
+     1378:  197:      return symbol_kind::S_YYEMPTY;
+     1378:  197-block  0
+        -:  198:    else
+      780:  199:      return YY_CAST (symbol_kind_type, yystos_[+state]);
+      780:  199-block  0
+        -:  200:  }
+        -:  201:
+      837:  202:  parser::stack_symbol_type::stack_symbol_type ()
+      837:  202-block  0
+      837:  203:  {}
+        -:  204:
+      391:  205:  parser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
+      391:  206:    : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
+      391:  206-block  0
+    $$$$$:  206-block  1
+        -:  207:  {
+      391:  208:    switch (that.kind ())
+        -:  209:    {
+    #####:  210:      case symbol_kind::S_dest: // dest
+    #####:  211:        value.YY_MOVE_OR_COPY< Dest > (YY_MOVE (that.value));
+    %%%%%:  211-block  0
+    #####:  212:        break;
+    %%%%%:  212-block  0
+        -:  213:
+    #####:  214:      case symbol_kind::S_value: // value
+        -:  215:      case symbol_kind::S_quadruple: // quadruple
+        -:  216:      case symbol_kind::S_if_statement: // if_statement
+        -:  217:      case symbol_kind::S_goto: // goto
+        -:  218:      case symbol_kind::S_assignment: // assignment
+    #####:  219:        value.YY_MOVE_OR_COPY< Quad > (YY_MOVE (that.value));
+    %%%%%:  219-block  0
+    #####:  220:        break;
+    %%%%%:  220-block  0
+        -:  221:
+    #####:  222:      case symbol_kind::S_FLOAT: // "float"
+    #####:  223:        value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
+    %%%%%:  223-block  0
+    #####:  224:        break;
+    %%%%%:  224-block  0
+        -:  225:
+    #####:  226:      case symbol_kind::S_INT: // "int"
+    #####:  227:        value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
+    %%%%%:  227-block  0
+    #####:  228:        break;
+    %%%%%:  228-block  0
+        -:  229:
+    #####:  230:      case symbol_kind::S_IDENTIFIER: // "identifier"
+        -:  231:      case symbol_kind::S_term: // term
+        -:  232:      case symbol_kind::S_label: // label
+    #####:  233:        value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
+    %%%%%:  233-block  0
+    #####:  234:        break;
+    %%%%%:  234-block  0
+        -:  235:
+      391:  236:      default:
+      391:  237:        break;
+      391:  237-block  0
+        -:  238:    }
+        -:  239:
+        -:  240:#if 201103L <= YY_CPLUSPLUS
+        -:  241:    // that is emptied.
+      391:  242:    that.state = empty_state;
+        -:  243:#endif
+      391:  244:  }
+      391:  244-block  0
+        -:  245:
+      148:  246:  parser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
+      148:  247:    : super_type (s, YY_MOVE (that.location))
+      148:  247-block  0
+    $$$$$:  247-block  1
+        -:  248:  {
+      148:  249:    switch (that.kind ())
+        -:  250:    {
+    #####:  251:      case symbol_kind::S_dest: // dest
+    #####:  252:        value.move< Dest > (YY_MOVE (that.value));
+    %%%%%:  252-block  0
+    #####:  253:        break;
+    %%%%%:  253-block  0
+        -:  254:
+    #####:  255:      case symbol_kind::S_value: // value
+        -:  256:      case symbol_kind::S_quadruple: // quadruple
+        -:  257:      case symbol_kind::S_if_statement: // if_statement
+        -:  258:      case symbol_kind::S_goto: // goto
+        -:  259:      case symbol_kind::S_assignment: // assignment
+    #####:  260:        value.move< Quad > (YY_MOVE (that.value));
+    %%%%%:  260-block  0
+    #####:  261:        break;
+    %%%%%:  261-block  0
+        -:  262:
+    #####:  263:      case symbol_kind::S_FLOAT: // "float"
+    #####:  264:        value.move< double > (YY_MOVE (that.value));
+    %%%%%:  264-block  0
+    #####:  265:        break;
+    %%%%%:  265-block  0
+        -:  266:
+       17:  267:      case symbol_kind::S_INT: // "int"
+       17:  268:        value.move< int > (YY_MOVE (that.value));
+       17:  268-block  0
+       17:  269:        break;
+       17:  269-block  0
+        -:  270:
+       48:  271:      case symbol_kind::S_IDENTIFIER: // "identifier"
+        -:  272:      case symbol_kind::S_term: // term
+        -:  273:      case symbol_kind::S_label: // label
+       48:  274:        value.move< std::string > (YY_MOVE (that.value));
+       48:  274-block  0
+       48:  275:        break;
+       48:  275-block  0
+        -:  276:
+       83:  277:      default:
+       83:  278:        break;
+       83:  278-block  0
+        -:  279:    }
+        -:  280:
+        -:  281:    // that is emptied.
+      148:  282:    that.kind_ = symbol_kind::S_YYEMPTY;
+      148:  283:  }
+      148:  283-block  0
+        -:  284:
+        -:  285:#if YY_CPLUSPLUS < 201103L
+        -:  286:  parser::stack_symbol_type&
+        -:  287:  parser::stack_symbol_type::operator= (const stack_symbol_type& that)
+        -:  288:  {
+        -:  289:    state = that.state;
+        -:  290:    switch (that.kind ())
+        -:  291:    {
+        -:  292:      case symbol_kind::S_dest: // dest
+        -:  293:        value.copy< Dest > (that.value);
+        -:  294:        break;
+        -:  295:
+        -:  296:      case symbol_kind::S_value: // value
+        -:  297:      case symbol_kind::S_quadruple: // quadruple
+        -:  298:      case symbol_kind::S_if_statement: // if_statement
+        -:  299:      case symbol_kind::S_goto: // goto
+        -:  300:      case symbol_kind::S_assignment: // assignment
+        -:  301:        value.copy< Quad > (that.value);
+        -:  302:        break;
+        -:  303:
+        -:  304:      case symbol_kind::S_FLOAT: // "float"
+        -:  305:        value.copy< double > (that.value);
+        -:  306:        break;
+        -:  307:
+        -:  308:      case symbol_kind::S_INT: // "int"
+        -:  309:        value.copy< int > (that.value);
+        -:  310:        break;
+        -:  311:
+        -:  312:      case symbol_kind::S_IDENTIFIER: // "identifier"
+        -:  313:      case symbol_kind::S_term: // term
+        -:  314:      case symbol_kind::S_label: // label
+        -:  315:        value.copy< std::string > (that.value);
+        -:  316:        break;
+        -:  317:
+        -:  318:      default:
+        -:  319:        break;
+        -:  320:    }
+        -:  321:
+        -:  322:    location = that.location;
+        -:  323:    return *this;
+        -:  324:  }
+        -:  325:
+        -:  326:  parser::stack_symbol_type&
+        -:  327:  parser::stack_symbol_type::operator= (stack_symbol_type& that)
+        -:  328:  {
+        -:  329:    state = that.state;
+        -:  330:    switch (that.kind ())
+        -:  331:    {
+        -:  332:      case symbol_kind::S_dest: // dest
+        -:  333:        value.move< Dest > (that.value);
+        -:  334:        break;
+        -:  335:
+        -:  336:      case symbol_kind::S_value: // value
+        -:  337:      case symbol_kind::S_quadruple: // quadruple
+        -:  338:      case symbol_kind::S_if_statement: // if_statement
+        -:  339:      case symbol_kind::S_goto: // goto
+        -:  340:      case symbol_kind::S_assignment: // assignment
+        -:  341:        value.move< Quad > (that.value);
+        -:  342:        break;
+        -:  343:
+        -:  344:      case symbol_kind::S_FLOAT: // "float"
+        -:  345:        value.move< double > (that.value);
+        -:  346:        break;
+        -:  347:
+        -:  348:      case symbol_kind::S_INT: // "int"
+        -:  349:        value.move< int > (that.value);
+        -:  350:        break;
+        -:  351:
+        -:  352:      case symbol_kind::S_IDENTIFIER: // "identifier"
+        -:  353:      case symbol_kind::S_term: // term
+        -:  354:      case symbol_kind::S_label: // label
+        -:  355:        value.move< std::string > (that.value);
+        -:  356:        break;
+        -:  357:
+        -:  358:      default:
+        -:  359:        break;
+        -:  360:    }
+        -:  361:
+        -:  362:    location = that.location;
+        -:  363:    // that is emptied.
+        -:  364:    that.state = empty_state;
+        -:  365:    return *this;
+        -:  366:  }
+        -:  367:#endif
+        -:  368:
+        -:  369:  template <typename Base>
+        -:  370:  void
+       2*:  371:  parser::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
+        -:  372:  {
+       2*:  373:    if (yymsg)
+       2*:  374:      YY_SYMBOL_PRINT (yymsg, yysym);
+       2*:  375:  }
+------------------
+_ZNK2yy6parser11yy_destroy_INS0_8by_stateEEEvPKcRNS0_12basic_symbolIT_EE:
+        2:  371:  parser::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
+        -:  372:  {
+        2:  373:    if (yymsg)
+        2:  373-block  0
+       2*:  374:      YY_SYMBOL_PRINT (yymsg, yysym);
+        2:  374-block  0
+    %%%%%:  374-block  1
+        2:  375:  }
+------------------
+_ZNK2yy6parser11yy_destroy_INS0_7by_kindEEEvPKcRNS0_12basic_symbolIT_EE:
+    #####:  371:  parser::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
+        -:  372:  {
+    #####:  373:    if (yymsg)
+    %%%%%:  373-block  0
+    #####:  374:      YY_SYMBOL_PRINT (yymsg, yysym);
+    %%%%%:  374-block  0
+    %%%%%:  374-block  1
+    #####:  375:  }
+------------------
+        -:  376:
+        -:  377:#if YYDEBUG
+        -:  378:  template <typename Base>
+        -:  379:  void
+    #####:  380:  parser::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+        -:  381:  {
+    #####:  382:    std::ostream& yyoutput = yyo;
+        -:  383:    YYUSE (yyoutput);
+    #####:  384:    if (yysym.empty ())
+    #####:  385:      yyo << "empty symbol";
+        -:  386:    else
+        -:  387:      {
+    #####:  388:        symbol_kind_type yykind = yysym.kind ();
+    #####:  389:        yyo << (yykind < YYNTOKENS ? "token" : "nterm")
+        -:  390:            << ' ' << yysym.name () << " ("
+    #####:  391:            << yysym.location << ": ";
+        -:  392:        YYUSE (yykind);
+    #####:  393:        yyo << ')';
+        -:  394:      }
+    #####:  395:  }
+------------------
+_ZNK2yy6parser9yy_print_INS0_7by_kindEEEvRSoRKNS0_12basic_symbolIT_EE:
+    #####:  380:  parser::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+        -:  381:  {
+    #####:  382:    std::ostream& yyoutput = yyo;
+        -:  383:    YYUSE (yyoutput);
+    #####:  384:    if (yysym.empty ())
+    %%%%%:  384-block  0
+    #####:  385:      yyo << "empty symbol";
+    %%%%%:  385-block  0
+        -:  386:    else
+        -:  387:      {
+    #####:  388:        symbol_kind_type yykind = yysym.kind ();
+    %%%%%:  388-block  0
+    #####:  389:        yyo << (yykind < YYNTOKENS ? "token" : "nterm")
+        -:  390:            << ' ' << yysym.name () << " ("
+    #####:  391:            << yysym.location << ": ";
+    %%%%%:  391-block  0
+    %%%%%:  391-block  1
+    %%%%%:  391-block  2
+    %%%%%:  391-block  3
+    %%%%%:  391-block  4
+    %%%%%:  391-block  5
+    %%%%%:  391-block  6
+    %%%%%:  391-block  7
+        -:  392:        YYUSE (yykind);
+    #####:  393:        yyo << ')';
+    %%%%%:  393-block  0
+        -:  394:      }
+    #####:  395:  }
+    %%%%%:  395-block  0
+------------------
+_ZNK2yy6parser9yy_print_INS0_8by_stateEEEvRSoRKNS0_12basic_symbolIT_EE:
+    #####:  380:  parser::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+        -:  381:  {
+    #####:  382:    std::ostream& yyoutput = yyo;
+        -:  383:    YYUSE (yyoutput);
+    #####:  384:    if (yysym.empty ())
+    %%%%%:  384-block  0
+    #####:  385:      yyo << "empty symbol";
+    %%%%%:  385-block  0
+        -:  386:    else
+        -:  387:      {
+    #####:  388:        symbol_kind_type yykind = yysym.kind ();
+    %%%%%:  388-block  0
+    #####:  389:        yyo << (yykind < YYNTOKENS ? "token" : "nterm")
+        -:  390:            << ' ' << yysym.name () << " ("
+    #####:  391:            << yysym.location << ": ";
+    %%%%%:  391-block  0
+    %%%%%:  391-block  1
+    %%%%%:  391-block  2
+    %%%%%:  391-block  3
+    %%%%%:  391-block  4
+    %%%%%:  391-block  5
+    %%%%%:  391-block  6
+    %%%%%:  391-block  7
+        -:  392:        YYUSE (yykind);
+    #####:  393:        yyo << ')';
+    %%%%%:  393-block  0
+        -:  394:      }
+    #####:  395:  }
+    %%%%%:  395-block  0
+------------------
+        -:  396:#endif
+        -:  397:
+        -:  398:  void
+      391:  399:  parser::yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym)
+        -:  400:  {
+      391:  401:    if (m)
+      391:  401-block  0
+     147*:  402:      YY_SYMBOL_PRINT (m, sym);
+      147:  402-block  0
+    %%%%%:  402-block  1
+      391:  403:    yystack_.push (YY_MOVE (sym));
+      391:  403-block  0
+      391:  404:  }
+        -:  405:
+        -:  406:  void
+      148:  407:  parser::yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym)
+        -:  408:  {
+        -:  409:#if 201103L <= YY_CPLUSPLUS
+      148:  410:    yypush_ (m, stack_symbol_type (s, std::move (sym)));
+      148:  410-block  0
+      148:  410-block  1
+    $$$$$:  410-block  2
+        -:  411:#else
+        -:  412:    stack_symbol_type ss (s, sym);
+        -:  413:    yypush_ (m, ss);
+        -:  414:#endif
+      148:  415:  }
+        -:  416:
+        -:  417:  void
+      246:  418:  parser::yypop_ (int n)
+        -:  419:  {
+      246:  420:    yystack_.pop (n);
+      246:  420-block  0
+      246:  421:  }
+        -:  422:
+        -:  423:#if YYDEBUG
+        -:  424:  std::ostream&
+    #####:  425:  parser::debug_stream () const
+        -:  426:  {
+    #####:  427:    return *yycdebug_;
+    %%%%%:  427-block  0
+        -:  428:  }
+        -:  429:
+        -:  430:  void
+    #####:  431:  parser::set_debug_stream (std::ostream& o)
+        -:  432:  {
+    #####:  433:    yycdebug_ = &o;
+    #####:  434:  }
+        -:  435:
+        -:  436:
+        -:  437:  parser::debug_level_type
+    #####:  438:  parser::debug_level () const
+        -:  439:  {
+    #####:  440:    return yydebug_;
+    %%%%%:  440-block  0
+        -:  441:  }
+        -:  442:
+        -:  443:  void
+        1:  444:  parser::set_debug_level (debug_level_type l)
+        -:  445:  {
+        1:  446:    yydebug_ = l;
+        1:  447:  }
+        -:  448:#endif // YYDEBUG
+        -:  449:
+        -:  450:  parser::state_type
+      363:  451:  parser::yy_lr_goto_state_ (state_type yystate, int yysym)
+        -:  452:  {
+      363:  453:    int yyr = yypgoto_[yysym - YYNTOKENS] + yystate;
+      363:  454:    if (0 <= yyr && yyr <= yylast_ && yycheck_[yyr] == yystate)
+      363:  454-block  0
+       63:  454-block  1
+       63:  454-block  2
+       27:  455:      return yytable_[yyr];
+       27:  455-block  0
+        -:  456:    else
+      336:  457:      return yydefgoto_[yysym - YYNTOKENS];
+      336:  457-block  0
+        -:  458:  }
+        -:  459:
+        -:  460:  bool
+      573:  461:  parser::yy_pact_value_is_default_ (int yyvalue)
+        -:  462:  {
+      573:  463:    return yyvalue == yypact_ninf_;
+      573:  463-block  0
+        -:  464:  }
+        -:  465:
+        -:  466:  bool
+       63:  467:  parser::yy_table_value_is_error_ (int yyvalue)
+        -:  468:  {
+       63:  469:    return yyvalue == yytable_ninf_;
+       63:  469-block  0
+        -:  470:  }
+        -:  471:
+        -:  472:  int
+        1:  473:  parser::operator() ()
+        -:  474:  {
+        1:  475:    return parse ();
+        1:  475-block  0
+        -:  476:  }
+        -:  477:
+        -:  478:  int
+        1:  479:  parser::parse ()
+        -:  480:  {
+        -:  481:    int yyn;
+        -:  482:    /// Length of the RHS of the rule being reduced.
+        1:  483:    int yylen = 0;
+        -:  484:
+        -:  485:    // Error handling.
+        1:  486:    int yynerrs_ = 0;
+        1:  487:    int yyerrstatus_ = 0;
+        -:  488:
+        -:  489:    /// The lookahead symbol.
+        2:  490:    symbol_type yyla;
+        1:  490-block  0
+        1:  490-block  1
+    $$$$$:  490-block  2
+        -:  491:
+        -:  492:    /// The locations where the error started and ended.
+        8:  493:    stack_symbol_type yyerror_range[3];
+        1:  493-block  0
+        4:  493-block  1
+        3:  493-block  2
+        3:  493-block  3
+        4:  493-block  4
+        3:  493-block  5
+    $$$$$:  493-block  6
+    $$$$$:  493-block  7
+    $$$$$:  493-block  8
+    $$$$$:  493-block  9
+    $$$$$:  493-block 10
+        -:  494:
+        -:  495:    /// The return value of parse ().
+        -:  496:    int yyresult;
+        -:  497:
+        -:  498:    /// Discard the LAC context in case there still is one left from a
+        -:  499:    /// previous invocation.
+        1:  500:    yy_lac_discard_ ("init");
+        1:  500-block  0
+        -:  501:
+        -:  502:#if YY_EXCEPTIONS
+        -:  503:    try
+        -:  504:#endif // YY_EXCEPTIONS
+        -:  505:      {
+       1*:  506:    YYCDEBUG << "Starting parse\n";
+        1:  506-block  0
+    %%%%%:  506-block  1
+        -:  507:
+        -:  508:
+        -:  509:    /* Initialize the stack.  The initial state will be set in
+        -:  510:       yynewstate, since the latter expects the semantical and the
+        -:  511:       location values to have been already stored, initialize these
+        -:  512:       stacks with a primary value.  */
+        1:  513:    yystack_.clear ();
+        1:  513-block  0
+        1:  514:    yypush_ (YY_NULLPTR, 0, YY_MOVE (yyla));
+        -:  515:
+        -:  516:  /*-----------------------------------------------.
+        -:  517:  | yynewstate -- push a new symbol on the stack.  |
+        -:  518:  `-----------------------------------------------*/
+      391:  519:  yynewstate:
+     391*:  520:    YYCDEBUG << "Entering state " << int (yystack_[0].state) << '\n';
+      391:  520-block  0
+    %%%%%:  520-block  1
+    %%%%%:  520-block  2
+    %%%%%:  520-block  3
+     391*:  521:    YY_STACK_PRINT ();
+      391:  521-block  0
+    %%%%%:  521-block  1
+        -:  522:
+        -:  523:    // Accept?
+      391:  524:    if (yystack_[0].state == yyfinal_)
+      391:  524-block  0
+        1:  525:      YYACCEPT;
+        1:  525-block  0
+        -:  526:
+      390:  527:    goto yybackup;
+      390:  527-block  0
+        -:  528:
+        -:  529:
+        -:  530:  /*-----------.
+        -:  531:  | yybackup.  |
+        -:  532:  `-----------*/
+      390:  533:  yybackup:
+        -:  534:    // Try to take a decision without lookahead.
+      390:  535:    yyn = yypact_[+yystack_[0].state];
+      390:  535-block  0
+      390:  536:    if (yy_pact_value_is_default_ (yyn))
+      180:  537:      goto yydefault;
+      180:  537-block  0
+        -:  538:
+        -:  539:    // Read a lookahead token.
+      210:  540:    if (yyla.empty ())
+      210:  540-block  0
+        -:  541:      {
+     147*:  542:        YYCDEBUG << "Reading a token\n";
+      147:  542-block  0
+    %%%%%:  542-block  1
+        -:  543:#if YY_EXCEPTIONS
+        -:  544:        try
+        -:  545:#endif // YY_EXCEPTIONS
+        -:  546:          {
+      294:  547:            symbol_type yylookahead (yylex (drv));
+      147:  547-block  0
+      147:  547-block  1
+    $$$$$:  547-block  2
+      147:  548:            yyla.move (yylookahead);
+      147:  548-block  0
+        -:  549:          }
+        -:  550:#if YY_EXCEPTIONS
+    =====:  551:        catch (const syntax_error& yyexc)
+    $$$$$:  551-block  0
+    $$$$$:  551-block  1
+        -:  552:          {
+    =====:  553:            YYCDEBUG << "Caught exception: " << yyexc.what() << '\n';
+    $$$$$:  553-block  0
+    $$$$$:  553-block  1
+    $$$$$:  553-block  2
+    =====:  554:            error (yyexc);
+    $$$$$:  554-block  0
+    =====:  555:            goto yyerrlab1;
+    $$$$$:  555-block  0
+        -:  556:          }
+        -:  557:#endif // YY_EXCEPTIONS
+        -:  558:      }
+     210*:  559:    YY_SYMBOL_PRINT ("Next token is", yyla);
+      210:  559-block  0
+    %%%%%:  559-block  1
+    %%%%%:  559-block  2
+    %%%%%:  559-block  3
+    %%%%%:  559-block  4
+        -:  560:
+      210:  561:    if (yyla.kind () == symbol_kind::S_YYerror)
+      210:  561-block  0
+        -:  562:    {
+        -:  563:      // The scanner already issued an error message, process directly
+        -:  564:      // to error recovery.  But do not keep the error token as
+        -:  565:      // lookahead, it is too special and may lead us to an endless
+        -:  566:      // loop in error recovery. */
+    #####:  567:      yyla.kind_ = symbol_kind::S_YYUNDEF;
+    #####:  568:      goto yyerrlab1;
+    %%%%%:  568-block  0
+        -:  569:    }
+        -:  570:
+        -:  571:    /* If the proper action on seeing token YYLA.TYPE is to reduce or
+        -:  572:       to detect an error, take that action.  */
+      210:  573:    yyn += yyla.kind ();
+      210:  573-block  0
+      210:  574:    if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.kind ())
+      210:  574-block  0
+      210:  574-block  1
+       63:  574-block  2
+      147:  574-block  3
+      210:  574-block  4
+        -:  575:      {
+       63:  576:        if (!yy_lac_establish_ (yyla.kind ()))
+       63:  576-block  0
+       63:  576-block  1
+    #####:  577:           goto yyerrlab;
+    %%%%%:  577-block  0
+       63:  578:        goto yydefault;
+       63:  578-block  0
+        -:  579:      }
+        -:  580:
+        -:  581:    // Reduce or error.
+      147:  582:    yyn = yytable_[yyn];
+      147:  583:    if (yyn <= 0)
+      147:  583-block  0
+        -:  584:      {
+    #####:  585:        if (yy_table_value_is_error_ (yyn))
+    %%%%%:  585-block  0
+    #####:  586:          goto yyerrlab;
+    %%%%%:  586-block  0
+    #####:  587:        if (!yy_lac_establish_ (yyla.kind ()))
+    %%%%%:  587-block  0
+    %%%%%:  587-block  1
+    #####:  588:           goto yyerrlab;
+    %%%%%:  588-block  0
+        -:  589:
+    #####:  590:        yyn = -yyn;
+    #####:  591:        goto yyreduce;
+    %%%%%:  591-block  0
+        -:  592:      }
+        -:  593:
+        -:  594:    // Count tokens shifted since error; after three, turn off error status.
+      147:  595:    if (yyerrstatus_)
+      147:  595-block  0
+    #####:  596:      --yyerrstatus_;
+    %%%%%:  596-block  0
+        -:  597:
+        -:  598:    // Shift the lookahead token.
+      147:  599:    yypush_ ("Shifting", state_type (yyn), YY_MOVE (yyla));
+      147:  599-block  0
+      147:  600:    yy_lac_discard_ ("shift");
+      147:  600-block  0
+      147:  601:    goto yynewstate;
+      147:  601-block  0
+        -:  602:
+        -:  603:
+        -:  604:  /*-----------------------------------------------------------.
+        -:  605:  | yydefault -- do the default action for the current state.  |
+        -:  606:  `-----------------------------------------------------------*/
+      243:  607:  yydefault:
+      243:  608:    yyn = yydefact_[+yystack_[0].state];
+      243:  608-block  0
+      243:  609:    if (yyn == 0)
+    #####:  610:      goto yyerrlab;
+    %%%%%:  610-block  0
+      243:  611:    goto yyreduce;
+      243:  611-block  0
+        -:  612:
+        -:  613:
+        -:  614:  /*-----------------------------.
+        -:  615:  | yyreduce -- do a reduction.  |
+        -:  616:  `-----------------------------*/
+      243:  617:  yyreduce:
+      243:  618:    yylen = yyr2_[yyn];
+        -:  619:    {
+      243:  620:      stack_symbol_type yylhs;
+      243:  620-block  0
+    $$$$$:  620-block  1
+      243:  621:      yylhs.state = yy_lr_goto_state_ (yystack_[yylen].state, yyr1_[yyn]);
+      243:  621-block  0
+        -:  622:      /* Variants are always initialized to an empty instance of the
+        -:  623:         correct type. The default '$$ = $1' action is NOT applied
+        -:  624:         when using variants.  */
+      243:  625:      switch (yyr1_[yyn])
+        -:  626:    {
+       21:  627:      case symbol_kind::S_dest: // dest
+       21:  628:        yylhs.value.emplace< Dest > ();
+       21:  628-block  0
+       21:  629:        break;
+       21:  629-block  0
+        -:  630:
+       74:  631:      case symbol_kind::S_value: // value
+        -:  632:      case symbol_kind::S_quadruple: // quadruple
+        -:  633:      case symbol_kind::S_if_statement: // if_statement
+        -:  634:      case symbol_kind::S_goto: // goto
+        -:  635:      case symbol_kind::S_assignment: // assignment
+       74:  636:        yylhs.value.emplace< Quad > ();
+       74:  636-block  0
+       74:  637:        break;
+       74:  637-block  0
+        -:  638:
+    #####:  639:      case symbol_kind::S_FLOAT: // "float"
+    #####:  640:        yylhs.value.emplace< double > ();
+    %%%%%:  640-block  0
+    #####:  641:        break;
+    %%%%%:  641-block  0
+        -:  642:
+    #####:  643:      case symbol_kind::S_INT: // "int"
+    #####:  644:        yylhs.value.emplace< int > ();
+    %%%%%:  644-block  0
+    #####:  645:        break;
+    %%%%%:  645-block  0
+        -:  646:
+       39:  647:      case symbol_kind::S_IDENTIFIER: // "identifier"
+        -:  648:      case symbol_kind::S_term: // term
+        -:  649:      case symbol_kind::S_label: // label
+       39:  650:        yylhs.value.emplace< std::string > ();
+       39:  650-block  0
+       39:  651:        break;
+       39:  651-block  0
+        -:  652:
+      109:  653:      default:
+      109:  654:        break;
+      109:  654-block  0
+        -:  655:    }
+        -:  656:
+        -:  657:
+        -:  658:      // Default location.
+        -:  659:      {
+      243:  660:        stack_type::slice range (yystack_, yylen);
+      243:  660-block  0
+      243:  661:        YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      242:  661-block  0
+      242:  661-block  1
+      242:  661-block  2
+        1:  661-block  3
+        1:  661-block  4
+      243:  662:        yyerror_range[1].location = yylhs.location;
+        -:  663:      }
+        -:  664:
+        -:  665:      // Perform the reduction.
+     243*:  666:      YY_REDUCE_PRINT (yyn);
+      243:  666-block  0
+    %%%%%:  666-block  1
+        -:  667:#if YY_EXCEPTIONS
+        -:  668:      try
+        -:  669:#endif // YY_EXCEPTIONS
+        -:  670:        {
+      243:  671:          switch (yyn)
+      243:  671-block  0
+        -:  672:            {
+        9:  673:  case 4: // stmt: label mb_newline
+        9:  673-block  0
+        -:  674:#line 84 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  675:                                   { drv.labels.emplace(yystack_[1].value.as < std::string > (), drv.quadruples.size()); }
+        -:  676:#line 677 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        9:  677:    break;
+        9:  677-block  0
+        -:  678:
+       27:  679:  case 5: // stmt: quadruple newlines
+       27:  679-block  0
+        -:  680:#line 85 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  681:                           { drv.quadruples.push_back(yystack_[1].value.as < Quad > ()); }
+        -:  682:#line 683 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       27:  683:    break;
+       27:  683-block  0
+        -:  684:
+       21:  685:  case 11: // quadruple: assignment
+       21:  685-block  0
+        -:  686:#line 92 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  687:    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+        -:  688:#line 689 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       21:  689:    break;
+       21:  689-block  0
+        -:  690:
+        3:  691:  case 12: // quadruple: if_statement
+        3:  691-block  0
+        -:  692:#line 93 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  693:    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+        -:  694:#line 695 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        3:  695:    break;
+        3:  695-block  0
+        -:  696:
+        2:  697:  case 13: // quadruple: goto
+        2:  697-block  0
+        -:  698:#line 94 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  699:    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+        -:  700:#line 701 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        2:  701:    break;
+        2:  701-block  0
+        -:  702:
+    #####:  703:  case 14: // quadruple: "halt"
+    %%%%%:  703-block  0
+        -:  704:#line 95 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  705:                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Halt); }
+        -:  706:#line 707 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  707:    break;
+        -:  708:
+    #####:  709:  case 15: // quadruple: "param" term
+    %%%%%:  709-block  0
+        -:  710:#line 96 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  711:                                    { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Param); }
+        -:  712:#line 713 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  713:    break;
+        -:  714:
+    #####:  715:  case 16: // quadruple: "call" "identifier" term
+    %%%%%:  715-block  0
+        -:  716:#line 97 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  717:                                    { yylhs.value.as < Quad > () = Quad(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Call); }
+        -:  718:#line 719 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  719:    break;
+        -:  720:
+    #####:  721:  case 17: // quadruple: "nop"
+    %%%%%:  721-block  0
+        -:  722:#line 98 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  723:                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Nop); }
+        -:  724:#line 725 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  725:    break;
+        -:  726:
+        1:  727:  case 18: // quadruple: "return"
+        1:  727-block  0
+        -:  728:#line 99 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  729:                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Return); }
+        -:  730:#line 731 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        1:  731:    break;
+        -:  732:
+       21:  733:  case 19: // assignment: dest "=" value
+       21:  733-block  0
+        -:  734:#line 102 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  735:                           { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+        -:  736:#line 737 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       21:  737:    break;
+       21:  737-block  0
+        -:  738:
+        3:  739:  case 20: // if_statement: "if" term "goto" "identifier"
+        3:  739-block  0
+        -:  740:#line 105 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  741:                                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfTrue);
+        -:  742:                                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel); }
+        -:  743:#line 744 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        3:  744:    break;
+        -:  745:
+    #####:  746:  case 21: // if_statement: "ifFalse" term "goto" "identifier"
+    %%%%%:  746-block  0
+        -:  747:#line 107 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  748:                                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfFalse);
+        -:  749:                                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
+        -:  750:#line 751 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  751:    break;
+        -:  752:
+        2:  753:  case 22: // goto: "goto" "identifier"
+        2:  753-block  0
+        -:  754:#line 111 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  755:                                { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
+        -:  756:                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
+        -:  757:#line 758 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        2:  758:    break;
+        -:  759:
+       21:  760:  case 23: // dest: "identifier"
+       21:  760-block  0
+        -:  761:#line 117 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  762:                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
+        -:  763:#line 764 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       21:  764:    break;
+        -:  765:
+    #####:  766:  case 24: // dest: "*" "identifier"
+    %%%%%:  766-block  0
+        -:  767:#line 118 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  768:                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
+        -:  769:#line 770 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  770:    break;
+        -:  771:
+    #####:  772:  case 25: // dest: "identifier" "[" term "]"
+    %%%%%:  772-block  0
+        -:  773:#line 119 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  774:                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Dest::Type::ArraySet); }
+        -:  775:#line 776 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  776:    break;
+        -:  777:
+        9:  778:  case 26: // label: "identifier" ":"
+        9:  778-block  0
+        -:  779:#line 122 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  780:                     { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
+        -:  781:#line 782 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        9:  782:    break;
+        9:  782-block  0
+        -:  783:
+       15:  784:  case 27: // value: term
+       15:  784-block  0
+        -:  785:#line 127 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  786:                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Assign); }
+        -:  787:#line 788 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       15:  788:    break;
+        -:  789:
+    #####:  790:  case 28: // value: "*" term
+    %%%%%:  790-block  0
+        -:  791:#line 128 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  792:                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Deref); }
+        -:  793:#line 794 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  794:    break;
+        -:  795:
+    #####:  796:  case 29: // value: "-" term
+    %%%%%:  796-block  0
+        -:  797:#line 129 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  798:                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::UMinus); }
+        -:  799:#line 800 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  800:    break;
+        -:  801:
+    #####:  802:  case 30: // value: "&" term
+    %%%%%:  802-block  0
+        -:  803:#line 130 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  804:                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Ref); }
+        -:  805:#line 806 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  806:    break;
+        -:  807:
+    #####:  808:  case 31: // value: term "[" term "]"
+    %%%%%:  808-block  0
+        -:  809:#line 131 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  810:                            { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Quad::Type::ArrayGet); }
+        -:  811:#line 812 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  812:    break;
+        -:  813:
+        3:  814:  case 32: // value: term "+" term
+        3:  814-block  0
+        -:  815:#line 132 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  816:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Add); }
+        -:  817:#line 818 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        3:  818:    break;
+        -:  819:
+    #####:  820:  case 33: // value: term "-" term
+    %%%%%:  820-block  0
+        -:  821:#line 133 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  822:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Sub); }
+        -:  823:#line 824 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  824:    break;
+        -:  825:
+    #####:  826:  case 34: // value: term "*" term
+    %%%%%:  826-block  0
+        -:  827:#line 134 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  828:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Mult); }
+        -:  829:#line 830 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  830:    break;
+        -:  831:
+    #####:  832:  case 35: // value: term "/" term
+    %%%%%:  832-block  0
+        -:  833:#line 135 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  834:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Div); }
+        -:  835:#line 836 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  836:    break;
+        -:  837:
+        3:  838:  case 36: // value: term "<" term
+        3:  838-block  0
+        -:  839:#line 136 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  840:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Lt); }
+        -:  841:#line 842 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        3:  842:    break;
+        -:  843:
+    #####:  844:  case 37: // value: term ">" term
+    %%%%%:  844-block  0
+        -:  845:#line 137 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  846:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Gt); }
+        -:  847:#line 848 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  848:    break;
+        -:  849:
+    #####:  850:  case 38: // value: term "==" term
+    %%%%%:  850-block  0
+        -:  851:#line 138 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  852:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Eq); }
+        -:  853:#line 854 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  854:    break;
+        -:  855:
+    #####:  856:  case 39: // value: term "!=" term
+    %%%%%:  856-block  0
+        -:  857:#line 139 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  858:                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Neq); }
+        -:  859:#line 860 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  860:    break;
+        -:  861:
+       13:  862:  case 40: // term: "identifier"
+       13:  862-block  0
+        -:  863:#line 143 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  864:                    { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
+        -:  865:#line 866 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       13:  866:    break;
+       13:  866-block  0
+        -:  867:
+       17:  868:  case 41: // term: "int"
+       17:  868-block  0
+        -:  869:#line 144 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  870:                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < int > ()); }
+        -:  871:#line 872 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+       17:  872:    break;
+        -:  873:
+    #####:  874:  case 42: // term: "float"
+    %%%%%:  874-block  0
+        -:  875:#line 145 "D:/programming/c/tac_parser/grammar/parser.y"
+        -:  876:                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < double > ()); }
+        -:  877:#line 878 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+    #####:  878:    break;
+        -:  879:
+        -:  880:
+        -:  881:#line 882 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        -:  882:
+       73:  883:            default:
+       73:  884:              break;
+       73:  884-block  0
+        -:  885:            }
+        -:  886:        }
+        -:  887:#if YY_EXCEPTIONS
+    =====:  888:      catch (const syntax_error& yyexc)
+    $$$$$:  888-block  0
+    $$$$$:  888-block  1
+        -:  889:        {
+    =====:  890:          YYCDEBUG << "Caught exception: " << yyexc.what() << '\n';
+    $$$$$:  890-block  0
+    $$$$$:  890-block  1
+    $$$$$:  890-block  2
+    =====:  891:          error (yyexc);
+    $$$$$:  891-block  0
+    =====:  892:          YYERROR;
+    $$$$$:  892-block  0
+        -:  893:        }
+        -:  894:#endif // YY_EXCEPTIONS
+     243*:  895:      YY_SYMBOL_PRINT ("-> $$ =", yylhs);
+      243:  895-block  0
+    %%%%%:  895-block  1
+    %%%%%:  895-block  2
+    %%%%%:  895-block  3
+    %%%%%:  895-block  4
+      243:  896:      yypop_ (yylen);
+      243:  896-block  0
+      243:  897:      yylen = 0;
+        -:  898:
+        -:  899:      // Shift the result of the reduction.
+      243:  900:      yypush_ (YY_NULLPTR, YY_MOVE (yylhs));
+        -:  901:    }
+      243:  902:    goto yynewstate;
+      243:  902-block  0
+        -:  903:
+        -:  904:
+        -:  905:  /*--------------------------------------.
+        -:  906:  | yyerrlab -- here on detecting error.  |
+        -:  907:  `--------------------------------------*/
+    #####:  908:  yyerrlab:
+        -:  909:    // If not already recovering from an error, report this error.
+    #####:  910:    if (!yyerrstatus_)
+    %%%%%:  910-block  0
+        -:  911:      {
+    #####:  912:        ++yynerrs_;
+    #####:  913:        context yyctx (*this, yyla);
+    %%%%%:  913-block  0
+    #####:  914:        std::string msg = yysyntax_error_ (yyctx);
+    %%%%%:  914-block  0
+    $$$$$:  914-block  1
+    #####:  915:        error (yyla.location, YY_MOVE (msg));
+    %%%%%:  915-block  0
+        -:  916:      }
+        -:  917:
+        -:  918:
+    #####:  919:    yyerror_range[1].location = yyla.location;
+    #####:  920:    if (yyerrstatus_ == 3)
+    %%%%%:  920-block  0
+        -:  921:      {
+        -:  922:        /* If just tried and failed to reuse lookahead token after an
+        -:  923:           error, discard it.  */
+        -:  924:
+        -:  925:        // Return failure if at end of input.
+    #####:  926:        if (yyla.kind () == symbol_kind::S_YYEOF)
+    %%%%%:  926-block  0
+    #####:  927:          YYABORT;
+    %%%%%:  927-block  0
+    #####:  928:        else if (!yyla.empty ())
+    %%%%%:  928-block  0
+        -:  929:          {
+    #####:  930:            yy_destroy_ ("Error: discarding", yyla);
+    %%%%%:  930-block  0
+    #####:  931:            yyla.clear ();
+    %%%%%:  931-block  0
+        -:  932:          }
+        -:  933:      }
+        -:  934:
+        -:  935:    // Else will try to reuse lookahead token after shifting the error token.
+    #####:  936:    goto yyerrlab1;
+    %%%%%:  936-block  0
+        -:  937:
+        -:  938:
+        -:  939:  /*---------------------------------------------------.
+        -:  940:  | yyerrorlab -- error raised explicitly by YYERROR.  |
+        -:  941:  `---------------------------------------------------*/
+    #####:  942:  yyerrorlab:
+    %%%%%:  942-block  0
+        -:  943:    /* Pacify compilers when the user code never invokes YYERROR and
+        -:  944:       the label yyerrorlab therefore never appears in user code.  */
+        -:  945:    if (false)
+        -:  946:      YYERROR;
+        -:  947:
+        -:  948:    /* Do not reclaim the symbols of the rule whose action triggered
+        -:  949:       this YYERROR.  */
+    #####:  950:    yypop_ (yylen);
+    %%%%%:  950-block  0
+    #####:  951:    yylen = 0;
+    #####:  952:    YY_STACK_PRINT ();
+    %%%%%:  952-block  0
+    #####:  953:    goto yyerrlab1;
+    %%%%%:  953-block  0
+        -:  954:
+        -:  955:
+        -:  956:  /*-------------------------------------------------------------.
+        -:  957:  | yyerrlab1 -- common code for both syntax error and YYERROR.  |
+        -:  958:  `-------------------------------------------------------------*/
+    #####:  959:  yyerrlab1:
+    #####:  960:    yyerrstatus_ = 3;   // Each real token shifted decrements this.
+    %%%%%:  960-block  0
+        -:  961:    // Pop stack until we find a state that shifts the error token.
+        -:  962:    for (;;)
+        -:  963:      {
+    #####:  964:        yyn = yypact_[+yystack_[0].state];
+    %%%%%:  964-block  0
+    %%%%%:  964-block  1
+    #####:  965:        if (!yy_pact_value_is_default_ (yyn))
+        -:  966:          {
+    #####:  967:            yyn += symbol_kind::S_YYerror;
+    #####:  968:            if (0 <= yyn && yyn <= yylast_
+    %%%%%:  968-block  0
+    %%%%%:  968-block  1
+    #####:  969:                && yycheck_[yyn] == symbol_kind::S_YYerror)
+    %%%%%:  969-block  0
+        -:  970:              {
+    #####:  971:                yyn = yytable_[yyn];
+    #####:  972:                if (0 < yyn)
+    %%%%%:  972-block  0
+    #####:  973:                  break;
+    %%%%%:  973-block  0
+        -:  974:              }
+        -:  975:          }
+        -:  976:
+        -:  977:        // Pop the current state because it cannot handle the error token.
+    #####:  978:        if (yystack_.size () == 1)
+    %%%%%:  978-block  0
+    #####:  979:          YYABORT;
+    %%%%%:  979-block  0
+        -:  980:
+    #####:  981:        yyerror_range[1].location = yystack_[0].location;
+    %%%%%:  981-block  0
+    #####:  982:        yy_destroy_ ("Error: popping", yystack_[0]);
+    #####:  983:        yypop_ ();
+    %%%%%:  983-block  0
+    #####:  984:        YY_STACK_PRINT ();
+    %%%%%:  984-block  0
+        -:  985:      }
+        -:  986:    {
+    #####:  987:      stack_symbol_type error_token;
+    %%%%%:  987-block  0
+    %%%%%:  987-block  1
+    $$$$$:  987-block  2
+        -:  988:
+    #####:  989:      yyerror_range[2].location = yyla.location;
+    %%%%%:  989-block  0
+    #####:  990:      YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+    %%%%%:  990-block  0
+        -:  991:
+        -:  992:      // Shift the error token.
+    #####:  993:      yy_lac_discard_ ("error recovery");
+    %%%%%:  993-block  0
+    #####:  994:      error_token.state = state_type (yyn);
+    #####:  995:      yypush_ ("Shifting", YY_MOVE (error_token));
+    %%%%%:  995-block  0
+        -:  996:    }
+    #####:  997:    goto yynewstate;
+        -:  998:
+        -:  999:
+        -: 1000:  /*-------------------------------------.
+        -: 1001:  | yyacceptlab -- YYACCEPT comes here.  |
+        -: 1002:  `-------------------------------------*/
+        1: 1003:  yyacceptlab:
+        1: 1004:    yyresult = 0;
+        1: 1005:    goto yyreturn;
+        1: 1005-block  0
+        -: 1006:
+        -: 1007:
+        -: 1008:  /*-----------------------------------.
+        -: 1009:  | yyabortlab -- YYABORT comes here.  |
+        -: 1010:  `-----------------------------------*/
+    #####: 1011:  yyabortlab:
+    #####: 1012:    yyresult = 1;
+    #####: 1013:    goto yyreturn;
+    %%%%%: 1013-block  0
+        -: 1014:
+        -: 1015:
+        -: 1016:  /*-----------------------------------------------------.
+        -: 1017:  | yyreturn -- parsing is finished, return the result.  |
+        -: 1018:  `-----------------------------------------------------*/
+        1: 1019:  yyreturn:
+        1: 1020:    if (!yyla.empty ())
+        1: 1020-block  0
+    #####: 1021:      yy_destroy_ ("Cleanup: discarding lookahead", yyla);
+    %%%%%: 1021-block  0
+        -: 1022:
+        -: 1023:    /* Do not reclaim the symbols of the rule whose action triggered
+        -: 1024:       this YYABORT or YYACCEPT.  */
+        1: 1025:    yypop_ (yylen);
+        1: 1025-block  0
+       1*: 1026:    YY_STACK_PRINT ();
+    %%%%%: 1026-block  0
+        3: 1027:    while (1 < yystack_.size ())
+        3: 1027-block  0
+        -: 1028:      {
+        2: 1029:        yy_destroy_ ("Cleanup: popping", yystack_[0]);
+        2: 1029-block  0
+        2: 1030:        yypop_ ();
+        2: 1030-block  0
+        -: 1031:      }
+        -: 1032:
+        2: 1033:    return yyresult;
+        1: 1033-block  0
+        1: 1033-block  1
+        -: 1034:  }
+        -: 1035:#if YY_EXCEPTIONS
+    =====: 1036:    catch (...)
+    $$$$$: 1036-block  0
+    $$$$$: 1036-block  1
+        -: 1037:      {
+    =====: 1038:        YYCDEBUG << "Exception caught: cleaning lookahead and stack\n";
+    $$$$$: 1038-block  0
+        -: 1039:        // Do not try to display the values of the reclaimed symbols,
+        -: 1040:        // as their printers might throw an exception.
+    =====: 1041:        if (!yyla.empty ())
+    $$$$$: 1041-block  0
+    =====: 1042:          yy_destroy_ (YY_NULLPTR, yyla);
+    $$$$$: 1042-block  0
+        -: 1043:
+    =====: 1044:        while (1 < yystack_.size ())
+    $$$$$: 1044-block  0
+        -: 1045:          {
+    =====: 1046:            yy_destroy_ (YY_NULLPTR, yystack_[0]);
+    $$$$$: 1046-block  0
+    =====: 1047:            yypop_ ();
+    $$$$$: 1047-block  0
+        -: 1048:          }
+    =====: 1049:        throw;
+    $$$$$: 1049-block  0
+        -: 1050:      }
+        -: 1051:#endif // YY_EXCEPTIONS
+        -: 1052:  }
+        -: 1053:
+        -: 1054:  void
+    #####: 1055:  parser::error (const syntax_error& yyexc)
+        -: 1056:  {
+    #####: 1057:    error (yyexc.location, yyexc.what ());
+    %%%%%: 1057-block  0
+    %%%%%: 1057-block  1
+    %%%%%: 1057-block  2
+    $$$$$: 1057-block  3
+    $$$$$: 1057-block  4
+    $$$$$: 1057-block  5
+    #####: 1058:  }
+        -: 1059:
+        -: 1060:  const char *
+    #####: 1061:  parser::symbol_name (symbol_kind_type yysymbol)
+        -: 1062:  {
+        -: 1063:    static const char *const yy_sname[] =
+        -: 1064:    {
+        -: 1065:    "end of file", "error", "invalid token", "if", "ifFalse", "goto",
+        -: 1066:  "halt", "call", "param", "nop", "return", "newline", "=", "+", "-", "*",
+        -: 1067:  "/", "&", "<", ">", "==", "!=", "(", ")", "[", "]", ";", ":",
+        -: 1068:  "identifier", "int", "float", "$accept", "dest", "value", "quadruple",
+        -: 1069:  "if_statement", "goto", "assignment", "term", "label", "stmts", "stmt",
+        -: 1070:  "mb_newline", "newlines", YY_NULLPTR
+        -: 1071:    };
+    #####: 1072:    return yy_sname[yysymbol];
+    %%%%%: 1072-block  0
+        -: 1073:  }
+        -: 1074:
+        -: 1075:
+        -: 1076:
+        -: 1077:  // parser::context.
+    #####: 1078:  parser::context::context (const parser& yyparser, const symbol_type& yyla)
+        -: 1079:    : yyparser_ (yyparser)
+    #####: 1080:    , yyla_ (yyla)
+    #####: 1081:  {}
+        -: 1082:
+        -: 1083:  int
+    #####: 1084:  parser::context::expected_tokens (symbol_kind_type yyarg[], int yyargn) const
+        -: 1085:  {
+        -: 1086:    // Actual number of expected tokens
+    #####: 1087:    int yycount = 0;
+        -: 1088:
+        -: 1089:#if YYDEBUG
+        -: 1090:    // Execute LAC once. We don't care if it is successful, we
+        -: 1091:    // only do it for the sake of debugging output.
+    #####: 1092:    if (!yyparser_.yy_lac_established_)
+    %%%%%: 1092-block  0
+    #####: 1093:      yyparser_.yy_lac_check_ (yyla_.kind ());
+    %%%%%: 1093-block  0
+        -: 1094:#endif
+        -: 1095:
+    #####: 1096:    for (int yyx = 0; yyx < YYNTOKENS; ++yyx)
+    %%%%%: 1096-block  0
+    %%%%%: 1096-block  1
+    %%%%%: 1096-block  2
+        -: 1097:      {
+    #####: 1098:        symbol_kind_type yysym = YY_CAST (symbol_kind_type, yyx);
+    #####: 1099:        if (yysym != symbol_kind::S_YYerror
+    #####: 1100:            && yysym != symbol_kind::S_YYUNDEF
+    %%%%%: 1100-block  0
+    #####: 1101:            && yyparser_.yy_lac_check_ (yysym))
+    %%%%%: 1101-block  0
+    %%%%%: 1101-block  1
+    %%%%%: 1101-block  2
+    %%%%%: 1101-block  3
+    %%%%%: 1101-block  4
+        -: 1102:          {
+    #####: 1103:            if (!yyarg)
+    %%%%%: 1103-block  0
+    #####: 1104:              ++yycount;
+    %%%%%: 1104-block  0
+    #####: 1105:            else if (yycount == yyargn)
+    %%%%%: 1105-block  0
+    #####: 1106:              return 0;
+    %%%%%: 1106-block  0
+        -: 1107:            else
+    #####: 1108:              yyarg[yycount++] = yysym;
+    %%%%%: 1108-block  0
+        -: 1109:          }
+        -: 1110:      }
+    #####: 1111:    if (yyarg && yycount == 0 && 0 < yyargn)
+    %%%%%: 1111-block  0
+    %%%%%: 1111-block  1
+    %%%%%: 1111-block  2
+    #####: 1112:      yyarg[0] = symbol_kind::S_YYEMPTY;
+    %%%%%: 1112-block  0
+    #####: 1113:    return yycount;
+    %%%%%: 1113-block  0
+        -: 1114:  }
+        -: 1115:
+        -: 1116:
+        -: 1117:  bool
+       63: 1118:  parser::yy_lac_check_ (symbol_kind_type yytoken) const
+        -: 1119:  {
+        -: 1120:    // Logically, the yylac_stack's lifetime is confined to this function.
+        -: 1121:    // Clear it, to get rid of potential left-overs from previous call.
+       63: 1122:    yylac_stack_.clear ();
+       63: 1122-block  0
+        -: 1123:    // Reduce until we encounter a shift and thereby accept the token.
+        -: 1124:#if YYDEBUG
+      63*: 1125:    YYCDEBUG << "LAC: checking lookahead " << symbol_name (yytoken) << ':';
+    %%%%%: 1125-block  0
+        -: 1126:#endif
+       63: 1127:    std::ptrdiff_t lac_top = 0;
+       63: 1127-block  0
+        -: 1128:    while (true)
+        -: 1129:      {
+      183: 1130:        state_type top_state = (yylac_stack_.empty ()
+      183: 1130-block  0
+      303: 1131:                                ? yystack_[lac_top].state
+       63: 1131-block  0
+      120: 1132:                                : yylac_stack_.back ());
+      120: 1132-block  0
+      183: 1133:        int yyrule = yypact_[+top_state];
+      183: 1134:        if (yy_pact_value_is_default_ (yyrule)
+      183: 1134-block  0
+      126: 1135:            || (yyrule += yytoken) < 0 || yylast_ < yyrule
+      126: 1135-block  0
+      126: 1135-block  1
+      309: 1136:            || yycheck_[yyrule] != yytoken)
+      126: 1136-block  0
+      120: 1136-block  1
+       63: 1136-block  2
+      183: 1136-block  3
+        -: 1137:          {
+        -: 1138:            // Use the default action.
+      120: 1139:            yyrule = yydefact_[+top_state];
+      120: 1140:            if (yyrule == 0)
+      120: 1140-block  0
+        -: 1141:              {
+    #####: 1142:                YYCDEBUG << " Err\n";
+    %%%%%: 1142-block  0
+    %%%%%: 1142-block  1
+      63*: 1143:                return false;
+    %%%%%: 1143-block  0
+       63: 1143-block  1
+        -: 1144:              }
+        -: 1145:          }
+        -: 1146:        else
+        -: 1147:          {
+        -: 1148:            // Use the action from yytable.
+       63: 1149:            yyrule = yytable_[yyrule];
+       63: 1150:            if (yy_table_value_is_error_ (yyrule))
+       63: 1150-block  0
+        -: 1151:              {
+    #####: 1152:                YYCDEBUG << " Err\n";
+    %%%%%: 1152-block  0
+    %%%%%: 1152-block  1
+    #####: 1153:                return false;
+    %%%%%: 1153-block  0
+        -: 1154:              }
+       63: 1155:            if (0 < yyrule)
+       63: 1155-block  0
+        -: 1156:              {
+      63*: 1157:                YYCDEBUG << " S" << yyrule << '\n';
+       63: 1157-block  0
+    %%%%%: 1157-block  1
+    %%%%%: 1157-block  2
+    %%%%%: 1157-block  3
+       63: 1158:                return true;
+       63: 1158-block  0
+        -: 1159:              }
+    #####: 1160:            yyrule = -yyrule;
+    %%%%%: 1160-block  0
+        -: 1161:          }
+        -: 1162:        // By now we know we have to simulate a reduce.
+     120*: 1163:        YYCDEBUG << " R" << yyrule - 1;
+      120: 1163-block  0
+    %%%%%: 1163-block  1
+    %%%%%: 1163-block  2
+        -: 1164:        // Pop the corresponding number of values from the stack.
+        -: 1165:        {
+      120: 1166:          std::ptrdiff_t yylen = yyr2_[yyrule];
+        -: 1167:          // First pop from the LAC stack as many tokens as possible.
+      120: 1168:          std::ptrdiff_t lac_size = std::ptrdiff_t (yylac_stack_.size ());
+      120: 1168-block  0
+      120: 1169:          if (yylen < lac_size)
+        -: 1170:            {
+    #####: 1171:              yylac_stack_.resize (std::size_t (lac_size - yylen));
+    %%%%%: 1171-block  0
+    #####: 1172:              yylen = 0;
+    %%%%%: 1172-block  0
+        -: 1173:            }
+      120: 1174:          else if (lac_size)
+      120: 1174-block  0
+        -: 1175:            {
+       57: 1176:              yylac_stack_.clear ();
+       57: 1176-block  0
+       57: 1177:              yylen -= lac_size;
+        -: 1178:            }
+        -: 1179:          // Only afterwards look at the main stack.
+        -: 1180:          // We simulate popping elements by incrementing lac_top.
+      120: 1181:          lac_top += yylen;
+        -: 1182:        }
+        -: 1183:        // Keep top_state in sync with the updated stack.
+      120: 1184:        top_state = (yylac_stack_.empty ()
+      120: 1184-block  0
+     120*: 1185:                     ? yystack_[lac_top].state
+      120: 1185-block  0
+    #####: 1186:                     : yylac_stack_.back ());
+    %%%%%: 1186-block  0
+        -: 1187:        // Push the resulting state of the reduction.
+      120: 1188:        state_type state = yy_lr_goto_state_ (top_state, yyr1_[yyrule]);
+      120: 1188-block  0
+     120*: 1189:        YYCDEBUG << " G" << int (state);
+    %%%%%: 1189-block  0
+    %%%%%: 1189-block  1
+      120: 1190:        yylac_stack_.push_back (state);
+      120: 1190-block  0
+      120: 1191:      }
+      120: 1191-block  0
+        -: 1192:  }
+        -: 1193:
+        -: 1194:  // Establish the initial context if no initial context currently exists.
+        -: 1195:  bool
+       63: 1196:  parser::yy_lac_establish_ (symbol_kind_type yytoken)
+        -: 1197:  {
+        -: 1198:    /* Establish the initial context for the current lookahead if no initial
+        -: 1199:       context is currently established.
+        -: 1200:
+        -: 1201:       We define a context as a snapshot of the parser stacks.  We define
+        -: 1202:       the initial context for a lookahead as the context in which the
+        -: 1203:       parser initially examines that lookahead in order to select a
+        -: 1204:       syntactic action.  Thus, if the lookahead eventually proves
+        -: 1205:       syntactically unacceptable (possibly in a later context reached via a
+        -: 1206:       series of reductions), the initial context can be used to determine
+        -: 1207:       the exact set of tokens that would be syntactically acceptable in the
+        -: 1208:       lookahead's place.  Moreover, it is the context after which any
+        -: 1209:       further semantic actions would be erroneous because they would be
+        -: 1210:       determined by a syntactically unacceptable token.
+        -: 1211:
+        -: 1212:       yy_lac_establish_ should be invoked when a reduction is about to be
+        -: 1213:       performed in an inconsistent state (which, for the purposes of LAC,
+        -: 1214:       includes consistent states that don't know they're consistent because
+        -: 1215:       their default reductions have been disabled).
+        -: 1216:
+        -: 1217:       For parse.lac=full, the implementation of yy_lac_establish_ is as
+        -: 1218:       follows.  If no initial context is currently established for the
+        -: 1219:       current lookahead, then check if that lookahead can eventually be
+        -: 1220:       shifted if syntactic actions continue from the current context.  */
+       63: 1221:    if (!yy_lac_established_)
+       63: 1221-block  0
+        -: 1222:      {
+        -: 1223:#if YYDEBUG
+      63*: 1224:        YYCDEBUG << "LAC: initial context established for "
+       63: 1224-block  0
+    #####: 1225:                 << symbol_name (yytoken) << '\n';
+    %%%%%: 1225-block  0
+        -: 1226:#endif
+       63: 1227:        yy_lac_established_ = true;
+       63: 1228:        return yy_lac_check_ (yytoken);
+       63: 1228-block  0
+        -: 1229:      }
+    #####: 1230:    return true;
+    %%%%%: 1230-block  0
+        -: 1231:  }
+        -: 1232:
+        -: 1233:  // Discard any previous initial lookahead context.
+        -: 1234:  void
+      148: 1235:  parser::yy_lac_discard_ (const char* evt)
+        -: 1236:  {
+        -: 1237:   /* Discard any previous initial lookahead context because of Event,
+        -: 1238:      which may be a lookahead change or an invalidation of the currently
+        -: 1239:      established initial context for the current lookahead.
+        -: 1240:
+        -: 1241:      The most common example of a lookahead change is a shift.  An example
+        -: 1242:      of both cases is syntax error recovery.  That is, a syntax error
+        -: 1243:      occurs when the lookahead is syntactically erroneous for the
+        -: 1244:      currently established initial context, so error recovery manipulates
+        -: 1245:      the parser stacks to try to find a new initial context in which the
+        -: 1246:      current lookahead is syntactically acceptable.  If it fails to find
+        -: 1247:      such a context, it discards the lookahead.  */
+      148: 1248:    if (yy_lac_established_)
+      148: 1248-block  0
+        -: 1249:      {
+      63*: 1250:        YYCDEBUG << "LAC: initial context discarded due to "
+       63: 1250-block  0
+    #####: 1251:                 << evt << '\n';
+    %%%%%: 1251-block  0
+       63: 1252:        yy_lac_established_ = false;
+       63: 1252-block  0
+        -: 1253:      }
+      148: 1254:  }
+        -: 1255:
+        -: 1256:  int
+    #####: 1257:  parser::yy_syntax_error_arguments_ (const context& yyctx,
+        -: 1258:                                                 symbol_kind_type yyarg[], int yyargn) const
+        -: 1259:  {
+        -: 1260:    /* There are many possibilities here to consider:
+        -: 1261:       - If this state is a consistent state with a default action, then
+        -: 1262:         the only way this function was invoked is if the default action
+        -: 1263:         is an error action.  In that case, don't check for expected
+        -: 1264:         tokens because there are none.
+        -: 1265:       - The only way there can be no lookahead present (in yyla) is
+        -: 1266:         if this state is a consistent state with a default action.
+        -: 1267:         Thus, detecting the absence of a lookahead is sufficient to
+        -: 1268:         determine that there is no unexpected or expected token to
+        -: 1269:         report.  In that case, just report a simple "syntax error".
+        -: 1270:       - Don't assume there isn't a lookahead just because this state is
+        -: 1271:         a consistent state with a default action.  There might have
+        -: 1272:         been a previous inconsistent state, consistent state with a
+        -: 1273:         non-default action, or user semantic action that manipulated
+        -: 1274:         yyla.  (However, yyla is currently not documented for users.)
+        -: 1275:         In the first two cases, it might appear that the current syntax
+        -: 1276:         error should have been detected in the previous state when
+        -: 1277:         yy_lac_check was invoked.  However, at that time, there might
+        -: 1278:         have been a different syntax error that discarded a different
+        -: 1279:         initial context during error recovery, leaving behind the
+        -: 1280:         current lookahead.
+        -: 1281:    */
+        -: 1282:
+    #####: 1283:    if (!yyctx.lookahead ().empty ())
+    %%%%%: 1283-block  0
+        -: 1284:      {
+    #####: 1285:        if (yyarg)
+    %%%%%: 1285-block  0
+    #####: 1286:          yyarg[0] = yyctx.token ();
+    %%%%%: 1286-block  0
+    #####: 1287:        int yyn = yyctx.expected_tokens (yyarg ? yyarg + 1 : yyarg, yyargn - 1);
+    %%%%%: 1287-block  0
+    %%%%%: 1287-block  1
+    %%%%%: 1287-block  2
+    %%%%%: 1287-block  3
+    #####: 1288:        return yyn + 1;
+        -: 1289:      }
+    #####: 1290:    return 0;
+    %%%%%: 1290-block  0
+        -: 1291:  }
+        -: 1292:
+        -: 1293:  // Generate an error message.
+        -: 1294:  std::string
+    #####: 1295:  parser::yysyntax_error_ (const context& yyctx) const
+        -: 1296:  {
+        -: 1297:    // Its maximum.
+        -: 1298:    enum { YYARGS_MAX = 5 };
+        -: 1299:    // Arguments of yyformat.
+        -: 1300:    symbol_kind_type yyarg[YYARGS_MAX];
+    #####: 1301:    int yycount = yy_syntax_error_arguments_ (yyctx, yyarg, YYARGS_MAX);
+    %%%%%: 1301-block  0
+        -: 1302:
+    #####: 1303:    char const* yyformat = YY_NULLPTR;
+    #####: 1304:    switch (yycount)
+    %%%%%: 1304-block  0
+        -: 1305:      {
+        -: 1306:#define YYCASE_(N, S)                         \
+        -: 1307:        case N:                               \
+        -: 1308:          yyformat = S;                       \
+        -: 1309:        break
+    #####: 1310:      default: // Avoid compiler warnings.
+    #####: 1311:        YYCASE_ (0, YY_("syntax error"));
+    %%%%%: 1311-block  0
+    #####: 1312:        YYCASE_ (1, YY_("syntax error, unexpected %s"));
+    %%%%%: 1312-block  0
+    #####: 1313:        YYCASE_ (2, YY_("syntax error, unexpected %s, expecting %s"));
+    %%%%%: 1313-block  0
+    #####: 1314:        YYCASE_ (3, YY_("syntax error, unexpected %s, expecting %s or %s"));
+    %%%%%: 1314-block  0
+    #####: 1315:        YYCASE_ (4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
+    %%%%%: 1315-block  0
+    #####: 1316:        YYCASE_ (5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
+    %%%%%: 1316-block  0
+        -: 1317:#undef YYCASE_
+        -: 1318:      }
+        -: 1319:
+    #####: 1320:    std::string yyres;
+    %%%%%: 1320-block  0
+        -: 1321:    // Argument number.
+    #####: 1322:    std::ptrdiff_t yyi = 0;
+    #####: 1323:    for (char const* yyp = yyformat; *yyp; ++yyp)
+    %%%%%: 1323-block  0
+    %%%%%: 1323-block  1
+    #####: 1324:      if (yyp[0] == '%' && yyp[1] == 's' && yyi < yycount)
+    %%%%%: 1324-block  0
+    %%%%%: 1324-block  1
+    %%%%%: 1324-block  2
+        -: 1325:        {
+    #####: 1326:          yyres += symbol_name (yyarg[yyi++]);
+    %%%%%: 1326-block  0
+    #####: 1327:          ++yyp;
+    %%%%%: 1327-block  0
+        -: 1328:        }
+        -: 1329:      else
+    #####: 1330:        yyres += *yyp;
+    %%%%%: 1330-block  0
+    #####: 1331:    return yyres;
+    %%%%%: 1331-block  0
+    %%%%%: 1331-block  1
+        -: 1332:  }
+        -: 1333:
+        -: 1334:
+        -: 1335:  const signed char parser::yypact_ninf_ = -28;
+        -: 1336:
+        -: 1337:  const signed char parser::yytable_ninf_ = -1;
+        -: 1338:
+        -: 1339:  const signed char
+        -: 1340:  parser::yypact_[] =
+        -: 1341:  {
+        -: 1342:     -28,     2,   -28,    12,    12,   -27,   -28,   -13,    12,   -28,
+        -: 1343:     -28,    -8,   -11,    11,     3,   -28,   -28,   -28,    13,   -28,
+        -: 1344:     -28,   -28,   -28,    21,    23,   -28,    12,   -28,   -28,    12,
+        -: 1345:     -28,     4,   -28,   -28,    18,   -28,   -28,     7,     8,   -28,
+        -: 1346:       6,    12,    12,    12,   -28,    45,   -28,   -28,   -28,   -28,
+        -: 1347:     -28,   -28,   -28,    12,    12,    12,    12,    12,    12,    12,
+        -: 1348:      12,    12,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,
+        -: 1349:      19,   -28
+        -: 1350:  };
+        -: 1351:
+        -: 1352:  const signed char
+        -: 1353:  parser::yydefact_[] =
+        -: 1354:  {
+        -: 1355:       2,     0,     1,     0,     0,     0,    14,     0,     0,    17,
+        -: 1356:      18,     0,    23,     0,     0,    12,    13,    11,     6,     3,
+        -: 1357:      40,    41,    42,     0,     0,    22,     0,    15,    24,     0,
+        -: 1358:      26,     0,     8,     9,     5,     7,     4,     0,     0,    16,
+        -: 1359:       0,     0,     0,     0,    19,    27,    10,    20,    21,    25,
+        -: 1360:      29,    28,    30,     0,     0,     0,     0,     0,     0,     0,
+        -: 1361:       0,     0,    32,    33,    34,    35,    36,    37,    38,    39,
+        -: 1362:       0,    31
+        -: 1363:  };
+        -: 1364:
+        -: 1365:  const signed char
+        -: 1366:  parser::yypgoto_[] =
+        -: 1367:  {
+        -: 1368:     -28,   -28,   -28,   -28,   -28,   -28,   -28,    -4,   -28,   -28,
+        -: 1369:     -28,   -28,   -28
+        -: 1370:  };
+        -: 1371:
+        -: 1372:  const signed char
+        -: 1373:  parser::yydefgoto_[] =
+        -: 1374:  {
+        -: 1375:      -1,    13,    44,    14,    15,    16,    17,    23,    18,     1,
+        -: 1376:      19,    36,    34
+        -: 1377:  };
+        -: 1378:
+        -: 1379:  const signed char
+        -: 1380:  parser::yytable_[] =
+        -: 1381:  {
+        -: 1382:      24,    25,     2,    32,    27,     3,     4,     5,     6,     7,
+        -: 1383:       8,     9,    10,    29,    33,    26,    30,    11,    41,    42,
+        -: 1384:      28,    43,    39,    31,    35,    40,    37,    45,    38,    46,
+        -: 1385:      12,    49,    20,    21,    22,    47,    48,    50,    51,    52,
+        -: 1386:      20,    21,    22,     0,    71,     0,     0,     0,     0,    62,
+        -: 1387:      63,    64,    65,    66,    67,    68,    69,    70,    53,    54,
+        -: 1388:      55,    56,     0,    57,    58,    59,    60,     0,     0,    61
+        -: 1389:  };
+        -: 1390:
+        -: 1391:  const signed char
+        -: 1392:  parser::yycheck_[] =
+        -: 1393:  {
+        -: 1394:       4,    28,     0,     0,     8,     3,     4,     5,     6,     7,
+        -: 1395:       8,     9,    10,    24,    11,    28,    27,    15,    14,    15,
+        -: 1396:      28,    17,    26,    12,    11,    29,     5,    31,     5,    11,
+        -: 1397:      28,    25,    28,    29,    30,    28,    28,    41,    42,    43,
+        -: 1398:      28,    29,    30,    -1,    25,    -1,    -1,    -1,    -1,    53,
+        -: 1399:      54,    55,    56,    57,    58,    59,    60,    61,    13,    14,
+        -: 1400:      15,    16,    -1,    18,    19,    20,    21,    -1,    -1,    24
+        -: 1401:  };
+        -: 1402:
+        -: 1403:  const signed char
+        -: 1404:  parser::yystos_[] =
+        -: 1405:  {
+        -: 1406:       0,    40,     0,     3,     4,     5,     6,     7,     8,     9,
+        -: 1407:      10,    15,    28,    32,    34,    35,    36,    37,    39,    41,
+        -: 1408:      28,    29,    30,    38,    38,    28,    28,    38,    28,    24,
+        -: 1409:      27,    12,     0,    11,    43,    11,    42,     5,     5,    38,
+        -: 1410:      38,    14,    15,    17,    33,    38,    11,    28,    28,    25,
+        -: 1411:      38,    38,    38,    13,    14,    15,    16,    18,    19,    20,
+        -: 1412:      21,    24,    38,    38,    38,    38,    38,    38,    38,    38,
+        -: 1413:      38,    25
+        -: 1414:  };
+        -: 1415:
+        -: 1416:  const signed char
+        -: 1417:  parser::yyr1_[] =
+        -: 1418:  {
+        -: 1419:       0,    31,    40,    40,    41,    41,    42,    42,    43,    43,
+        -: 1420:      43,    34,    34,    34,    34,    34,    34,    34,    34,    37,
+        -: 1421:      35,    35,    36,    32,    32,    32,    39,    33,    33,    33,
+        -: 1422:      33,    33,    33,    33,    33,    33,    33,    33,    33,    33,
+        -: 1423:      38,    38,    38
+        -: 1424:  };
+        -: 1425:
+        -: 1426:  const signed char
+        -: 1427:  parser::yyr2_[] =
+        -: 1428:  {
+        -: 1429:       0,     2,     0,     2,     2,     2,     0,     1,     1,     1,
+        -: 1430:       2,     1,     1,     1,     1,     2,     3,     1,     1,     3,
+        -: 1431:       4,     4,     2,     1,     2,     4,     2,     1,     2,     2,
+        -: 1432:       2,     4,     3,     3,     3,     3,     3,     3,     3,     3,
+        -: 1433:       1,     1,     1
+        -: 1434:  };
+        -: 1435:
+        -: 1436:
+        -: 1437:
+        -: 1438:
+        -: 1439:#if YYDEBUG
+        -: 1440:  const unsigned char
+        -: 1441:  parser::yyrline_[] =
+        -: 1442:  {
+        -: 1443:       0,    78,    78,    79,    84,    85,    87,    87,    88,    88,
+        -: 1444:      88,    92,    93,    94,    95,    96,    97,    98,    99,   102,
+        -: 1445:     105,   107,   111,   117,   118,   119,   122,   127,   128,   129,
+        -: 1446:     130,   131,   132,   133,   134,   135,   136,   137,   138,   139,
+        -: 1447:     143,   144,   145
+        -: 1448:  };
+        -: 1449:
+        -: 1450:  void
+    #####: 1451:  parser::yy_stack_print_ () const
+        -: 1452:  {
+    #####: 1453:    *yycdebug_ << "Stack now";
+    %%%%%: 1453-block  0
+    #####: 1454:    for (stack_type::const_iterator
+    #####: 1455:           i = yystack_.begin (),
+    #####: 1456:           i_end = yystack_.end ();
+    #####: 1457:         i != i_end; ++i)
+    %%%%%: 1457-block  0
+    %%%%%: 1457-block  1
+    #####: 1458:      *yycdebug_ << ' ' << int (i->state);
+    %%%%%: 1458-block  0
+    %%%%%: 1458-block  1
+    #####: 1459:    *yycdebug_ << '\n';
+    %%%%%: 1459-block  0
+    #####: 1460:  }
+        -: 1461:
+        -: 1462:  void
+    #####: 1463:  parser::yy_reduce_print_ (int yyrule) const
+        -: 1464:  {
+    #####: 1465:    int yylno = yyrline_[yyrule];
+    #####: 1466:    int yynrhs = yyr2_[yyrule];
+        -: 1467:    // Print the symbols being reduced, and their result.
+    #####: 1468:    *yycdebug_ << "Reducing stack by rule " << yyrule - 1
+    %%%%%: 1468-block  0
+    #####: 1469:               << " (line " << yylno << "):\n";
+    %%%%%: 1469-block  0
+    %%%%%: 1469-block  1
+    %%%%%: 1469-block  2
+    %%%%%: 1469-block  3
+        -: 1470:    // The symbols being reduced.
+    #####: 1471:    for (int yyi = 0; yyi < yynrhs; yyi++)
+    %%%%%: 1471-block  0
+    %%%%%: 1471-block  1
+    %%%%%: 1471-block  2
+    #####: 1472:      YY_SYMBOL_PRINT ("   $" << yyi + 1 << " =",
+    %%%%%: 1472-block  0
+    %%%%%: 1472-block  1
+    %%%%%: 1472-block  2
+    %%%%%: 1472-block  3
+    %%%%%: 1472-block  4
+    %%%%%: 1472-block  5
+    %%%%%: 1472-block  6
+        -: 1473:                       yystack_[(yynrhs) - (yyi + 1)]);
+    #####: 1474:  }
+    %%%%%: 1474-block  0
+        -: 1475:#endif // YYDEBUG
+        -: 1476:
+        -: 1477:
+        -: 1478:} // yy
+        -: 1479:#line 1480 "D:/programming/c/tac_parser/cmake-build-debug-coverage/parser.cpp"
+        -: 1480:
+        -: 1481:#line 149 "D:/programming/c/tac_parser/grammar/parser.y"
+        -: 1482:
+        -: 1483:
+        -: 1484:void yy::parser::error(const location_type& l, const std::string& m) {
+        -: 1485:    std::cerr << l << ": " << m << std::endl;
+        -: 1486:}

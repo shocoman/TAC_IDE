@@ -91,114 +91,114 @@ CMakeFiles/tac_parser.dir/main.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/main.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/main.cpp.obj: ../main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/tac_parser.dir/main.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\main.cpp.obj -c D:\programming\c\tac_parser\main.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\main.cpp.obj -c D:\programming\c\tac_parser\main.cpp
 
 CMakeFiles/tac_parser.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/main.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\main.cpp > CMakeFiles\tac_parser.dir\main.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\main.cpp > CMakeFiles\tac_parser.dir\main.cpp.i
 
 CMakeFiles/tac_parser.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/main.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\main.cpp -o CMakeFiles\tac_parser.dir\main.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\main.cpp -o CMakeFiles\tac_parser.dir\main.cpp.s
 
 CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj: ../DotWriter/DotWriter.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.obj -c D:\programming\c\tac_parser\DotWriter\DotWriter.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.obj -c D:\programming\c\tac_parser\DotWriter\DotWriter.cpp
 
 CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\DotWriter\DotWriter.cpp > CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\DotWriter\DotWriter.cpp > CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.i
 
 CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/DotWriter/DotWriter.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\DotWriter\DotWriter.cpp -o CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\DotWriter\DotWriter.cpp -o CMakeFiles\tac_parser.dir\DotWriter\DotWriter.cpp.s
 
 CMakeFiles/tac_parser.dir/driver/driver.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/driver/driver.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/driver/driver.cpp.obj: ../driver/driver.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tac_parser.dir/driver/driver.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\driver\driver.cpp.obj -c D:\programming\c\tac_parser\driver\driver.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\driver\driver.cpp.obj -c D:\programming\c\tac_parser\driver\driver.cpp
 
 CMakeFiles/tac_parser.dir/driver/driver.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/driver/driver.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\driver\driver.cpp > CMakeFiles\tac_parser.dir\driver\driver.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\driver\driver.cpp > CMakeFiles\tac_parser.dir\driver\driver.cpp.i
 
 CMakeFiles/tac_parser.dir/driver/driver.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/driver/driver.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\driver\driver.cpp -o CMakeFiles\tac_parser.dir\driver\driver.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\driver\driver.cpp -o CMakeFiles\tac_parser.dir\driver\driver.cpp.s
 
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj: ../tac_worker/dataflow_graph.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.obj -c D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.obj -c D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp
 
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp > CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp > CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.i
 
 CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/tac_worker/dataflow_graph.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp -o CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\dataflow_graph.cpp -o CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.s
 
 CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj: ../tac_worker/LoopFinder.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.obj -c D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.obj -c D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp
 
 CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp > CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp > CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.i
 
 CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/tac_worker/LoopFinder.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\LoopFinder.cpp -o CMakeFiles\tac_parser.dir\tac_worker\LoopFinder.cpp.s
 
 CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj: ../tac_worker/basic_block.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.obj -c D:\programming\c\tac_parser\tac_worker\basic_block.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.obj -c D:\programming\c\tac_parser\tac_worker\basic_block.cpp
 
 CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\basic_block.cpp > CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\tac_worker\basic_block.cpp > CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.i
 
 CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\basic_block.cpp -o CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\tac_worker\basic_block.cpp -o CMakeFiles\tac_parser.dir\tac_worker\basic_block.cpp.s
 
 CMakeFiles/tac_parser.dir/parser.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/parser.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/parser.cpp.obj: parser.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tac_parser.dir/parser.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\parser.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\parser.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\parser.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\parser.cpp
 
 CMakeFiles/tac_parser.dir/parser.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/parser.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\cmake-build-debug\parser.cpp > CMakeFiles\tac_parser.dir\parser.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\cmake-build-debug\parser.cpp > CMakeFiles\tac_parser.dir\parser.cpp.i
 
 CMakeFiles/tac_parser.dir/parser.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/parser.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\cmake-build-debug\parser.cpp -o CMakeFiles\tac_parser.dir\parser.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\cmake-build-debug\parser.cpp -o CMakeFiles\tac_parser.dir\parser.cpp.s
 
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: CMakeFiles/tac_parser.dir/flags.make
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: CMakeFiles/tac_parser.dir/includes_CXX.rsp
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: lexer.cpp
 CMakeFiles/tac_parser.dir/lexer.cpp.obj: parser.hpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\programming\c\tac_parser\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/tac_parser.dir/lexer.cpp.obj"
-	D:\programming\_mingw730_64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\lexer.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp
+	D:\programming\mingwW64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\tac_parser.dir\lexer.cpp.obj -c D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp
 
 CMakeFiles/tac_parser.dir/lexer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tac_parser.dir/lexer.cpp.i"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp > CMakeFiles\tac_parser.dir\lexer.cpp.i
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp > CMakeFiles\tac_parser.dir\lexer.cpp.i
 
 CMakeFiles/tac_parser.dir/lexer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tac_parser.dir/lexer.cpp.s"
-	D:\programming\_mingw730_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp -o CMakeFiles\tac_parser.dir\lexer.cpp.s
+	D:\programming\mingwW64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\programming\c\tac_parser\cmake-build-debug\lexer.cpp -o CMakeFiles\tac_parser.dir\lexer.cpp.s
 
 # Object files for target tac_parser
 tac_parser_OBJECTS = \
@@ -223,10 +223,10 @@ tac_parser.exe: CMakeFiles/tac_parser.dir/tac_worker/basic_block.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/parser.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/lexer.cpp.obj
 tac_parser.exe: CMakeFiles/tac_parser.dir/build.make
-tac_parser.exe: D:/programming/_mingw730_64/lib/gvc.lib
-tac_parser.exe: D:/programming/_mingw730_64/lib/cdt.lib
-tac_parser.exe: D:/programming/_mingw730_64/lib/cgraph.lib
-tac_parser.exe: D:/programming/_mingw730_64/lib/pathplan.lib
+tac_parser.exe: D:/programming/mingwW64/mingw64/lib/gvc.lib
+tac_parser.exe: D:/programming/mingwW64/mingw64/lib/cdt.lib
+tac_parser.exe: D:/programming/mingwW64/mingw64/lib/cgraph.lib
+tac_parser.exe: D:/programming/mingwW64/mingw64/lib/pathplan.lib
 tac_parser.exe: CMakeFiles/tac_parser.dir/linklibs.rsp
 tac_parser.exe: CMakeFiles/tac_parser.dir/objects1.rsp
 tac_parser.exe: CMakeFiles/tac_parser.dir/link.txt

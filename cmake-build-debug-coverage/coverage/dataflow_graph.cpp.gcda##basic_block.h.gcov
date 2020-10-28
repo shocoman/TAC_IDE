@@ -1,0 +1,162 @@
+        -:    0:Source:D:/programming/c/tac_parser/tac_worker/basic_block.h
+        -:    0:Graph:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.gcno
+        -:    0:Data:D:\programming\c\tac_parser\cmake-build-debug-coverage\CMakeFiles\tac_parser.dir\tac_worker\dataflow_graph.cpp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1://
+        -:    2:// Created by shoco on 10/22/2020.
+        -:    3://
+        -:    4:
+        -:    5:#ifndef TAC_PARSER_BASIC_BLOCK_H
+        -:    6:#define TAC_PARSER_BASIC_BLOCK_H
+        -:    7:
+        -:    8:#include <string>
+        -:    9:#include <optional>
+        -:   10:#include <vector>
+        -:   11:#include <set>
+        -:   12:#include <map>
+        -:   13:#include <algorithm>
+        -:   14:
+        -:   15:#include "quadruple.hpp"
+        -:   16:
+        -:   17:struct BasicBlock {
+        -:   18:    int id;
+        -:   19:    std::string node_name;
+        -:   20:    std::optional<std::string> lbl_name;
+        -:   21:    std::vector<Quad> quads;
+        -:   22:    std::optional<std::string> jumps_to;
+        -:   23:    std::set<BasicBlock *> successors;
+        -:   24:    std::set<BasicBlock *> predecessors;
+        -:   25:
+        -:   26://    std::map<std::string, Quad> phi_functions;
+        -:   27:    int phi_functions = 0;
+        -:   28:
+        -:   29:
+       51:   30:    std::string get_name() {
+       51:   31:        return "BB " + std::to_string(id);
+       51:   31-block  0
+       51:   31-block  1
+       51:   31-block  2
+       51:   31-block  3
+    $$$$$:   31-block  4
+        -:   32:    }
+        -:   33:
+    #####:   34:    std::string fmt() const {
+    #####:   35:        std::string out;
+    %%%%%:   35-block  0
+        -:   36://        for (auto &phi : phi_functions) {
+        -:   37://            out += phi.second.fmt() + "\n";
+        -:   38://        }
+        -:   39:
+    #####:   40:        for (auto &q : quads)
+    %%%%%:   40-block  0
+    %%%%%:   40-block  1
+    #####:   41:            out += q.fmt() + "\n";
+    %%%%%:   41-block  0
+    %%%%%:   41-block  1
+    %%%%%:   41-block  2
+    $$$$$:   41-block  3
+    $$$$$:   41-block  4
+    $$$$$:   41-block  5
+    $$$$$:   41-block  6
+    #####:   42:        return out;
+    %%%%%:   42-block  0
+    %%%%%:   42-block  1
+        -:   43:    }
+        -:   44:
+    #####:   45:    void add_successor(BasicBlock *s) {
+    #####:   46:        successors.emplace(s);
+    %%%%%:   46-block  0
+    #####:   47:        s->predecessors.emplace(this);
+    #####:   48:    }
+    %%%%%:   48-block  0
+        -:   49:
+    #####:   50:    void remove_successors() {
+    #####:   51:        for (auto &s: successors) {
+    %%%%%:   51-block  0
+    %%%%%:   51-block  1
+    %%%%%:   51-block  2
+    #####:   52:            s->predecessors.erase(this);
+    %%%%%:   52-block  0
+    $$$$$:   52-block  1
+        -:   53:        }
+    #####:   54:        successors.erase(successors.begin(), successors.end());
+    %%%%%:   54-block  0
+    #####:   55:    }
+        -:   56:
+        8:   57:    bool allows_fallthrough() {
+        8:   58:        return quads.back().type != Quad::Type::Goto
+        8:   58-block  0
+        8:   59:               && quads.back().type != Quad::Type::Return;
+        7:   59-block  0
+        6:   59-block  1
+        2:   59-block  2
+        8:   59-block  3
+        -:   60:    }
+        -:   61:
+        -:   62:
+       22:   63:    bool has_phi_function(std::string name) {
+        -:   64:
+       60:   65:        for (int i = 0; i < phi_functions; ++i) {
+       22:   65-block  0
+       60:   65-block  1
+       38:   65-block  2
+       49:   66:            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().dest_name == name)
+       49:   66-block  0
+       49:   66-block  1
+       11:   66-block  2
+       38:   66-block  3
+       49:   66-block  4
+       11:   67:                return true;
+       11:   67-block  0
+        -:   68:        }
+       11:   69:        return false;
+       11:   69-block  0
+        -:   70:
+        -:   71://        return phi_functions.find(name) != phi_functions.end();
+        -:   72:    }
+        -:   73:
+        -:   74:    Quad& get_phi_function(std::string name) {
+        -:   75:        for (int i = 0; i < phi_functions; ++i) {
+        -:   76:            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().dest_name == name)
+        -:   77:                return quads[i];
+        -:   78:        }
+        -:   79:    }
+        -:   80:
+       11:   81:    void add_phi_function(std::string lname, const std::vector<std::string>& rnames) {
+        -:   82:
+       33:   83:        Quad phi({}, {}, Quad::Type::PhiNode, Dest(lname, {}, Dest::Type::Var));
+       11:   83-block  0
+       11:   83-block  1
+       11:   83-block  2
+    $$$$$:   83-block  3
+    $$$$$:   83-block  4
+    $$$$$:   83-block  5
+    $$$$$:   83-block  6
+    $$$$$:   83-block  7
+    $$$$$:   83-block  8
+       11:   84:        std::vector<Operand> ops;
+    $$$$$:   84-block  0
+      11*:   85:        for (auto &n : rnames) {
+       11:   85-block  0
+    %%%%%:   85-block  1
+    %%%%%:   85-block  2
+    #####:   86:            ops.emplace_back(n);
+        -:   87:        }
+       11:   88:        phi.ops = ops;
+       11:   88-block  0
+        -:   89://        phi_functions[lname] = phi;
+        -:   90:
+       11:   91:        quads.insert(quads.begin() + phi_functions, phi);
+       11:   91-block  0
+    $$$$$:   91-block  1
+    $$$$$:   91-block  2
+    $$$$$:   91-block  3
+       11:   92:        phi_functions++;
+       11:   92-block  0
+        -:   93:
+       11:   94:    }
+        -:   95:};
+        -:   96:
+        -:   97:
+        -:   98:#endif //TAC_PARSER_BASIC_BLOCK_H
