@@ -96,7 +96,7 @@ quadruple:
 |   "param" term                    { $$ = Quad($term, {}, Quad::Type::Param); };
 |   "call"  "identifier"[id] term   { $$ = Quad($id, $term, Quad::Type::Call); };
 |   "nop"                           { $$ = Quad({}, {}, Quad::Type::Nop); };
-|   "return"        { $$ = Quad({}, {}, Quad::Type::Return); };
+|   "return"                        { $$ = Quad({}, {}, Quad::Type::Return); };
 ;
 
 assignment: dest "=" value { $value.dest = $dest; $$ = $value; };

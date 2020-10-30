@@ -726,7 +726,7 @@ namespace yy {
 
   case 18: // quadruple: "return"
 #line 99 "D:/programming/c/tac_parser/grammar/parser.y"
-                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Return); }
+                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Return); }
 #line 731 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 

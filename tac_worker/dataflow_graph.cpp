@@ -137,7 +137,7 @@ void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 //        for (int i = n->quads.size()-1; i >= 0; --i) {
 //            auto &q = n->quads[i];
 //            if (q.dest.has_value()) {
-//                std::string lhs = q.dest.value().dest_name;
+//                std::string lhs = q.dest.value().name;
 //                auto &l = block_liveness_data[i];
 //                if (!l.at(lhs).live) {
 //                    n->quads.erase(n->quads.begin() + i);
@@ -231,7 +231,7 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
         if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
             leader_indexes.insert({i, std::nullopt});
         if (quads[i].is_jump())
-            leader_indexes.insert({i + 1, quads[i].dest.value().dest_name});
+            leader_indexes.insert({i + 1, quads[i].dest.value().name});
 
     }
     return leader_indexes;
@@ -387,6 +387,100 @@ void print_dominator_tree(std::map<int, BasicBlock *> &id_to_block, int entry_id
 
     writer.render_to_file("dominator_tree.png");
     system("dominator_tree.png");
+}
+
+
+void remove_phi_functions(std::vector<std::unique_ptr<BasicBlock>> &blocks,
+                          std::map<int, BasicBlock *> &id_to_block, int entry_id) {
+
+    std::vector<std::unique_ptr<BasicBlock>> new_blocks;
+
+    for (auto &b : blocks) {
+        std::map<std::pair<int, int>, int> replace_block_id;
+        for (int i = 0; i < b->phi_functions; ++i) {
+            auto &phi = b->quads[i];
+            for (auto &op : phi.ops) {
+                if (replace_block_id.find({op.predecessor_id, b->id}) == replace_block_id.end()
+                    && id_to_block.at(op.predecessor_id)->successors.size() > 1) {
+                    auto *pred = id_to_block.at(op.predecessor_id);
+
+                    auto split_block = std::make_unique<BasicBlock>();
+                    split_block->quads.push_back(Quad({}, {}, Quad::Type::Goto,
+                                                      Dest(b->lbl_name.value(), {}, Dest::Type::JumpLabel)));
+
+                    if (!new_blocks.empty()) split_block->id = new_blocks.back()->id + 1;
+                    else split_block->id = blocks.back()->id + 1;
+                    split_block->node_name = split_block->get_name();
+                    split_block->lbl_name = split_block->get_name();
+
+                    id_to_block[split_block->id] = split_block.get();
+                    replace_block_id[{op.predecessor_id, b->id}] = split_block->id;
+
+                    pred->successors.erase(b.get());
+                    b->predecessors.erase(pred);
+
+                    if (pred->quads.back().dest->name == b->lbl_name) {
+                        pred->quads.back().dest->name = split_block->lbl_name.value();
+                    } else {
+                        pred->quads.push_back(Quad({}, {}, Quad::Type::Goto,
+                                                   Dest(split_block->lbl_name.value(), {}, Dest::Type::JumpLabel)));
+                    }
+
+                    pred->add_successor(split_block.get());
+                    split_block->add_successor(b.get());
+
+                    new_blocks.push_back(std::move(split_block));
+                }
+
+                BasicBlock *pred = nullptr;
+                if (replace_block_id.find({op.predecessor_id, b->id}) != replace_block_id.end()) {
+                    pred = id_to_block.at(replace_block_id.at({op.predecessor_id, b->id}));
+                } else {
+                    pred = id_to_block.at(op.predecessor_id);
+                }
+                auto insert_pos = pred->quads.back().is_jump() ? pred->quads.end() - 1 : pred->quads.end();
+                pred->quads.insert(insert_pos, Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
+            }
+        }
+
+
+//        for (int i = 0; i < b->phi_functions; ++i) {
+//            auto &phi = b->quads[i];
+//            for (auto &op : phi.ops) {
+//                auto *pred = id_to_block.at(op.predecessor_id);
+//
+//                auto insert_pos = pred->quads.back().is_jump() ? pred->quads.end() - 1 : pred->quads.end();
+//                if (pred->successors.size() == 1) {
+//                    pred->quads.insert(insert_pos, Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
+//                } else if (pred->successors.size() > 1) {
+//
+//                    auto split_block = std::make_unique<BasicBlock>();
+//                    if (!new_blocks.empty()) split_block->id = new_blocks.back()->id + 1;
+//                    else split_block->id = blocks.back()->id + 1;
+//                    split_block->node_name = split_block->get_name();
+//                    id_to_block[split_block->id] = split_block.get();
+//
+//
+//                    pred->successors.erase(b.get());
+//                    b->predecessors.erase(pred);
+//
+//                    pred->add_successor(split_block.get());
+//                    split_block->add_successor(b.get());
+////
+////                    split_block->quads.push_back(Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
+//                    new_blocks.push_back(std::move(split_block));
+//                }
+//            }
+//        }
+
+        b->quads.erase(b->quads.begin(), b->quads.begin() + b->phi_functions);
+        b->phi_functions = 0;
+
+    }
+
+//    blocks.insert(blocks.end(), new_blocks.begin(), new_blocks.end());
+    blocks.reserve(blocks.size() + new_blocks.size());
+    std::move(std::begin(new_blocks), std::end(new_blocks), std::back_inserter(blocks));
 }
 
 
@@ -556,8 +650,8 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
         // rename phi functions
         for (int i = 0; i < block->phi_functions; ++i) {
             auto &phi = block->quads[i];
-            pushed_names.push_back(phi.dest->dest_name);
-            phi.dest->dest_name = new_name(phi.dest->dest_name);
+            pushed_names.push_back(phi.dest->name);
+            phi.dest->name = new_name(phi.dest->name);
         }
 
         // rename other operations of form 'x = y + z'
@@ -569,9 +663,9 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
             if (auto op2 = q.get_op(1); op2 && op2->is_var() && name_to_stack.find(op2->value) != name_to_stack.end()) {
                 q.ops[1].value += "." + std::to_string(name_to_stack.at(op2->value).back());
             }
-            if (q.dest && global_names.find(q.dest->dest_name) != global_names.end()) {
-                pushed_names.push_back(q.dest->dest_name);
-                q.dest->dest_name = new_name(q.dest->dest_name);
+            if (q.dest && global_names.find(q.dest->name) != global_names.end()) {
+                pushed_names.push_back(q.dest->name);
+                q.dest->name = new_name(q.dest->name);
             }
         }
 
@@ -579,7 +673,7 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
         for (auto &s : block->successors) {
             for (int i = 0; i < s->phi_functions; ++i) {
                 auto &phi = s->quads[i];
-                auto name = phi.dest.value().dest_name;
+                auto name = phi.dest.value().name;
                 auto name_without_dot = name.substr(0, name.find_first_of('.', 0));
 
                 std::string next_name;
@@ -590,7 +684,7 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
                     next_name = name;
                 }
                 Operand op(next_name, Operand::Type::Var);
-                op.payload = block->get_name();
+                op.predecessor_id = block->id;
                 phi.ops.push_back(op);
             }
         }
@@ -608,18 +702,206 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
     rename(entry_block_id);
 
 
-    print_dominator_tree(id_to_block, 0, id_to_immediate_dominator);
+//    print_dominator_tree(id_to_block, 0, id_to_immediate_dominator);
+
+//    print_cfg(blocks, "before.png");
+//    remove_phi_functions(blocks, id_to_block, 0);
+//    print_cfg(blocks, "after.png");
+
+}
+
+
+void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+    struct Place {
+        int block_num;
+        int quad_num;
+    };
+
+    struct VarInfo {
+        enum class ValueType {
+            Bottom, Constant, Top
+        };
+
+        Place defined_at{};
+        std::vector<Place> used_at{};
+
+        ValueType value_type = ValueType::Top;
+        Operand constant;
+    };
+
+
+    using ValType = VarInfo::ValueType;
+    using VarName = std::string;
+    std::map<VarName, VarInfo> usingInfo;
+
+    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
+        auto &b = blocks[b_index];
+        for (int i = 0; i < b->quads.size(); ++i) {
+            auto &q = b->quads[i];
+            if (!q.dest.has_value() || q.dest->type == Dest::Type::None) continue;
+
+            Place place{b_index, i};
+            if (!q.is_jump())
+                usingInfo[q.dest->name].defined_at = place;
+
+            if (Quad::is_foldable(q.type))
+                constant_folding(q);
+
+            for (const auto &op : q.ops) {
+                if (op.is_var())
+                    usingInfo[op.value].used_at.push_back(place);
+            }
+        }
+    }
+
+
+    // initialization phase
+    std::vector<std::string> work_list;
+    for (auto &[name, useInfo] : usingInfo) {
+
+        auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
+
+        if (q.type == Quad::Type::PhiNode) {
+            useInfo.value_type = ValType::Top;
+        } else if (q.type == Quad::Type::Assign && q.get_op(0)->is_constant()) {
+            useInfo.value_type = ValType::Constant;
+            useInfo.constant = q.get_op(0).value();
+        } else {
+            useInfo.value_type = ValType::Top;
+        }
+
+        if (useInfo.value_type != ValType::Top) {
+            work_list.push_back(name);
+        }
+    }
+
+
+    // propagation phase
+    while (!work_list.empty()) {
+        std::string name = work_list.back();
+        work_list.pop_back();
+
+        for (auto &[block_num, quad_num] : usingInfo.at(name).used_at) {
+            auto &q = blocks.at(block_num)->quads.at(quad_num);
+            if (q.is_jump()) continue;
+
+            auto &lhs = usingInfo.at(q.dest->name);
+            if (lhs.value_type != ValType::Bottom) {
+                auto tmp = std::pair{lhs.value_type, lhs.constant};
+                auto &lhs_q = blocks.at(lhs.defined_at.block_num)->quads.at(lhs.defined_at.quad_num);
+
+                lhs.value_type = ValType::Top;
+                lhs.constant = Operand();
+
+                // interpretation over lattice
+                if (lhs_q.ops.size() == 1) {
+                    auto &fst = usingInfo.at(lhs_q.get_op(0)->value);
+                    lhs.value_type = fst.value_type;
+                    lhs.constant = fst.constant;
+                } else if (lhs_q.type == Quad::Type::PhiNode) {
+                    for (auto &op : lhs_q.ops) {
+                        if (lhs.value_type == ValType::Bottom) break;
+
+                        if (op.is_constant()) {
+                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
+                                lhs.value_type = ValType::Bottom;
+                            } else {
+                                lhs.value_type = ValType::Constant;
+                                lhs.constant.value = op.value;
+                            }
+                        } else {
+                            auto &var = usingInfo.at(op.value);
+                            if (var.value_type == ValType::Top) {}
+                            else if (var.value_type == ValType::Constant
+                                     && (lhs.value_type == ValType::Top ||
+                                         lhs.value_type == ValType::Constant &&
+                                         lhs.constant.value == var.constant.value)) {
+                                lhs.value_type = var.value_type;
+                                lhs.constant = var.constant;
+                            } else {
+                                lhs.value_type = ValType::Bottom;
+                            }
+                        }
+                    }
+                } else if (lhs.value_type != ValType::Bottom) {
+                    //  if (lhs_q.ops.size() >= 2)
+
+                    auto &op1 = lhs_q.ops[0];
+                    auto &op2 = lhs_q.ops[1];
+
+                    Operand fst = op1;
+                    Operand snd = op2;
+                    if (usingInfo.at(op1.value).value_type == ValType::Constant)
+                        fst = Operand(usingInfo.at(op1.value).constant);
+                    if (usingInfo.at(op2.value).value_type == ValType::Constant)
+                        snd = Operand(usingInfo.at(op2.value).constant);
+
+                    auto tmp_q = Quad();
+                    tmp_q.ops = {op1, op2};
+                    tmp_q.type = lhs_q.type;
+                    constant_folding(tmp_q);
+
+                    for (auto &op : tmp_q.ops)
+                        if (op.is_constant() || op.is_var()) {
+                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
+                                lhs.value_type = ValType::Bottom;
+                            } else {
+                                lhs.value_type = ValType::Constant;
+                                lhs.constant.value = op.value;
+                            }
+                        } else {
+                            auto &var = usingInfo.at(op.value);
+
+                            if (var.value_type == ValType::Top) {
+
+                            } else if (
+                                    var.value_type == ValType::Constant
+                                    && (lhs.value_type == ValType::Top ||
+                                        lhs.value_type == ValType::Constant &&
+                                        lhs.constant.value == var.constant.value)) {
+
+                                lhs.value_type = var.value_type;
+                                lhs.constant = var.constant;
+                            } else {
+                                lhs.value_type = ValType::Bottom;
+                            }
+                        }
+
+                }
+
+                if (tmp != std::pair{lhs.value_type, lhs.constant}) {
+                    work_list.push_back(q.dest->name);
+                }
+            }
+        }
+    }
+
+    for (auto &[name, useInfo] : usingInfo) {
+        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << "; "
+                  << useInfo.defined_at.quad_num << "); " << "used at: ";
+        for (auto &u : useInfo.used_at) {
+            std::cout << "(" << u.block_num << "; " << u.quad_num << "), ";
+        }
+        std::cout << " ValType: " << (int) useInfo.value_type << "; " << useInfo.constant.value << std::endl;
+    }
+
+    for (auto &[name, useInfo] : usingInfo) {
+        if (useInfo.value_type == ValType::Constant) {
+            auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
+            q.type = Quad::Type::Assign;
+            q.ops[0] = useInfo.constant;
+            q.clear_op(1);
+        }
+    }
 }
 
 
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     // revert map of labels
     std::map<int, std::string> labels_rev;
-    for (auto &[a, b] : labels) {
-        labels_rev.emplace(b, a);
-    }
+    for (auto &[a, b] : labels) labels_rev.emplace(b, a);
 
-//    print_quads(quads, labels_rev);
+    // print_quads(quads, labels_rev);
 
     // gather indexes of leading blocks
     auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
@@ -637,13 +919,11 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //    print_nodes(blocks);
 //    print_cfg(blocks, "before.png");
 
-
 //    remove_blocks_without_predecessors(blocks);
 //    add_exit_block(blocks);
 //    constant_folding(blocks);
 //    liveness_analyses(blocks);
 //    print_loops(blocks);
-
 
 //    print_cfg(blocks, "before.png");
 //
@@ -658,7 +938,11 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //    superlocal_value_numbering(blocks);
 
 
-    dominators(blocks);
+//    dominators(blocks);
+
+//    print_cfg(blocks, "before.png");
+
+    sparse_simple_constant_propagation(blocks);
 
     print_cfg(blocks, "after.png");
 }

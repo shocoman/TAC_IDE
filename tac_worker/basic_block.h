@@ -63,7 +63,7 @@ struct BasicBlock {
     bool has_phi_function(std::string name) {
 
         for (int i = 0; i < phi_functions; ++i) {
-            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().dest_name == name)
+            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
                 return true;
         }
         return false;
@@ -73,7 +73,7 @@ struct BasicBlock {
 
     Quad& get_phi_function(std::string name) {
         for (int i = 0; i < phi_functions; ++i) {
-            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().dest_name == name)
+            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
                 return quads[i];
         }
     }

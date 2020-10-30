@@ -76,6 +76,8 @@ struct ValueNumberTableStack {
 
 
 static void constant_folding(Quad &n) {
+    if (n.ops.size() <= 1) return;
+
     bool is_lnum = n.get_op(0)->is_number();
     bool is_rnum = n.get_op(1)->is_number();
 
@@ -96,10 +98,26 @@ static void constant_folding(Quad &n) {
             case Quad::Type::Div:
                 res = l / r;
                 break;
-            default:
-                break;
+            default: {
+                // relation operations
+
+                bool res = false;
+                switch (n.type) {
+                    case Quad::Type::Lt: res = l < r; break;
+                    case Quad::Type::Gt: res = l > r; break;
+                    case Quad::Type::Eq: res = l == r; break;
+                    case Quad::Type::Neq: res = l != r; break;
+                    default: break;
+                }
+
+                n.ops[0] = Operand(res == false ? "false" : "true");
+                n.type = Quad::Type::Assign;
+                n.clear_op(1);
+                return;
+            }
+            break;
         }
-        n.ops[0] = std::to_string(res);
+        n.ops[0] = Operand(std::to_string(res));
         n.type = Quad::Type::Assign;
         n.clear_op(1);
         return;
@@ -229,10 +247,10 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
             t.set_operation_value(op_hash_key, t.current_number);
             op_value = t.current_number;
 
-            t.set_name_for_value(t.current_number, q.dest.value().dest_name);
+            t.set_name_for_value(t.current_number, q.dest.value().name);
             t.current_number++;
         }
-        t.set_value_number_for_name(q.dest.value().dest_name, op_value);
+        t.set_value_number_for_name(q.dest.value().name, op_value);
 
         std::cout << q.fmt() << std::endl;
 //        auto op = operations.find(op_hash_key);
@@ -245,10 +263,10 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
 //        } else {
 //            operations[op_hash_key] = current_number;
 //            op_value = current_number;
-//            value_numbers_to_names[current_number] = q.dest.value().dest_name;
+//            value_numbers_to_names[current_number] = q.dest.value().name;
 //            current_number++;
 //        }
-//        value_numbers[q.dest.value().dest_name] = op_value;
+//        value_numbers[q.dest.value().name] = op_value;
     }
     std::cout << std::endl;
 }

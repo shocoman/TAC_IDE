@@ -14,33 +14,33 @@ struct Dest {
         None, Var, ArraySet, Deref, JumpLabel,
     };
 
-    Type dest_type{};
-    std::string dest_name;
-    std::optional<std::string> element_name;
+    Type type{};
+    std::string name;
+    std::optional<std::string> index;
 
     Dest(std::string dest_name, std::optional<std::string> element_name, Type dest_type)
-            : dest_name(std::move(dest_name)), element_name(std::move(element_name)), dest_type(dest_type) {}
+            : name(std::move(dest_name)), index(std::move(element_name)), type(dest_type) {}
 
     Dest() = default;
 
     friend std::ostream &operator<<(std::ostream &os, const Dest &destination) {
         const char *type_names[] = {"None", "Var", "ArraySet", "Deref", "JumpLabel"};
-        os << "dest_type: " << type_names[static_cast<int>(destination.dest_type)]
-           << "; dest_name: " << destination.dest_name;
-        if (destination.element_name.has_value()) os << "; element_name: " << destination.element_name.value();
+        os << "type: " << type_names[static_cast<int>(destination.type)]
+           << "; name: " << destination.name;
+        if (destination.index.has_value()) os << "; index: " << destination.index.value();
         return os;
     }
 
     std::optional<std::string> fmt() const {
-        switch (dest_type) {
+        switch (type) {
             case Type::Var:
-                return dest_name;
+                return name;
             case Type::ArraySet:
-                return dest_name + "[" + element_name.value() + "]";
+                return name + "[" + index.value() + "]";
             case Type::Deref:
-                return "*" + dest_name;
+                return "*" + name;
             case Type::JumpLabel:
-                return dest_name;
+                return name;
             default:
                 return {};
         }
@@ -54,19 +54,21 @@ struct Operand {
     };
 
     std::string value;
-    std::string payload;
+    int predecessor_id = -1;
     Type type;
 
     Operand() : type(Type::None) {}
 
     Operand(std::string s, Type t) : value(std::move(s)), type(t) {}
 
-    Operand(const std::string &s) {
+    explicit Operand(const std::string &s) {
         char *end = nullptr;
         if (strtol(s.c_str(), &end, 10); end != s.c_str() && *end == '\0') {
             type = Type::LInt;
         } else if (strtod(s.c_str(), &end); end != s.c_str() && *end == '\0') {
             type = Type::LDouble;
+        } else if (s == "true" || s == "false") {
+            type = Type::LBool;
         } else if (!s.empty()) {
             type = Type::Var;
         } else {
@@ -91,13 +93,13 @@ struct Operand {
 
     bool is_var() const { return type == Type::Var; }
 
+    bool is_constant() const { return !is_var(); }
+
     bool is_int() const { return type == Type::LInt; }
 
     bool is_double() const { return type == Type::LDouble; }
 
-    bool is_number() const {
-        return type == Type::LInt || type == Type::LDouble;
-    }
+    bool is_number() const { return type == Type::LInt || type == Type::LDouble; }
 
     void clear() {
         value.clear();
@@ -161,7 +163,7 @@ struct Quad {
 
     std::optional<std::string> get_lhs() const {
         if (dest && !is_jump()) {
-            return (dest.value().dest_name);
+            return (dest.value().name);
         } else {
             return {};
         }
@@ -181,8 +183,8 @@ struct Quad {
     std::vector<std::string> get_rhs(bool include_constants = true) const {
         std::vector<std::string> rhs_vars;
         if (dest) {
-            if (dest.value().dest_type == Dest::Type::ArraySet)
-                rhs_vars.push_back(dest.value().element_name.value());
+            if (dest.value().type == Dest::Type::ArraySet)
+                rhs_vars.push_back(dest.value().index.value());
         }
         auto op1 = get_op(0);
         auto op2 = get_op(1);
@@ -197,6 +199,11 @@ struct Quad {
                || type == Type::IfFalse;
     }
 
+    bool is_unary() const {
+        return type == Type::Deref
+               || type == Type::Ref
+               || type == Type::UMinus;
+    }
 
     friend std::ostream &operator<<(std::ostream &os, const Quad &quad) {
         const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Assign",
@@ -289,6 +296,19 @@ struct Quad {
         } else {
             return destination.value() + " = " + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
         }
+    }
+
+
+    bool operator==(const Quad &rhs) const {
+        return ops == rhs.ops &&
+               type == rhs.type &&
+               (!dest.has_value() || dest->type == rhs.dest->type &&
+                                     dest->name == rhs.dest->name &&
+                                     dest->index == rhs.dest->index);
+    }
+
+    bool operator!=(const Quad &rhs) const {
+        return !(rhs == *this);
     }
 };
 

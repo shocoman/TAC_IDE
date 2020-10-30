@@ -124,9 +124,13 @@ void DotWriter::render_to_file(const std::string &filename) {
     }
 
     // set shape and font for nodes and edges
-    agsafeset(ag_nodes.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
-    agsafeset(ag_nodes.begin()->second, (char *) "shape", (char *) "record", (char *) "record");
-    agsafeset(ag_edges.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
+    if (!ag_nodes.empty()) {
+        agsafeset(ag_nodes.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
+        agsafeset(ag_nodes.begin()->second, (char *) "shape", (char *) "record", (char *) "record");
+    }
+     if (!ag_edges.empty()) {
+         agsafeset(ag_edges.begin()->second, (char *) "fontname", (char *) "Comic Sans MS", (char *) "Comic Sans MS");
+     }
 
     gvLayout(gvc, g, "dot");
     int res = gvRenderFilename(gvc, g, "png", (char *) filename.c_str());

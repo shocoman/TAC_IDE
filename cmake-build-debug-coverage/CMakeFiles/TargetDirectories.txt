@@ -1,3 +1,3 @@
-C:/Users/shoco/Desktop/tac_parser/cmake-build-debug-coverage/CMakeFiles/tac_parser.dir
-C:/Users/shoco/Desktop/tac_parser/cmake-build-debug-coverage/CMakeFiles/edit_cache.dir
-C:/Users/shoco/Desktop/tac_parser/cmake-build-debug-coverage/CMakeFiles/rebuild_cache.dir
+D:/programming/c/tac_parser/cmake-build-debug-coverage/CMakeFiles/tac_parser.dir
+D:/programming/c/tac_parser/cmake-build-debug-coverage/CMakeFiles/edit_cache.dir
+D:/programming/c/tac_parser/cmake-build-debug-coverage/CMakeFiles/rebuild_cache.dir
