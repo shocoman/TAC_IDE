@@ -84,45 +84,54 @@
 //     goto B4
 
 
-// B0:
-//     i = 1
-//     a = 0
-//     b = 0
-//     c = 0
-//     d = 0
+//B0:
+//    i = 1
+//    a = 0
+//    b = 0
+//    c = 0
+//    d = 0
+//B1:
+//    a = 40
+//    c = 0
+//    $t1 = a < c
+//    if $t1 goto B5
+//B2:
+//    b = 0
+//    c = 0
+//    d = 0
+//B3:
+//    y = a + b
+//    z = c + d
+//    i = i + 1
+//    $t2 = i < 100
+//    if $t2 goto B1
+//B4:
+//    return
+//B5:
+//    a = 0
+//    d = 0
+//    $t3 = a < d
+//    if $t3 goto B8
+//B6:
+//    d = 0
+//B7:
+//    b = 0
+//    goto B3
+
+B8:
+    c = 0
+    goto B8
+
+
+
 // B1:
-//     a = 40
-//     c = 0
-//     $t1 = a < c
-//     if $t1 goto B5
+//     a = 30
+//     $t1 = true
+//     if $t1 goto B3
 // B2:
-//     b = 0
-//     c = 0
-//     d = 0
+//     a = a + 1
+//     goto B4
 // B3:
-//     y = a + b
-//     z = c + d
-//     i = i + 1
-//     $t2 = i < 100
-//     if $t2 goto B1
+//     a = a + 2
 // B4:
-//     return
-// B5:
-//     a = 0
-//     d = 0
-//     $t3 = a < d
-//     if $t3 goto B8
-// B6:
-//     d = 0
-// B7:
-//     b = 0
-//     goto B3
-// B8:
-//     c = 0
-//     goto B7
-
-
-B1:
-    a = 0
-    b = 20
-    c = a + b
+//     d = a

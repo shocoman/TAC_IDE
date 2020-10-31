@@ -202,6 +202,7 @@ struct Quad {
     bool is_unary() const {
         return type == Type::Deref
                || type == Type::Ref
+               || type == Type::Assign
                || type == Type::UMinus;
     }
 
@@ -292,9 +293,9 @@ struct Quad {
         }
 
         if (unary_op.has_value()) {
-            return destination.value() + " = " + unary_op.value() + get_op(0)->get_string();
+            return destination.value_or("%") + " = " + unary_op.value() + get_op(0)->get_string();
         } else {
-            return destination.value() + " = " + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
+            return destination.value_or("%") + " = " + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
         }
     }
 

@@ -76,7 +76,13 @@ struct ValueNumberTableStack {
 
 
 static void constant_folding(Quad &n) {
+    if (n.type == Quad::Type::UMinus) {
+        n.ops[0] = Operand("-" + n.ops[0].value, n.ops[0].type);
+        n.type = Quad::Type::Assign;
+        return;
+    }
     if (n.ops.size() <= 1) return;
+
 
     bool is_lnum = n.get_op(0)->is_number();
     bool is_rnum = n.get_op(1)->is_number();
@@ -103,11 +109,20 @@ static void constant_folding(Quad &n) {
 
                 bool res = false;
                 switch (n.type) {
-                    case Quad::Type::Lt: res = l < r; break;
-                    case Quad::Type::Gt: res = l > r; break;
-                    case Quad::Type::Eq: res = l == r; break;
-                    case Quad::Type::Neq: res = l != r; break;
-                    default: break;
+                    case Quad::Type::Lt:
+                        res = l < r;
+                        break;
+                    case Quad::Type::Gt:
+                        res = l > r;
+                        break;
+                    case Quad::Type::Eq:
+                        res = l == r;
+                        break;
+                    case Quad::Type::Neq:
+                        res = l != r;
+                        break;
+                    default:
+                        break;
                 }
 
                 n.ops[0] = Operand(res == false ? "false" : "true");
@@ -115,9 +130,13 @@ static void constant_folding(Quad &n) {
                 n.clear_op(1);
                 return;
             }
-            break;
+                break;
         }
-        n.ops[0] = Operand(std::to_string(res));
+        if (std::all_of(n.ops.begin(), n.ops.end(), [](Operand &a) { return a.is_int(); }))
+            n.ops[0] = Operand(std::to_string((int) res));
+        else
+            n.ops[0] = Operand(std::to_string(res));
+
         n.type = Quad::Type::Assign;
         n.clear_op(1);
         return;

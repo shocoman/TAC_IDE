@@ -6,12 +6,20 @@
 
 int main(int argc, char *argv[]) {
 
-
-
-
-
-
-
+//
+//    auto q = Quad("1", "2", Quad::Type::Add);
+//    auto prev = q;
+//
+//    std::cout << "Before First: " << q.fmt() << std::endl;
+//    std::cout << "Before Second: " << prev.fmt() << std::endl;
+//    std::cout << "Equal?: " << (q == prev) << std::endl;
+//    constant_folding(q);
+//    std::cout << "After First: " << q.fmt() << std::endl;
+//    std::cout << "After Second: " << prev.fmt() << std::endl;
+//
+//    std::cout << "Equal?: " << (q == prev) << std::endl;
+//
+//
 //    exit(22);
 
     driver drv;
@@ -25,7 +33,8 @@ int main(int argc, char *argv[]) {
 //        else
 //            res = 1;
 
-    drv.parse("../myfile");
+//    drv.parse("../myfile");
+    drv.parse("../myfile2");
 
     make_cfg(std::move(drv.labels), std::move(drv.quadruples));
 

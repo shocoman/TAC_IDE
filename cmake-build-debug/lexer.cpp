@@ -445,10 +445,10 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[40] =
     {   0,
-        0,    0,   26,   24,    3,    2,   24,   23,   10,   17,
+        0,    0,   26,   24,    2,    4,   24,   23,   10,   17,
        18,    8,    6,    7,    9,   22,   16,   15,   11,    5,
-       12,   19,   20,    3,    1,    3,   14,   23,    0,   21,
-       22,   13,    3,    1,    1,    0,    4,   21,    0
+       12,   19,   20,    2,    1,    2,   14,   23,    0,   21,
+       22,   13,    2,    1,    1,    0,    3,   21,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -931,15 +931,15 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 35 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.lines(yyleng); loc.step();
+loc.lines(yyleng);
 	YY_BREAK
 case 2:
-/* rule 2 can match eol */
 YY_RULE_SETUP
 #line 36 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc);
+loc.step();
 	YY_BREAK
 case 3:
+/* rule 3 can match eol */
 YY_RULE_SETUP
 #line 37 "D:/programming/c/tac_parser/grammar/lexer.l"
 loc.step();
@@ -948,7 +948,7 @@ case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
 #line 38 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.step();
+loc.lines(yyleng); return yy::parser::make_NEWLINE(loc);
 	YY_BREAK
 case 5:
 YY_RULE_SETUP

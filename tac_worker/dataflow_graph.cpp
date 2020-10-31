@@ -595,6 +595,15 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
     for (auto &b: blocks) {
         std::set<std::string> var_kill;
         for (const auto &q : b->quads) {
+
+//            for (auto &r: q.get_rhs(false))
+//                if (var_kill.find(r) == var_kill.end())
+//                    global_names.insert(r);
+//
+//            if (auto lhs = q.get_lhs(); lhs.has_value()) {
+//                global_names.insert(lhs.value());
+//                var_to_block[lhs.value()].insert(b.get());
+//            }
             for (auto &r: q.get_rhs(false))
                 if (var_kill.find(r) == var_kill.end())
                     global_names.insert(r);
@@ -604,6 +613,12 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
             }
         }
     }
+
+    std::cout << "Global names: ";
+    for (auto &name : global_names) {
+        std::cout << name << ", ";
+    }
+    std::cout << std::endl;
 
     // placing phi functions
     for (auto &name : global_names) {
@@ -722,7 +737,7 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
             Bottom, Constant, Top
         };
 
-        Place defined_at{};
+        Place defined_at = {-1, -1};
         std::vector<Place> used_at{};
 
         ValueType value_type = ValueType::Top;
@@ -758,6 +773,7 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
     // initialization phase
     std::vector<std::string> work_list;
     for (auto &[name, useInfo] : usingInfo) {
+        if (useInfo.defined_at.block_num == -1) continue;
 
         auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
 
@@ -826,47 +842,61 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
                 } else if (lhs.value_type != ValType::Bottom) {
                     //  if (lhs_q.ops.size() >= 2)
 
-                    auto &op1 = lhs_q.ops[0];
-                    auto &op2 = lhs_q.ops[1];
 
-                    Operand fst = op1;
-                    Operand snd = op2;
-                    if (usingInfo.at(op1.value).value_type == ValType::Constant)
-                        fst = Operand(usingInfo.at(op1.value).constant);
-                    if (usingInfo.at(op2.value).value_type == ValType::Constant)
-                        snd = Operand(usingInfo.at(op2.value).constant);
+                    Operand fst = lhs_q.ops[0];
+                    Operand snd = lhs_q.ops[1];
+                    if (fst.is_var() && usingInfo.at(fst.value).value_type == ValType::Constant)
+                        fst = Operand(usingInfo.at(fst.value).constant);
+                    if (snd.is_var() && usingInfo.at(snd.value).value_type == ValType::Constant)
+                        snd = Operand(usingInfo.at(snd.value).constant);
 
                     auto tmp_q = Quad();
-                    tmp_q.ops = {op1, op2};
+                    tmp_q.ops = {fst, snd};
                     tmp_q.type = lhs_q.type;
+                    auto prev = tmp_q;
                     constant_folding(tmp_q);
 
-                    for (auto &op : tmp_q.ops)
-                        if (op.is_constant() || op.is_var()) {
-                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
-                                lhs.value_type = ValType::Bottom;
-                            } else {
-                                lhs.value_type = ValType::Constant;
-                                lhs.constant.value = op.value;
-                            }
+                    // SOMETHING CHANGED, UPDATE LHS
+                    if (tmp_q != prev) {
+                        lhs.value_type = ValType::Top;
+                        lhs.constant = Operand();
+
+                        // presume that lhs is unary
+                        if (tmp_q.ops[0].is_constant()) {
+                            lhs.value_type = ValType::Constant;
+                            lhs.constant = tmp_q.ops[0];
                         } else {
-                            auto &var = usingInfo.at(op.value);
-
-                            if (var.value_type == ValType::Top) {
-
-                            } else if (
-                                    var.value_type == ValType::Constant
-                                    && (lhs.value_type == ValType::Top ||
-                                        lhs.value_type == ValType::Constant &&
-                                        lhs.constant.value == var.constant.value)) {
-
-                                lhs.value_type = var.value_type;
-                                lhs.constant = var.constant;
-                            } else {
-                                lhs.value_type = ValType::Bottom;
-                            }
+                            auto saved = usingInfo.at(tmp_q.ops[0].value);
+                            lhs.value_type = saved.value_type;
+                            lhs.constant = saved.constant;
                         }
+                    }
 
+//                    for (auto &op : tmp_q.ops)
+//                        if (op.is_constant() || op.is_var()) {
+//                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
+//                                lhs.value_type = ValType::Bottom;
+//                            } else {
+//                                lhs.value_type = ValType::Constant;
+//                                lhs.constant.value = op.value;
+//                            }
+//                        } else {
+//                            auto &var = usingInfo.at(op.value);
+//
+//                            if (var.value_type == ValType::Top) {
+//
+//                            } else if (
+//                                    var.value_type == ValType::Constant
+//                                    && (lhs.value_type == ValType::Top ||
+//                                        lhs.value_type == ValType::Constant &&
+//                                        lhs.constant.value == var.constant.value)) {
+//
+//                                lhs.value_type = var.value_type;
+//                                lhs.constant = var.constant;
+//                            } else {
+//                                lhs.value_type = ValType::Bottom;
+//                            }
+//                        }
                 }
 
                 if (tmp != std::pair{lhs.value_type, lhs.constant}) {
@@ -901,12 +931,12 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     std::map<int, std::string> labels_rev;
     for (auto &[a, b] : labels) labels_rev.emplace(b, a);
 
-    // print_quads(quads, labels_rev);
+     print_quads(quads, labels_rev);
 
     // gather indexes of leading blocks
-    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
-    auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
-    add_successors(blocks);
+//    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
+//    auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
+//    add_successors(blocks);
 
 //    for (auto &[id, str] : leader_indexes) {
 //        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
@@ -942,7 +972,7 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 
 //    print_cfg(blocks, "before.png");
 
-    sparse_simple_constant_propagation(blocks);
-
-    print_cfg(blocks, "after.png");
+//    sparse_simple_constant_propagation(blocks);
+//
+//    print_cfg(blocks, "after.png");
 }

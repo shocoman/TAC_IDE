@@ -6,151 +6,7 @@
 
 #IncludeRegexTransform: 
 
-C:/Program Files/Graphviz 2.44.1/include/graphviz/arith.h
-limits.h
--
-math.h
--
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/cdt.h
-stddef.h
--
-string.h
--
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/cgraph.h
-inttypes.h
--
-cdt.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/cdt.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/geom.h
-arith.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/arith.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvc.h
-types.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/types.h
-gvplugin.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvplugin.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvcext.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvplugin.h
-gvcext.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvcext.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/pathgeom.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/textspan.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/types.h
-stdio.h
--
-assert.h
--
-signal.h
--
-geom.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/geom.h
-gvcext.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/gvcext.h
-pathgeom.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/pathgeom.h
-textspan.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/textspan.h
-cgraph.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/cgraph.h
-usershape.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/usershape.h
-
-C:/Program Files/Graphviz 2.44.1/include/graphviz/usershape.h
-cdt.h
-C:/Program Files/Graphviz 2.44.1/include/graphviz/cdt.h
-
-D:/programming/c/tac_parser/DotWriter/DotWriter.h
-string
--
-map
--
-vector
--
-fstream
--
-iostream
--
-gvc.h
--
-
-D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
-vector
--
-iostream
--
-algorithm
--
-list
--
-map
--
-
-D:/programming/c/tac_parser/tac_worker/basic_block.h
-string
--
-optional
--
-vector
--
-set
--
-map
--
-algorithm
--
-quadruple.hpp
-D:/programming/c/tac_parser/tac_worker/quadruple.hpp
-
-D:/programming/c/tac_parser/tac_worker/dataflow_graph.cpp
-numeric
--
-dataflow_graph.hpp
-D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
-
-D:/programming/c/tac_parser/tac_worker/dataflow_graph.hpp
-set
--
-list
--
-map
--
-algorithm
--
-memory
--
-quadruple.hpp
-D:/programming/c/tac_parser/tac_worker/quadruple.hpp
-../DotWriter/DotWriter.h
-D:/programming/c/tac_parser/DotWriter/DotWriter.h
-../tac_worker/LoopFinder.cpp
-D:/programming/c/tac_parser/tac_worker/LoopFinder.cpp
-../tac_worker/local_value_numbering.h
-D:/programming/c/tac_parser/tac_worker/local_value_numbering.h
-
-D:/programming/c/tac_parser/tac_worker/local_value_numbering.h
-string
--
-map
--
-vector
--
-functional
--
-quadruple.hpp
-D:/programming/c/tac_parser/tac_worker/quadruple.hpp
-basic_block.h
-D:/programming/c/tac_parser/tac_worker/basic_block.h
-
-D:/programming/c/tac_parser/tac_worker/quadruple.hpp
+../tac_worker/quadruple.hpp
 string
 -
 ostream
@@ -162,5 +18,71 @@ vector
 optional
 -
 iostream
+-
+
+D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp
+stdio.h
+-
+string.h
+-
+errno.h
+-
+stdlib.h
+-
+inttypes.h
+-
+climits
+-
+cstring
+-
+string
+-
+functional
+-
+map
+-
+../driver/driver.hpp
+D:/programming/c/tac_parser/driver/driver.hpp
+io.h
+-
+
+D:/programming/c/tac_parser/driver/driver.hpp
+string
+-
+map
+-
+utility
+-
+parser.hpp
+D:/programming/c/tac_parser/driver/parser.hpp
+
+location.hh
+iostream
+-
+string
+-
+
+parser.hpp
+string
+-
+../tac_worker/quadruple.hpp
+../tac_worker/quadruple.hpp
+cassert
+-
+cstdlib
+-
+iostream
+-
+stdexcept
+-
+string
+-
+vector
+-
+location.hh
+location.hh
+typeinfo
+-
+cassert
 -
 
