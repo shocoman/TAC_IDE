@@ -21,8 +21,9 @@ id  [a-zA-Z$_][a-zA-Z_0-9]*
 int [0-9]+
 float {int}\.{int}?
 blank [ \t\r]
-line_comment "//".*\n
-only_newline ^{blank}*\n$
+line_comment "//".*
+line_comment_with_nl ^{blank}*"//".*\n
+empty_line ^{blank}*\n
 
 %%
 
@@ -31,10 +32,11 @@ only_newline ^{blank}*\n$
     loc.step();
 %}
 
-{only_newline}*             loc.lines(yyleng); loc.step();
+{empty_line}+               loc.lines(yyleng); loc.step();
 \n                          loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc);
 {blank}+                    loc.step();
-{line_comment}              loc.step();
+{line_comment_with_nl}      loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
+{line_comment}              loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
 
 "="     return yy::parser::make_ASSIGN(loc);
 "+"     return yy::parser::make_PLUS(loc);

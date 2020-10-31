@@ -434,8 +434,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
 	(yy_c_buf_p) = yy_cp;
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 25
-#define YY_END_OF_BUFFER 26
+#define YY_NUM_RULES 26
+#define YY_END_OF_BUFFER 27
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -443,12 +443,13 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[40] =
+static const flex_int16_t yy_accept[45] =
     {   0,
-        0,    0,   26,   24,    2,    4,   24,   23,   10,   17,
-       18,    8,    6,    7,    9,   22,   16,   15,   11,    5,
-       12,   19,   20,    2,    1,    2,   14,   23,    0,   21,
-       22,   13,    2,    1,    1,    0,    3,   21,    0
+        0,    0,   27,   25,    3,    2,   25,   24,   11,   18,
+       19,    9,    7,    8,   10,   23,   17,   16,   12,    6,
+       13,   20,   21,    3,    1,   10,    3,   15,   24,    5,
+       22,   23,   14,    3,    1,    0,    5,    5,   22,    0,
+        5,    4,    0,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -485,49 +486,53 @@ static const YY_CHAR yy_ec[256] =
 
 static const YY_CHAR yy_meta[23] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1
     } ;
 
-static const flex_int16_t yy_base[41] =
+static const flex_int16_t yy_base[48] =
     {   0,
-        0,   21,   50,   51,   47,   51,   30,   11,   51,   51,
-       51,   51,   51,   51,   34,   14,   51,   51,   51,   28,
-       51,   51,   51,   27,   40,   42,   51,   13,   40,   28,
-       20,   51,   33,   36,   35,   36,   51,   24,   51,   36
+        0,   21,   60,   61,   57,   61,   40,   11,   61,   61,
+       61,   61,   61,   61,   44,   14,   61,   61,   61,   38,
+       61,   61,   61,   27,   52,   41,   46,   61,   13,    0,
+       33,   23,   61,   36,   43,   32,   41,    0,   29,   39,
+       38,   61,   33,   61,   31,   49,   51
     } ;
 
-static const flex_int16_t yy_def[41] =
+static const flex_int16_t yy_def[48] =
     {   0,
-       39,    1,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   40,   39,
-       39,   39,   39,   39,   39,   40,   39,   39,    0,   39
+       44,    1,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   45,
+       44,   44,   44,   44,   44,   44,   46,   45,   44,   47,
+       46,   44,   47,    0,   44,   44,   44
     } ;
 
-static const flex_int16_t yy_nxt[74] =
+static const flex_int16_t yy_nxt[84] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,   12,   13,
        14,    4,   15,   16,   17,   18,   19,   20,   21,    8,
-       22,   23,   24,   25,   28,   30,   28,   31,   33,   34,
-       28,   30,   28,   31,   33,   34,   36,   38,   37,   35,
-       35,   38,   37,   26,   35,   32,   29,   27,   26,   39,
-        3,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39
+       22,   23,   24,   25,   29,   31,   29,   32,   34,   35,
+       29,   38,   29,   26,   31,   42,   32,   34,   35,   36,
+       42,   42,   39,   42,   40,   35,   39,   27,   36,   41,
+       41,   43,   43,   37,   35,   33,   30,   28,   27,   44,
+        3,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44
     } ;
 
-static const flex_int16_t yy_chk[74] =
+static const flex_int16_t yy_chk[84] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    2,    2,    8,   16,   28,   16,   24,   24,
-        8,   31,   28,   31,   33,   33,   40,   38,   36,   35,
-       34,   30,   29,   26,   25,   20,   15,    7,    5,    3,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39,   39,   39,   39,   39,   39,   39,   39,
-       39,   39,   39
+        1,    1,    2,    2,    8,   16,   29,   16,   24,   24,
+        8,   45,   29,    2,   32,   43,   32,   34,   34,   24,
+       41,   40,   39,   37,   36,   35,   31,   27,   34,   46,
+       46,   47,   47,   26,   25,   20,   15,    7,    5,    3,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -536,11 +541,11 @@ static char *yy_last_accepting_cpos;
 extern int yy_flex_debug;
 int yy_flex_debug = 1;
 
-static const flex_int16_t yy_rule_linenum[25] =
+static const flex_int16_t yy_rule_linenum[26] =
     {   0,
-       35,   36,   37,   38,   40,   41,   42,   43,   44,   45,
-       47,   48,   49,   50,   53,   54,   55,   56,   57,   58,
-       60,   61,   62,   64
+       36,   37,   38,   39,   40,   42,   43,   44,   45,   46,
+       47,   49,   50,   51,   52,   55,   56,   57,   58,   59,
+       60,   62,   63,   64,   66
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -560,14 +565,14 @@ char *yytext;
     #include <functional>
     #include <map>
     #include "../driver/driver.hpp"
-#line 563 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
+#line 568 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
 #define YY_NO_INPUT 1
 #line 14 "D:/programming/c/tac_parser/grammar/lexer.l"
     yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::location_type& loc, bool);
     yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::location_type& loc);
     #define YY_USER_ACTION loc.columns(yyleng);
-#line 569 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
-#line 570 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
+#line 574 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
+#line 575 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
 
 #define INITIAL 0
 
@@ -841,16 +846,16 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 27 "D:/programming/c/tac_parser/grammar/lexer.l"
+#line 28 "D:/programming/c/tac_parser/grammar/lexer.l"
 
 
 
-#line 31 "D:/programming/c/tac_parser/grammar/lexer.l"
+#line 32 "D:/programming/c/tac_parser/grammar/lexer.l"
     yy::location& loc = drv.location;
     loc.step();
 
 
-#line 853 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
+#line 858 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -880,13 +885,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 40 )
+				if ( yy_current_state >= 45 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 39 );
+		while ( yy_current_state != 44 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -905,13 +910,13 @@ do_action:	/* This label is used only to access EOF actions. */
 			{
 			if ( yy_act == 0 )
 				fprintf( stderr, "--scanner backing up\n" );
-			else if ( yy_act < 25 )
+			else if ( yy_act < 26 )
 				fprintf( stderr, "--accepting rule at line %ld (\"%s\")\n",
 				         (long)yy_rule_linenum[yy_act], yytext );
-			else if ( yy_act == 25 )
+			else if ( yy_act == 26 )
 				fprintf( stderr, "--accepting default rule (\"%s\")\n",
 				         yytext );
-			else if ( yy_act == 26 )
+			else if ( yy_act == 27 )
 				fprintf( stderr, "--(end of buffer or a NUL)\n" );
 			else
 				fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
@@ -930,138 +935,143 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 35 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.lines(yyleng);
+#line 36 "D:/programming/c/tac_parser/grammar/lexer.l"
+loc.lines(yyleng); loc.step();
 	YY_BREAK
 case 2:
-YY_RULE_SETUP
-#line 36 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.step();
-	YY_BREAK
-case 3:
-/* rule 3 can match eol */
+/* rule 2 can match eol */
 YY_RULE_SETUP
 #line 37 "D:/programming/c/tac_parser/grammar/lexer.l"
+loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc);
+	YY_BREAK
+case 3:
+YY_RULE_SETUP
+#line 38 "D:/programming/c/tac_parser/grammar/lexer.l"
 loc.step();
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 38 "D:/programming/c/tac_parser/grammar/lexer.l"
-loc.lines(yyleng); return yy::parser::make_NEWLINE(loc);
+#line 39 "D:/programming/c/tac_parser/grammar/lexer.l"
+loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 40 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_ASSIGN(loc);
+loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_PLUS(loc);
+#line 42 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_ASSIGN(loc);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 42 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_MINUS(loc);
+#line 43 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_PLUS(loc);
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 43 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_MULT(loc);
+#line 44 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_MINUS(loc);
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 44 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_DIV(loc);
+#line 45 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_MULT(loc);
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 45 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_REF(loc);
+#line 46 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_DIV(loc);
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 47 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_CMP_LT(loc);
+return yy::parser::make_REF(loc);
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 48 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_CMP_GT(loc);
+#line 49 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_CMP_LT(loc);
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_CMP_EQ(loc);
+#line 50 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_CMP_GT(loc);
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_CMP_NEQ(loc);
+#line 51 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_CMP_EQ(loc);
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 53 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_SEMI(loc);
+#line 52 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_CMP_NEQ(loc);
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 54 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_COLON(loc);
+#line 55 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_SEMI(loc);
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 55 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_LPAREN(loc);
+#line 56 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_COLON(loc);
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 56 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_RPAREN(loc);
+#line 57 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_LPAREN(loc);
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 57 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_LBRACKET(loc);
+#line 58 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_RPAREN(loc);
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 58 "D:/programming/c/tac_parser/grammar/lexer.l"
-return yy::parser::make_RBRACKET(loc);
+#line 59 "D:/programming/c/tac_parser/grammar/lexer.l"
+return yy::parser::make_LBRACKET(loc);
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 60 "D:/programming/c/tac_parser/grammar/lexer.l"
-return make_NUMBER(yytext, loc, false);
+return yy::parser::make_RBRACKET(loc);
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 61 "D:/programming/c/tac_parser/grammar/lexer.l"
-return make_NUMBER(yytext, loc, true);
+#line 62 "D:/programming/c/tac_parser/grammar/lexer.l"
+return make_NUMBER(yytext, loc, false);
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 62 "D:/programming/c/tac_parser/grammar/lexer.l"
-return make_IDENTIFIER(yytext, loc);
+#line 63 "D:/programming/c/tac_parser/grammar/lexer.l"
+return make_NUMBER(yytext, loc, true);
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 64 "D:/programming/c/tac_parser/grammar/lexer.l"
+return make_IDENTIFIER(yytext, loc);
+	YY_BREAK
+case 25:
+YY_RULE_SETUP
+#line 66 "D:/programming/c/tac_parser/grammar/lexer.l"
 {
             throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
         }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 69 "D:/programming/c/tac_parser/grammar/lexer.l"
+#line 71 "D:/programming/c/tac_parser/grammar/lexer.l"
 return yy::parser::make_YYEOF(loc);
 	YY_BREAK
-case 25:
+case 26:
 YY_RULE_SETUP
-#line 70 "D:/programming/c/tac_parser/grammar/lexer.l"
+#line 72 "D:/programming/c/tac_parser/grammar/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1064 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
+#line 1074 "D:/programming/c/tac_parser/cmake-build-debug/lexer.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1381,7 +1391,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 40 )
+			if ( yy_current_state >= 45 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1414,11 +1424,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 40 )
+		if ( yy_current_state >= 45 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 39);
+	yy_is_jam = (yy_current_state == 44);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2168,7 +2178,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 70 "D:/programming/c/tac_parser/grammar/lexer.l"
+#line 72 "D:/programming/c/tac_parser/grammar/lexer.l"
 
 
 yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::location_type& loc, bool is_int) {

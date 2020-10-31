@@ -266,8 +266,7 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
 void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     for (int i = 0; i < nodes.size(); ++i) {
         if (i != nodes.size() - 1 && nodes[i]->allows_fallthrough()) {
-            nodes[i]->successors.insert(nodes[i + 1].get());
-            nodes[i + 1]->predecessors.insert(nodes[i].get());
+            nodes[i]->add_successor(nodes[i + 1].get());
         }
         if (nodes[i]->jumps_to.has_value()) {
             auto jump_to = nodes[i]->jumps_to.value();
@@ -275,8 +274,7 @@ void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
                 return e->lbl_name.has_value() && e->lbl_name.value() == jump_to;
             });
 
-            nodes[i]->successors.insert(node->get());
-            node->get()->predecessors.insert(nodes[i].get());
+            nodes[i]->add_successor(node->get());
         }
     }
 }
@@ -484,7 +482,8 @@ void remove_phi_functions(std::vector<std::unique_ptr<BasicBlock>> &blocks,
 }
 
 
-void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+std::map<int, BasicBlock *>
+dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
     std::map<int, std::set<int>> id_to_dominator;
     std::map<int, BasicBlock *> id_to_block;
 
@@ -723,6 +722,7 @@ void dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
 //    remove_phi_functions(blocks, id_to_block, 0);
 //    print_cfg(blocks, "after.png");
 
+    return id_to_block;
 }
 
 
@@ -756,8 +756,8 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
             if (!q.dest.has_value() || q.dest->type == Dest::Type::None) continue;
 
             Place place{b_index, i};
-            if (!q.is_jump())
-                usingInfo[q.dest->name].defined_at = place;
+//            if (!q.is_jump())
+            usingInfo[q.dest->name].defined_at = place;
 
             if (Quad::is_foldable(q.type))
                 constant_folding(q);
@@ -810,48 +810,34 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
                 lhs.constant = Operand();
 
                 // interpretation over lattice
-                if (lhs_q.ops.size() == 1) {
-                    auto &fst = usingInfo.at(lhs_q.get_op(0)->value);
-                    lhs.value_type = fst.value_type;
-                    lhs.constant = fst.constant;
-                } else if (lhs_q.type == Quad::Type::PhiNode) {
+                if (lhs_q.type == Quad::Type::PhiNode) {
                     for (auto &op : lhs_q.ops) {
                         if (lhs.value_type == ValType::Bottom) break;
 
-                        if (op.is_constant()) {
-                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
-                                lhs.value_type = ValType::Bottom;
-                            } else {
-                                lhs.value_type = ValType::Constant;
-                                lhs.constant.value = op.value;
-                            }
+                        auto &var = usingInfo.at(op.value);
+                        if (var.value_type == ValType::Top) {}
+                        else if (var.value_type == ValType::Constant
+                                 && (lhs.value_type == ValType::Top ||
+                                     lhs.value_type == ValType::Constant &&
+                                     lhs.constant.value == var.constant.value)) {
+                            lhs.value_type = var.value_type;
+                            lhs.constant = var.constant;
                         } else {
-                            auto &var = usingInfo.at(op.value);
-                            if (var.value_type == ValType::Top) {}
-                            else if (var.value_type == ValType::Constant
-                                     && (lhs.value_type == ValType::Top ||
-                                         lhs.value_type == ValType::Constant &&
-                                         lhs.constant.value == var.constant.value)) {
-                                lhs.value_type = var.value_type;
-                                lhs.constant = var.constant;
-                            } else {
-                                lhs.value_type = ValType::Bottom;
-                            }
+                            lhs.value_type = ValType::Bottom;
                         }
                     }
-                } else if (lhs.value_type != ValType::Bottom) {
+                } else {
                     //  if (lhs_q.ops.size() >= 2)
 
-
-                    Operand fst = lhs_q.ops[0];
-                    Operand snd = lhs_q.ops[1];
-                    if (fst.is_var() && usingInfo.at(fst.value).value_type == ValType::Constant)
-                        fst = Operand(usingInfo.at(fst.value).constant);
-                    if (snd.is_var() && usingInfo.at(snd.value).value_type == ValType::Constant)
-                        snd = Operand(usingInfo.at(snd.value).constant);
+                    auto fst = lhs_q.get_op(0);
+                    auto snd = lhs_q.get_op(1);
+                    if (fst && fst->is_var() && usingInfo.at(fst->value).value_type == ValType::Constant)
+                        fst = Operand(usingInfo.at(fst->value).constant);
+                    if (snd && snd->is_var() && usingInfo.at(snd->value).value_type == ValType::Constant)
+                        snd = Operand(usingInfo.at(snd->value).constant);
 
                     auto tmp_q = Quad();
-                    tmp_q.ops = {fst, snd};
+                    tmp_q.ops = {fst.value_or(Operand()), snd.value_or(Operand())};
                     tmp_q.type = lhs_q.type;
                     auto prev = tmp_q;
                     constant_folding(tmp_q);
@@ -871,32 +857,6 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
                             lhs.constant = saved.constant;
                         }
                     }
-
-//                    for (auto &op : tmp_q.ops)
-//                        if (op.is_constant() || op.is_var()) {
-//                            if (lhs.value_type == ValType::Constant && lhs.constant.value != op.value) {
-//                                lhs.value_type = ValType::Bottom;
-//                            } else {
-//                                lhs.value_type = ValType::Constant;
-//                                lhs.constant.value = op.value;
-//                            }
-//                        } else {
-//                            auto &var = usingInfo.at(op.value);
-//
-//                            if (var.value_type == ValType::Top) {
-//
-//                            } else if (
-//                                    var.value_type == ValType::Constant
-//                                    && (lhs.value_type == ValType::Top ||
-//                                        lhs.value_type == ValType::Constant &&
-//                                        lhs.constant.value == var.constant.value)) {
-//
-//                                lhs.value_type = var.value_type;
-//                                lhs.constant = var.constant;
-//                            } else {
-//                                lhs.value_type = ValType::Bottom;
-//                            }
-//                        }
                 }
 
                 if (tmp != std::pair{lhs.value_type, lhs.constant}) {
@@ -906,14 +866,16 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
         }
     }
 
-    for (auto &[name, useInfo] : usingInfo) {
-        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << "; "
-                  << useInfo.defined_at.quad_num << "); " << "used at: ";
-        for (auto &u : useInfo.used_at) {
-            std::cout << "(" << u.block_num << "; " << u.quad_num << "), ";
-        }
-        std::cout << " ValType: " << (int) useInfo.value_type << "; " << useInfo.constant.value << std::endl;
-    }
+
+
+//    for (auto &[name, useInfo] : usingInfo) {
+//        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << "; "
+//                  << useInfo.defined_at.quad_num << "); " << "used at: ";
+//        for (auto &u : useInfo.used_at) {
+//            std::cout << "(" << u.block_num << "; " << u.quad_num << "), ";
+//        }
+//        std::cout << " ValType: " << (int) useInfo.value_type << "; " << useInfo.constant.value << std::endl;
+//    }
 
     for (auto &[name, useInfo] : usingInfo) {
         if (useInfo.value_type == ValType::Constant) {
@@ -921,6 +883,18 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
             q.type = Quad::Type::Assign;
             q.ops[0] = useInfo.constant;
             q.clear_op(1);
+        }
+    }
+
+    // update phi function positions
+    for (auto &b : blocks) {
+        b->phi_functions = 0;
+        for (int i = 0; i < b->quads.size(); ++i) {
+            auto &q = b->quads[i];
+            if (q.type == Quad::Type::PhiNode) {
+                std::swap(b->quads[i], b->quads[b->phi_functions]);
+                b->phi_functions++;
+            }
         }
     }
 }
@@ -931,12 +905,12 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     std::map<int, std::string> labels_rev;
     for (auto &[a, b] : labels) labels_rev.emplace(b, a);
 
-     print_quads(quads, labels_rev);
+    print_quads(quads, labels_rev);
 
     // gather indexes of leading blocks
-//    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
-//    auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
-//    add_successors(blocks);
+    auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
+    auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
+    add_successors(blocks);
 
 //    for (auto &[id, str] : leader_indexes) {
 //        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
@@ -968,11 +942,13 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //    superlocal_value_numbering(blocks);
 
 
-//    dominators(blocks);
+    auto id_to_block = dominators(blocks);
 
 //    print_cfg(blocks, "before.png");
 
-//    sparse_simple_constant_propagation(blocks);
-//
-//    print_cfg(blocks, "after.png");
+    sparse_simple_constant_propagation(blocks);
+
+    remove_phi_functions(blocks, id_to_block, 0);
+
+    print_cfg(blocks, "after.png");
 }
