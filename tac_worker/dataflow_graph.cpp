@@ -5,14 +5,19 @@
 #include <numeric>
 #include "dataflow_graph.hpp"
 
-void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes);
-
-void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes);
-
-void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
+using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;
+using ID2Block = std::map<int, BasicBlock *>;
+using ID2IDOM = std::map<int, int>;
 
 
-void add_exit_block(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void constant_folding(BasicBlocks &nodes);
+
+void liveness_analyses(const BasicBlocks &nodes);
+
+void remove_blocks_without_predecessors(BasicBlocks &nodes);
+
+
+void add_exit_block(BasicBlocks &nodes) {
     auto entry_block = std::make_unique<BasicBlock>();
     entry_block->node_name = "Entry block";
     entry_block->id = 0;
@@ -35,7 +40,7 @@ void add_exit_block(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 }
 
 
-void print_loops(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void print_loops(BasicBlocks &nodes) {
 
     // generate ids for node names
     std::map<int, std::string> name_by_id;
@@ -68,7 +73,7 @@ void print_loops(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 }
 
 
-void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void remove_blocks_without_predecessors(BasicBlocks &nodes) {
     for (int i = nodes.size() - 1; i > 0; --i) {
         auto &n = nodes[i];
         if (n->predecessors.empty()) {
@@ -79,7 +84,7 @@ void remove_blocks_without_predecessors(std::vector<std::unique_ptr<BasicBlock>>
 }
 
 [[deprecated]]
-void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void liveness_analyses(const BasicBlocks &nodes) {
     // block level liveness analyses
     struct LivenessState {
         bool live;
@@ -149,7 +154,7 @@ void liveness_analyses(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     }
 }
 
-void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void constant_folding(BasicBlocks &nodes) {
     for (auto &n : nodes) {
         for (auto &q : n->quads) {
             if (q.get_op(0)->is_number() && q.get_op(1)->is_number()) {
@@ -182,7 +187,7 @@ void constant_folding(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 }
 
 
-void print_cfg(const std::vector<std::unique_ptr<BasicBlock>> &nodes, const std::string &filename) {
+void print_cfg(const BasicBlocks &nodes, const std::string &filename) {
     DotWriter dot_writer;
     std::set<std::string> visited;
     // print edges
@@ -239,8 +244,8 @@ auto get_leading_quads_indices(const std::vector<Quad> &quads,
 
 auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
                                   std::map<int, std::string> &labels_rev,
-                                  std::map<int, std::optional<std::string>> &leader_indexes) -> std::vector<std::unique_ptr<BasicBlock>> {
-    std::vector<std::unique_ptr<BasicBlock>> nodes;
+                                  std::map<int, std::optional<std::string>> &leader_indexes) -> BasicBlocks {
+    BasicBlocks nodes;
     BasicBlock *curr_node = nullptr;
     for (int i = 0, node_number = 0; i <= quads.size(); i++) {
         // if current quad is a leader
@@ -263,7 +268,7 @@ auto get_basicblocks_from_indices(const std::vector<Quad> &quads,
     return nodes;
 }
 
-void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void add_successors(BasicBlocks &nodes) {
     for (int i = 0; i < nodes.size(); ++i) {
         if (i != nodes.size() - 1 && nodes[i]->allows_fallthrough()) {
             nodes[i]->add_successor(nodes[i + 1].get());
@@ -279,7 +284,7 @@ void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes) {
     }
 }
 
-void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
+void print_nodes(const BasicBlocks &nodes) {
     for (auto &n : nodes) {
         std::cout << "\tBasicBlock: " << n->node_name << "; "
                   << n->lbl_name.value_or("NONE")
@@ -289,7 +294,7 @@ void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes) {
 }
 
 
-void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+void live_analyses(BasicBlocks &blocks) {
 
     struct BlockLiveState {
         std::set<std::string> UEVar;
@@ -363,24 +368,18 @@ void live_analyses(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
 }
 
 
-void print_dominator_tree(std::map<int, BasicBlock *> &id_to_block, int entry_id,
-                          std::map<int, int> &id_to_immediate_dominator) {
+void print_dominator_tree(ID2Block &id_to_block, int entry_id, ID2IDOM &id_to_idom) {
 
     DotWriter writer;
-
-    for (auto &[block_id, block] : id_to_block) {
-        for (auto &[id1, id2] : id_to_immediate_dominator) {
-            if (id2 == block_id) {
-                // blocks[id1] and blocks[block_id] are connected
-                auto name1 = id_to_block.at(block_id)->get_name();
-                auto name2 = id_to_block.at(id1)->get_name();
-                writer.set_node_name(name1, name1);
-                writer.set_node_name(name2, name2);
-                writer.set_node_text(name1, {});
-                writer.set_node_text(name2, {});
-                writer.add_edge(name1, name2);
-            }
-        }
+    for (auto &[id1, id2] : id_to_idom) {
+        // make a connection between blocks[id1] and blocks[block_id]
+        auto name1 = id_to_block.at(id2)->node_name;
+        auto name2 = id_to_block.at(id1)->node_name;
+        writer.set_node_name(name1, name1);
+        writer.set_node_name(name2, name2);
+        writer.set_node_text(name1, {});
+        writer.set_node_text(name2, {});
+        writer.add_edge(name1, name2);
     }
 
     writer.render_to_file("dominator_tree.png");
@@ -388,10 +387,10 @@ void print_dominator_tree(std::map<int, BasicBlock *> &id_to_block, int entry_id
 }
 
 
-void remove_phi_functions(std::vector<std::unique_ptr<BasicBlock>> &blocks,
+void remove_phi_functions(BasicBlocks &blocks,
                           std::map<int, BasicBlock *> &id_to_block, int entry_id) {
 
-    std::vector<std::unique_ptr<BasicBlock>> new_blocks;
+    BasicBlocks new_blocks;
 
     for (auto &b : blocks) {
         std::map<std::pair<int, int>, int> replace_block_id;
@@ -482,20 +481,16 @@ void remove_phi_functions(std::vector<std::unique_ptr<BasicBlock>> &blocks,
 }
 
 
-std::map<int, BasicBlock *>
-dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+void dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
     std::map<int, std::set<int>> id_to_dominator;
-    std::map<int, BasicBlock *> id_to_block;
 
     std::set<int> N;
     for (auto &b : blocks) {
         N.insert(b->id);
     }
 
-
     for (auto &b : blocks) {
         id_to_dominator[b->id] = N;
-        id_to_block[b->id] = b.get();
     }
 
     int iterations = 0;
@@ -721,12 +716,10 @@ dominators(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
 //    print_cfg(blocks, "before.png");
 //    remove_phi_functions(blocks, id_to_block, 0);
 //    print_cfg(blocks, "after.png");
-
-    return id_to_block;
 }
 
 
-void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
+void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     struct Place {
         int block_num;
         int quad_num;
@@ -900,17 +893,97 @@ void sparse_simple_constant_propagation(std::vector<std::unique_ptr<BasicBlock>>
 }
 
 
+std::map<int, int> generate_reverse_post_order_numbers(BasicBlocks &blocks) {
+    std::map<int, int> block_id_to_rpo;
+    int counter = 0;
+
+    std::function<void(BasicBlock *)> postorder_traversal = [&](BasicBlock *b) {
+        if (block_id_to_rpo.find(b->id) == block_id_to_rpo.end()) {
+            block_id_to_rpo[b->id] = 0;
+            for (auto &s : b->successors)
+                postorder_traversal(s);
+            block_id_to_rpo[b->id] = counter++;
+        }
+    };
+    postorder_traversal(blocks.front().get());
+
+//    for (auto &[id, rpo] : block_id_to_rpo)
+//        std::cout << id << " -> " << (counter - 1 - rpo) << std::endl;
+
+    for (auto &b : blocks) {
+        block_id_to_rpo[b->id] = counter - 1 - block_id_to_rpo.at(b->id);
+        b->node_name = b->get_name() + "; RPO: " + std::to_string(block_id_to_rpo.at(b->id));
+    }
+    return block_id_to_rpo;
+}
+
+
+ID2IDOM modified_dominator_algorithm(BasicBlocks &blocks, ID2Block &id_to_block, std::map<int, int> &id_to_rpo) {
+    std::map<int, int> rpo_to_id;
+    for (auto &[id, rpo] : id_to_rpo) rpo_to_id.emplace(rpo, id);
+    ID2IDOM id_to_idom;
+
+    auto intersect = [&](BasicBlock *i, BasicBlock *j) {
+        auto finger1 = i->id;
+        auto finger2 = j->id;
+        while (finger1 != finger2) {
+            while (id_to_rpo.at(finger1) > id_to_rpo.at(finger2))
+                finger1 = id_to_idom.at(finger1);
+            while (id_to_rpo.at(finger2) > id_to_rpo.at(finger1))
+                finger2 = id_to_idom.at(finger2);
+        }
+        return id_to_block.at(finger1);
+    };
+
+    auto entry_node_id = rpo_to_id.at(0);
+    id_to_idom[entry_node_id] = entry_node_id;
+    bool changed = true;
+    int iterations = 0;
+    while (changed) {
+        iterations++;
+        changed = false;
+        for (auto &[rpo, id] : rpo_to_id) {
+
+            auto &b = id_to_block.at(id);
+            if (b->predecessors.empty()) continue;
+
+            auto preds = b->predecessors.begin();
+            auto new_idom = *preds;
+            for (std::advance(preds, 1); preds != b->predecessors.end(); std::advance(preds, 1)) {
+                auto p = *preds;
+                if (id_to_idom.find(p->id) != id_to_idom.end())
+                    new_idom = intersect(p, new_idom);
+            }
+
+            if (id_to_idom.find(b->id) == id_to_idom.end() || id_to_idom.at(b->id) != new_idom->id) {
+                id_to_idom[b->id] = new_idom->id;
+                changed = true;
+            }
+        }
+    }
+
+//    std::cout << "Iterations: " << iterations << std::endl;
+//    for (auto &[id, idom_id] : id_to_idom) {
+//        std::cout << id_to_block.at(id)->node_name << " -> " << id_to_block.at(idom_id)->node_name << std::endl;
+//    }
+
+    return id_to_idom;
+}
+
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     // revert map of labels
     std::map<int, std::string> labels_rev;
     for (auto &[a, b] : labels) labels_rev.emplace(b, a);
 
-    print_quads(quads, labels_rev);
+//    print_quads(quads, labels_rev);
 
     // gather indexes of leading blocks
     auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
     auto blocks = get_basicblocks_from_indices(quads, labels_rev, leader_indexes);
     add_successors(blocks);
+
+    ID2Block id_to_block;
+    for (auto &b : blocks) id_to_block[b->id] = b.get();
 
 //    for (auto &[id, str] : leader_indexes) {
 //        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
@@ -942,13 +1015,19 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //    superlocal_value_numbering(blocks);
 
 
-    auto id_to_block = dominators(blocks);
+//    dominators(blocks, id_to_block);
 
 //    print_cfg(blocks, "before.png");
 
-    sparse_simple_constant_propagation(blocks);
+//    sparse_simple_constant_propagation(blocks);
+//
+//    remove_phi_functions(blocks, id_to_block, 0);
 
-    remove_phi_functions(blocks, id_to_block, 0);
 
+    auto id_to_rpo = generate_reverse_post_order_numbers(blocks);
+    auto id_to_idom = modified_dominator_algorithm(blocks, id_to_block, id_to_rpo);
+
+    print_dominator_tree(id_to_block, 0, id_to_idom);
     print_cfg(blocks, "after.png");
 }
+
