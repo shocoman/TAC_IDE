@@ -33,10 +33,6 @@ struct BasicBlock {
 
     std::string fmt() const {
         std::string out;
-//        for (auto &phi : phi_functions) {
-//            out += phi.second.fmt() + "\n";
-//        }
-
         for (auto &q : quads)
             out += q.fmt() + "\n";
         return out;

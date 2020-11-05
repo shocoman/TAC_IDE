@@ -150,6 +150,10 @@ struct Quad {
         return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
     }
 
+    bool is_conditional_jump() {
+        return type == Type::IfTrue || type == Type::IfFalse;
+    }
+
     static bool is_critical(Type t) {
         return t == Type::Print || t == Type::Return;
     }

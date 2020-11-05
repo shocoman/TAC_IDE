@@ -16,7 +16,7 @@
 
 
 
-void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes);
+void print_blocks(const std::vector<std::unique_ptr<BasicBlock>> &blocks);
 
 void add_initial_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
