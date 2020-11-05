@@ -18,11 +18,11 @@
 
 void print_nodes(const std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
-void add_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
+void add_initial_successors(std::vector<std::unique_ptr<BasicBlock>> &nodes);
 
 
-auto get_basicblocks_from_indices(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev,
-                                  std::map<int, std::optional<std::string>> &leader_indexes)
+auto get_basic_blocks_from_indices(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev,
+                                   std::map<int, std::optional<std::string>> &leader_indexes)
 -> std::vector<std::unique_ptr<BasicBlock>>;
 
 auto get_leading_quads_indices(const std::vector<Quad> &quads,

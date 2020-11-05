@@ -671,214 +671,220 @@ namespace yy {
           switch (yyn)
             {
   case 4: // stmt: label mb_newline
-#line 84 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 85 "D:/programming/c/tac_parser/grammar/parser.y"
                                    { drv.labels.emplace(yystack_[1].value.as < std::string > (), drv.quadruples.size()); }
 #line 677 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 5: // stmt: quadruple newlines
-#line 85 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 86 "D:/programming/c/tac_parser/grammar/parser.y"
                            { drv.quadruples.push_back(yystack_[1].value.as < Quad > ()); }
 #line 683 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 11: // quadruple: assignment
-#line 92 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 93 "D:/programming/c/tac_parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 689 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 12: // quadruple: if_statement
-#line 93 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 94 "D:/programming/c/tac_parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 695 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 13: // quadruple: goto
-#line 94 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 95 "D:/programming/c/tac_parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
 #line 701 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 14: // quadruple: "halt"
-#line 95 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 96 "D:/programming/c/tac_parser/grammar/parser.y"
                                     { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Halt); }
 #line 707 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 15: // quadruple: "param" term
-#line 96 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 97 "D:/programming/c/tac_parser/grammar/parser.y"
                                     { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Param); }
 #line 713 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 16: // quadruple: "call" "identifier" term
-#line 97 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 98 "D:/programming/c/tac_parser/grammar/parser.y"
                                     { yylhs.value.as < Quad > () = Quad(yystack_[1].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Call); }
 #line 719 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
   case 17: // quadruple: "nop"
-#line 98 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 99 "D:/programming/c/tac_parser/grammar/parser.y"
                                     { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Nop); }
 #line 725 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 18: // quadruple: "return"
-#line 99 "D:/programming/c/tac_parser/grammar/parser.y"
-                                    { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Return); }
+  case 18: // quadruple: "return" term
+#line 100 "D:/programming/c/tac_parser/grammar/parser.y"
+                                    { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Return); }
 #line 731 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 19: // assignment: dest "=" value
-#line 102 "D:/programming/c/tac_parser/grammar/parser.y"
-                           { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+  case 19: // quadruple: "print" term
+#line 101 "D:/programming/c/tac_parser/grammar/parser.y"
+                                    { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Print); }
 #line 737 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 20: // if_statement: "if" term "goto" "identifier"
-#line 105 "D:/programming/c/tac_parser/grammar/parser.y"
+  case 20: // assignment: dest "=" value
+#line 104 "D:/programming/c/tac_parser/grammar/parser.y"
+                           { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+#line 743 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+    break;
+
+  case 21: // if_statement: "if" term "goto" "identifier"
+#line 107 "D:/programming/c/tac_parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfTrue);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel); }
-#line 744 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+#line 750 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 21: // if_statement: "ifFalse" term "goto" "identifier"
-#line 107 "D:/programming/c/tac_parser/grammar/parser.y"
+  case 22: // if_statement: "ifFalse" term "goto" "identifier"
+#line 109 "D:/programming/c/tac_parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), {}, Quad::Type::IfFalse);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
-#line 751 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+#line 757 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 22: // goto: "goto" "identifier"
-#line 111 "D:/programming/c/tac_parser/grammar/parser.y"
+  case 23: // goto: "goto" "identifier"
+#line 113 "D:/programming/c/tac_parser/grammar/parser.y"
                                 { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
-#line 758 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
-    break;
-
-  case 23: // dest: "identifier"
-#line 117 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
 #line 764 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 24: // dest: "*" "identifier"
-#line 118 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
+  case 24: // dest: "identifier"
+#line 119 "D:/programming/c/tac_parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
 #line 770 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 25: // dest: "identifier" "[" term "]"
-#line 119 "D:/programming/c/tac_parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Dest::Type::ArraySet); }
+  case 25: // dest: "*" "identifier"
+#line 120 "D:/programming/c/tac_parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
 #line 776 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 26: // label: "identifier" ":"
-#line 122 "D:/programming/c/tac_parser/grammar/parser.y"
-                     { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
+  case 26: // dest: "identifier" "[" term "]"
+#line 121 "D:/programming/c/tac_parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Dest::Type::ArraySet); }
 #line 782 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 27: // value: term
-#line 127 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Assign); }
+  case 27: // label: "identifier" ":"
+#line 124 "D:/programming/c/tac_parser/grammar/parser.y"
+                     { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
 #line 788 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 28: // value: "*" term
-#line 128 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Deref); }
+  case 28: // value: term
+#line 129 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Assign); }
 #line 794 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 29: // value: "-" term
-#line 129 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::UMinus); }
+  case 29: // value: "*" term
+#line 130 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Deref); }
 #line 800 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 30: // value: "&" term
-#line 130 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Ref); }
+  case 30: // value: "-" term
+#line 131 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::UMinus); }
 #line 806 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 31: // value: term "[" term "]"
-#line 131 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Quad::Type::ArrayGet); }
+  case 31: // value: "&" term
+#line 132 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Ref); }
 #line 812 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 32: // value: term "+" term
-#line 132 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Add); }
+  case 32: // value: term "[" term "]"
+#line 133 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > (), Quad::Type::ArrayGet); }
 #line 818 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 33: // value: term "-" term
-#line 133 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Sub); }
+  case 33: // value: term "+" term
+#line 134 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Add); }
 #line 824 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 34: // value: term "*" term
-#line 134 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Mult); }
+  case 34: // value: term "-" term
+#line 135 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Sub); }
 #line 830 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 35: // value: term "/" term
-#line 135 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Div); }
+  case 35: // value: term "*" term
+#line 136 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Mult); }
 #line 836 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 36: // value: term "<" term
-#line 136 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Lt); }
+  case 36: // value: term "/" term
+#line 137 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Div); }
 #line 842 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 37: // value: term ">" term
-#line 137 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Gt); }
+  case 37: // value: term "<" term
+#line 138 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Lt); }
 #line 848 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 38: // value: term "==" term
-#line 138 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Eq); }
+  case 38: // value: term ">" term
+#line 139 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Gt); }
 #line 854 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 39: // value: term "!=" term
-#line 139 "D:/programming/c/tac_parser/grammar/parser.y"
-                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Neq); }
+  case 39: // value: term "==" term
+#line 140 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Eq); }
 #line 860 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 40: // term: "identifier"
-#line 143 "D:/programming/c/tac_parser/grammar/parser.y"
-                    { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
+  case 40: // value: term "!=" term
+#line 141 "D:/programming/c/tac_parser/grammar/parser.y"
+                            { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::string > (), Quad::Type::Neq); }
 #line 866 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 41: // term: "int"
-#line 144 "D:/programming/c/tac_parser/grammar/parser.y"
-                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < int > ()); }
+  case 41: // term: "identifier"
+#line 145 "D:/programming/c/tac_parser/grammar/parser.y"
+                    { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
 #line 872 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
-  case 42: // term: "float"
-#line 145 "D:/programming/c/tac_parser/grammar/parser.y"
-                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < double > ()); }
+  case 42: // term: "int"
+#line 146 "D:/programming/c/tac_parser/grammar/parser.y"
+                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < int > ()); }
 #line 878 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
     break;
 
+  case 43: // term: "float"
+#line 147 "D:/programming/c/tac_parser/grammar/parser.y"
+                    { yylhs.value.as < std::string > () = std::to_string(yystack_[0].value.as < double > ()); }
+#line 884 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+    break;
 
-#line 882 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+
+#line 888 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
 
             default:
               break;
@@ -1063,8 +1069,8 @@ namespace yy {
     static const char *const yy_sname[] =
     {
     "end of file", "error", "invalid token", "if", "ifFalse", "goto",
-  "halt", "call", "param", "nop", "return", "newline", "=", "+", "-", "*",
-  "/", "&", "<", ">", "==", "!=", "(", ")", "[", "]", ";", ":",
+  "halt", "call", "param", "nop", "return", "print", "newline", "=", "+",
+  "-", "*", "/", "&", "<", ">", "==", "!=", "(", ")", "[", "]", ";", ":",
   "identifier", "int", "float", "$accept", "dest", "value", "quadruple",
   "if_statement", "goto", "assignment", "term", "label", "stmts", "stmt",
   "mb_newline", "newlines", YY_NULLPTR
@@ -1332,105 +1338,107 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -28;
+  const signed char parser::yypact_ninf_ = -29;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const signed char
   parser::yypact_[] =
   {
-     -28,     2,   -28,    12,    12,   -27,   -28,   -13,    12,   -28,
-     -28,    -8,   -11,    11,     3,   -28,   -28,   -28,    13,   -28,
-     -28,   -28,   -28,    21,    23,   -28,    12,   -28,   -28,    12,
-     -28,     4,   -28,   -28,    18,   -28,   -28,     7,     8,   -28,
-       6,    12,    12,    12,   -28,    45,   -28,   -28,   -28,   -28,
-     -28,   -28,   -28,    12,    12,    12,    12,    12,    12,    12,
-      12,    12,   -28,   -28,   -28,   -28,   -28,   -28,   -28,   -28,
-      19,   -28
+     -29,     5,   -29,   -28,   -28,    -3,   -29,    -2,   -28,   -29,
+     -28,   -28,     0,    -6,    12,    24,   -29,   -29,   -29,    23,
+     -29,   -29,   -29,   -29,    32,    33,   -29,   -28,   -29,   -29,
+     -29,   -29,   -28,   -29,     2,   -29,   -29,    27,   -29,   -29,
+      14,    15,   -29,    19,   -28,   -28,   -28,   -29,    47,   -29,
+     -29,   -29,   -29,   -29,   -29,   -29,   -28,   -28,   -28,   -28,
+     -28,   -28,   -28,   -28,   -28,   -29,   -29,   -29,   -29,   -29,
+     -29,   -29,   -29,    20,   -29
   };
 
   const signed char
   parser::yydefact_[] =
   {
        2,     0,     1,     0,     0,     0,    14,     0,     0,    17,
-      18,     0,    23,     0,     0,    12,    13,    11,     6,     3,
-      40,    41,    42,     0,     0,    22,     0,    15,    24,     0,
-      26,     0,     8,     9,     5,     7,     4,     0,     0,    16,
-       0,     0,     0,     0,    19,    27,    10,    20,    21,    25,
-      29,    28,    30,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    32,    33,    34,    35,    36,    37,    38,    39,
-       0,    31
+       0,     0,     0,    24,     0,     0,    12,    13,    11,     6,
+       3,    41,    42,    43,     0,     0,    23,     0,    15,    18,
+      19,    25,     0,    27,     0,     8,     9,     5,     7,     4,
+       0,     0,    16,     0,     0,     0,     0,    20,    28,    10,
+      21,    22,    26,    30,    29,    31,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    33,    34,    35,    36,    37,
+      38,    39,    40,     0,    32
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-     -28,   -28,   -28,   -28,   -28,   -28,   -28,    -4,   -28,   -28,
-     -28,   -28,   -28
+     -29,   -29,   -29,   -29,   -29,   -29,   -29,    -4,   -29,   -29,
+     -29,   -29,   -29
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-      -1,    13,    44,    14,    15,    16,    17,    23,    18,     1,
-      19,    36,    34
+      -1,    14,    47,    15,    16,    17,    18,    24,    19,     1,
+      20,    39,    37
   };
 
   const signed char
   parser::yytable_[] =
   {
-      24,    25,     2,    32,    27,     3,     4,     5,     6,     7,
-       8,     9,    10,    29,    33,    26,    30,    11,    41,    42,
-      28,    43,    39,    31,    35,    40,    37,    45,    38,    46,
-      12,    49,    20,    21,    22,    47,    48,    50,    51,    52,
-      20,    21,    22,     0,    71,     0,     0,     0,     0,    62,
-      63,    64,    65,    66,    67,    68,    69,    70,    53,    54,
-      55,    56,     0,    57,    58,    59,    60,     0,     0,    61
+      25,    21,    22,    23,    28,     2,    29,    30,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    44,    45,    32,
+      46,    12,    33,    42,    35,    34,    26,    27,    43,    31,
+      48,    21,    22,    23,    13,    38,    36,    40,    41,    49,
+      53,    54,    55,    50,    51,    52,    74,     0,     0,     0,
+       0,     0,    65,    66,    67,    68,    69,    70,    71,    72,
+      73,    56,    57,    58,    59,     0,    60,    61,    62,    63,
+       0,     0,    64
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       4,    28,     0,     0,     8,     3,     4,     5,     6,     7,
-       8,     9,    10,    24,    11,    28,    27,    15,    14,    15,
-      28,    17,    26,    12,    11,    29,     5,    31,     5,    11,
-      28,    25,    28,    29,    30,    28,    28,    41,    42,    43,
-      28,    29,    30,    -1,    25,    -1,    -1,    -1,    -1,    53,
-      54,    55,    56,    57,    58,    59,    60,    61,    13,    14,
-      15,    16,    -1,    18,    19,    20,    21,    -1,    -1,    24
+       4,    29,    30,    31,     8,     0,    10,    11,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    15,    16,    25,
+      18,    16,    28,    27,     0,    13,    29,    29,    32,    29,
+      34,    29,    30,    31,    29,    12,    12,     5,     5,    12,
+      44,    45,    46,    29,    29,    26,    26,    -1,    -1,    -1,
+      -1,    -1,    56,    57,    58,    59,    60,    61,    62,    63,
+      64,    14,    15,    16,    17,    -1,    19,    20,    21,    22,
+      -1,    -1,    25
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,    40,     0,     3,     4,     5,     6,     7,     8,     9,
-      10,    15,    28,    32,    34,    35,    36,    37,    39,    41,
-      28,    29,    30,    38,    38,    28,    28,    38,    28,    24,
-      27,    12,     0,    11,    43,    11,    42,     5,     5,    38,
-      38,    14,    15,    17,    33,    38,    11,    28,    28,    25,
-      38,    38,    38,    13,    14,    15,    16,    18,    19,    20,
-      21,    24,    38,    38,    38,    38,    38,    38,    38,    38,
-      38,    25
+       0,    41,     0,     3,     4,     5,     6,     7,     8,     9,
+      10,    11,    16,    29,    33,    35,    36,    37,    38,    40,
+      42,    29,    30,    31,    39,    39,    29,    29,    39,    39,
+      39,    29,    25,    28,    13,     0,    12,    44,    12,    43,
+       5,     5,    39,    39,    15,    16,    18,    34,    39,    12,
+      29,    29,    26,    39,    39,    39,    14,    15,    16,    17,
+      19,    20,    21,    22,    25,    39,    39,    39,    39,    39,
+      39,    39,    39,    39,    26
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    31,    40,    40,    41,    41,    42,    42,    43,    43,
-      43,    34,    34,    34,    34,    34,    34,    34,    34,    37,
-      35,    35,    36,    32,    32,    32,    39,    33,    33,    33,
-      33,    33,    33,    33,    33,    33,    33,    33,    33,    33,
-      38,    38,    38
+       0,    32,    41,    41,    42,    42,    43,    43,    44,    44,
+      44,    35,    35,    35,    35,    35,    35,    35,    35,    35,
+      38,    36,    36,    37,    33,    33,    33,    40,    34,    34,
+      34,    34,    34,    34,    34,    34,    34,    34,    34,    34,
+      34,    39,    39,    39
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     0,     2,     2,     2,     0,     1,     1,     1,
-       2,     1,     1,     1,     1,     2,     3,     1,     1,     3,
-       4,     4,     2,     1,     2,     4,     2,     1,     2,     2,
-       2,     4,     3,     3,     3,     3,     3,     3,     3,     3,
-       1,     1,     1
+       2,     1,     1,     1,     1,     2,     3,     1,     2,     2,
+       3,     4,     4,     2,     1,     2,     4,     2,     1,     2,
+       2,     2,     4,     3,     3,     3,     3,     3,     3,     3,
+       3,     1,     1,     1
   };
 
 
@@ -1440,11 +1448,11 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    78,    78,    79,    84,    85,    87,    87,    88,    88,
-      88,    92,    93,    94,    95,    96,    97,    98,    99,   102,
-     105,   107,   111,   117,   118,   119,   122,   127,   128,   129,
-     130,   131,   132,   133,   134,   135,   136,   137,   138,   139,
-     143,   144,   145
+       0,    79,    79,    80,    85,    86,    88,    88,    89,    89,
+      89,    93,    94,    95,    96,    97,    98,    99,   100,   101,
+     104,   107,   109,   113,   119,   120,   121,   124,   129,   130,
+     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
+     141,   145,   146,   147
   };
 
   void
@@ -1476,9 +1484,9 @@ namespace yy {
 
 
 } // yy
-#line 1480 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
+#line 1488 "D:/programming/c/tac_parser/cmake-build-debug/parser.cpp"
 
-#line 149 "D:/programming/c/tac_parser/grammar/parser.y"
+#line 151 "D:/programming/c/tac_parser/grammar/parser.y"
 
 
 void yy::parser::error(const location_type& l, const std::string& m) {

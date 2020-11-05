@@ -1,36 +1,50 @@
-B0:
-    i = 1
-    a = 0
-    b = a * 2
-    c = 0
-    d = 0
-B1:
-    a = 0
-    c = 0
-    $t1 = a < c
-    if $t1 goto B5
-B2:
-    b = 0
-    c = 0
-    d = 0
-B3:
-    y = a + b
-    z = c + d
-    i = i + 1
-    $t2 = i < 100
-    if $t2 goto B1
-B4:
-    return
-B5:
-    a = 0
-    d = 0
-    $t3 = a < d
-    if $t3 goto B8
-B6:
-    d = 0
-B7:
-    b = 0
-    goto B3
-B8:
-    c = 0
-    goto B7
+ B0.0:
+     i = 1
+     a = 0
+     b = a * 2
+     c = 0
+     d = 0
+ B1:
+     a = 0
+     c = 0
+     $t1 = a < c
+     if $t1 goto B5
+ B2:
+     b = 0
+     c = 0
+     d = 0
+ B3:
+     y = a + b
+     z = c + d
+     i = i + 1
+     $t2 = i < 100
+     if $t2 goto B1
+ B4:
+     print i
+     return i
+ B5:
+     a = 0
+     d = 0
+     $t3 = a < d
+     if $t3 goto B8
+ B6:
+     d = 0
+ B7:
+     b = 0
+     goto B3
+ B8:
+     c = 0
+     goto B7
+
+
+//B0:
+//    d = 0
+//    a = 0
+//B2:
+//    a = 2
+//    i = a
+//    i = i + 1
+//    $t1 = d < i
+//B3:
+//    print 5
+//    return 4

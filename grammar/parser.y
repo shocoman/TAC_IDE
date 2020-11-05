@@ -34,6 +34,7 @@
     PARAM   "param"
     NOP     "nop"
     RETURN  "return"
+    PRINT   "print"
     NEWLINE "newline"
 
     ASSIGN  "="
@@ -96,7 +97,8 @@ quadruple:
 |   "param" term                    { $$ = Quad($term, {}, Quad::Type::Param); };
 |   "call"  "identifier"[id] term   { $$ = Quad($id, $term, Quad::Type::Call); };
 |   "nop"                           { $$ = Quad({}, {}, Quad::Type::Nop); };
-|   "return"                        { $$ = Quad({}, {}, Quad::Type::Return); };
+|   "return" term                   { $$ = Quad($term, {}, Quad::Type::Return); };
+|   "print"  term                   { $$ = Quad($term, {}, Quad::Type::Print); };
 ;
 
 assignment: dest "=" value { $value.dest = $dest; $$ = $value; };

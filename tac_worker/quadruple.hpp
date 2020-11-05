@@ -122,6 +122,7 @@ struct Quad {
         Assign, Deref, Ref, ArrayGet,
         IfTrue, IfFalse, Goto, Halt, Call, Param, Return,
         PhiNode,
+        Print,
     };
 
     std::optional<Dest> dest{};
@@ -149,9 +150,14 @@ struct Quad {
         return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
     }
 
-    static bool is_foldable(Type t) {
-        return !(t == Type::Goto || t == Type::Return || t == Type::Assign || t == Type::PhiNode);
+    static bool is_critical(Type t) {
+        return t == Type::Print || t == Type::Return;
     }
+
+    static bool is_foldable(Type t) {
+        return !(t == Type::Goto || t == Type::Print || t == Type::Return || t == Type::Assign || t == Type::PhiNode);
+    }
+
 
     std::vector<std::string> get_used_vars() const {
         auto used_vars = get_rhs();
@@ -209,7 +215,7 @@ struct Quad {
     friend std::ostream &operator<<(std::ostream &os, const Quad &quad) {
         const char *type_names[] = {"Nop", "Add", "Sub", "Mult", "Div", "UMinus", "Lt", "Gt", "Eq", "Neq", "Assign",
                                     "Deref", "Ref", "ArrayGet", "IfTrue", "IfFalse", "Goto", "Halt", "Call", "Param",
-                                    "Return", "PhiNode"};
+                                    "Return", "PhiNode", "Print"};
         if (quad.dest.has_value()) os << "dest: { " << quad.dest.value() << "}" << "; ";
         if (quad.get_op(0)->type != Operand::Type::None)
             os << "op1: " << quad.get_op(0)->get_string() << "; ";
@@ -284,11 +290,13 @@ struct Quad {
             case Type::Nop:
                 return "nop";
             case Type::Return:
-                return "return";
+                return "return " + get_op(0)->get_string();
+            case Type::Print:
+                return "print " + get_op(0)->get_string();
             case Type::PhiNode:
                 std::string output;
-                for (auto &op : ops)
-                    output += op.value + " ";
+                for (auto &o : ops)
+                    output += o.value + " ";
                 return destination.value() + " = phi ( " + output + ")";
         }
 

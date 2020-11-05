@@ -52,19 +52,19 @@
 //    y = a + b
 //    z = c + d
 
-// B0:
-//     i = 1
-// B1:
-//     if i goto B3
-// B2:
-//     s = 0
-// B3:
-//     s = s + i
-//     i = i + 1
-//     if i goto B1
-// B4:
-//     PRINT = s
-//
+B0:
+    i = 1
+B1:
+    if i goto B3
+B2:
+    s = 0
+B3:
+    s = s + i
+    i = i + 1
+    if i goto B1
+B4:
+    PRINT = s
+
 
 // B0:
 //     i=i

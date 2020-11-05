@@ -17,7 +17,7 @@
 %}
 
 
-id  [a-zA-Z$_][a-zA-Z_0-9]*
+id  [a-zA-Z$_][a-zA-Z_.0-9]*
 int [0-9]+
 float {int}\.{int}?
 blank [ \t\r]
@@ -94,6 +94,7 @@ yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::
             {"call", yy::parser::make_CALL },
             {"nop", yy::parser::make_NOP },
             {"return", yy::parser::make_RETURN },
+            {"print", yy::parser::make_PRINT },
     };
 
     if (auto f = keywords.find(s); f != keywords.end()) return f->second(loc);
