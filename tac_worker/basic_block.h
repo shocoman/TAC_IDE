@@ -48,10 +48,15 @@ struct BasicBlock {
     }
 
     void remove_successors() {
-        for (auto &s: successors) {
+        for (auto &s: successors)
             s->predecessors.erase(this);
-        }
-        successors.erase(successors.begin(), successors.end());
+        successors.clear();
+    }
+
+    void remove_predecessors() {
+        for (auto &s: predecessors)
+            s->successors.erase(this);
+        predecessors.clear();
     }
 
     bool allows_fallthrough() {
