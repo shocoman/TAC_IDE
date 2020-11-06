@@ -1,1 +1,0 @@
- D:/programming/mingwW64/mingw64/lib/gvc.lib D:/programming/mingwW64/mingw64/lib/cdt.lib D:/programming/mingwW64/mingw64/lib/cgraph.lib D:/programming/mingwW64/mingw64/lib/pathplan.lib -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

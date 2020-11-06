@@ -1,4 +1,0 @@
-"C:\Program Files\JetBrains\CLion 2020.1.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage -G "CodeBlocks - MinGW Makefiles" D:\programming\c\tac_parser
--- Configuring done
--- Generating done
--- Build files have been written to: D:/programming/c/tac_parser/cmake-build-debug-coverage

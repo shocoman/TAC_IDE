@@ -1,3 +1,0 @@
-D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/tac_parser.dir
-D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/programming/c/tac_parser/cmake-build-debug/CMakeFiles/rebuild_cache.dir
