@@ -1,3 +1,3 @@
 "C:\Program Files\JetBrains\CLion 2020.1.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\tac_parser.dir/objects.a
 D:\programming\mingwW64\mingw64\bin\ar.exe cr CMakeFiles\tac_parser.dir/objects.a @CMakeFiles\tac_parser.dir\objects1.rsp
-D:\programming\mingwW64\mingw64\bin\g++.exe --coverage -g   -Wl,--whole-archive CMakeFiles\tac_parser.dir/objects.a -Wl,--no-whole-archive  -o tac_parser.exe -Wl,--out-implib,libtac_parser.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\tac_parser.dir\linklibs.rsp
+D:\programming\mingwW64\mingw64\bin\g++.exe --coverage -O   -Wl,--whole-archive CMakeFiles\tac_parser.dir/objects.a -Wl,--no-whole-archive  -o tac_parser.exe -Wl,--out-implib,libtac_parser.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\tac_parser.dir\linklibs.rsp

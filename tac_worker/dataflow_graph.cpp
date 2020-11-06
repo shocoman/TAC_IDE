@@ -277,8 +277,10 @@ void print_blocks(const BasicBlocks &blocks) {
     for (auto &n : blocks) {
         std::cout << "\tBasicBlock: " << n->node_name << "; "
                   << n->lbl_name.value_or("NONE")
-                  << "; Jumps to " << n->jumps_to.value_or("NONE") << "; Successors: " << n->successors.size()
-                  << " \n" << n->fmt() << std::endl;
+                  << "; Jumps to " << n->jumps_to.value_or("NONE")
+                  << "; Successors: " << n->successors.size()
+                  << "; Predecessors: " << n->predecessors.size()
+                  << " \n" << n->fmt();
     }
 }
 
@@ -1013,29 +1015,28 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
 
 
     // Sweep Pass (remove not critical quads/operations)
-//    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
-//        auto &b = blocks[b_index];
-//        for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
-//            auto &q = b->quads[q_index];
-//
-//            Place place{b_index, q_index};
-//            if (!using_info.at(place).critical) {
-//                if (q.is_jump()) {
-//                    if (!using_info.at(place).critical) {
-//                        auto closest_post_dominator = id_to_block.at(id_to_idom.at(b->id));
-//                        q.type = Quad::Type::Goto;
-//                        q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
-//                        b->remove_successors();
-//                        b->add_successor(closest_post_dominator);
-//                    }
-//                } else {
-//                    b->quads.erase(b->quads.begin() + q_index);
-//                }
-//            }
-//        }
-//    }
+    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
+        auto &b = blocks[b_index];
+        for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
+            auto &q = b->quads[q_index];
 
-//    print_cfg(blocks, "before_unreachable_remove.png");
+            Place place{b_index, q_index};
+            if (!using_info.at(place).critical) {
+                if (q.is_jump()) {
+                    if (!using_info.at(place).critical) {
+                        auto closest_post_dominator = id_to_block.at(id_to_idom.at(b->id));
+                        q.type = Quad::Type::Goto;
+                        q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
+                        b->remove_successors();
+                        b->add_successor(closest_post_dominator);
+                    }
+                } else {
+                    b->quads.erase(b->quads.begin() + q_index);
+                }
+            }
+        }
+    }
+
 
     // Mark unreachable blocks
     auto root = find_root_node(blocks);
@@ -1048,17 +1049,17 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
     reachable_walker(root);
 
     // Remove unreachable blocks
-//    for (int i = blocks.size() - 1; i >= 0; --i) {
-//        auto &b = blocks[i];
-//        if (reachable_ids.find(b->id) == reachable_ids.end()) {
-//            b->node_name += " (REMOVE) ";
-//
-//            b->remove_successors();
-//            b->remove_predecessors();
-//            id_to_block.erase(b->id);
-//            blocks.erase(blocks.begin() + i);
-//        }
-//    }
+    for (int i = blocks.size() - 1; i >= 0; --i) {
+        auto &b = blocks[i];
+        if (reachable_ids.find(b->id) == reachable_ids.end()) {
+            b->node_name += " (REMOVE) ";
+
+            b->remove_successors();
+            b->remove_predecessors();
+            id_to_block.erase(b->id);
+            blocks.erase(blocks.begin() + i);
+        }
+    }
 
     print_cfg(blocks, "before_clean.png");
 
@@ -1069,8 +1070,7 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
-        if (changed) break;
-
+//            if (changed) break;
 
             auto block_it = id_to_block.find(id);
             if (block_it == id_to_block.end()) continue;
@@ -1087,56 +1087,53 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
                 auto succ = *b->successors.begin();
 
                 // remove empty block (has only 1 successor with goto)
-                if (b->quads.size() == 1) {
+                if (b->quads.size() == 1 && b->quads.back().is_jump()) {
                     for (auto &pred : b->predecessors) {
                         // replace successor to the predecessors
                         pred->successors.erase(b);
-                        pred->successors.insert(succ);
-
+                        pred->add_successor(succ);
                         // correct jump operation
                         auto &jump = pred->quads.back();
                         if (jump.dest->name == b->lbl_name.value())
                             jump.dest->name = succ->lbl_name.value();
                     }
-
-//                    id_to_block.erase(b->id);
-//                    std::remove_if(blocks.begin(), blocks.end(), [&](std::unique_ptr<BasicBlock> &block){
-//                        return block->id == b->id;
-//                    });
+                    b->remove_successors();
+                    b->remove_predecessors();
                     block_ids_to_remove.insert(id);
                     changed = true;
                 }
 
-                // combine two blocks into one
-                 else if (succ->predecessors.size() == 1) {
+                    // combine two blocks into one
+                else if (succ->predecessors.size() == 1) {
                     // remove last jump
                     b->quads.pop_back();
                     // copy operations
                     b->quads.insert(b->quads.end(), succ->quads.begin(), succ->quads.end());
                     // copy successors
                     b->remove_successors();
-                    b->successors.insert(succ->successors.begin(), succ->successors.end());
+                    for (auto &s : succ->successors) {
+                        s->predecessors.erase(succ);
+                        b->add_successor(s);
+                    }
                     // remove successor
-//                    id_to_block.erase(succ->id);
-//                    std::remove_if(blocks.begin(), blocks.end(), [&](std::unique_ptr<BasicBlock> &block){
-//                        return block->id == succ->id;
-//                    });
                     block_ids_to_remove.insert(succ->id);
                     changed = true;
                 }
 
-                // if successor is empty and ends with conditional branch
-                // copy branch from successor
-                 else if (succ->quads.size() == 1 && succ->quads.back().is_conditional_jump()) {
+                    // hoist a branch
+                    // if successor is empty and ends with conditional branch
+                    // copy branch from it
+                else if (succ->quads.size() == 1 && succ->quads.back().is_conditional_jump()) {
                     b->quads.back() = succ->quads.back();
                     b->remove_successors();
-                    b->successors.insert(succ->successors.begin(), succ->successors.end());
+                    for (auto &s : succ->successors) b->add_successor(s);
                     changed = true;
                 }
             }
 
         }
 
+        // erase removed blocks
         for (int i = blocks.size() - 1; i >= 0; --i) {
             auto &b = blocks[i];
             if (block_ids_to_remove.find(b->id) != block_ids_to_remove.end()) {
@@ -1146,7 +1143,6 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
                 blocks.erase(blocks.begin() + i);
             }
         }
-
     };
 
     int iter = 0;
@@ -1160,7 +1156,7 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
         one_pass(postorder_to_id);
     }
 
-//    print_cfg(blocks, "after_clean.png");
+    print_blocks(blocks);
 
 }
 
@@ -1211,7 +1207,7 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 
 
 //    convert_to_ssa(blocks, id_to_block);
-    print_cfg(blocks, "before.png");
+//    print_cfg(blocks, "before.png");
 //    sparse_simple_constant_propagation(blocks);
 //    remove_phi_functions(blocks, id_to_block, 0);
 
@@ -1229,7 +1225,7 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //    }
 
 //    convert_to_ssa(blocks, id_to_block);
-//        sparse_simple_constant_propagation(blocks);
+//    sparse_simple_constant_propagation(blocks);
 
 
     useless_code_elimination(blocks, id_to_block, revDF, id_to_rev_idom);

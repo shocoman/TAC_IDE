@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 project(tac_parser CXX)
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_BUILD_TYPE RELEASE)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-O")
 #set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
 # My Program
