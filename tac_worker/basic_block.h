@@ -11,8 +11,12 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <memory>
 
 #include "quadruple.hpp"
+
+
+
 
 struct BasicBlock {
     int id;
@@ -95,5 +99,11 @@ struct BasicBlock {
     }
 };
 
+
+using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;
+using ID2Block = std::map<int, BasicBlock *>;
+using ID2IDOM = std::map<int, int>; // id to immediate dominator
+using ID2DOM = std::map<int, std::set<int>>; // id to dominators
+using ID2DF = std::map<int, std::set<int>>; // id to dominance frontier
 
 #endif //TAC_PARSER_BASIC_BLOCK_H

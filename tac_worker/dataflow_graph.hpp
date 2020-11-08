@@ -12,6 +12,7 @@
 #include "../DotWriter/DotWriter.h"
 #include "../tac_worker/LoopFinder.cpp"
 #include "../tac_worker/local_value_numbering.h"
+#include "basic_block.h"
 
 
 

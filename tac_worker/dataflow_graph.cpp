@@ -5,11 +5,7 @@
 #include <numeric>
 #include "dataflow_graph.hpp"
 
-using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;
-using ID2Block = std::map<int, BasicBlock *>;
-using ID2IDOM = std::map<int, int>; // id to immediate dominator
-using ID2DOM = std::map<int, std::set<int>>; // id to dominators
-using ID2DF = std::map<int, std::set<int>>; // id to dominance frontier
+
 
 void constant_folding(BasicBlocks &nodes);
 
@@ -1232,6 +1228,9 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 
     // find_immediate_dominators(blocks, id_to_block);
     // print_dominator_tree(id_to_block, 0, id_to_idom);
+
+    ID2IDOM id_to_idom = find_immediate_dominators(blocks, id_to_block);
+    dominator_based_value_numbering(blocks, id_to_block, id_to_idom);
 
 
     print_cfg(blocks, "after.png");

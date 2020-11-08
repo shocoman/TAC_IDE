@@ -113,6 +113,13 @@ struct Operand {
             return value == rhs.value;
     }
 
+    bool operator<(const Operand &rhs) const {
+        if (is_number() && rhs.is_number())
+            return get_double() < rhs.get_double();
+        else
+            return value < rhs.value;
+    }
+
 };
 
 struct Quad {

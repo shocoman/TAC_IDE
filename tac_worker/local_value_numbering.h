@@ -17,7 +17,7 @@
 using OpRecord = std::tuple<Quad::Type, std::vector<int>>;
 struct ValueNumberTable {
     std::map<std::string, int> value_numbers;
-    std::map<int, std::string> value_numbers_to_names;
+    std::map<int, std::string> value_number_to_name;
     std::map<OpRecord, int> operations;
 };
 
@@ -31,7 +31,7 @@ struct ValueNumberTableStack {
     }
 
     void set_name_for_value(int value, std::string name) {
-        tables.back().value_numbers_to_names[value] = name;
+        tables.back().value_number_to_name[value] = name;
     }
 
     void set_operation_value(OpRecord op, int value) {
@@ -49,7 +49,7 @@ struct ValueNumberTableStack {
 
     std::optional<std::string> get_name_by_value_number(int value) {
         for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
-            if (auto n = it->value_numbers_to_names.find(value); n != it->value_numbers_to_names.end()) {
+            if (auto n = it->value_number_to_name.find(value); n != it->value_number_to_name.end()) {
                 return n->second;
             }
         }
@@ -79,7 +79,6 @@ static void constant_folding(Quad &n) {
     if (n.type == Quad::Type::UMinus) {
         n.ops[0] = Operand("-" + n.ops[0].value, n.ops[0].type);
         n.type = Quad::Type::Assign;
-        return;
     }
     if (n.ops.size() <= 1) return;
 
@@ -200,7 +199,7 @@ static void constant_folding(Quad &n) {
 
 static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
 //    std::map<std::string, int> value_numbers;
-//    std::map<int, std::string> value_numbers_to_names;
+//    std::map<int, std::string> value_number_to_name;
 //    std::map<OpRecord, int> operations;
 //    quads.clear();
 //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("a", {}, Dest::Type::Var)));
@@ -237,13 +236,6 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
                     t.current_number++;
             }
             operand_values.push_back(t.get_value_number_by_name(op).value());
-//            if (value_numbers.find(op) == value_numbers.end()) {
-//                value_numbers[op] = current_number;
-//                value_numbers_to_names[current_number] = op;
-//                if (q.type != Quad::Type::Assign)
-//                    current_number++;
-//            }
-//            operand_values.push_back(value_numbers.at(op));
         }
 
         if (Quad::is_commutative(q.type))
@@ -272,20 +264,6 @@ static void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStac
         t.set_value_number_for_name(q.dest.value().name, op_value);
 
         std::cout << q.fmt() << std::endl;
-//        auto op = operations.find(op_hash_key);
-//        if (op != operations.end() && op->second == value_numbers.at(value_numbers_to_names.at(op->second))) {
-//            op_value = op->second;
-//
-//            q.type = Quad::Type::Assign;
-//            q.get_op(0) = Operand(value_numbers_to_names.at(op_value));
-//            q.clear_op(1);
-//        } else {
-//            operations[op_hash_key] = current_number;
-//            op_value = current_number;
-//            value_numbers_to_names[current_number] = q.dest.value().name;
-//            current_number++;
-//        }
-//        value_numbers[q.dest.value().name] = op_value;
     }
     std::cout << std::endl;
 }
@@ -297,7 +275,6 @@ static void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> 
 
     using SVNFuncType = std::function<void(BasicBlock *, ValueNumberTableStack &)>;
     SVNFuncType SVN = [&](BasicBlock *b, ValueNumberTableStack &t) {
-        std::cout << " LOL " << std::endl;
         t.push_table();
         local_value_numbering(b->quads, t);
 
@@ -319,6 +296,175 @@ static void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> 
         work_list.pop_back();
         SVN(b, t);
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+using DOpRecord = std::tuple<Quad::Type, std::vector<std::string>>;
+struct DValueNumberTable {
+    std::map<std::string, std::string> value_numbers;
+    std::map<std::string, std::string> value_number_to_name;
+    std::map<DOpRecord, std::string> operations;
+    std::map<std::set<Operand>, std::string> phi_nodes;
+};
+
+
+struct DValueNumberTableStack {
+    std::vector<DValueNumberTable> tables;
+
+    void set_value_number_for_name(std::string name, std::string value) {
+        tables.back().value_numbers[name] = value;
+    }
+
+    void set_name_for_value(std::string value, std::string name) {
+        tables.back().value_number_to_name[value] = name;
+    }
+
+    void set_operation_value(DOpRecord op, std::string value) {
+        tables.back().operations[op] = value;
+    }
+
+    std::optional<std::string> get_value_number_by_name(const std::string &name) {
+        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
+            if (auto v = it->value_numbers.find(name); v != it->value_numbers.end()) {
+                return v->second;
+            }
+        }
+        return {};
+    }
+
+    std::optional<std::string> get_name_by_value_number(std::string value) {
+        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
+            if (auto n = it->value_number_to_name.find(value); n != it->value_number_to_name.end()) {
+                return n->second;
+            }
+        }
+        return {};
+    }
+
+    std::optional<std::string> get_value_number_by_operation(const DOpRecord &op) {
+        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
+            if (auto v = it->operations.find(op); v != it->operations.end()) {
+                return v->second;
+            }
+        }
+        return {};
+    }
+
+
+    void set_phi_node_for_value(std::set<Operand> &ops, const std::string &name) {
+        tables.back().phi_nodes[ops] = name;
+    }
+
+    std::optional<std::string> get_phi_node_by_operation(std::set<Operand> &ops) {
+        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
+            if (auto v = it->phi_nodes.find(ops); v != it->phi_nodes.end()) {
+                return v->second;
+            }
+        }
+        return {};
+    }
+
+    void push_table() {
+        tables.emplace_back();
+    }
+
+    void pop_table() {
+        tables.pop_back();
+    }
+};
+
+
+
+
+static void dominator_based_value_numbering(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id_to_idom) {
+
+    std::set<int> visited_blocks;
+
+    using DVNTFuncType = std::function<void(BasicBlock *, DValueNumberTableStack &)>;
+    DVNTFuncType dvnt = [&](BasicBlock *b, DValueNumberTableStack &t) {
+        t.push_table();
+
+        // process phi functions
+        for (int i = 0; i < b->phi_functions; ++i) {
+            auto &phi = b->quads[i];
+
+            std::set<Operand> ops_set(phi.ops.begin(), phi.ops.end());
+            // is meaningless (all operands are equal)
+            if (std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin())) {
+                t.set_value_number_for_name(phi.dest->name, phi.ops[0].value);
+                b->quads.erase(b->quads.begin() + i);
+                --b->phi_functions;
+                --i;
+            }
+            // is redundant (same as previous phi functions)
+            else if (auto v = t.get_phi_node_by_operation(ops_set); v.has_value()) {
+                t.set_value_number_for_name(phi.dest->name, v.value());
+                b->quads.erase(b->quads.begin() + i);
+                --b->phi_functions;
+                --i;
+            } else {
+                t.set_value_number_for_name(phi.dest->name, phi.dest->name);
+                t.set_phi_node_for_value(ops_set, phi.dest->name);
+            }
+        }
+
+        // work through each assignment 'x = y op z'
+        for (int i = b->phi_functions; i < b->quads.size(); ++i) {
+            auto &q = b->quads[i];
+            if (q.is_jump()) continue;
+
+            if (Quad::is_foldable(q.type)) {
+                constant_folding(q);
+            }
+
+            std::vector<std::string> expr;
+            for (auto &op : q.ops) {
+                if (auto v = t.get_value_number_by_name(op.value); v.has_value()) {
+                    op = Operand(v.value());
+                } else {
+                    t.set_value_number_for_name(op.value, op.value);
+                }
+                expr.push_back(op.value);
+            }
+
+            if (Quad::is_commutative(q.type))
+                std::sort(expr.begin(), expr.end());
+            auto op_hash_key = std::tuple{q.type, expr};
+            if (auto v = t.get_value_number_by_operation(op_hash_key); v.has_value()) {
+                t.set_value_number_for_name(q.dest->name, v.value());
+                b->quads.erase(b->quads.begin() + i);
+                --i;
+            } else {
+                t.set_value_number_for_name(q.dest->name, q.dest->name);
+                t.set_operation_value(op_hash_key, q.dest->name);
+            }
+        }
+
+
+
+
+
+        // call for each child in dominator tree
+        for (auto &[child_id, parent_id] : id_to_idom)
+            if (b->id == parent_id)
+                dvnt(id_to_block.at(child_id), t);
+
+        t.pop_table();
+    };
+
+    // assume first block in blocks is entry
+    auto b = blocks.front().get();
+    DValueNumberTableStack t;
+    dvnt(b, t);
 
 }
 
