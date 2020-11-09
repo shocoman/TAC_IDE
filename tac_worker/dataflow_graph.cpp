@@ -695,23 +695,23 @@ void convert_to_ssa(BasicBlocks &blocks, ID2Block &id_to_block) {
     ID2IDOM id_to_immediate_dominator = find_immediate_dominators(blocks, id_to_block);
     ID2DF id_to_dominance_frontier = find_dominance_frontier(blocks, id_to_immediate_dominator);
 
-    std::cout << "-- PRINT --" << std::endl;
-    for (auto &[id, doms] : id_to_dominators) {
-        std::cout << id << "(" << id_to_block.at(id)->node_name << "): ";
-        for (auto &d : doms) {
-            std::cout << d << ", ";
-        }
-        if (id_to_immediate_dominator.find(id) != id_to_immediate_dominator.end())
-            std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
-
-        std::cout << "; DomFrontier: ";
-        for (auto &df : id_to_dominance_frontier.at(id)) {
-            std::cout << id_to_block.at(df)->get_name() << ", ";
-        }
-
-        std::cout << std::endl;
-    }
-    std::cout << "-- END_PRINT --" << std::endl;
+//    std::cout << "-- PRINT --" << std::endl;
+//    for (auto &[id, doms] : id_to_dominators) {
+//        std::cout << id << "(" << id_to_block.at(id)->node_name << "): ";
+//        for (auto &d : doms) {
+//            std::cout << d << ", ";
+//        }
+//        if (id_to_immediate_dominator.find(id) != id_to_immediate_dominator.end())
+//            std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
+//
+//        std::cout << "; DomFrontier: ";
+//        for (auto &df : id_to_dominance_frontier.at(id)) {
+//            std::cout << id_to_block.at(df)->get_name() << ", ";
+//        }
+//
+//        std::cout << std::endl;
+//    }
+//    std::cout << "-- END_PRINT --" << std::endl;
 
 
     // find global names
@@ -1220,18 +1220,20 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
 //        std::cout << std::endl;
 //    }
 
-//    convert_to_ssa(blocks, id_to_block);
+    convert_to_ssa(blocks, id_to_block);
 //    sparse_simple_constant_propagation(blocks);
 
 
-    useless_code_elimination(blocks, id_to_block, revDF, id_to_rev_idom);
+//    useless_code_elimination(blocks, id_to_block, revDF, id_to_rev_idom);
 
     // find_immediate_dominators(blocks, id_to_block);
-    // print_dominator_tree(id_to_block, 0, id_to_idom);
+//    print_dominator_tree(id_to_block, 0, id_to_idom);
+
+    print_cfg(blocks, "before.png");
 
     ID2IDOM id_to_idom = find_immediate_dominators(blocks, id_to_block);
-    dominator_based_value_numbering(blocks, id_to_block, id_to_idom);
 
+    dominator_based_value_numbering(blocks, id_to_block, id_to_idom);
 
     print_cfg(blocks, "after.png");
 }

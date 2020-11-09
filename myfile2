@@ -18,7 +18,7 @@
      z = c + d
      i = i + 1
      $t2 = i < 100
-     if $t2 goto B1
+     //if $t2 goto B1
  B4:
      print i
      return i
@@ -112,3 +112,26 @@
 // B5:
 //     a6 = a + 2
 //     return a6
+
+// DBVN test
+//B0:
+//    z = 2 + 3
+//    a = 4
+//    b = 4
+//    c = 4
+//    f = 2 + 3
+//    if b goto B2
+//B1:
+//    b = a + 3
+//    f = a + 3
+//    c = 2
+//    goto B3
+//B2:
+//    d = b + c
+//    d = d + 1
+//    goto B4
+//B3:
+//    z = 3
+//B4:
+//    print 1
+//    return f

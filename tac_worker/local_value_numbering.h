@@ -300,12 +300,9 @@ static void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> 
 
 
 
-
-
-
-
-
-
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 
 using DOpRecord = std::tuple<Quad::Type, std::vector<std::string>>;
@@ -319,6 +316,8 @@ struct DValueNumberTable {
 
 struct DValueNumberTableStack {
     std::vector<DValueNumberTable> tables;
+    std::map<std::set<Operand>, std::string> phi_nodes;
+
 
     void set_value_number_for_name(std::string name, std::string value) {
         tables.back().value_numbers[name] = value;
@@ -361,15 +360,21 @@ struct DValueNumberTableStack {
 
 
     void set_phi_node_for_value(std::set<Operand> &ops, const std::string &name) {
-        tables.back().phi_nodes[ops] = name;
+//        tables.back().phi_nodes[ops] = name;
+        phi_nodes[ops] = name;
     }
 
     std::optional<std::string> get_phi_node_by_operation(std::set<Operand> &ops) {
-        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
-            if (auto v = it->phi_nodes.find(ops); v != it->phi_nodes.end()) {
-                return v->second;
-            }
+//        for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
+//            if (auto v = it->phi_nodes.find(ops); v != it->phi_nodes.end()) {
+//                return v->second;
+//            }
+//        }
+
+        if (auto v = phi_nodes.find(ops); v != phi_nodes.end()) {
+            return v->second;
         }
+
         return {};
     }
 
@@ -383,30 +388,31 @@ struct DValueNumberTableStack {
 };
 
 
-
-
 static void dominator_based_value_numbering(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id_to_idom) {
 
-    std::set<int> visited_blocks;
 
     using DVNTFuncType = std::function<void(BasicBlock *, DValueNumberTableStack &)>;
     DVNTFuncType dvnt = [&](BasicBlock *b, DValueNumberTableStack &t) {
         t.push_table();
 
-        // process phi functions
+        // process every phi function
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
+//            std::cout << b->node_name << ": " << phi.fmt() << std::endl;
 
             std::set<Operand> ops_set(phi.ops.begin(), phi.ops.end());
-            // is meaningless (all operands are equal)
+            // phi is meaningless (all operands are equal)
             if (std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin())) {
+                std::cout << "Phi is meaningless" << std::endl;
                 t.set_value_number_for_name(phi.dest->name, phi.ops[0].value);
                 b->quads.erase(b->quads.begin() + i);
                 --b->phi_functions;
                 --i;
             }
-            // is redundant (same as previous phi functions)
+                // or phi is redundant (same as one of the previous phi functions)
             else if (auto v = t.get_phi_node_by_operation(ops_set); v.has_value()) {
+                std::cout << "Phi is redundant" << std::endl;
+
                 t.set_value_number_for_name(phi.dest->name, v.value());
                 b->quads.erase(b->quads.begin() + i);
                 --b->phi_functions;
@@ -417,7 +423,8 @@ static void dominator_based_value_numbering(BasicBlocks &blocks, ID2Block &id_to
             }
         }
 
-        // work through each assignment 'x = y op z'
+
+        // work through each assignment of the form 'x = y op z'
         for (int i = b->phi_functions; i < b->quads.size(); ++i) {
             auto &q = b->quads[i];
             if (q.is_jump()) continue;
@@ -426,31 +433,47 @@ static void dominator_based_value_numbering(BasicBlocks &blocks, ID2Block &id_to
                 constant_folding(q);
             }
 
-            std::vector<std::string> expr;
+            // overwrite 'x' and 'y' with saved value number
             for (auto &op : q.ops) {
-                if (auto v = t.get_value_number_by_name(op.value); v.has_value()) {
+                if (auto v = t.get_value_number_by_name(op.value); v.has_value())
                     op = Operand(v.value());
-                } else {
-                    t.set_value_number_for_name(op.value, op.value);
+                else {
+                    // for literals?
+                    // std::cout << "PANIC!!!" << std::endl;
+                    // t.set_value_number_for_name(op.value, op.value);
                 }
-                expr.push_back(op.value);
             }
 
+            std::vector<std::string> expr;
+            for (auto &op : q.ops) expr.push_back(op.value);
             if (Quad::is_commutative(q.type))
                 std::sort(expr.begin(), expr.end());
             auto op_hash_key = std::tuple{q.type, expr};
-            if (auto v = t.get_value_number_by_operation(op_hash_key); v.has_value()) {
+
+            if (auto v = t.get_value_number_by_operation(op_hash_key); v.has_value() && q.dest.has_value()) {
                 t.set_value_number_for_name(q.dest->name, v.value());
                 b->quads.erase(b->quads.begin() + i);
                 --i;
-            } else {
+            } else if (q.dest.has_value()) {
                 t.set_value_number_for_name(q.dest->name, q.dest->name);
                 t.set_operation_value(op_hash_key, q.dest->name);
             }
         }
 
 
-
+        // update phi functions for each successor
+        for (auto succ : b->successors) {
+            for (int i = 0; i < succ->phi_functions; ++i) {
+                auto &phi = succ->quads[i];
+                for (auto &op : phi.ops) {
+                    if (auto v = t.get_value_number_by_name(op.value); v.has_value()) {
+                        int tmp = op.predecessor_id;
+                        op = Operand(v.value());
+                        op.predecessor_id = tmp;
+                    }
+                }
+            }
+        }
 
 
         // call for each child in dominator tree
@@ -461,7 +484,7 @@ static void dominator_based_value_numbering(BasicBlocks &blocks, ID2Block &id_to
         t.pop_table();
     };
 
-    // assume first block in blocks is entry
+    // assume first block is entry
     auto b = blocks.front().get();
     DValueNumberTableStack t;
     dvnt(b, t);
