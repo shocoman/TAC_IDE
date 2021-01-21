@@ -16,8 +16,6 @@
 #include "quadruple.hpp"
 
 
-
-
 struct BasicBlock {
     int id;
     std::string node_name;
@@ -27,11 +25,8 @@ struct BasicBlock {
     std::set<BasicBlock *> successors;
     std::set<BasicBlock *> predecessors;
 
-//    std::map<std::string, Quad> phi_functions;
     int phi_functions = 0;
-
-
-    std::string get_name() {
+    std::string get_name() const {
         return "BB " + std::to_string(id);
     }
 
@@ -66,14 +61,11 @@ struct BasicBlock {
 
 
     bool has_phi_function(std::string name) {
-
         for (int i = 0; i < phi_functions; ++i) {
             if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
                 return true;
         }
         return false;
-
-//        return phi_functions.find(name) != phi_functions.end();
     }
 
     Quad& get_phi_function(std::string name) {
@@ -84,18 +76,15 @@ struct BasicBlock {
     }
 
     void add_phi_function(std::string lname, const std::vector<std::string>& rnames) {
-
         Quad phi({}, {}, Quad::Type::PhiNode, Dest(lname, {}, Dest::Type::Var));
         std::vector<Operand> ops;
         for (auto &n : rnames) {
             ops.emplace_back(n);
         }
         phi.ops = ops;
-//        phi_functions[lname] = phi;
 
         quads.insert(quads.begin() + phi_functions, phi);
         phi_functions++;
-
     }
 };
 

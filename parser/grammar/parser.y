@@ -10,10 +10,10 @@
 %code requires {
     #include <string>
 
-    class driver;
+    class ParseDriver;
 }
 
-%param { driver& drv }
+%param { ParseDriver& drv }
 %locations
 
 %define parse.trace
@@ -21,7 +21,7 @@
 %define parse.lac full
 
 %code {
-    #include "driver/driver.hpp"
+    #include "ParseDriver/ParseDriver.hpp"
 }
 
 %define api.token.prefix {TOK_}

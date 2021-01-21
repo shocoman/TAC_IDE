@@ -2,33 +2,29 @@
 // Created by shoco on 10/7/2020.
 //
 
-#include <numeric>
 #include "dataflow_graph.hpp"
-
-
+#include "../graph_writer/graph_writer.h"
+#include <numeric>
 
 void constant_folding(BasicBlocks &nodes);
-
 void liveness_analyses(const BasicBlocks &nodes);
-
 void remove_blocks_without_predecessors(BasicBlocks &nodes);
 
 BasicBlock *find_root_node(BasicBlocks &blocks) {
-    for (auto &b:blocks)
+    for (auto &b : blocks)
         if (b->predecessors.empty())
             return b.get();
     return nullptr;
 }
 
-
 void add_entry_and_exit_block(BasicBlocks &nodes) {
     // assume there is already one and only one entry block
     // you dont need to add another one
-//    auto entry_block = std::make_unique<BasicBlock>();
-//    entry_block->node_name = "Entry block";
-//    entry_block->id = -1;
-//    entry_block->add_successor(nodes.front().get());
-//    nodes.insert(nodes.begin(), std::move(entry_block));
+    //    auto entry_block = std::make_unique<BasicBlock>();
+    //    entry_block->node_name = "Entry block";
+    //    entry_block->id = -1;
+    //    entry_block->add_successor(nodes.front().get());
+    //    nodes.insert(nodes.begin(), std::move(entry_block));
 
     // find blocks without successors (ending blocks) and connect them with exit block
     // if there are more than 1
@@ -42,11 +38,11 @@ void add_entry_and_exit_block(BasicBlocks &nodes) {
         exit_block->node_name = "Exit block";
         exit_block->id = nodes.back()->id + 1;
         exit_block->lbl_name = "EXIT_BLOCK";
-        exit_block->quads.push_back(Quad("0", {}, Quad::Type::Return));
+        exit_block->quads.push_back(Quad(std::string("0"), {}, Quad::Type::Return));
 
         for (auto &e : ending_blocks) {
-//            Dest dest(exit_block->lbl_name.value(), {}, Dest::Type::JumpLabel);
-//            e->quads.push_back( Quad({}, {}, Quad::Type::Goto, dest) );
+            //            Dest dest(exit_block->lbl_name.value(), {}, Dest::Type::JumpLabel);
+            //            e->quads.push_back( Quad({}, {}, Quad::Type::Goto, dest) );
             e->add_successor(exit_block.get());
         }
 
@@ -58,7 +54,8 @@ void add_missing_jumps(BasicBlocks &blocks) {
     for (int i = 0; i < blocks.size() - 1; ++i) {
         auto &last_q = blocks[i]->quads.back();
         if (!last_q.is_jump() && !blocks[i]->successors.empty()) {
-            Dest dest((*blocks[i]->successors.begin())->lbl_name.value(), {}, Dest::Type::JumpLabel);
+            Dest dest((*blocks[i]->successors.begin())->lbl_name.value(), {},
+                      Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
             blocks[i]->quads.push_back(jump);
         }
@@ -71,21 +68,20 @@ void reverse_graph(BasicBlocks &blocks) {
 }
 
 void print_loops(BasicBlocks &nodes) {
-
     // generate ids for node names
     std::map<int, std::string> name_by_id;
     std::map<std::string, int> id_by_name;
     int counter = 0;
-    for (const auto &n: nodes) {
+    for (const auto &n : nodes) {
         name_by_id[counter] = n->node_name;
         id_by_name[n->node_name] = counter;
         ++counter;
     }
 
     std::map<int, std::list<int>> adjacency_list;
-    for (const auto &n: nodes) {
+    for (const auto &n : nodes) {
         adjacency_list[id_by_name[n->node_name]] = {};
-        for (const auto &s: n->successors) {
+        for (const auto &s : n->successors) {
             adjacency_list[id_by_name[n->node_name]].emplace_back(id_by_name[s->node_name]);
         }
     }
@@ -102,7 +98,6 @@ void print_loops(BasicBlocks &nodes) {
     }
 }
 
-
 void remove_blocks_without_predecessors(BasicBlocks &nodes) {
     for (int i = nodes.size() - 1; i > 0; --i) {
         auto &n = nodes[i];
@@ -113,21 +108,20 @@ void remove_blocks_without_predecessors(BasicBlocks &nodes) {
     }
 }
 
-[[deprecated]]
-void liveness_analyses(const BasicBlocks &nodes) {
+[[deprecated]] void liveness_analyses(const BasicBlocks &nodes) {
     // block level liveness analyses
     struct LivenessState {
         bool live;
         int next_use;
     };
 
-    for (auto &n: nodes) {
+    for (auto &n : nodes) {
         std::vector<std::map<std::string, LivenessState>> block_liveness_data;
         std::map<std::string, LivenessState> block_liveness_nametable;
 
         // init vars used in the block
         for (auto &q : n->quads) {
-            for (auto &u: q.get_used_vars()) {
+            for (auto &u : q.get_used_vars()) {
                 block_liveness_nametable.emplace(u, LivenessState{true, -1});
             }
         }
@@ -142,7 +136,7 @@ void liveness_analyses(const BasicBlocks &nodes) {
             if (lhs.has_value()) {
                 current_nametable[lhs.value()] = block_liveness_nametable.at(lhs.value());
             }
-            for (auto &r: rhs) {
+            for (auto &r : rhs) {
                 current_nametable[r] = block_liveness_nametable.at(r);
             }
             // save in reversed order
@@ -152,18 +146,17 @@ void liveness_analyses(const BasicBlocks &nodes) {
                 block_liveness_nametable[lhs.value()] = LivenessState{false, -69};
             }
             // Step 3. update name table about y,z (live=true, next_use=i)
-            for (const auto &r: rhs) {
+            for (const auto &r : rhs) {
                 block_liveness_nametable[r] = LivenessState{true, i};
             }
-
         }
 
         for (int i = 0; i < n->quads.size(); ++i) {
             std::cout << n->quads[i].fmt() << ";\t";
             auto &l = block_liveness_data[i];
             for (auto &[name, liveness] : l) {
-                std::cout << "[ " << name << "; Live: " << liveness.live << "; Next use: " << liveness.next_use
-                          << " ]; ";
+                std::cout << "[ " << name << "; Live: " << liveness.live
+                          << "; Next use: " << liveness.next_use << " ]; ";
             }
             std::cout << std::endl;
         }
@@ -171,9 +164,8 @@ void liveness_analyses(const BasicBlocks &nodes) {
     }
 }
 
-
 void print_cfg(const BasicBlocks &nodes, const std::string &filename) {
-    DotWriter dot_writer;
+    GraphWriter dot_writer;
     std::set<std::string> visited;
     // print edges
     for (const auto &n : nodes) {
@@ -194,17 +186,15 @@ void print_cfg(const BasicBlocks &nodes, const std::string &filename) {
 
             // print edges
             for (auto &s : n->successors) {
-//                std::cout << n->node_name << " -> " << s->node_name << std::endl;
+                //                std::cout << n->node_name << " -> " << s->node_name << std::endl;
                 dot_writer.add_edge(n->node_name, s->node_name, s->lbl_name.value_or(""));
             }
         }
     }
 
-    //    dot_writer.write_dot_to_file("mydotfile.dot");
     dot_writer.render_to_file(filename);
-    system(filename.c_str());
+    system(("feh " + filename).c_str());
 }
-
 
 void print_quads(const std::vector<Quad> &quads, std::map<int, std::string> &labels_rev) {
     for (int i = 0; i < quads.size(); i++) {
@@ -215,21 +205,22 @@ void print_quads(const std::vector<Quad> &quads, std::map<int, std::string> &lab
 }
 
 auto get_leading_quads_indices(const std::vector<Quad> &quads,
-                               std::map<int, std::string> &labels_rev) -> std::map<int, std::optional<std::string>> {
+                               std::map<int, std::string> &labels_rev)
+    -> std::map<int, std::optional<std::string>> {
     std::map<int, std::optional<std::string>> leader_indexes = {{0, std::nullopt}};
     for (int i = 0; i < quads.size(); i++) {
         if (auto lbl = labels_rev.find(i); lbl != labels_rev.end())
             leader_indexes.insert({i, std::nullopt});
         if (quads[i].is_jump())
             leader_indexes.insert({i + 1, quads[i].dest.value().name});
-
     }
     return leader_indexes;
 }
 
-BasicBlocks get_basic_blocks_from_indices(const std::vector<Quad> &quads,
-                                          std::map<int, std::string> &labels_rev,
-                                          std::map<int, std::optional<std::string>> &leader_indexes) {
+BasicBlocks
+get_basic_blocks_from_indices(const std::vector<Quad> &quads,
+                              std::map<int, std::string> &labels_rev,
+                              std::map<int, std::optional<std::string>> &leader_indexes) {
     BasicBlocks nodes;
     BasicBlock *curr_node = nullptr;
     for (int i = 0, node_number = 0; i <= quads.size(); i++) {
@@ -249,7 +240,8 @@ BasicBlocks get_basic_blocks_from_indices(const std::vector<Quad> &quads,
         if (i < quads.size())
             curr_node->quads.push_back(quads[i]);
     }
-    if (curr_node && !curr_node->quads.empty()) nodes.emplace_back(curr_node);
+    if (curr_node && !curr_node->quads.empty())
+        nodes.emplace_back(curr_node);
     return nodes;
 }
 
@@ -271,31 +263,29 @@ void add_initial_successors(BasicBlocks &nodes) {
 
 void print_blocks(const BasicBlocks &blocks) {
     for (auto &n : blocks) {
-        std::cout << "\tBasicBlock: " << n->node_name << "; "
-                  << n->lbl_name.value_or("NONE")
+        std::cout << "\tBasicBlock: " << n->node_name << "; " << n->lbl_name.value_or("NONE")
                   << "; Jumps to " << n->jumps_to.value_or("NONE")
                   << "; Successors: " << n->successors.size()
-                  << "; Predecessors: " << n->predecessors.size()
-                  << " \n" << n->fmt();
+                  << "; Predecessors: " << n->predecessors.size() << " \n"
+                  << n->fmt();
     }
 }
-
 
 void live_analyses(BasicBlocks &blocks) {
 
     struct BlockLiveState {
-        std::set<std::string> UEVar; // upward exposed variables
+        std::set<std::string> UEVar;   // upward exposed variables
         std::set<std::string> VarKill; // killed (re-assigned) variables
         std::set<std::string> LiveOut; // 'live' variables
     };
     std::map<int, BlockLiveState> block_live_states;
 
     // save UEVar and VarKill
-    for (auto &b: blocks) {
+    for (auto &b : blocks) {
         BlockLiveState b_state;
 
         for (const auto &q : b->quads) {
-            for (auto &r: q.get_rhs(false))
+            for (auto &r : q.get_rhs(false))
                 if (b_state.VarKill.find(r) == b_state.VarKill.end())
                     b_state.UEVar.emplace(r);
 
@@ -307,28 +297,27 @@ void live_analyses(BasicBlocks &blocks) {
     }
 
     auto live_out = [&block_live_states](BasicBlock *b) {
-
         std::set<std::string> &live_out_state = block_live_states.at(b->id).LiveOut;
         auto prev_live_out_state = live_out_state;
 
         for (const auto &s : b->successors) {
             auto &state = block_live_states.at(s->id);
 
-            std::set_union(live_out_state.begin(), live_out_state.end(), state.UEVar.begin(), state.UEVar.end(),
-                           std::inserter(live_out_state, live_out_state.end()));
+            std::set_union(live_out_state.begin(), live_out_state.end(), state.UEVar.begin(),
+                           state.UEVar.end(), std::inserter(live_out_state, live_out_state.end()));
 
             std::set<std::string> live_without_varkill;
-            std::set_difference(state.LiveOut.begin(), state.LiveOut.end(), state.VarKill.begin(), state.VarKill.end(),
+            std::set_difference(state.LiveOut.begin(), state.LiveOut.end(), state.VarKill.begin(),
+                                state.VarKill.end(),
                                 std::inserter(live_without_varkill, live_without_varkill.end()));
 
-            std::set_union(live_out_state.begin(), live_out_state.end(), live_without_varkill.begin(),
-                           live_without_varkill.end(), std::inserter(live_out_state, live_out_state.end()));
-
+            std::set_union(live_out_state.begin(), live_out_state.end(),
+                           live_without_varkill.begin(), live_without_varkill.end(),
+                           std::inserter(live_out_state, live_out_state.end()));
         }
 
         return prev_live_out_state != live_out_state;
     };
-
 
     bool changed = true;
     int iter = 0;
@@ -353,9 +342,8 @@ void live_analyses(BasicBlocks &blocks) {
     std::cout << std::endl;
 }
 
-
 void print_dominator_tree(ID2Block &id_to_block, int entry_id, ID2IDOM &id_to_idom) {
-    DotWriter writer;
+    GraphWriter writer;
     for (auto &[id1, id2] : id_to_idom) {
         // make a connection between blocks[id1] and blocks[block_id]
         auto name1 = id_to_block.at(id2)->node_name;
@@ -368,12 +356,11 @@ void print_dominator_tree(ID2Block &id_to_block, int entry_id, ID2IDOM &id_to_id
     }
 
     writer.render_to_file("dominator_tree.png");
-    system("dominator_tree.png");
+    system("feh dominator_tree.png");
 }
 
-
-void remove_phi_functions(BasicBlocks &blocks,
-                          std::map<int, BasicBlock *> &id_to_block, int entry_id) {
+void remove_phi_functions(BasicBlocks &blocks, std::map<int, BasicBlock *> &id_to_block,
+                          int entry_id) {
 
     BasicBlocks new_blocks;
 
@@ -382,16 +369,19 @@ void remove_phi_functions(BasicBlocks &blocks,
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
             for (auto &op : phi.ops) {
-                if (replace_block_id.find({op.predecessor_id, b->id}) == replace_block_id.end()
-                    && id_to_block.at(op.predecessor_id)->successors.size() > 1) {
+                if (replace_block_id.find({op.predecessor_id, b->id}) == replace_block_id.end() &&
+                    id_to_block.at(op.predecessor_id)->successors.size() > 1) {
                     auto *pred = id_to_block.at(op.predecessor_id);
 
                     auto split_block = std::make_unique<BasicBlock>();
-                    split_block->quads.push_back(Quad({}, {}, Quad::Type::Goto,
-                                                      Dest(b->lbl_name.value(), {}, Dest::Type::JumpLabel)));
+                    split_block->quads.push_back(
+                        Quad({}, {}, Quad::Type::Goto,
+                             Dest(b->lbl_name.value(), {}, Dest::Type::JumpLabel)));
 
-                    if (!new_blocks.empty()) split_block->id = new_blocks.back()->id + 1;
-                    else split_block->id = blocks.back()->id + 1;
+                    if (!new_blocks.empty())
+                        split_block->id = new_blocks.back()->id + 1;
+                    else
+                        split_block->id = blocks.back()->id + 1;
                     split_block->node_name = split_block->get_name();
                     split_block->lbl_name = split_block->get_name();
 
@@ -420,8 +410,10 @@ void remove_phi_functions(BasicBlocks &blocks,
                 } else {
                     pred = id_to_block.at(op.predecessor_id);
                 }
-                auto insert_pos = pred->quads.back().is_jump() ? pred->quads.end() - 1 : pred->quads.end();
-                pred->quads.insert(insert_pos, Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
+                auto insert_pos =
+                    pred->quads.back().is_jump() ? pred->quads.end() - 1 : pred->quads.end();
+                pred->quads.insert(insert_pos,
+                                   Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
             }
         }
 
@@ -432,7 +424,6 @@ void remove_phi_functions(BasicBlocks &blocks,
     blocks.reserve(blocks.size() + new_blocks.size());
     std::move(std::begin(new_blocks), std::end(new_blocks), std::back_inserter(blocks));
 }
-
 
 ID2DOM find_dominators(const BasicBlocks &blocks) {
     std::map<int, std::set<int>> id_to_dominator;
@@ -453,7 +444,8 @@ ID2DOM find_dominators(const BasicBlocks &blocks) {
             // get intersection of sets of predecessors
             std::set<int> pred_intersect;
             for (auto &pred : b->predecessors) {
-                if (id_to_dominator.find(pred->id) == id_to_dominator.end()) continue;
+                if (id_to_dominator.find(pred->id) == id_to_dominator.end())
+                    continue;
                 auto pred_dominators = id_to_dominator.at(pred->id);
                 if (!pred_intersect.empty()) {
                     std::set<int> intersection;
@@ -508,7 +500,8 @@ std::map<int, int> generate_reverse_post_order_numbers(BasicBlocks &blocks) {
 ID2IDOM find_immediate_dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
     std::map<int, int> id_to_rpo = generate_reverse_post_order_numbers(blocks);
     std::map<int, int> rpo_to_id;
-    for (auto &[id, rpo] : id_to_rpo) rpo_to_id.emplace(rpo, id);
+    for (auto &[id, rpo] : id_to_rpo)
+        rpo_to_id.emplace(rpo, id);
     ID2IDOM id_to_idom;
 
     auto intersect = [&](BasicBlock *i, BasicBlock *j) {
@@ -524,7 +517,7 @@ ID2IDOM find_immediate_dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
     };
 
     auto entry_node_id = find_root_node(blocks)->id;
-//    auto entry_node_id = rpo_to_id.at(0);
+    //    auto entry_node_id = rpo_to_id.at(0);
     id_to_idom[entry_node_id] = entry_node_id;
     bool changed = true;
     int iterations = 0;
@@ -534,12 +527,14 @@ ID2IDOM find_immediate_dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
         for (auto &[rpo, id] : rpo_to_id) {
 
             auto &b = id_to_block.at(id);
-            if (b->predecessors.empty()) continue;
+            if (b->predecessors.empty())
+                continue;
 
             auto preds = b->predecessors.begin();
             while (preds != b->predecessors.end() && id_to_rpo.at((*preds)->id) > rpo)
                 std::advance(preds, 1);
-            if (preds == b->predecessors.end()) continue;
+            if (preds == b->predecessors.end())
+                continue;
             auto new_idom = *preds;
 
             for (std::advance(preds, 1); preds != b->predecessors.end(); std::advance(preds, 1)) {
@@ -548,7 +543,8 @@ ID2IDOM find_immediate_dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
                     new_idom = intersect(p, new_idom);
             }
 
-            if (id_to_idom.find(b->id) == id_to_idom.end() || id_to_idom.at(b->id) != new_idom->id) {
+            if (id_to_idom.find(b->id) == id_to_idom.end() ||
+                id_to_idom.at(b->id) != new_idom->id) {
                 id_to_idom[b->id] = new_idom->id;
                 changed = true;
             }
@@ -556,11 +552,12 @@ ID2IDOM find_immediate_dominators(BasicBlocks &blocks, ID2Block &id_to_block) {
     }
 
     bool graph_is_irreducible = iterations > 2;
-//    std::cout << __PRETTY_FUNCTION__ << std::endl;
-//    std::cout << "Iterations: " << iterations << std::endl;
-//    for (auto &[id, idom_id] : id_to_idom) {
-//        std::cout << id_to_block.at(id)->node_name << " -> " << id_to_block.at(idom_id)->node_name << std::endl;
-//    }
+    //    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    //    std::cout << "Iterations: " << iterations << std::endl;
+    //    for (auto &[id, idom_id] : id_to_idom) {
+    //        std::cout << id_to_block.at(id)->node_name << " -> " <<
+    //        id_to_block.at(idom_id)->node_name << std::endl;
+    //    }
 
     // entry node have no idom
     id_to_idom.erase(entry_node_id);
@@ -573,7 +570,7 @@ ID2DF find_dominance_frontier(const BasicBlocks &blocks, ID2IDOM &id_to_immediat
         id_to_dominance_frontier[b->id] = {};
     for (const auto &b : blocks) {
         if (b->predecessors.size() > 1) {
-            for (const auto &pred: b->predecessors) {
+            for (const auto &pred : b->predecessors) {
                 int runner_id = pred->id;
 
                 while (runner_id != id_to_immediate_dominator.at(b->id)) {
@@ -586,12 +583,10 @@ ID2DF find_dominance_frontier(const BasicBlocks &blocks, ID2IDOM &id_to_immediat
     return id_to_dominance_frontier;
 }
 
-
-void place_phi_functions(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id_to_immediate_dominator,
-                         ID2DF &id_to_dominance_frontier,
+void place_phi_functions(BasicBlocks &blocks, ID2Block &id_to_block,
+                         ID2IDOM &id_to_immediate_dominator, ID2DF &id_to_dominance_frontier,
                          std::map<std::string, std::set<BasicBlock *>> &var_to_blocks,
-                         std::set<std::string> &global_names,
-                         std::set<std::string> &all_names) {
+                         std::set<std::string> &global_names, std::set<std::string> &all_names) {
 
     // place phi functions
     for (auto &name : global_names) {
@@ -617,7 +612,7 @@ void place_phi_functions(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id
     // rename variables
     std::map<std::string, int> name_to_counter;
     std::map<std::string, std::vector<int>> name_to_stack;
-    for (auto &name: all_names) {
+    for (auto &name : all_names) {
         name_to_counter[name] = 0;
         name_to_stack[name] = {};
     }
@@ -645,10 +640,12 @@ void place_phi_functions(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id
         // rename other operations of form 'x = y + z'
         for (int i = block->phi_functions; i < block->quads.size(); ++i) {
             auto &q = block->quads[i];
-            if (auto op1 = q.get_op(0); op1 && op1->is_var() && name_to_stack.find(op1->value) != name_to_stack.end()) {
+            if (auto op1 = q.get_op(0);
+                op1 && op1->is_var() && name_to_stack.find(op1->value) != name_to_stack.end()) {
                 q.ops[0].value += "." + std::to_string(name_to_stack.at(op1->value).back());
             }
-            if (auto op2 = q.get_op(1); op2 && op2->is_var() && name_to_stack.find(op2->value) != name_to_stack.end()) {
+            if (auto op2 = q.get_op(1);
+                op2 && op2->is_var() && name_to_stack.find(op2->value) != name_to_stack.end()) {
                 q.ops[1].value += "." + std::to_string(name_to_stack.at(op2->value).back());
             }
             if (q.dest && all_names.find(q.dest->name) != all_names.end()) {
@@ -667,7 +664,8 @@ void place_phi_functions(BasicBlocks &blocks, ID2Block &id_to_block, ID2IDOM &id
                 std::string next_name;
                 if (name_to_stack.find(name_without_dot) != name_to_stack.end() &&
                     !name_to_stack.at(name_without_dot).empty()) {
-                    next_name = name_without_dot + "." + std::to_string(name_to_stack.at(name_without_dot).back());
+                    next_name = name_without_dot + "." +
+                                std::to_string(name_to_stack.at(name_without_dot).back());
                 } else {
                     next_name = name;
                 }
@@ -695,33 +693,32 @@ void convert_to_ssa(BasicBlocks &blocks, ID2Block &id_to_block) {
     ID2IDOM id_to_immediate_dominator = find_immediate_dominators(blocks, id_to_block);
     ID2DF id_to_dominance_frontier = find_dominance_frontier(blocks, id_to_immediate_dominator);
 
-//    std::cout << "-- PRINT --" << std::endl;
-//    for (auto &[id, doms] : id_to_dominators) {
-//        std::cout << id << "(" << id_to_block.at(id)->node_name << "): ";
-//        for (auto &d : doms) {
-//            std::cout << d << ", ";
-//        }
-//        if (id_to_immediate_dominator.find(id) != id_to_immediate_dominator.end())
-//            std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
-//
-//        std::cout << "; DomFrontier: ";
-//        for (auto &df : id_to_dominance_frontier.at(id)) {
-//            std::cout << id_to_block.at(df)->get_name() << ", ";
-//        }
-//
-//        std::cout << std::endl;
-//    }
-//    std::cout << "-- END_PRINT --" << std::endl;
-
+    //    std::cout << "-- PRINT --" << std::endl;
+    //    for (auto &[id, doms] : id_to_dominators) {
+    //        std::cout << id << "(" << id_to_block.at(id)->node_name << "): ";
+    //        for (auto &d : doms) {
+    //            std::cout << d << ", ";
+    //        }
+    //        if (id_to_immediate_dominator.find(id) != id_to_immediate_dominator.end())
+    //            std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
+    //
+    //        std::cout << "; DomFrontier: ";
+    //        for (auto &df : id_to_dominance_frontier.at(id)) {
+    //            std::cout << id_to_block.at(df)->get_name() << ", ";
+    //        }
+    //
+    //        std::cout << std::endl;
+    //    }
+    //    std::cout << "-- END_PRINT --" << std::endl;
 
     // find global names
     std::set<std::string> all_names;
     std::map<std::string, std::set<BasicBlock *>> var_to_block;
     std::set<std::string> global_names;
-    for (auto &b: blocks) {
+    for (auto &b : blocks) {
         std::set<std::string> var_kill;
         for (const auto &q : b->quads) {
-            for (auto &r: q.get_rhs(false))
+            for (auto &r : q.get_rhs(false))
                 if (var_kill.find(r) == var_kill.end())
                     global_names.insert(r);
             if (auto lhs = q.get_lhs(); lhs.has_value()) {
@@ -732,16 +729,15 @@ void convert_to_ssa(BasicBlocks &blocks, ID2Block &id_to_block) {
         }
     }
 
-//    std::cout << "Global names: ";
-//    for (auto &name : global_names) {
-//        std::cout << name << ", ";
-//    }
-//    std::cout << std::endl;
+    //    std::cout << "Global names: ";
+    //    for (auto &name : global_names) {
+    //        std::cout << name << ", ";
+    //    }
+    //    std::cout << std::endl;
 
-    place_phi_functions(blocks, id_to_block, id_to_immediate_dominator, id_to_dominance_frontier, var_to_block,
-                        global_names, all_names);
+    place_phi_functions(blocks, id_to_block, id_to_immediate_dominator, id_to_dominance_frontier,
+                        var_to_block, global_names, all_names);
 }
-
 
 void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     struct Place {
@@ -750,9 +746,7 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     };
 
     struct VarInfo {
-        enum class ValueType {
-            Bottom, Constant, Top
-        };
+        enum class ValueType { Bottom, Constant, Top };
 
         Place defined_at = {-1, -1};
         std::vector<Place> used_at{};
@@ -760,7 +754,6 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         ValueType value_type = ValueType::Top;
         Operand constant;
     };
-
 
     using ValType = VarInfo::ValueType;
     using VarName = std::string;
@@ -770,10 +763,11 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         auto &b = blocks[b_index];
         for (int i = 0; i < b->quads.size(); ++i) {
             auto &q = b->quads[i];
-            if (!q.dest.has_value() || q.dest->type == Dest::Type::None) continue;
+            if (!q.dest.has_value() || q.dest->type == Dest::Type::None)
+                continue;
 
             Place place{b_index, i};
-//            if (!q.is_jump())
+            //            if (!q.is_jump())
             usingInfo[q.dest->name].defined_at = place;
 
             if (Quad::is_foldable(q.type))
@@ -786,11 +780,11 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         }
     }
 
-
     // initialization phase
     std::vector<std::string> work_list;
     for (auto &[name, useInfo] : usingInfo) {
-        if (useInfo.defined_at.block_num == -1) continue;
+        if (useInfo.defined_at.block_num == -1)
+            continue;
 
         auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
 
@@ -808,7 +802,6 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         }
     }
 
-
     // propagation phase
     while (!work_list.empty()) {
         std::string name = work_list.back();
@@ -816,12 +809,14 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
 
         for (auto &[block_num, quad_num] : usingInfo.at(name).used_at) {
             auto &q = blocks.at(block_num)->quads.at(quad_num);
-            if (q.is_jump()) continue;
+            if (q.is_jump())
+                continue;
 
             auto &lhs = usingInfo.at(q.dest->name);
             if (lhs.value_type != ValType::Bottom) {
                 auto tmp = std::pair{lhs.value_type, lhs.constant};
-                auto &lhs_q = blocks.at(lhs.defined_at.block_num)->quads.at(lhs.defined_at.quad_num);
+                auto &lhs_q =
+                    blocks.at(lhs.defined_at.block_num)->quads.at(lhs.defined_at.quad_num);
 
                 lhs.value_type = ValType::Top;
                 lhs.constant = Operand();
@@ -829,14 +824,15 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
                 // interpretation over lattice
                 if (lhs_q.type == Quad::Type::PhiNode) {
                     for (auto &op : lhs_q.ops) {
-                        if (lhs.value_type == ValType::Bottom) break;
+                        if (lhs.value_type == ValType::Bottom)
+                            break;
 
                         auto &var = usingInfo.at(op.value);
-                        if (var.value_type == ValType::Top) {}
-                        else if (var.value_type == ValType::Constant
-                                 && (lhs.value_type == ValType::Top ||
-                                     lhs.value_type == ValType::Constant &&
-                                     lhs.constant.value == var.constant.value)) {
+                        if (var.value_type == ValType::Top) {
+                        } else if (var.value_type == ValType::Constant &&
+                                   (lhs.value_type == ValType::Top ||
+                                    lhs.value_type == ValType::Constant &&
+                                        lhs.constant.value == var.constant.value)) {
                             lhs.value_type = var.value_type;
                             lhs.constant = var.constant;
                         } else {
@@ -848,9 +844,11 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
 
                     auto fst = lhs_q.get_op(0);
                     auto snd = lhs_q.get_op(1);
-                    if (fst && fst->is_var() && usingInfo.at(fst->value).value_type == ValType::Constant)
+                    if (fst && fst->is_var() &&
+                        usingInfo.at(fst->value).value_type == ValType::Constant)
                         fst = Operand(usingInfo.at(fst->value).constant);
-                    if (snd && snd->is_var() && usingInfo.at(snd->value).value_type == ValType::Constant)
+                    if (snd && snd->is_var() &&
+                        usingInfo.at(snd->value).value_type == ValType::Constant)
                         snd = Operand(usingInfo.at(snd->value).constant);
 
                     auto tmp_q = Quad();
@@ -883,20 +881,21 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         }
     }
 
-
-
-//    for (auto &[name, useInfo] : usingInfo) {
-//        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << "; "
-//                  << useInfo.defined_at.quad_num << "); " << "used at: ";
-//        for (auto &u : useInfo.used_at) {
-//            std::cout << "(" << u.block_num << "; " << u.quad_num << "), ";
-//        }
-//        std::cout << " ValType: " << (int) useInfo.value_type << "; " << useInfo.constant.value << std::endl;
-//    }
+    //    for (auto &[name, useInfo] : usingInfo) {
+    //        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << ";
+    //        "
+    //                  << useInfo.defined_at.quad_num << "); " << "used at: ";
+    //        for (auto &u : useInfo.used_at) {
+    //            std::cout << "(" << u.block_num << "; " << u.quad_num << "), ";
+    //        }
+    //        std::cout << " ValType: " << (int) useInfo.value_type << "; " <<
+    //        useInfo.constant.value << std::endl;
+    //    }
 
     for (auto &[name, useInfo] : usingInfo) {
         if (useInfo.value_type == ValType::Constant) {
-            auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
+            auto &q =
+                blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
             q.type = Quad::Type::Assign;
             q.ops[0] = useInfo.constant;
             q.clear_op(1);
@@ -916,7 +915,6 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     }
 }
 
-
 std::map<int, int> generate_post_order_numbers(BasicBlocks &blocks) {
     reverse_graph(blocks);
     std::map<int, int> id_to_post_order = generate_reverse_post_order_numbers(blocks);
@@ -925,8 +923,8 @@ std::map<int, int> generate_post_order_numbers(BasicBlocks &blocks) {
     return id_to_post_order;
 }
 
-
-void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF &id_to_rev_df, ID2IDOM &id_to_idom) {
+void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF &id_to_rev_df,
+                              ID2IDOM &id_to_idom) {
 
     struct Place {
         int block_num;
@@ -934,7 +932,8 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
 
         bool operator<(const Place &o) const {
             return std::tie(block_num, quad_num) < std::tie(o.block_num, o.quad_num);
-//            return (block_num < o.quad_num) || (block_num == o.block_num && quad_num < o.quad_num);
+            //            return (block_num < o.quad_num) || (block_num == o.block_num && quad_num <
+            //            o.quad_num);
         }
     };
 
@@ -997,7 +996,9 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
         auto &current_block = blocks[next_place.block_num];
         for (auto &b_id : id_to_rev_df.at(current_block->id)) {
             int dom_block_num = -1;
-            for (int i = 0; i < blocks.size(); ++i) if (blocks[i]->id == b_id) dom_block_num = i;
+            for (int i = 0; i < blocks.size(); ++i)
+                if (blocks[i]->id == b_id)
+                    dom_block_num = i;
             auto dom_block = id_to_block.at(b_id);
             int jump_quad_num = dom_block->quads.size() - 1;
 
@@ -1008,7 +1009,6 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
             }
         }
     }
-
 
     // Sweep Pass (remove not critical quads/operations)
     for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
@@ -1032,7 +1032,6 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
             }
         }
     }
-
 
     // Mark unreachable blocks
     auto root = find_root_node(blocks);
@@ -1066,10 +1065,11 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
-//            if (changed) break;
+            //            if (changed) break;
 
             auto block_it = id_to_block.find(id);
-            if (block_it == id_to_block.end()) continue;
+            if (block_it == id_to_block.end())
+                continue;
             auto &b = block_it->second;
 
             // replace branch with jump
@@ -1099,7 +1099,7 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
                     changed = true;
                 }
 
-                    // combine two blocks into one
+                // combine two blocks into one
                 else if (succ->predecessors.size() == 1) {
                     // remove last jump
                     b->quads.pop_back();
@@ -1116,17 +1116,17 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
                     changed = true;
                 }
 
-                    // hoist a branch
-                    // if successor is empty and ends with conditional branch
-                    // copy branch from it
+                // hoist a branch
+                // if successor is empty and ends with conditional branch
+                // copy branch from it
                 else if (succ->quads.size() == 1 && succ->quads.back().is_conditional_jump()) {
                     b->quads.back() = succ->quads.back();
                     b->remove_successors();
-                    for (auto &s : succ->successors) b->add_successor(s);
+                    for (auto &s : succ->successors)
+                        b->add_successor(s);
                     changed = true;
                 }
             }
-
         }
 
         // erase removed blocks
@@ -1153,16 +1153,15 @@ void useless_code_elimination(BasicBlocks &blocks, ID2Block &id_to_block, ID2DF 
     }
 
     print_blocks(blocks);
-
 }
-
 
 void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     // revert map of labels
     std::map<int, std::string> labels_rev;
-    for (auto &[a, b] : labels) labels_rev.emplace(b, a);
+    for (auto &[a, b] : labels)
+        labels_rev.emplace(b, a);
 
-//    print_quads(quads, labels_rev);
+    //    print_quads(quads, labels_rev);
 
     // gather indexes of leading blocks
     auto leader_indexes = get_leading_quads_indices(quads, labels_rev);
@@ -1172,69 +1171,68 @@ void make_cfg(std::map<std::string, int> &&labels, std::vector<Quad> &&quads) {
     add_entry_and_exit_block(blocks);
 
     ID2Block id_to_block;
-    for (auto &b : blocks) id_to_block[b->id] = b.get();
+    for (auto &b : blocks)
+        id_to_block[b->id] = b.get();
 
-//    for (auto &[id, str] : leader_indexes) {
-//        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
-//    }
-//    std::cout << std::endl;
-//    for (auto &b : blocks) {
-//        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE") << std::endl;
-//    }
+    //    for (auto &[id, str] : leader_indexes) {
+    //        std::cout << "ID: " << id << "; JUMPS TO: " << str.value_or("NOWHERE") << std::endl;
+    //    }
+    //    std::cout << std::endl;
+    //    for (auto &b : blocks) {
+    //        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE") <<
+    //        std::endl;
+    //    }
 
-//    print_blocks(blocks);
-//    print_cfg(blocks, "before.png");
+    //    print(blocks);
+    //    print_cfg(blocks, "before.png");
 
-//    remove_blocks_without_predecessors(blocks);
-//    constant_folding(blocks);
-//    liveness_analyses(blocks);
-//    print_loops(blocks);
+    //    remove_blocks_without_predecessors(blocks);
+    //    constant_folding(blocks);
+    //    liveness_analyses(blocks);
+    //    print_loops(blocks);
 
-//    print_cfg(blocks, "before.png");
-//
-//    for (auto &n : blocks) {
-//        ValueNumberTableStack t;
-//        t.push_table();
-//        local_value_numbering(n->quads, t);
-//    }
+    //    print_cfg(blocks, "before.png");
+    //
+    //    for (auto &n : blocks) {
+    //        ValueNumberTableStack t;
+    //        t.push_table();
+    //        local_value_numbering(n->quads, t);
+    //    }
 
-//    live_analyses(blocks);
-//    superlocal_value_numbering(blocks);
+    //    live_analyses(blocks);
+    //    superlocal_value_numbering(blocks);
 
-
-//    convert_to_ssa(blocks, id_to_block);
-//    print_cfg(blocks, "before.png");
-//    sparse_simple_constant_propagation(blocks);
-//    remove_phi_functions(blocks, id_to_block, 0);
+    //    convert_to_ssa(blocks, id_to_block);
+    //    print_cfg(blocks, "before.png");
+    //    sparse_simple_constant_propagation(blocks);
+    //    remove_phi_functions(blocks, id_to_block, 0);
 
     reverse_graph(blocks);
     auto id_to_rev_idom = find_immediate_dominators(blocks, id_to_block);
     ID2DF revDF = find_dominance_frontier(blocks, id_to_rev_idom);
     reverse_graph(blocks);
 
-//    for (auto &[id, df] : revDF) {
-//        std::cout << "DF: " << id_to_block.at(id)->node_name << " || ";
-//        for (auto &d : df) {
-//            std::cout << id_to_block.at(d)->node_name << ", ";
-//        }
-//        std::cout << std::endl;
-//    }
+    //    for (auto &[id, df] : revDF) {
+    //        std::cout << "DF: " << id_to_block.at(id)->node_name << " || ";
+    //        for (auto &d : df) {
+    //            std::cout << id_to_block.at(d)->node_name << ", ";
+    //        }
+    //        std::cout << std::endl;
+    //    }
 
-    convert_to_ssa(blocks, id_to_block);
-//    sparse_simple_constant_propagation(blocks);
+    //    convert_to_ssa(blocks, id_to_block);
+    //    sparse_simple_constant_propagation(blocks);
 
-
-//    useless_code_elimination(blocks, id_to_block, revDF, id_to_rev_idom);
+    //    useless_code_elimination(blocks, id_to_block, revDF, id_to_rev_idom);
 
     // find_immediate_dominators(blocks, id_to_block);
-//    print_dominator_tree(id_to_block, 0, id_to_idom);
+    //    print_dominator_tree(id_to_block, 0, id_to_idom);
 
-    print_cfg(blocks, "before.png");
-
-    ID2IDOM id_to_idom = find_immediate_dominators(blocks, id_to_block);
-
-    dominator_based_value_numbering(blocks, id_to_block, id_to_idom);
+    //    print_cfg(blocks, "before.png");
+    //
+    //    ID2IDOM id_to_idom = find_immediate_dominators(blocks, id_to_block);
+    //
+    //    dominator_based_value_numbering(blocks, id_to_block, id_to_idom);
 
     print_cfg(blocks, "after.png");
 }
-

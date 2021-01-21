@@ -1,11 +1,12 @@
 
 #include "driver.hpp"
 
-driver::driver() : trace_parsing(false), trace_scanning(false) {
-
+ParseDriver::ParseDriver(bool trace_parsing, bool trace_scanning) {
+    this->trace_parsing = trace_parsing;
+    this->trace_scanning = trace_scanning;
 }
 
-int driver::parse(const std::string& f) {
+int ParseDriver::parse(const std::string& f) {
     file = f;
     location.initialize(&file);
     scan_begin();

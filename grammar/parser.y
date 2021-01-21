@@ -9,11 +9,11 @@
 
 %code requires {
     #include <string>
-    struct driver;
+    struct ParseDriver;
     #include "../tac_worker/quadruple.hpp"
 }
 
-%param { driver& drv }
+%param { ParseDriver& drv }
 %locations
 
 %define parse.trace
@@ -21,21 +21,23 @@
 %define parse.lac full
 
 %code {
-    #include "../driver/driver.hpp"
+    #include "../parse_driver/driver.hpp"
 }
 
 %define api.token.prefix {TOK_}
 %token
-    IFTRUE  "if"
-    IFFALSE "ifFalse"
-    GOTO    "goto"
-    HALT    "halt"
-    CALL    "call"
-    PARAM   "param"
-    NOP     "nop"
-    RETURN  "return"
-    PRINT   "print"
-    NEWLINE "newline"
+    IFTRUE   "if"
+    IFFALSE  "ifFalse"
+    GOTO     "goto"
+    HALT     "halt"
+    CALL     "call"
+    PUTPARAM "putparam"
+    GETPARAM "getparam"
+    NOP      "nop"
+    RETURN   "return"
+    PRINT    "print"
+    NEWLINE  "newline"
+    BLOCK    "block"
 
     ASSIGN  "="
     PLUS    "+"
@@ -49,23 +51,27 @@
     CMP_EQ  "=="
     CMP_NEQ "!="
 
-    LPAREN  "("
-    RPAREN  ")"
+    LPAREN   "("
+    RPAREN   ")"
     LBRACKET "["
     RBRACKET "]"
-    SEMI    ";"
-    COLON   ":"
+    SEMI     ";"
+    COLON    ":"
+    COMMA    ","
+    DOT      "."
     ;
 
 %token <std::string> IDENTIFIER "identifier"
+%token <std::string> STRING "string"
+%token <char> CHAR "char"
 %token <int> INT "int"
 %token <double> FLOAT "float"
 
 
 %nterm <Dest> dest
-%nterm <Quad> value quadruple if_statement goto assignment
-%nterm <std::string> term label
-//%nterm <std::vector<Quad>> stmts
+%nterm <Quad> value quadruple if_statement goto assignment var_declaration
+%nterm <std::string> label
+%nterm <Operand> term
 
 %left "<" ">" "==" "!="
 %left "+" "-";
@@ -80,26 +86,36 @@ stmts:
 |   stmts stmt
 ;
 
-
 stmt:
-    label mb_newline               { drv.labels.emplace($label, drv.quadruples.size()); }
+    label mb_newline       { drv.labels.emplace($label, drv.quadruples.size()); }
 |   quadruple newlines     { drv.quadruples.push_back($quadruple); }
 ;
 mb_newline: %empty | "newline";
 newlines: YYEOF | "newline" | newlines "newline";
 
-
 quadruple:
     assignment
 |   if_statement
 |   goto
-|   "halt"                          { $$ = Quad({}, {}, Quad::Type::Halt); };
-|   "param" term                    { $$ = Quad($term, {}, Quad::Type::Param); };
-|   "call"  "identifier"[id] term   { $$ = Quad($id, $term, Quad::Type::Call); };
-|   "nop"                           { $$ = Quad({}, {}, Quad::Type::Nop); };
-|   "return" term                   { $$ = Quad($term, {}, Quad::Type::Return); };
-|   "print"  term                   { $$ = Quad($term, {}, Quad::Type::Print); };
+|   "halt"                              { $$ = Quad({}, {}, Quad::Type::Halt); };
+|   "putparam" term                     { $$ = Quad($term, {}, Quad::Type::Putparam); };
+|   "getparam" "identifier"[id]         { $$ = Quad($id, {}, Quad::Type::Getparam); };
+|   "nop"                               { $$ = Quad({}, {}, Quad::Type::Nop); };
+|   "return" term                       { $$ = Quad($term, {}, Quad::Type::Return); };
+|   "print"  term                       { $$ = Quad($term, {}, Quad::Type::Print); };
+|   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
+|   var_declaration
 ;
+
+var_declaration:
+    label "." "identifier"[id] term {
+                                  $$ = Quad($id, $term, Quad::Type::VarDeclaration);
+                                  $$.dest = Dest($label, {}, Dest::Type::Var);
+                              };
+|   label "." "block" "int"[size] "," "identifier"[type] "," term[initval] {
+                                  $$ = Quad($type, $initval, Quad::Type::ArrayDeclaration);
+                                  $$.dest = Dest($label, std::to_string($size), Dest::Type::Var);
+                              };
 
 assignment: dest "=" value { $value.dest = $dest; $$ = $value; };
 
@@ -113,8 +129,6 @@ if_statement:
 goto: "goto" "identifier"[id]   { $$ = Quad({}, {}, Quad::Type::Goto);
                                 $$.dest = Dest($id, {}, Dest::Type::JumpLabel);};
 
-
-
 dest:
     "identifier"                { $$ = Dest($1, {}, Dest::Type::Var); }
 |   "*" "identifier"            { $$ = Dest($2, {}, Dest::Type::Deref); }
@@ -123,7 +137,6 @@ dest:
 label:
     "identifier" ":" { $$ = $1; }
 ;
-
 
 value:
     term                    { $$ = Quad($1, {}, Quad::Type::Assign); }
@@ -139,14 +152,16 @@ value:
 |   term ">"  term          { $$ = Quad($1, $3, Quad::Type::Gt); }
 |   term "==" term          { $$ = Quad($1, $3, Quad::Type::Eq); }
 |   term "!=" term          { $$ = Quad($1, $3, Quad::Type::Neq); }
+|   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
 ;
 
 term:
-    "identifier"    { $$ = $1; }
-|   "int"           { $$ = std::to_string($1); }
-|   "float"         { $$ = std::to_string($1); }
+    "identifier"    { $$ = Operand($1, Operand::Type::Var); }
+|   "string"        { $$ = Operand($1, Operand::Type::LString); }
+|   "char"          { $$ = Operand(std::string(1, $1), Operand::Type::LChar); }
+|   "int"           { $$ = Operand(std::to_string($1), Operand::Type::LInt); }
+|   "float"         { $$ = Operand(std::to_string($1), Operand::Type::LDouble); }
 ;
-
 
 %%
 

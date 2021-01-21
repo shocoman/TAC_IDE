@@ -5,7 +5,7 @@
     #include <string>
     #include <functional>
     #include <map>
-    #include "../driver/driver.hpp"
+    #include "../parse_driver/driver.hpp"
 %}
 
 %option noyywrap nounput noinput batch debug
@@ -20,6 +20,9 @@
 id  [a-zA-Z$_][a-zA-Z_.0-9]*
 int [0-9]+
 float {int}\.{int}?
+string \"([^\\\"]|\\.)*\"
+char '([^'\\\n]|\\.)'
+
 blank [ \t\r]
 line_comment "//".*
 line_comment_with_nl ^{blank}*"//".*\n
@@ -51,6 +54,8 @@ empty_line ^{blank}*\n
 "!="    return yy::parser::make_CMP_NEQ(loc);
 
 
+"."     return yy::parser::make_DOT(loc);
+","     return yy::parser::make_COMMA(loc);
 ";"     return yy::parser::make_SEMI(loc);
 ":"     return yy::parser::make_COLON(loc);
 "("     return yy::parser::make_LPAREN(loc);
@@ -58,9 +63,12 @@ empty_line ^{blank}*\n
 "["     return yy::parser::make_LBRACKET(loc);
 "]"     return yy::parser::make_RBRACKET(loc);
 
-{float} return make_NUMBER(yytext, loc, false);
-{int}   return make_NUMBER(yytext, loc, true);
-{id}    return make_IDENTIFIER(yytext, loc);
+
+{char}   return yy::parser::make_CHAR(yytext[1], loc);
+{string} return yy::parser::make_STRING(yytext, loc);
+{float}  return make_NUMBER(yytext, loc, false);
+{int}    return make_NUMBER(yytext, loc, true);
+{id}     return make_IDENTIFIER(yytext, loc);
 
 .       {
             throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
@@ -86,22 +94,24 @@ yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::loca
 yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::location_type& loc) {
     std::map<std::string, std::function<yy::parser::symbol_type(const yy::parser::location_type&)>> keywords = {
             {"if", yy::parser::make_IFTRUE },
-            {"ifTrue", yy::parser::make_IFTRUE },
-            {"ifFalse", yy::parser::make_IFFALSE },
+            {"iftrue", yy::parser::make_IFTRUE },
+            {"iffalse", yy::parser::make_IFFALSE },
             {"goto", yy::parser::make_GOTO },
             {"halt", yy::parser::make_HALT },
-            {"param", yy::parser::make_PARAM },
+            {"getparam", yy::parser::make_GETPARAM },
+            {"putparam", yy::parser::make_PUTPARAM },
             {"call", yy::parser::make_CALL },
             {"nop", yy::parser::make_NOP },
             {"return", yy::parser::make_RETURN },
             {"print", yy::parser::make_PRINT },
+            {"block", yy::parser::make_BLOCK },
     };
 
     if (auto f = keywords.find(s); f != keywords.end()) return f->second(loc);
     else return yy::parser::make_IDENTIFIER(s, loc);
 }
 
-void driver::scan_begin()
+void ParseDriver::scan_begin()
 {
     yy_flex_debug = trace_scanning;
     // yy_flex_debug = 1;
@@ -114,6 +124,6 @@ void driver::scan_begin()
     }
 }
 
-void driver::scan_end() {
+void ParseDriver::scan_end() {
     fclose(yyin);
 }

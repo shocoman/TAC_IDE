@@ -2,8 +2,8 @@
 # graphviz_FOUND
 # graphviz_INCLUDE_DIRECTORIES
 
-#find_package(PkgConfig)
-#pkg_check_modules(pc_graphviz ${REQUIRED} libgvc libcdt libcgraph libpathplan)
+find_package(PkgConfig)
+pkg_check_modules(pc_graphviz ${REQUIRED} libgvc libcdt libcgraph libpathplan)
 
 find_path(graphviz_INCLUDE_DIRECTORIES
         NAMES gvc.h
@@ -52,4 +52,4 @@ endif ()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Graphviz
         REQUIRED_VARS graphviz_LIBRARIES graphviz_INCLUDE_DIRECTORIES
-        VERSION_VAR   graphviz_VERSION)
+        VERSION_VAR graphviz_VERSION)

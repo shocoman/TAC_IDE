@@ -7,13 +7,13 @@
 #include "parser.hpp"
 
 #define YY_DECL \
-    yy::parser::symbol_type yylex (driver& drv)
+    yy::parser::symbol_type yylex (ParseDriver & drv)
 YY_DECL;
 
 struct Quad;
 
-struct driver {
-    driver();
+struct ParseDriver {
+    ParseDriver(bool trace_parsing = false, bool trace_scanning = false);
 
     std::map<std::string, int> variables;
     std::map<std::string, int> labels;
@@ -30,8 +30,5 @@ struct driver {
     bool trace_scanning;
     yy::location location;
 };
-
-
-
 
 #endif // ! DRIVER_HPP

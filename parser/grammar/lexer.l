@@ -4,7 +4,7 @@
     # include <cstdlib>
     # include <cstring>
     # include <string>
-    #include "driver/driver.hpp"
+    #include "ParseDriver/ParseDriver.hpp"
     #include "parser.hpp"
 %}
 
@@ -65,7 +65,7 @@ yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::loca
 }
 
 
-void driver::scan_begin()
+void ParseDriver::scan_begin()
 {
     yy_flex_debug = trace_scanning;
     if (file.empty() || file == "-")
@@ -77,6 +77,6 @@ void driver::scan_begin()
     }
 }
 
-void driver::scan_end() {
+void ParseDriver::scan_end() {
     fclose(yyin);
 }
