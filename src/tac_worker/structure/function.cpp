@@ -7,33 +7,33 @@
 void Function::print_cfg(const std::string &filename) const {
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
-    // print_to_console edges
+    // print edges
     for (const auto &n : basic_blocks) {
-        if (visited.find(n->node_name) == visited.end()) {
-            visited.insert(n->node_name);
+        auto node_name = n->get_name();
+        if (visited.find(node_name) == visited.end()) {
+            visited.insert(node_name);
 
             std::vector<std::string> quad_lines;
-            // print_to_console title for node
-            if (n->lbl_name.has_value()) {
-                dot_writer.set_node_name(n->node_name, n->lbl_name.value());
-            }
+            // print title for node
+//            if (n->lbl_name.has_value()) {
+//                dot_writer.set_node_name(node_name, n->lbl_name.value());
+//            }
 
-            // print_to_console all quads as text
+            // print all quads as text
             for (auto &q : n->quads) {
                 quad_lines.emplace_back(q.fmt());
             }
-            dot_writer.set_node_text(n->node_name, quad_lines);
+            dot_writer.set_node_text(node_name, quad_lines);
 
-            // print_to_console edges
+            // print edges
             for (auto &s : n->successors) {
-                //                std::cout << n->node_name << " -> " << s->node_name << std::endl;
-                dot_writer.add_edge(n->node_name, s->node_name, s->lbl_name.value_or(""));
+                dot_writer.add_edge(node_name, s->get_name(), s->lbl_name.value_or(""));
             }
         }
     }
 
     dot_writer.render_to_file(filename);
-    system(("sxiv -g 1000x1000+20+20 " + filename).c_str());
+    system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
 }
 
 void Function::print_to_console() const {
@@ -64,8 +64,10 @@ void Function::connect_blocks() {
 
 void Function::add_missing_jumps() {
     for (int i = 0; i < basic_blocks.size() - 1; ++i) {
+        if (basic_blocks[i]->quads.empty())
+            continue;
         auto &last_q = basic_blocks[i]->quads.back();
-        if (!last_q.is_jump() && !basic_blocks[i]->successors.empty()) {
+        if (last_q.type != Quad::Type::Return && !last_q.is_jump() && !basic_blocks[i]->successors.empty()) {
             Dest dest((*basic_blocks[i]->successors.begin())->lbl_name.value(), {},
                       Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
@@ -77,30 +79,29 @@ void Function::add_missing_jumps() {
 void Function::add_entry_and_exit_block() {
     // assume there is already one and only one entry block
     // you don't need to add another one
-    //    auto entry_block = std::make_unique<BasicBlock>();
-    //    entry_block->node_name = "Entry block";
-    //    entry_block->id = -1;
-    //    entry_block->add_successor(basic_blocks.front().get());
-    //    basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
+    auto entry_block = std::make_unique<BasicBlock>();
+    entry_block->node_name = "Entry";
+    entry_block->id = 0;
+    entry_block->add_successor(basic_blocks.front().get());
+    basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
 
     // find blocks without successors (ending blocks) and connect them with exit block
     // if there are more than 1
-    std::vector<BasicBlock *> ending_blocks;
+    std::vector<BasicBlock *> final_blocks;
     for (auto &n : basic_blocks)
         if (n->successors.empty())
-            ending_blocks.emplace_back(n.get());
+            final_blocks.emplace_back(n.get());
 
-    if (ending_blocks.size() > 1) {
+    if (!final_blocks.empty()) {
         auto exit_block = std::make_unique<BasicBlock>();
-        exit_block->node_name = "Exit block";
-        exit_block->id = basic_blocks.back()->id + 1;
-        exit_block->lbl_name = "EXIT_BLOCK";
-        exit_block->quads.push_back(Quad(std::string("0"), {}, Quad::Type::Return));
+        exit_block->node_name = "Exit";
+        //        exit_block->id = basic_blocks.back()->id + 1;
+        exit_block->id = 0;
+//        exit_block->lbl_name = "EXIT_BLOCK";
+        //        exit_block->quads.push_back(Quad(std::string("0"), {}, Quad::Type::Return));
 
-        for (auto &e : ending_blocks) {
-            //            Dest dest(exit_block->lbl_name.value(), {}, Dest::Type::JumpLabel);
-            //            e->quads.push_back( Quad({}, {}, Quad::Type::Goto, dest) );
-            e->add_successor(exit_block.get());
+        for (auto &f : final_blocks) {
+            f->add_successor(exit_block.get());
         }
 
         basic_blocks.push_back(std::move(exit_block));
@@ -131,7 +132,8 @@ std::unordered_map<int, int> Function::get_reverse_post_ordering() const {
 
     for (auto &b : basic_blocks) {
         block_id_to_rpo[b->id] = counter - 1 - block_id_to_rpo.at(b->id);
-        b->node_name = b->get_name() + "; RPO: " + std::to_string(block_id_to_rpo.at(b->id));
+        //        b->node_name = b->get_name() + "; RPO: " +
+        //        std::to_string(block_id_to_rpo.at(b->id));
     }
 
     return block_id_to_rpo;
@@ -157,6 +159,13 @@ BasicBlock *Function::find_root_node() const {
     return nullptr;
 }
 
+BasicBlock *Function::find_exit_node() const {
+    for (const auto &b : basic_blocks)
+        if (b->successors.empty())
+            return b.get();
+    return nullptr;
+}
+
 void Function::print_basic_block_info() const {
     for (const auto &b : basic_blocks) {
         std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE")
@@ -172,5 +181,15 @@ void Function::remove_blocks_without_predecessors() {
         } else {
             ++it;
         }
+    }
+}
+
+void Function::update_block_ids() {
+    id_to_block.clear();
+    int id = 0;
+    for (auto &b : basic_blocks) {
+        b->id = id++;
+//        if (b->lbl_name.has_value()) b->node_name = b->lbl_name.value();
+        id_to_block[b->id] = b.get();
     }
 }

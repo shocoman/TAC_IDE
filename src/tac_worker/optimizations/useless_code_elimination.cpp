@@ -4,10 +4,15 @@
 
 #include "useless_code_elimination.hpp"
 
-void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &id_to_idom) {
+void useless_code_elimination(Function &function) {
 
     BasicBlocks &blocks = function.basic_blocks;
     ID2Block &id_to_block = function.id_to_block;
+
+    function.reverse_graph();
+    auto id_to_rev_idom = find_immediate_dominators(function);
+    ID2DF reverse_df = find_dominance_frontier(function.basic_blocks, id_to_rev_idom);
+    function.reverse_graph();
 
     struct Place {
         int block_num;
@@ -15,20 +20,17 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
 
         bool operator<(const Place &o) const {
             return std::tie(block_num, quad_num) < std::tie(o.block_num, o.quad_num);
-            //            return (block_num < o.quad_num) || (block_num == o.block_num && quad_num <
-            //            o.quad_num);
         }
     };
 
     struct VarInfo {
         bool critical = false;
-
         Place defined_at = {-1, -1};
-        std::vector<Place> used_at{};
+        std::vector<Place> used_at;
     };
 
     std::map<Place, VarInfo> using_info;
-    std::map<std::string, Place> name_to_place;
+    std::unordered_map<std::string, Place> name_to_place;
 
     for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
         auto &b = blocks[b_index];
@@ -66,7 +68,7 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
         auto &q = blocks[next_place.block_num]->quads[next_place.quad_num];
 
         for (const auto &op : q.ops) {
-            if (op.is_var()) {
+            if (op.is_var() && q.type != Quad::Type::Call) {
                 auto &defined_place = name_to_place.at(op.value);
                 auto &var_use_info = using_info.at(defined_place);
                 if (!var_use_info.critical) {
@@ -77,7 +79,7 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
         }
 
         auto &current_block = blocks[next_place.block_num];
-        for (auto &b_id : id_to_rev_df.at(current_block->id)) {
+        for (auto &b_id : reverse_df.at(current_block->id)) {
             int dom_block_num = -1;
             for (int i = 0; i < blocks.size(); ++i)
                 if (blocks[i]->id == b_id)
@@ -93,7 +95,7 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
         }
     }
 
-    // Sweep Pass (remove not critical quads/operations)
+    // Sweep Pass (remove non critical quads/operations)
     for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
         auto &b = blocks[b_index];
         for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
@@ -103,7 +105,7 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
             if (!using_info.at(place).critical) {
                 if (q.is_jump()) {
                     if (!using_info.at(place).critical) {
-                        auto closest_post_dominator = id_to_block.at(id_to_idom.at(b->id));
+                        auto closest_post_dominator = id_to_block.at(id_to_rev_idom.at(b->id));
                         q.type = Quad::Type::Goto;
                         q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
                         b->remove_successors();
@@ -117,8 +119,8 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
     }
 
     // Mark unreachable blocks
-    auto root = find_root_node(blocks);
-    std::set<int> reachable_ids;
+    auto root = function.find_root_node();
+    std::unordered_set<int> reachable_ids;
     std::function<void(BasicBlock(*))> reachable_walker = [&](BasicBlock *b) {
         if (reachable_ids.insert(b->id).second)
             for (auto &succ : b->successors)
@@ -139,12 +141,10 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
         }
     }
 
-    print_cfg(blocks, "before_clean.png");
-
     // Clean Pass
     bool changed = true;
-    auto one_pass = [&](const std::map<int, int> &postorder_to_id) {
-        std::set<int> block_ids_to_remove;
+    auto one_pass = [&](const std::unordered_map<int, int> &postorder_to_id) {
+        std::unordered_set<int> block_ids_to_remove;
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
@@ -227,13 +227,13 @@ void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &
     int iter = 0;
     while (changed) {
         iter++;
-        std::map<int, int> postorder_to_id;
-        for (auto &[id, rpo] : generate_post_order_numbers(blocks))
+        std::unordered_map<int, int> postorder_to_id;
+        for (auto &[id, rpo] : function.get_post_ordering())
             postorder_to_id[rpo] = id;
 
         changed = false;
         one_pass(postorder_to_id);
     }
 
-    print_blocks(blocks);
+//    function.print_to_console();
 }

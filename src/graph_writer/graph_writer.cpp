@@ -18,18 +18,23 @@ void GraphWriter::set_node_text(const std::string &node_name,
 }
 
 void GraphWriter::render_to_file(const std::string &filename) {
-    std::map<std::string, Agnode_t *> ag_nodes;
-    std::map<std::string, Agedge_t *> ag_edges;
+    std::unordered_map<std::string, Agnode_t *> ag_nodes;
+    std::unordered_map<std::string, Agedge_t *> ag_edges;
 
     GVC_t *gvc = gvContext();
     Agraph_t *g = agopen((char *)"g", Agdirected, nullptr);
 
     for (auto &[node, label_lines] : node_texts) {
-        std::string final_label;
+        std::string final_label = "{";
+        auto node_name = node;
         if (auto n = node_names.find(node); n != node_names.end()) {
-            final_label += "Label: " + n->second + ";\\l";
+            //            final_label += "Label: " + n->second + ";\\l";
+            node_name = node_names.at(node);
         }
-        final_label += node + "|";
+        if (label_lines.empty())
+            final_label += node_name;
+        else
+            final_label += node_name + "|";
 
         for (auto l : label_lines) {
             // escape utility symbols (<, >, ...)
@@ -44,7 +49,6 @@ void GraphWriter::render_to_file(const std::string &filename) {
             final_label += l + "\\l";
         }
         // for correct vertical label formatting
-        final_label.insert(0, "{");
         final_label.append("}");
 
         Agnode_t *ag_node = agnode(g, (char *)node.c_str(), 1);
@@ -60,9 +64,9 @@ void GraphWriter::render_to_file(const std::string &filename) {
         Agedge_t *e = agedge(g, n1, n2, (char *)edge_name.c_str(), 1);
         agsafeset(e, (char *)"label", (char *)edge_name.c_str(), (char *)"");
         // edge direction?
-        //        agsafeset(e, (char *) "headport", (char *) "n", (char *) "");
-        //        agsafeset(e, (char *) "tailport", (char *) "s", (char *) "");
-        //        agsafeset(e, (char *) "constraint", (char *) "false", (char *) "");
+        // agsafeset(e, (char *) "headport", (char *) "n", (char *) "");
+        // agsafeset(e, (char *) "tailport", (char *) "s", (char *) "");
+        // agsafeset(e, (char *) "constraint", (char *) "false", (char *) "");
         ag_edges.emplace(edge_name, e);
     }
 
@@ -78,7 +82,7 @@ void GraphWriter::render_to_file(const std::string &filename) {
                   (char *)font_name);
     }
 
-    // print_to_console graph as png image to a file
+    // print graph as png image to a file
     gvLayout(gvc, g, "dot");
     int res = gvRenderFilename(gvc, g, "png", (char *)filename.c_str());
     if (res) {

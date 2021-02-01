@@ -8,7 +8,7 @@
 #include "tac_worker/structure/function.hpp"
 
 int main(int argc, char *argv[]) {
-    setenv("DISPLAY", "192.168.211.241:0", true);
+    setenv("DISPLAY", "172.18.65.113:0", true);
 
     ParseDriver drv;
 
@@ -23,11 +23,15 @@ int main(int argc, char *argv[]) {
     //            res = 1;
 
     //    drv.parse("../_TestCode/myfile");
-    drv.parse("../_TestCode/myfile2");
-    //    drv.parse("../_TestCode/FactorialProgram.txt");
+//    drv.parse("../_TestCode/myfile2");
+//    drv.parse("../_TestCode/reach_def_test.txt");
+//    drv.parse("../_TestCode/lazy_code_motion.txt");
+    drv.parse("../_TestCode/anticipate_expression.txt");
+//        drv.parse("../_TestCode/FactorialProgram.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     optimize(functions[0]);
 
+    std::getchar();
     return 0;
 }

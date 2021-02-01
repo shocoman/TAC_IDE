@@ -12,24 +12,25 @@
 
 
 struct Function {
+    std::string name = "None";
     BasicBlocks basic_blocks;
     ID2Block id_to_block;
 
     Function() = delete;
     Function(BasicBlocks blocks) : basic_blocks(std::move(blocks)) {
+        name = basic_blocks[0]->lbl_name.value_or("None");
+
         connect_blocks();
         add_entry_and_exit_block();
         add_missing_jumps();
-
-        for (auto &b : basic_blocks)
-            id_to_block[b->id] = b.get();
+        update_block_ids();
     }
 
-    std::string get_function_name() const { return basic_blocks[0]->lbl_name.value_or("None"); }
     void print_to_console() const;
     void print_basic_block_info() const;
     void print_cfg(const std::string &filename) const;
 
+    void update_block_ids();
     void connect_blocks();
     void reverse_graph();
     void add_entry_and_exit_block();
@@ -40,6 +41,7 @@ struct Function {
     std::unordered_map<int, int> get_reverse_post_ordering() const;
 
     BasicBlock *find_root_node() const;
+    BasicBlock *find_exit_node() const;
 };
 
 #endif // TAC_PARSER_FUNCTION_HPP

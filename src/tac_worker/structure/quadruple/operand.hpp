@@ -39,19 +39,36 @@ struct Operand {
             return value;
     }
 
-    int get_int() const {
-        char *end = nullptr;
-        return strtol(value.c_str(), &end, 10);
+    std::optional<double> as_double() const {
+        switch (type) {
+        case Type::LChar:
+            return (double)value[0];
+        case Type::LBool:
+            if (value == "true")
+                return 1.0;
+            else if (value == "false")
+                return 0.0;
+        case Type::LInt:
+        case Type::LDouble: {
+            char *end_ptr = nullptr;
+            double n = strtod(value.c_str(), &end_ptr);
+            return (*end_ptr == '\0') ? std::optional(n) : std::nullopt;
+        }
+        case Type::None:
+        case Type::LString:
+        case Type::Var:
+        default:
+            return std::nullopt;
+        }
     }
 
-    double get_double() const {
-        char *end = nullptr;
-        return strtod(value.c_str(), &end);
-    }
+    int get_int() const { return (int)as_double().value(); }
+
+    double get_double() const { return as_double().value(); }
 
     bool is_var() const { return type == Type::Var; }
 
-    bool is_constant() const { return !is_var(); }
+    bool is_constant() const { return !(is_var() || type == Type::None); }
 
     bool is_int() const { return type == Type::LInt; }
 

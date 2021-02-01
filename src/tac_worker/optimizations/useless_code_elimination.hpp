@@ -5,6 +5,12 @@
 #ifndef TAC_PARSER_USELESS_CODE_ELIMINATION_HPP
 #define TAC_PARSER_USELESS_CODE_ELIMINATION_HPP
 
-void useless_code_elimination(Function &function, ID2DF &id_to_rev_df, ID2IDOM &id_to_idom);
+#include <set>
+#include <map>
+#include "tac_worker/structure/function.hpp"
+#include "ssa.hpp"
+
+
+void useless_code_elimination(Function &function);
 
 #endif // TAC_PARSER_USELESS_CODE_ELIMINATION_HPP

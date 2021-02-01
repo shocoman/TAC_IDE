@@ -238,12 +238,9 @@ void dominator_based_value_numbering(Function &function, ID2IDOM &id_to_idom) {
         // process every phi Function
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
-            //            std::cout << b->node_name << ": " << phi.fmt() << std::endl;
-
             std::set<Operand> ops_set(phi.ops.begin(), phi.ops.end());
             // phi is meaningless (all operands are equal)
             if (std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin())) {
-                std::cout << "Phi is meaningless" << std::endl;
                 t.set_value_number_for_name(phi.dest->name, phi.ops[0].value);
                 b->quads.erase(b->quads.begin() + i);
                 --b->phi_functions;
@@ -251,8 +248,6 @@ void dominator_based_value_numbering(Function &function, ID2IDOM &id_to_idom) {
             }
             // or phi is redundant (same as one of the previous phi functions)
             else if (auto v = t.get_phi_node_by_operation(ops_set); v.has_value()) {
-                std::cout << "Phi is redundant" << std::endl;
-
                 t.set_value_number_for_name(phi.dest->name, v.value());
                 b->quads.erase(b->quads.begin() + i);
                 --b->phi_functions;

@@ -11,7 +11,7 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     };
 
     struct VarInfo {
-        enum class ValueType { Bottom, Constant, Top };
+        enum class ValueType { Bottom /*Not a constant*/, Constant, Top /*Undefined (yet)*/ };
 
         Place defined_at = {-1, -1};
         std::vector<Place> used_at{};
@@ -26,13 +26,12 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
 
     for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
         auto &b = blocks[b_index];
-        for (int i = 0; i < b->quads.size(); ++i) {
-            auto &q = b->quads[i];
+        for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
+            auto &q = b->quads[q_index];
             if (!q.dest.has_value() || q.dest->type == Dest::Type::None)
                 continue;
 
-            Place place{b_index, i};
-            //            if (!q.is_jump())
+            Place place{b_index, q_index};
             usingInfo[q.dest->name].defined_at = place;
 
             if (Quad::is_foldable(q.type))
@@ -51,19 +50,16 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         if (useInfo.defined_at.block_num == -1)
             continue;
 
-        auto &q = blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
+        auto &q = blocks[useInfo.defined_at.block_num]->quads[useInfo.defined_at.quad_num];
 
         if (q.type == Quad::Type::PhiNode) {
             useInfo.value_type = ValType::Top;
         } else if (q.type == Quad::Type::Assign && q.get_op(0)->is_constant()) {
             useInfo.value_type = ValType::Constant;
             useInfo.constant = q.get_op(0).value();
-        } else {
-            useInfo.value_type = ValType::Top;
-        }
-
-        if (useInfo.value_type != ValType::Top) {
             work_list.push_back(name);
+        } else {
+            useInfo.value_type = ValType::Top; // undefined
         }
     }
 
@@ -73,15 +69,14 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         work_list.pop_back();
 
         for (auto &[block_num, quad_num] : usingInfo.at(name).used_at) {
-            auto &q = blocks.at(block_num)->quads.at(quad_num);
+            auto &q = blocks[block_num]->quads[quad_num];
             if (q.is_jump())
                 continue;
 
             auto &lhs = usingInfo.at(q.dest->name);
             if (lhs.value_type != ValType::Bottom) {
                 auto tmp = std::pair{lhs.value_type, lhs.constant};
-                auto &lhs_q =
-                    blocks.at(lhs.defined_at.block_num)->quads.at(lhs.defined_at.quad_num);
+                auto &lhs_q = blocks[lhs.defined_at.block_num]->quads[lhs.defined_at.quad_num];
 
                 lhs.value_type = ValType::Top;
                 lhs.constant = Operand();
@@ -105,8 +100,6 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
                         }
                     }
                 } else {
-                    //  if (lhs_q.ops.size() >= 2)
-
                     auto fst = lhs_q.get_op(0);
                     auto snd = lhs_q.get_op(1);
                     if (fst && fst->is_var() &&
@@ -116,14 +109,12 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
                         usingInfo.at(snd->value).value_type == ValType::Constant)
                         snd = Operand(usingInfo.at(snd->value).constant);
 
-                    auto tmp_q = Quad();
-                    tmp_q.ops = {fst.value_or(Operand()), snd.value_or(Operand())};
-                    tmp_q.type = lhs_q.type;
-                    auto prev = tmp_q;
+                    auto tmp_q = Quad(fst.value_or(Operand()), snd.value_or(Operand()), lhs_q.type);
+                    auto quad_copy = tmp_q;
                     constant_folding(tmp_q);
 
                     // SOMETHING CHANGED, UPDATE LHS
-                    if (tmp_q != prev) {
+                    if (tmp_q != quad_copy) {
                         lhs.value_type = ValType::Top;
                         lhs.constant = Operand();
 
@@ -146,6 +137,7 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
         }
     }
 
+    // region Print SSCP
     //    for (auto &[name, useInfo] : usingInfo) {
     //        std::cout << "Var: " << name << " defined at: (" << useInfo.defined_at.block_num << ";
     //        "
@@ -156,18 +148,18 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
     //        std::cout << " ValType: " << (int) useInfo.value_type << "; " <<
     //        useInfo.constant.value << std::endl;
     //    }
+    // endregion
 
     for (auto &[name, useInfo] : usingInfo) {
         if (useInfo.value_type == ValType::Constant) {
-            auto &q =
-                blocks.at(useInfo.defined_at.block_num)->quads.at(useInfo.defined_at.quad_num);
+            auto &q = blocks[useInfo.defined_at.block_num]->quads[useInfo.defined_at.quad_num];
             q.type = Quad::Type::Assign;
             q.ops[0] = useInfo.constant;
             q.clear_op(1);
         }
     }
 
-    // update phi Function positions
+    // update phi-function positions
     for (auto &b : blocks) {
         b->phi_functions = 0;
         for (int i = 0; i < b->quads.size(); ++i) {

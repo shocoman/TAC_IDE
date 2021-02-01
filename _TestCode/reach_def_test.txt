@@ -1,0 +1,22 @@
+
+B0:
+
+    a = b + c
+    b = a - d
+    //c = b + c
+    //d = a - d
+B1:
+    i = m-1
+    j = m-1
+    a = 1
+B2:
+    i = i + 1
+    j = j - 1
+    if 0 goto B4
+B3:
+    a = 2
+B4:
+    i = 3
+    if 0 goto B2
+B5:
+    return 0

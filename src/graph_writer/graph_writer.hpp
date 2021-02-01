@@ -6,14 +6,14 @@
 #define TAC_PARSER_GRAPH_WRITER_HPP
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <gvc.h>
 
 class GraphWriter {
-    std::map<std::string, std::string> node_names;
+    std::unordered_map<std::string, std::string> node_names;
     std::vector<std::pair<std::string, std::vector<std::string>>> node_texts;
     std::vector<std::tuple<std::string, std::string, std::string>> edges;
 

@@ -12,8 +12,6 @@ void convert_to_ssa(Function &function) {
     ID2IDOM id_to_immediate_dominator = find_immediate_dominators(function);
     ID2DF id_to_dominance_frontier = find_dominance_frontier(blocks, id_to_immediate_dominator);
 
-    function.print_cfg("k.png");
-
     // region PrintDominators
     //    std::cout << "-- PRINT --" << std::endl;
     //    for (auto &[id, doms] : id_to_dominators) {
@@ -52,11 +50,13 @@ void convert_to_ssa(Function &function) {
         }
     }
 
+    // region PrintGlobalNames
     //    std::cout << "Global names: ";
     //    for (auto &name : global_names) {
     //        std::cout << name << ", ";
     //    }
     //    std::cout << std::endl;
+    // endregion
 
     place_phi_functions(function, id_to_immediate_dominator, id_to_dominance_frontier, var_to_block,
                         global_names, all_names);
@@ -124,13 +124,11 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
             auto &q = block->quads[i];
             if (auto op1 = q.get_op(0);
                 op1 && op1->is_var() && name_to_stack.find(op1->value) != name_to_stack.end()) {
-                q.ops[0].value +=
-                    "." + std::__cxx11::to_string(name_to_stack.at(op1->value).back());
+                q.ops[0].value += "." + std::to_string(name_to_stack.at(op1->value).back());
             }
             if (auto op2 = q.get_op(1);
                 op2 && op2->is_var() && name_to_stack.find(op2->value) != name_to_stack.end()) {
-                q.ops[1].value +=
-                    "." + std::__cxx11::to_string(name_to_stack.at(op2->value).back());
+                q.ops[1].value += "." + std::to_string(name_to_stack.at(op2->value).back());
             }
             if (q.dest && all_names.find(q.dest->name) != all_names.end()) {
                 pushed_names.push_back(q.dest->name);
@@ -138,7 +136,7 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
             }
         }
 
-        // fill phi Function parameters for every successor
+        // fill phi function parameters for each successor
         for (auto &s : block->successors) {
             for (int i = 0; i < s->phi_functions; ++i) {
                 auto &phi = s->quads[i];
@@ -146,10 +144,9 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
                 auto name_without_dot = name.substr(0, name.find_first_of('.', 0));
 
                 std::string next_name;
-                if (name_to_stack.find(name_without_dot) != name_to_stack.end() &&
-                    !name_to_stack.at(name_without_dot).empty()) {
-                    next_name = name_without_dot + "." +
-                                std::__cxx11::to_string(name_to_stack.at(name_without_dot).back());
+                if (auto stack = name_to_stack.find(name_without_dot);
+                    stack != name_to_stack.end() && !stack->second.empty()) {
+                    next_name = name_without_dot + "." + std::to_string(stack->second.back());
                 } else {
                     next_name = name;
                 }
@@ -195,7 +192,11 @@ ID2IDOM find_immediate_dominators(Function &function) {
     ID2Block &id_to_block = function.id_to_block;
 
     std::unordered_map<int, int> id_to_rpo = function.get_reverse_post_ordering();
-    std::unordered_map<int, int> rpo_to_id;
+
+    // We use std::map here for its sorting capabilities
+    // rpo_to_id will contain ids sorted in reverse post order.
+    // It's important for the algorithm (convergence)
+    std::map<int, int> rpo_to_id;
     for (auto &[id, rpo] : id_to_rpo)
         rpo_to_id.emplace(rpo, id);
 
@@ -213,30 +214,30 @@ ID2IDOM find_immediate_dominators(Function &function) {
     };
 
     auto entry_node_id = function.find_root_node()->id;
-    //    auto entry_node_id = rpo_to_id.at(0);
     id_to_idom[entry_node_id] = entry_node_id;
+
     bool changed = true;
     int iterations = 0;
     while (changed) {
         iterations++;
         changed = false;
-        for (auto &[rpo, id] : rpo_to_id) {
 
+        for (auto &[rpo, id] : rpo_to_id) {
             auto &b = id_to_block.at(id);
-            if (b->predecessors.empty())
+            if (b->id == entry_node_id)
                 continue;
 
             auto preds = b->predecessors.begin();
-            while (preds != b->predecessors.end() && id_to_rpo.at((*preds)->id) > rpo)
+            while (preds != b->predecessors.end() &&
+                   id_to_idom.find((*preds)->id) == id_to_idom.end())
                 std::advance(preds, 1);
             if (preds == b->predecessors.end())
                 continue;
             auto new_idom = *preds;
 
             for (std::advance(preds, 1); preds != b->predecessors.end(); std::advance(preds, 1)) {
-                auto p = *preds;
-                if (id_to_idom.find(p->id) != id_to_idom.end())
-                    new_idom = intersect(p, new_idom);
+                if (id_to_idom.find((*preds)->id) != id_to_idom.end())
+                    new_idom = intersect(*preds, new_idom);
             }
 
             if (id_to_idom.find(b->id) == id_to_idom.end() ||
@@ -248,14 +249,17 @@ ID2IDOM find_immediate_dominators(Function &function) {
     }
 
     bool graph_is_irreducible = iterations > 2;
+    // region Print IDom set
     //    std::cout << __PRETTY_FUNCTION__ << std::endl;
     //    std::cout << "Iterations: " << iterations << std::endl;
     //    for (auto &[id, idom_id] : id_to_idom) {
-    //        std::cout << id_to_block.at(id)->node_name << " -> " <<
-    //        id_to_block.at(idom_id)->node_name << std::endl;
+    //        std::cout << id_to_block.at(id)->get_name() << " -> " <<
+    //        id_to_block.at(idom_id)->get_name()
+    //                  << std::endl;
     //    }
+    // endregion
 
-    // entry node have no idom
+    // entry node has no idom
     id_to_idom.erase(entry_node_id);
     return id_to_idom;
 }
@@ -307,7 +311,6 @@ ID2DOM find_dominators(const BasicBlocks &blocks) {
 void remove_phi_functions(Function &function) {
     BasicBlocks &blocks = function.basic_blocks;
     ID2Block &id_to_block = function.id_to_block;
-    int entry_id = function.find_root_node()->id;
 
     BasicBlocks new_blocks;
     for (auto &b : blocks) {
@@ -315,6 +318,8 @@ void remove_phi_functions(Function &function) {
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
             for (auto &op : phi.ops) {
+
+                // Predecessor id could change after optimizations
                 if (replace_block_id.find({op.predecessor_id, b->id}) == replace_block_id.end() &&
                     id_to_block.at(op.predecessor_id)->successors.size() > 1) {
                     auto *pred = id_to_block.at(op.predecessor_id);
@@ -350,7 +355,7 @@ void remove_phi_functions(Function &function) {
                     new_blocks.push_back(std::move(split_block));
                 }
 
-                BasicBlock *pred = nullptr;
+                BasicBlock *pred;
                 if (replace_block_id.find({op.predecessor_id, b->id}) != replace_block_id.end()) {
                     pred = id_to_block.at(replace_block_id.at({op.predecessor_id, b->id}));
                 } else {
@@ -385,5 +390,5 @@ void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom) {
     }
 
     writer.render_to_file("dominator_tree.png");
-    system("feh dominator_tree.png");
+    system("feh dominator_tree.png &");
 }

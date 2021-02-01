@@ -1,8 +1,10 @@
 #ifndef TAC_PARSER_QUADRUPLE_HPP
 #define TAC_PARSER_QUADRUPLE_HPP
 
+#include <algorithm>
 #include <optional>
 #include <ostream>
+#include <utility>
 #include <vector>
 
 #include "destination.hpp"
@@ -42,53 +44,14 @@ struct Quad {
     std::vector<Operand> ops{};
     Type type{};
 
-    Quad(Operand op1, Operand op2, Type op_type, const Dest &dest = {})
-        : type(op_type), dest(dest) {
+    Quad() = default;
+
+    Quad(Operand op1, Operand op2, Type op_type, std::optional<Dest> dest = {})
+        : type(op_type), dest(std::move(dest)) {
         if (!op1.value.empty())
             ops.emplace_back(std::move(op1));
         if (!op2.value.empty())
             ops.emplace_back(std::move(op2));
-    }
-
-    Quad() = default;
-
-    static bool is_commutative(Type t) {
-        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq ||
-               t == Type::Neq;
-    }
-
-    static bool is_jump(Type t) {
-        return t == Type::Goto || t == Type::IfTrue || t == Type::IfFalse;
-    }
-
-    bool is_conditional_jump() { return type == Type::IfTrue || type == Type::IfFalse; }
-
-    static bool is_critical(Type t) { return t == Type::Print || t == Type::Return; }
-
-    static bool is_foldable(Type t) {
-        return !(t == Type::Goto || t == Type::Print || t == Type::Return || t == Type::Assign ||
-                 t == Type::PhiNode);
-    }
-
-    std::vector<std::string> get_used_vars() const {
-        auto used_vars = get_rhs();
-        if (auto l = get_lhs(); l.has_value()) {
-            used_vars.push_back(l.value());
-        }
-        return used_vars;
-    }
-
-    std::optional<std::string> get_lhs() const {
-        if (dest && !is_jump()) {
-            return (dest.value().name);
-        } else {
-            return {};
-        }
-    }
-
-    void clear_op(int i) {
-        if (i < ops.size())
-            ops.erase(ops.begin() + i);
     }
 
     std::optional<Operand> get_op(int i) const {
@@ -97,9 +60,13 @@ struct Quad {
         else
             return {};
     }
+    void clear_op(int i) {
+        if (i < ops.size())
+            ops.erase(ops.begin() + i);
+    }
 
     std::vector<std::string> get_rhs(bool include_constants = true) const {
-        if (type == Type::Call)
+        if (type == Type::Call) // dont count functions
             return {};
 
         std::vector<std::string> rhs_vars;
@@ -115,17 +82,56 @@ struct Quad {
             rhs_vars.push_back(op2->get_string());
         return rhs_vars;
     }
+    std::optional<std::string> get_lhs() const {
+        if (dest && !is_jump()) {
+            return (dest.value().name);
+        } else {
+            return {};
+        }
+    }
+    std::vector<std::string> get_used_vars() const {
+        auto used_vars = get_rhs();
+        if (auto l = get_lhs(); l.has_value()) {
+            used_vars.push_back(l.value());
+        }
+        return used_vars;
+    }
 
     bool is_jump() const {
         return type == Type::Goto || type == Type::IfTrue || type == Type::IfFalse;
     }
-
     bool is_unary() const {
         return type == Type::Deref || type == Type::Ref || type == Type::Assign ||
                type == Type::UMinus;
     }
+    bool is_conditional_jump() const { return type == Type::IfTrue || type == Type::IfFalse; }
+    bool is_assignment() const {
+        return !(is_jump() || type == Type::Return || type == Type::Nop || type == Type::Halt ||
+                 type == Type::Putparam || (type == Type::Call && !dest.has_value()));
+    }
+    bool is_binary() const {
+        auto binaries = {
+            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt, Type::Gt, Type::Eq, Type::Neq,
+        };
+        return std::any_of(binaries.begin(), binaries.end(),
+                           [this](auto expr_type) { return this->type == expr_type; });
+    }
 
-    friend std::ostream &operator<<(std::ostream &os, const Quad &quad) { return os << quad.fmt(); }
+    static bool is_commutative(Type t) {
+        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq ||
+               t == Type::Neq;
+    }
+    static bool is_critical(Type t) {
+        return t == Type::Print || t == Type::Return || t == Type::Putparam || t == Type::Call;
+    }
+    static bool is_foldable(Type t) {
+        auto foldables = {
+            Type::Add, Type::Sub, Type::Mult, Type::Div,    Type::Lt,
+            Type::Gt,  Type::Eq,  Type::Neq,  Type::UMinus,
+        };
+        return std::any_of(foldables.begin(), foldables.end(),
+                           [t](auto expr_type) { return t == expr_type; });
+    }
 
     std::string fmt() const {
         std::optional<std::string> destination =
@@ -219,12 +225,12 @@ struct Quad {
         }
     }
 
+    friend std::ostream &operator<<(std::ostream &os, const Quad &quad) { return os << quad.fmt(); }
     bool operator==(const Quad &rhs) const {
         return ops == rhs.ops && type == rhs.type &&
                (!dest.has_value() || dest->type == rhs.dest->type && dest->name == rhs.dest->name &&
                                          dest->index == rhs.dest->index);
     }
-
     bool operator!=(const Quad &rhs) const { return !(rhs == *this); }
 };
 

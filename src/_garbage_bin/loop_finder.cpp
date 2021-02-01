@@ -106,3 +106,35 @@ struct LoopFinder {
         }
     }
 };
+
+
+//void print_loops(BasicBlocks &nodes) {
+//    // generate ids for node names
+//    std::map<int, std::string> name_by_id;
+//    std::map<std::string, int> id_by_name;
+//    int counter = 0;
+//    for (const auto &n : nodes) {
+//        name_by_id[counter] = n->node_name;
+//        id_by_name[n->node_name] = counter;
+//        ++counter;
+//    }
+//
+//    std::map<int, std::list<int>> adjacency_list;
+//    for (const auto &n : nodes) {
+//        adjacency_list[id_by_name[n->node_name]] = {};
+//        for (const auto &s : n->successors) {
+//            adjacency_list[id_by_name[n->node_name]].emplace_back(id_by_name[s->node_name]);
+//        }
+//    }
+//
+//    LoopFinder l = LoopFinder(adjacency_list);
+//    l.find();
+//
+//    std::cout << "LOOPS: " << std::endl;
+//    for (const auto &loop : l.loops) {
+//        for (const auto &i : loop) {
+//            std::cout << name_by_id.at(i) << " -> ";
+//        }
+//        std::cout << std::endl;
+//    }
+//}

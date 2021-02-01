@@ -98,13 +98,14 @@ quadruple:
 |   if_statement
 |   goto
 |   "halt"                              { $$ = Quad({}, {}, Quad::Type::Halt); };
-|   "putparam" term                     { $$ = Quad($term, {}, Quad::Type::Putparam); };
-|   "getparam" "identifier"[id]         { $$ = Quad($id, {}, Quad::Type::Getparam); };
 |   "nop"                               { $$ = Quad({}, {}, Quad::Type::Nop); };
 |   "return" term                       { $$ = Quad($term, {}, Quad::Type::Return); };
-|   "print_to_console"  term                       { $$ = Quad($term, {}, Quad::Type::Print); };
+|   "print_to_console"  term            { $$ = Quad($term, {}, Quad::Type::Print); };
 |   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
 |   var_declaration
+|   "putparam" term                     { $$ = Quad($term, {}, Quad::Type::Putparam); };
+|   "getparam" "identifier"[id]         { $$ = Quad({}, {}, Quad::Type::Getparam);
+                                          $$.dest = Dest($id, {}, Dest::Type::Var);  };
 ;
 
 var_declaration:

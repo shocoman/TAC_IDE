@@ -21,7 +21,16 @@ struct BasicBlock {
     std::unordered_set<BasicBlock *> predecessors;
 
     int phi_functions = 0;
-    std::string get_name() const { return "BB " + std::to_string(id); }
+    std::string get_name() const {
+        if (lbl_name.has_value()) {
+            return lbl_name.value();
+        } else if (!node_name.empty()) {
+//            return "BB " + std::to_string(id);
+            return node_name;
+        } else {
+            return "BB #" + std::to_string(id);
+        }
+    }
 
     std::string fmt() const {
         std::string out;
