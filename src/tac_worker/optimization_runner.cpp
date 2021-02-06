@@ -4,6 +4,7 @@
 
 #include <numeric>
 
+#include "optimizations/data_flow_analyses/dominators.hpp"
 #include "optimization_runner.hpp"
 
 void optimize(Function &function) {

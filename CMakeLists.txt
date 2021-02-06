@@ -11,29 +11,29 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_FILES
         main.cpp
         src/graph_writer/graph_writer.cpp
-        src/tac_worker/optimization_runner.cpp src/tac_worker/optimizations/value_numbering.hpp
-        src/tac_worker/structure/basic_block.cpp src/tac_worker/structure/basic_block.hpp src/tac_worker/structure/function.cpp src/tac_worker/structure/function.hpp
+        src/tac_worker/optimization_runner.cpp
+        src/tac_worker/structure/basic_block.cpp   src/tac_worker/structure/function.cpp
         src/tac_worker/quad_preparation.cpp src/tac_worker/optimizations/ssa.cpp src/tac_worker/optimizations/ssa.hpp src/tac_worker/optimizations/value_numbering.cpp
         src/tac_worker/optimizations/useless_code_elimination.cpp
         src/tac_worker/optimizations/sparse_simple_constant_propagation.cpp
-        src/tac_worker/optimizations/data_flow_analyses.cpp
-        src/tac_worker/optimizations/constant_propagation.cpp src/tac_worker/optimizations/constant_propagation.hpp)
+        src/tac_worker/optimizations/data_flow_analyses/data_flow_analyses.cpp
+        src/tac_worker/optimizations/constant_propagation.cpp src/tac_worker/optimizations/data_flow_analyses/dominators.cpp)
 
 
-# Creating exe and linking
+### Creating exe and linking ###
 add_executable(tac_parser ${SOURCE_FILES})
 target_include_directories(tac_parser PUBLIC src)
 
 
-# Graphviz
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+### Graphviz ###
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_plugins")
 find_package(Graphviz)
 target_include_directories(tac_parser PUBLIC "${graphviz_INCLUDE_DIRECTORIES}")
 target_include_directories(tac_parser PUBLIC src/parser)
 target_link_libraries(tac_parser PRIVATE ${graphviz_LIBRARIES})
 
 
-# Flex/Bison
+### Flex/Bison ###
 if (WIN32)
     set(BISON_COMPILE_FLAGS, "-Wcounterexamples")
     set(FLEX_COMPILE_FLAGS, "--wincompat")

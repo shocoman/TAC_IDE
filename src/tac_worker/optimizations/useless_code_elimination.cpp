@@ -119,7 +119,7 @@ void useless_code_elimination(Function &function) {
     }
 
     // Mark unreachable blocks
-    auto root = function.find_root_node();
+    auto root = function.find_entry_block();
     std::unordered_set<int> reachable_ids;
     std::function<void(BasicBlock(*))> reachable_walker = [&](BasicBlock *b) {
         if (reachable_ids.insert(b->id).second)

@@ -6,7 +6,7 @@
 #define TAC_PARSER_SPARSE_SIMPLE_CONSTANT_PROPAGATION_HPP
 
 #include "../optimization_runner.hpp"
-#include "data_flow_analyses.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
 
 void sparse_simple_constant_propagation(BasicBlocks &blocks);
 

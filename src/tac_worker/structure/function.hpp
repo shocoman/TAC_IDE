@@ -28,7 +28,9 @@ struct Function {
 
     void print_to_console() const;
     void print_basic_block_info() const;
-    void print_cfg(const std::string &filename) const;
+    void print_cfg(const std::string &filename,
+                   std::unordered_map<int, std::string> additional_info_above = {},
+                   std::unordered_map<int, std::string> additional_info_below = {}) const;
 
     void update_block_ids();
     void connect_blocks();
@@ -40,8 +42,8 @@ struct Function {
     std::unordered_map<int, int> get_post_ordering();
     std::unordered_map<int, int> get_reverse_post_ordering() const;
 
-    BasicBlock *find_root_node() const;
-    BasicBlock *find_exit_node() const;
+    BasicBlock *find_entry_block() const;
+    BasicBlock *find_exit_block() const;
 };
 
 #endif // TAC_PARSER_FUNCTION_HPP

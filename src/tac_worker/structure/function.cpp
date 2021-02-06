@@ -4,20 +4,23 @@
 
 #include "function.hpp"
 
-void Function::print_cfg(const std::string &filename) const {
+void Function::print_cfg(const std::string &filename,
+                         std::unordered_map<int, std::string> additional_info_above,
+                         std::unordered_map<int, std::string> additional_info_below) const {
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
     // print edges
     for (const auto &n : basic_blocks) {
         auto node_name = n->get_name();
+
+        if (additional_info_above.count(n->id))
+            dot_writer.add_info_above(node_name, additional_info_above.at(n->id), true);
+        if (additional_info_below.count(n->id))
+            dot_writer.add_info_above(node_name, additional_info_below.at(n->id), false);
         if (visited.find(node_name) == visited.end()) {
             visited.insert(node_name);
 
             std::vector<std::string> quad_lines;
-            // print title for node
-//            if (n->lbl_name.has_value()) {
-//                dot_writer.set_node_name(node_name, n->lbl_name.value());
-//            }
 
             // print all quads as text
             for (auto &q : n->quads) {
@@ -152,14 +155,14 @@ void Function::reverse_graph() {
         std::swap(b->successors, b->predecessors);
 }
 
-BasicBlock *Function::find_root_node() const {
+BasicBlock *Function::find_entry_block() const {
     for (const auto &b : basic_blocks)
         if (b->predecessors.empty())
             return b.get();
     return nullptr;
 }
 
-BasicBlock *Function::find_exit_node() const {
+BasicBlock *Function::find_exit_block() const {
     for (const auto &b : basic_blocks)
         if (b->successors.empty())
             return b.get();
@@ -174,7 +177,7 @@ void Function::print_basic_block_info() const {
 }
 
 void Function::remove_blocks_without_predecessors() {
-    auto entry = find_root_node();
+    auto entry = find_entry_block();
     for (auto it = basic_blocks.begin(); it != basic_blocks.end();) {
         if (it->get()->id != entry->id && it->get()->predecessors.empty()) {
             it = basic_blocks.erase(it);

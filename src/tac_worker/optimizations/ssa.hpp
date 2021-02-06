@@ -5,20 +5,14 @@
 #ifndef TAC_PARSER_SSA_HPP
 #define TAC_PARSER_SSA_HPP
 
-#include "../../graph_writer/graph_writer.hpp"
-#include "../quad_preparation.hpp"
-#include "../structure/function.hpp"
-#include "value_numbering.hpp"
 #include <numeric>
 #include <set>
 
-void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom);
-
-ID2DOM find_dominators(const BasicBlocks &blocks);
-
-ID2IDOM find_immediate_dominators(Function &function);
-
-ID2DF find_dominance_frontier(const BasicBlocks &blocks, ID2IDOM &id_to_immediate_dominator);
+#include "../../graph_writer/graph_writer.hpp"
+#include "../quad_preparation.hpp"
+#include "../structure/function.hpp"
+#include "data_flow_analyses/dominators.hpp"
+#include "value_numbering.hpp"
 
 void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
                          ID2DF &id_to_dominance_frontier,

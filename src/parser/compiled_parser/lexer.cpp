@@ -1,6 +1,6 @@
-#line 2 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 2 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 
-#line 4 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 4 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -574,14 +574,14 @@ char *yytext;
     #include <functional>
     #include <map>
     #include "../driver/driver.hpp"
-#line 578 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 578 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 #define YY_NO_INPUT 1
 #line 14 "/mnt/d/programming/c/tac_parser/src/parser/grammar/lexer.l"
     yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::location_type& loc, bool);
     yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::location_type& loc);
     #define YY_USER_ACTION loc.columns(yyleng);
-#line 584 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
-#line 585 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 584 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 585 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 
 #define INITIAL 0
 
@@ -871,7 +871,7 @@ YY_DECL
     loc.step();
 
 
-#line 875 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 875 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1108,7 +1108,7 @@ YY_RULE_SETUP
 #line 80 "/mnt/d/programming/c/tac_parser/src/parser/grammar/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1112 "/mnt/d/programming/c/tac_parser/cmake-build-debug/../src/parser/compiled_parser/lexer.cpp"
+#line 1112 "/mnt/d/programming/c/tac_parser/cmake_plugins-build-debug/../src/parser/compiled_parser/lexer.cpp"
 
 	case YY_END_OF_BUFFER:
 		{

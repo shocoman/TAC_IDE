@@ -186,7 +186,7 @@ void liveness_analyses_dragon_book(Function &function) {
     std::unordered_map<int, DefinitionsSet> in_sets;
     std::unordered_map<int, DefinitionsSet> out_sets;
 
-    auto exit_node = function.find_exit_node();
+    auto exit_node = function.find_exit_block();
     for (auto &b : blocks)
         in_sets[b->id] = {};
 
@@ -393,35 +393,6 @@ void reaching_definitions(Function &function) {
     // endregion
 }
 
-template <typename T> std::set<T> intersection_of_sets(std::vector<std::set<T>> sets) {
-    if (sets.empty()) {
-        return {};
-    } else {
-        auto base = sets[0];
-        for (int i = 1; i < sets.size(); i++) {
-            std::set<T> buffer;
-            std::set_intersection(base.begin(), base.end(), sets[i].begin(), sets[i].end(),
-                                  std::inserter(buffer, buffer.end()));
-            base = std::move(buffer);
-        }
-        return base;
-    }
-}
-template <typename T> std::set<T> union_of_sets(std::vector<std::set<T>> sets) {
-    if (sets.empty()) {
-        return {};
-    } else {
-        auto base = sets[0];
-        for (int i = 1; i < sets.size(); i++) {
-            std::set<T> buffer;
-            std::set_union(base.begin(), base.end(), sets[i].begin(), sets[i].end(),
-                           std::inserter(buffer, buffer.end()));
-            base = std::move(buffer);
-        }
-        return base;
-    }
-}
-
 void available_expressions(Function &function) {
     // forward data-flow analysis
     // Algorithm 9.17 : Available expressions.
@@ -446,22 +417,22 @@ void available_expressions(Function &function) {
     // Collect all expressions (universal set)
     using Expression = std::tuple<Operand, Quad::Type, Operand>;
     std::set<Expression> all_expressions;
-    for (auto &b : blocks) {
-        for (auto &q : b->quads) {
-            if (q.is_binary()) {
-                Expression expr = {*q.get_op(0), q.type, *q.get_op(1)};
-                all_expressions.insert(expr);
-            }
-        }
-    }
+    for (auto &b : blocks)
+        for (auto &q : b->quads)
+            if (q.is_binary())
+                all_expressions.emplace(*q.get_op(0), q.type, *q.get_op(1));
 
-    auto print_expression = [](Expression expr, bool with_endl = true) {
+    auto print_expression = [](Expression expr, bool print = false, bool with_endl = true) {
         auto &[lhs, type, rhs] = expr;
-        std::cout << (int)type << " [" << lhs.value << ", " << rhs.value << "]";
-        if (with_endl)
-            std::cout << std::endl;
-        else
-            std::cout << ", ";
+        auto fmt = Quad(lhs, rhs, type).fmt(true);
+        if (print) {
+            std::cout << fmt;
+            if (with_endl)
+                std::cout << std::endl;
+            else
+                std::cout << ", ";
+        }
+        return fmt;
     };
 
     // region Print expressions
@@ -474,7 +445,7 @@ void available_expressions(Function &function) {
     std::map<int, std::set<Expression>> id_to_e_gen;
     std::map<int, std::set<Expression>> id_to_e_kill;
     for (auto &b : blocks) {
-        // downward exposed expressions (not killed or redefined in block)
+        // downward exposed expressions (non-killed or redefined in block)
         std::set<Expression> e_gen;
         std::set<Expression> e_kill;
 
@@ -483,13 +454,13 @@ void available_expressions(Function &function) {
             if (q.is_binary()) {
                 Expression expr = {*q.get_op(0), q.type, *q.get_op(1)};
                 e_gen.insert(expr);
-//                e_kill.erase(expr);
+                // e_kill.erase(expr);
             }
 
             // check killed expressions
             if (q.is_assignment()) {
                 auto def = q.dest->name;
-                auto e_gen_copy = e_gen;
+                //                auto e_gen_copy = e_gen;
                 for (auto &expr : /*e_gen_copy*/ all_expressions) {
                     auto &[lhs, type, rhs] = expr;
                     if (def == lhs.value || def == rhs.value) {
@@ -508,13 +479,32 @@ void available_expressions(Function &function) {
     for (auto &[id, e_gen] : id_to_e_gen) {
         std::cout << id_to_block.at(id)->get_name() << "; Downward exposed: ";
         for (auto &expr : e_gen)
-            print_expression(expr, false);
+            print_expression(expr, true);
         std::cout << std::endl;
         auto e_kill = id_to_e_kill.at(id);
         std::cout << "\tKilled: ";
         for (auto &expr : e_kill)
-            print_expression(expr, false);
+            print_expression(expr, true);
         std::cout << std::endl << std::endl;
+    }
+    // endregion
+    // region Print CFG
+    {
+        std::unordered_map<int, std::string> above, below;
+        for (auto &[id, out] : id_to_e_gen) {
+            std::string above_text = "{", below_text = "{";
+            for (auto &expr : out)
+                above_text += print_expression(expr) + ", ";
+            for (auto &expr : id_to_e_kill.at(id))
+                below_text += print_expression(expr) + ", ";
+            above_text += "}";
+            below_text += "}";
+            if (above_text != "{}")
+                above.emplace(id, "DE: " + above_text);
+            if (below_text != "{}")
+                above[id] += "<BR/>KILLED: " + below_text;
+        }
+        function.print_cfg("lala2.png", above, below);
     }
     // endregion
 
@@ -523,7 +513,7 @@ void available_expressions(Function &function) {
 
     // OUT[ENTRY] = 0 (empty set);
     // for (each basic block B other than ENTRY) OUT[B] = U (universal set);
-    auto entry_node = function.find_root_node();
+    auto entry_node = function.find_entry_block();
     out_sets[entry_node->id] = {};
     for (auto &b : blocks)
         if (b->id != entry_node->id)
@@ -566,14 +556,31 @@ void available_expressions(Function &function) {
     for (auto &[id, out] : in_sets) {
         std::cout << id_to_block.at(id)->get_name() << "; IN: ";
         for (auto &expr : out)
-            print_expression(expr, false);
+            print_expression(expr, true);
         std::cout << std::endl;
         auto in = out_sets.at(id);
         std::cout << "\tOUT: ";
         for (auto &expr : in)
-            print_expression(expr, false);
+            print_expression(expr, true);
         std::cout << std::endl << std::endl;
     }
+    // endregion
+    // region Print CFG
+    std::unordered_map<int, std::string> above, below;
+    for (auto &[id, out] : in_sets) {
+        std::string above_text = "{", below_text = "{";
+        for (auto &expr : out)
+            above_text += print_expression(expr) + ", ";
+        for (auto &expr : out_sets.at(id))
+            below_text += print_expression(expr) + ", ";
+        above_text += "}";
+        below_text += "}";
+        if (above_text != "{}")
+            above.emplace(id, above_text);
+        if (below_text != "{}")
+            below.emplace(id, below_text);
+    }
+    function.print_cfg("lala.png", above, below);
     // endregion
 }
 
@@ -647,7 +654,8 @@ void anticipable_expressions(Function &function) {
 
                 for (auto &expr : all_expressions /*e_gen*/) {
                     auto &[lhs, type, rhs] = expr;
-                    if ((def == lhs.value || def == rhs.value) /*&& e_gen.find(expr) == e_gen.end()*/)
+                    if ((def == lhs.value ||
+                         def == rhs.value) /*&& e_gen.find(expr) == e_gen.end()*/)
                         e_kill.insert(expr);
                 }
             }
@@ -676,7 +684,7 @@ void anticipable_expressions(Function &function) {
 
     // OUT[ENTRY] = 0 (empty set);
     // for (each basic block B other than EXIT) OUT[B] = U (universal set);
-    auto exit_node = function.find_exit_node();
+    auto exit_node = function.find_exit_block();
     in_sets[exit_node->id] = {};
     for (auto &b : blocks)
         if (b->id != exit_node->id)

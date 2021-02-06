@@ -133,14 +133,13 @@ struct Quad {
                            [t](auto expr_type) { return t == expr_type; });
     }
 
-    std::string fmt() const {
+    std::string fmt(bool only_rhs = false) const {
         std::optional<std::string> destination =
             dest.has_value() ? dest.value().fmt() : std::nullopt;
 
         std::string command;
-        if (destination.has_value()) {
+        if (destination.has_value() && !only_rhs)
             command += destination.value() + " = ";
-        }
 
         std::optional<std::string> op;
         std::optional<std::string> unary_op;
@@ -182,8 +181,7 @@ struct Quad {
             unary_op = "&";
             break;
         case Type::ArrayGet:
-            return destination.value() + " = " + get_op(0)->get_string() + "[" +
-                   get_op(1)->get_string() + "]";
+            return command + get_op(0)->get_string() + "[" + get_op(1)->get_string() + "]";
         case Type::IfTrue:
             return "if " + get_op(0)->get_string() + " goto " + destination.value();
         case Type::IfFalse:
@@ -214,14 +212,13 @@ struct Quad {
             std::string output;
             for (auto &o : ops)
                 output += o.value + " ";
-            return destination.value() + " = phi ( " + output + ")";
+            return command + "phi ( " + output + ")";
         }
 
         if (unary_op.has_value()) {
-            return destination.value_or("%") + " = " + unary_op.value() + get_op(0)->get_string();
+            return command + unary_op.value() + get_op(0)->get_string();
         } else {
-            return destination.value_or("%") + " = " + get_op(0)->get_string() + op.value() +
-                   get_op(1)->get_string();
+            return command + get_op(0)->get_string() + op.value() + get_op(1)->get_string();
         }
     }
 

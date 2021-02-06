@@ -138,3 +138,44 @@ struct LoopFinder {
 //        std::cout << std::endl;
 //    }
 //}
+
+void find_loop_bob(BasicBlock *B, std::unordered_map<int,int> id_to_rpo) {
+    // prolog
+//    functions[0].print_cfg("before.png");
+//    auto id_to_rpo = functions[0].get_reverse_post_ordering();
+//    find_loop(functions[0].find_exit_node(), id_to_rpo);
+
+    std::vector<BasicBlock *> loop;
+    std::vector<BasicBlock *> queue;
+
+    for (auto &P : B->predecessors) {
+        auto is_back_edge = id_to_rpo.at(B->id) > id_to_rpo.at(P->id);
+        if (is_back_edge) {
+            if (std::find(loop.begin(), loop.end(), P) == loop.end() && P != B) {
+                queue.push_back(P);
+                loop.push_back(P);
+            }
+        }
+    }
+
+    while (!queue.empty()) {
+        auto X = queue[0];
+        queue.erase(std::remove_if(queue.begin(), queue.end(), [&](auto a) { return a == X; }),
+                    queue.end());
+
+        for (auto &P : X->predecessors) {
+            if (std::find(loop.begin(), loop.end(), P) == loop.end() && P != B) {
+                queue.push_back(P);
+                loop.push_back(P);
+            }
+        }
+    }
+
+    loop.push_back(B);
+
+    std::cout << "Loop?" << std::endl;
+    for (auto &b : loop) {
+        std::cout << b->get_name() << ", ";
+    }
+    std::cout << std::endl;
+}

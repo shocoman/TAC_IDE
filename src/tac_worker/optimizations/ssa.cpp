@@ -8,29 +8,8 @@ void convert_to_ssa(Function &function) {
     BasicBlocks &blocks = function.basic_blocks;
     ID2Block &id_to_block = function.id_to_block;
 
-    ID2DOM id_to_dominators = find_dominators(blocks);
     ID2IDOM id_to_immediate_dominator = find_immediate_dominators(function);
     ID2DF id_to_dominance_frontier = find_dominance_frontier(blocks, id_to_immediate_dominator);
-
-    // region PrintDominators
-    //    std::cout << "-- PRINT --" << std::endl;
-    //    for (auto &[id, doms] : id_to_dominators) {
-    //        std::cout << id << " (" << id_to_block.at(id)->node_name << "): ";
-    //        for (auto &d : doms) {
-    //            std::cout << d << ", ";
-    //        }
-    //        if (id_to_immediate_dominator.find(id) != id_to_immediate_dominator.end())
-    //            std::cout << "\t IDom: " << id_to_immediate_dominator.at(id);
-    //
-    //        std::cout << "; DomFrontier: ";
-    //        for (auto &df : id_to_dominance_frontier.at(id)) {
-    //            std::cout << id_to_block.at(df)->get_name() << ", ";
-    //        }
-    //
-    //        std::cout << std::endl;
-    //    }
-    //    std::cout << "-- END_PRINT --" << std::endl;
-    // endregion
 
     // find global names
     std::set<std::string> all_names;
@@ -165,147 +144,7 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
             name_to_stack.at(n).pop_back();
     };
 
-    rename(function.find_root_node()->id);
-}
-
-ID2DF find_dominance_frontier(const BasicBlocks &blocks, ID2IDOM &id_to_immediate_dominator) {
-    std::unordered_map<int, std::unordered_set<int>> id_to_dominance_frontier;
-    for (const auto &b : blocks)
-        id_to_dominance_frontier[b->id] = {};
-    for (const auto &b : blocks) {
-        if (b->predecessors.size() > 1) {
-            for (const auto &pred : b->predecessors) {
-                int runner_id = pred->id;
-
-                while (runner_id != id_to_immediate_dominator.at(b->id)) {
-                    id_to_dominance_frontier[runner_id].insert(b->id);
-                    runner_id = id_to_immediate_dominator.at(runner_id);
-                }
-            }
-        }
-    }
-    return id_to_dominance_frontier;
-}
-
-ID2IDOM find_immediate_dominators(Function &function) {
-    BasicBlocks &blocks = function.basic_blocks;
-    ID2Block &id_to_block = function.id_to_block;
-
-    std::unordered_map<int, int> id_to_rpo = function.get_reverse_post_ordering();
-
-    // We use std::map here for its sorting capabilities
-    // rpo_to_id will contain ids sorted in reverse post order.
-    // It's important for the algorithm (convergence)
-    std::map<int, int> rpo_to_id;
-    for (auto &[id, rpo] : id_to_rpo)
-        rpo_to_id.emplace(rpo, id);
-
-    ID2IDOM id_to_idom;
-    auto intersect = [&](BasicBlock *i, BasicBlock *j) {
-        auto finger1 = i->id;
-        auto finger2 = j->id;
-        while (finger1 != finger2) {
-            while (id_to_rpo.at(finger1) > id_to_rpo.at(finger2))
-                finger1 = id_to_idom.at(finger1);
-            while (id_to_rpo.at(finger2) > id_to_rpo.at(finger1))
-                finger2 = id_to_idom.at(finger2);
-        }
-        return id_to_block.at(finger1);
-    };
-
-    auto entry_node_id = function.find_root_node()->id;
-    id_to_idom[entry_node_id] = entry_node_id;
-
-    bool changed = true;
-    int iterations = 0;
-    while (changed) {
-        iterations++;
-        changed = false;
-
-        for (auto &[rpo, id] : rpo_to_id) {
-            auto &b = id_to_block.at(id);
-            if (b->id == entry_node_id)
-                continue;
-
-            auto preds = b->predecessors.begin();
-            while (preds != b->predecessors.end() &&
-                   id_to_idom.find((*preds)->id) == id_to_idom.end())
-                std::advance(preds, 1);
-            if (preds == b->predecessors.end())
-                continue;
-            auto new_idom = *preds;
-
-            for (std::advance(preds, 1); preds != b->predecessors.end(); std::advance(preds, 1)) {
-                if (id_to_idom.find((*preds)->id) != id_to_idom.end())
-                    new_idom = intersect(*preds, new_idom);
-            }
-
-            if (id_to_idom.find(b->id) == id_to_idom.end() ||
-                id_to_idom.at(b->id) != new_idom->id) {
-                id_to_idom[b->id] = new_idom->id;
-                changed = true;
-            }
-        }
-    }
-
-    bool graph_is_irreducible = iterations > 2;
-    // region Print IDom set
-    //    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    //    std::cout << "Iterations: " << iterations << std::endl;
-    //    for (auto &[id, idom_id] : id_to_idom) {
-    //        std::cout << id_to_block.at(id)->get_name() << " -> " <<
-    //        id_to_block.at(idom_id)->get_name()
-    //                  << std::endl;
-    //    }
-    // endregion
-
-    // entry node has no idom
-    id_to_idom.erase(entry_node_id);
-    return id_to_idom;
-}
-
-ID2DOM find_dominators(const BasicBlocks &blocks) {
-    std::unordered_map<int, std::unordered_set<int>> id_to_dominator;
-
-    std::unordered_set<int> N;
-    for (auto &b : blocks)
-        N.insert(b->id);
-
-    for (auto &b : blocks)
-        id_to_dominator[b->id] = N;
-
-    int iterations = 0;
-    bool changed = true;
-    while (changed) {
-        iterations++;
-        changed = false;
-        for (auto &b : blocks) {
-            // get intersection of sets of predecessors
-            std::unordered_set<int> pred_intersect;
-            for (auto &pred : b->predecessors) {
-                if (id_to_dominator.find(pred->id) == id_to_dominator.end())
-                    continue;
-                auto pred_dominators = id_to_dominator.at(pred->id);
-                if (!pred_intersect.empty()) {
-                    std::unordered_set<int> intersection;
-                    std::set_intersection(pred_intersect.begin(), pred_intersect.end(),
-                                          pred_dominators.begin(), pred_dominators.end(),
-                                          std::inserter(intersection, intersection.end()));
-                    pred_intersect = intersection;
-                } else {
-                    pred_intersect = pred_dominators;
-                }
-            }
-
-            pred_intersect.insert(b->id);
-            if (pred_intersect != id_to_dominator[b->id]) {
-                id_to_dominator[b->id] = pred_intersect;
-                changed = true;
-            }
-        }
-    }
-
-    return id_to_dominator;
+    rename(function.find_entry_block()->id);
 }
 
 void remove_phi_functions(Function &function) {
@@ -376,19 +215,3 @@ void remove_phi_functions(Function &function) {
     std::move(std::begin(new_blocks), std::end(new_blocks), std::back_inserter(blocks));
 }
 
-void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom) {
-    GraphWriter writer;
-    for (const auto &[id1, id2] : id_to_idom) {
-        // make a connection between blocks[id1] and blocks[block_id]
-        const auto name1 = id_to_block.at(id2)->node_name;
-        const auto name2 = id_to_block.at(id1)->node_name;
-        writer.set_node_name(name1, name1);
-        writer.set_node_name(name2, name2);
-        writer.set_node_text(name1, {});
-        writer.set_node_text(name2, {});
-        writer.add_edge(name1, name2);
-    }
-
-    writer.render_to_file("dominator_tree.png");
-    system("feh dominator_tree.png &");
-}
