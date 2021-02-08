@@ -91,7 +91,7 @@ struct BasicBlock {
 using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;
 using ID2Block = std::unordered_map<int, BasicBlock *>;
 using ID2IDOM = std::unordered_map<int, int>;          // id to immediate dominator
-using ID2DOM = std::unordered_map<int, std::unordered_set<int>>; // id to dominators
+using ID2DOMS = std::unordered_map<int, std::unordered_set<int>>; // id to dominators
 using ID2DF = std::unordered_map<int, std::unordered_set<int>>;  // id to dominance frontier
 
 #endif // TAC_PARSER_BASIC_BLOCK_HPP

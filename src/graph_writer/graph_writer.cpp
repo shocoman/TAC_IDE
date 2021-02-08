@@ -72,14 +72,19 @@ void GraphWriter::render_to_file(const std::string &filename) {
 
     // set shape and font for all nodes and edges
     auto font_name = "DejaVu Sans Mono";
-    agattr(g, AGNODE, (char *)"shape", (char *)"none");
+    agattr(g, AGRAPH, (char *)"fontname", (char *)font_name);
+    agattr(g, AGRAPH, (char *)"fontsize", (char *)"25");
+    agattr(g, AGRAPH, (char *)"labelloc", (char *)"t");
+//    agattr(g, AGRAPH, (char *)"label", (char *)graph_title.c_str());
+     agattr(g, AGRAPH, (char *)"label", agstrdup_html(g, (char *)graph_title.c_str()));
     agattr(g, AGNODE, (char *)"fontname", (char *)font_name);
+    agattr(g, AGNODE, (char *)"shape", (char *)"none");
     agattr(g, AGEDGE, (char *)"fontname", (char *)font_name);
 
     // print graph as png image to a file
     gvLayout(gvc, g, "dot");
     int res = gvRenderFilename(gvc, g, "png", (char *)filename.c_str());
-    //    int res2 = gvRenderFilename(gvc, g, "dot", (char *)"lalala.dot");
+    gvRenderFilename(gvc, g, "dot", (char *)"graph_in_text.dot");
     if (res) {
         printf("Graphviz error. Something wrong with graph rendering: %i", res);
     }
@@ -96,6 +101,8 @@ void GraphWriter::add_info_above(const std::string &node, const std::string &inf
         additional_info_below[node] += info;
     }
 }
+
+void GraphWriter::set_title(const std::string &title) { graph_title = title; }
 
 // void render_to_file2(const std::string &filename) {
 //    std::unordered_map<std::string, Agnode_t *> ag_nodes;

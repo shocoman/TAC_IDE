@@ -4,8 +4,8 @@
 
 #include <numeric>
 
-#include "optimizations/data_flow_analyses/dominators.hpp"
 #include "optimization_runner.hpp"
+#include "optimizations/data_flow_analyses/dominators.hpp"
 
 void optimize(Function &function) {
     BasicBlocks &blocks = function.basic_blocks;
@@ -23,7 +23,7 @@ void optimize(Function &function) {
 //    liveness_analyses_dragon_book(function);
 //    liveness_analyses_engineering_compiler(function);
 //    available_expressions(function);
-    anticipable_expressions(function);
+//    anticipable_expressions(function);
 
     function.print_cfg("after.png");
 }

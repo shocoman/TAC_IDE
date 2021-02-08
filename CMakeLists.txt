@@ -17,7 +17,7 @@ set(SOURCE_FILES
         src/tac_worker/optimizations/useless_code_elimination.cpp
         src/tac_worker/optimizations/sparse_simple_constant_propagation.cpp
         src/tac_worker/optimizations/data_flow_analyses/data_flow_analyses.cpp
-        src/tac_worker/optimizations/constant_propagation.cpp src/tac_worker/optimizations/data_flow_analyses/dominators.cpp)
+        src/tac_worker/optimizations/constant_propagation.cpp src/tac_worker/optimizations/data_flow_analyses/dominators.cpp src/tac_worker/optimizations/data_flow_analyses/available_expressions.cpp src/tac_worker/optimizations/data_flow_analyses/available_expressions.hpp src/tac_worker/optimizations/data_flow_analyses/anticipable_expressions.cpp src/tac_worker/optimizations/data_flow_analyses/anticipable_expressions.hpp src/tac_worker/print_utility.hpp src/tac_worker/print_utility.cpp)
 
 
 ### Creating exe and linking ###

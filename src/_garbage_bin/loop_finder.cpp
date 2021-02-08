@@ -179,3 +179,32 @@ void find_loop_bob(BasicBlock *B, std::unordered_map<int,int> id_to_rpo) {
     }
     std::cout << std::endl;
 }
+
+
+std::unordered_set<int> construct_natural_loop_dragon(Function &function, int n, int d) {
+    // n -> d: back edge
+    auto id_to_doms = find_dominators(function);
+    assert(function.id_to_block.at(n)->successors.count(function.id_to_block.at(d)));
+    assert(id_to_doms.at(n).count(d) > 0); // assert that 'd' dominates 'n'
+
+    auto id_to_post_order = function.get_post_ordering();
+
+    std::unordered_set<int> visited = {d};
+    std::function<void(BasicBlock *)> walker = [&](BasicBlock *b) {
+        if (visited.count(b->id) == 0) {
+            visited.insert(b->id);
+            for (auto &s : b->predecessors)
+                walker(s);
+        }
+    };
+    walker(function.id_to_block.at(n));
+
+    // region Print Nodes Inside the Loop
+    std::cout << "Visited: " << std::endl;
+    for (auto &a : visited) {
+        std::cout << function.id_to_block.at(a)->get_name() << ", ";
+    }
+    std::cout << ' ' << std::endl;
+    // endregion
+    return visited;
+}

@@ -6,7 +6,8 @@
 
 void Function::print_cfg(const std::string &filename,
                          std::unordered_map<int, std::string> additional_info_above,
-                         std::unordered_map<int, std::string> additional_info_below) const {
+                         std::unordered_map<int, std::string> additional_info_below,
+                         std::string title) const {
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
     // print edges
@@ -34,7 +35,7 @@ void Function::print_cfg(const std::string &filename,
             }
         }
     }
-
+    dot_writer.set_title(title);
     dot_writer.render_to_file(filename);
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
 }

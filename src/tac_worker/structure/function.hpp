@@ -30,7 +30,8 @@ struct Function {
     void print_basic_block_info() const;
     void print_cfg(const std::string &filename,
                    std::unordered_map<int, std::string> additional_info_above = {},
-                   std::unordered_map<int, std::string> additional_info_below = {}) const;
+                   std::unordered_map<int, std::string> additional_info_below = {},
+                   std::string title = {}) const;
 
     void update_block_ids();
     void connect_blocks();

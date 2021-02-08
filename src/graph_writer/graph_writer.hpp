@@ -17,6 +17,7 @@ class GraphWriter {
         additional_info_below;
     std::vector<std::pair<std::string, std::vector<std::string>>> node_texts;
     std::vector<std::tuple<std::string, std::string, std::string>> edges;
+    std::string graph_title;
 
   public:
     void set_node_text(const std::string &node_name, const std::vector<std::string> &text_lines);
@@ -24,6 +25,7 @@ class GraphWriter {
     void add_edge(std::string node1, std::string node2, std::string edge_label = "");
     void render_to_file(const std::string &filename);
     void add_info_above(const std::string &node, const std::string &info, bool above);
+    void set_title(const std::string &title);
 };
 
 #endif // TAC_PARSER_GRAPH_WRITER_HPP
