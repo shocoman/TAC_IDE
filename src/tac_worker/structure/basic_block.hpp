@@ -5,9 +5,9 @@
 #ifndef TAC_PARSER_BASIC_BLOCK_HPP
 #define TAC_PARSER_BASIC_BLOCK_HPP
 
-#include <unordered_set>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "quadruple/quadruple.hpp"
 
@@ -25,7 +25,7 @@ struct BasicBlock {
         if (lbl_name.has_value()) {
             return lbl_name.value();
         } else if (!node_name.empty()) {
-//            return "BB " + std::to_string(id);
+            //            return "BB " + std::to_string(id);
             return node_name;
         } else {
             return "BB #" + std::to_string(id);
@@ -90,8 +90,8 @@ struct BasicBlock {
 
 using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;
 using ID2Block = std::unordered_map<int, BasicBlock *>;
-using ID2IDOM = std::unordered_map<int, int>;          // id to immediate dominator
+using ID2IDOM = std::unordered_map<int, int>;                     // id to immediate dominator
 using ID2DOMS = std::unordered_map<int, std::unordered_set<int>>; // id to dominators
-using ID2DF = std::unordered_map<int, std::unordered_set<int>>;  // id to dominance frontier
+using ID2DF = std::unordered_map<int, std::unordered_set<int>>;   // id to dominance frontier
 
 #endif // TAC_PARSER_BASIC_BLOCK_HPP

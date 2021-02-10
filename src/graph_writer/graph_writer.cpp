@@ -37,15 +37,7 @@ void GraphWriter::render_to_file(const std::string &filename) {
         if (!label_lines.empty()) {
             final_label += "<TR><TD><FONT>";
             for (auto l : label_lines) {
-                // escape special symbols (<, >, ...)
-                for (int i = l.size() - 1; i >= 0; --i) {
-                    auto c = l.at(i);
-                    if (c == '<' || c == '>') {
-                        l.insert(i, 1, c);
-                        l[i] = '\\';
-                    }
-                }
-                // align line to the left side with \l
+                // align line to the left side
                 final_label += l + R"(<BR ALIGN="LEFT"/>)";
             }
             final_label += "</FONT></TD></TR>";

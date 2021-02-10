@@ -1,0 +1,20 @@
+N1:
+    d = a * b
+    e = b + c
+N2:
+    if c goto N4
+N3:
+    a = b + c
+    goto N5
+N4:
+    c = a * b
+    a = 10
+    if 0 goto N4
+N5:
+    if d goto N2
+N6:
+    putparam a
+    putparam b
+    putparam c
+    putparam d
+    return 0

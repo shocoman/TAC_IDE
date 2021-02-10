@@ -1,9 +1,4 @@
 
-LOL:
-    A = B + C
-    X = Y - Z
-    B = X + Y
-    X = A * B
 B1:
     r1 = 2 + 4
     r2 = r1

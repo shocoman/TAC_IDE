@@ -4,7 +4,7 @@
 
 #include "anticipable_expressions.hpp"
 
-void anticipable_expressions(Function &function) {
+std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &function) {
     // backward data-flow problem
     auto &blocks = function.basic_blocks;
     auto &id_to_block = function.id_to_block;
@@ -15,86 +15,31 @@ void anticipable_expressions(Function &function) {
     std::sort(id_po_pairs.begin(), id_po_pairs.end(),
               [](auto &a, auto &b) { return a.second < b.second; });
 
-    // Collect all expressions (universal set)
-    using Expression = std::tuple<Operand, Quad::Type, Operand>;
-    std::set<Expression> all_expressions;
-    for (auto &b : blocks) {
-        for (auto &q : b->quads) {
-            if (q.is_binary()) {
-                Expression expr = {*q.get_op(0), q.type, *q.get_op(1)};
-                all_expressions.insert(expr);
-            }
-        }
-    }
-
-    auto print_expression = [](Expression expr, bool print = false, bool with_endl = false) {
-        auto &[lhs, type, rhs] = expr;
-        auto fmt = Quad(lhs, rhs, type).fmt(true);
-        if (print) {
-            std::cout << fmt;
-            if (with_endl)
-                std::cout << std::endl;
-            else
-                std::cout << ", ";
-        }
-        return fmt;
-    };
+    // universal set
+    std::set<Expression> all_expressions = get_all_expressions_set(function);
 
     // region Print all expressions
     std::cout << "Expressions: " << std::endl;
     for (auto &expr : all_expressions)
-        print_expression(expr, true);
+        std::cout << print_expression(expr) << std::endl;
     // endregion
 
-    // Calculate e_gen and e_kill sets for each block
-    std::map<int, std::set<Expression>> id_to_e_gen;
-    std::map<int, std::set<Expression>> id_to_e_kill;
-    for (auto &b : blocks) {
-        std::set<Expression> e_gen; // upward exposed expressions (used before killed)
-        std::set<Expression> e_kill;
-        std::set<std::string> redefined;
-
-        for (auto &q : b->quads) {
-            // check generated expressions
-            if (q.is_binary()) {
-                auto lhs = *q.get_op(0);
-                auto rhs = *q.get_op(1);
-                Expression expr = {lhs, q.type, rhs};
-                if (redefined.count(lhs.value) == 0 && redefined.count(rhs.value) == 0) {
-                    e_gen.insert(expr);
-                }
-            }
-
-            // check killed expressions
-            if (q.is_assignment()) {
-                auto def = q.dest->name;
-                redefined.insert(def);
-                for (auto &expr : all_expressions) {
-                    auto &[lhs, type, rhs] = expr;
-                    if (def == lhs.value || def == rhs.value)
-                        e_kill.insert(expr);
-                }
-            }
-        }
-
-        id_to_e_gen[b->id] = e_gen;
-        id_to_e_kill[b->id] = e_kill;
-    }
+    auto [id_to_ue_exprs, id_to_killed] = get_upward_exposed_and_killed_expressions(function);
 
     // region Print UpwardExposed and Killed Expressions to Console
-    for (auto &[id, e_gen] : id_to_e_gen) {
+    for (auto &[id, e_gen] : id_to_ue_exprs) {
         std::cout << id_to_block.at(id)->get_name();
         std::cout << "UE: " + print_into_string_with(e_gen, print_expression) << std::endl;
-        std::cout << "KILLED: " + print_into_string_with(id_to_e_kill.at(id), print_expression)
+        std::cout << "KILLED: " + print_into_string_with(id_to_killed.at(id), print_expression)
                   << std::endl;
     }
     // endregion
     // region Print UpwardExposed and Killed Expressions CFG
     {
         std::unordered_map<int, std::string> above, below;
-        for (auto &[id, e_gen] : id_to_e_gen) {
+        for (auto &[id, e_gen] : id_to_ue_exprs) {
             above.emplace(id, "UE: " + print_into_string_with(e_gen, print_expression));
-            above[id] += "<BR/>KILLED: " + print_into_string_with(id_to_e_kill.at(id), print_expression);
+            above[id] += "<BR/>KILLED: " + print_into_string_with(id_to_killed.at(id), print_expression);
         }
         std::string title = "Upward Exposed and Killed Expressions<BR/>";
         title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
@@ -102,8 +47,7 @@ void anticipable_expressions(Function &function) {
     }
     // endregion
 
-    std::map<int, std::set<Expression>> in_sets;
-    std::map<int, std::set<Expression>> out_sets;
+    std::map<int, std::set<Expression>> in_sets, out_sets;
 
     // OUT[ENTRY] = 0 (empty set);
     // for (each basic block B other than EXIT) OUT[B] = U (universal set);
@@ -133,12 +77,10 @@ void anticipable_expressions(Function &function) {
             out_sets[id] = OUT;
 
             // IN[B] = e_gen U (OUT[B] - e_kill);
-            auto &e_kill = id_to_e_kill.at(id);
-            for (auto &killed : e_kill)
+            for (auto &killed : id_to_killed.at(id))
                 OUT.erase(killed);
 
-            auto &e_gen = id_to_e_gen.at(id);
-            auto IN = union_of_sets(std::vector{e_gen, OUT});
+            auto IN = union_of_sets(std::vector{id_to_ue_exprs.at(id), OUT});
             if (IN != in_sets.at(id))
                 changed = true;
             in_sets[id] = IN;
@@ -163,4 +105,5 @@ void anticipable_expressions(Function &function) {
     title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
     function.print_cfg("lala.png", above, below, title);
     // endregion
+    return {in_sets, out_sets};
 }

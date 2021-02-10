@@ -10,8 +10,8 @@
 #include <set>
 
 #include "graph_writer/graph_writer.hpp"
+#include "set_utilities.hpp"
 #include "tac_worker/structure/function.hpp"
-#include "utilities.hpp"
 
 ID2DF find_dominance_frontier(const BasicBlocks &blocks, ID2IDOM &id_to_immediate_dominator);
 ID2IDOM find_immediate_dominators(Function &function);

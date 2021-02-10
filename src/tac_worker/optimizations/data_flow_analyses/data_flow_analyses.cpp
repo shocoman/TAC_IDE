@@ -3,8 +3,8 @@
 //
 
 #include "data_flow_analyses.hpp"
-#include "anticipable_expressions.hpp"
-#include "available_expressions.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/anticipable_expressions.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/available_expressions.hpp"
 
 void liveness_analyses_on_block(const BasicBlocks &nodes) {
     // block level liveness analyses
@@ -104,8 +104,8 @@ void liveness_analyses_engineering_compiler(Function &function) {
                                 state.VarKill.end(),
                                 std::inserter(live_without_varkill, live_without_varkill.end()));
 
-            std::set_union(live_out_state.begin(), live_out_state.end(),
-                           live_without_varkill.begin(), live_without_varkill.end(),
+            std::set_union(live_out_state.begin(), live_out_state.end(), live_without_varkill.begin(),
+                           live_without_varkill.end(),
                            std::inserter(live_out_state, live_out_state.end()));
         }
 

@@ -40,7 +40,8 @@ template <typename T> std::set<T> union_of_sets(std::vector<std::set<T>> sets) {
         return base;
     }
 }
-template <typename T> std::unordered_set<T> intersection_of_sets(std::vector<std::unordered_set<T>> sets) {
+template <typename T>
+std::unordered_set<T> intersection_of_sets(std::vector<std::unordered_set<T>> sets) {
     if (sets.empty()) {
         return {};
     } else {
