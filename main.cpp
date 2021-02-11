@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "tac_worker/optimizations/lazy_code_motion.hpp"
 #include "src/parser/driver/driver.hpp"
 #include "tac_worker/optimization_runner.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
@@ -39,51 +40,22 @@ int main(int argc, char *argv[]) {
     //    optimize(functions[0]);
 
     //    functions[0].id_to_block.at(2)->successors.insert(functions[0].id_to_block.at(6));
-    //    functions[0].print_cfg("before.png");
+    functions[0].print_cfg("before.png");
     //    anticipable_expressions(functions[0]);
     //    available_expressions(functions[0]);
 
     //    earliest_expressions(functions[0]);
     //    later_placement_expressions(functions[0]);
 
-    {
-        auto all_expressions = get_all_expressions_set(functions[0]);
+    //    anticipable_expressions(functions[0]);
+    //    AnticipableExpressions(functions[0]);
+    //    available_expressions(functions[0]);
+    //    AvailableExpressions(functions[0]);
+    //    AvailableExpressions2(functions[0]);
+    //    PostponableExpressions(functions[0]);
+    lazy_code_motion(functions[0]);
 
-        auto [id_to_de_exprs, id_to_killed_exprs] =
-            get_downward_exposed_and_killed_expressions(functions[0]);
-
-        auto [IN, OUT] = data_flow_framework<Expression>(
-            functions[0], Flow::Forwards, Meet::Intersection, all_expressions,
-            [&id_to_killed_exprs, &id_to_de_exprs](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
-                auto X = IN.at(id);
-                for (auto &expr : id_to_killed_exprs.at(id))
-                    X.erase(expr);
-                for (auto &expr : id_to_de_exprs.at(id))
-                    X.insert(expr);
-                return X;
-            });
-
-        // region Available Expressions Print
-        std::cout << "Available Expressions" << std::endl;
-        for (auto &[id, in] : IN) {
-            std::cout << functions[0].basic_blocks.at(id)->get_name() << std::endl;
-            std::cout << "\tIN: " + print_into_string_with(in, print_expression) << std::endl;
-            std::cout << "\tOUT: " + print_into_string_with(OUT.at(id), print_expression) << std::endl;
-        }
-        // endregion
-        // region Print CFG
-        std::unordered_map<int, std::string> above, below;
-        for (auto &[id, in] : IN) {
-            above.emplace(id, "IN: " + print_into_string_with(in, print_expression));
-            below.emplace(id, "OUT: " + print_into_string_with(OUT.at(id), print_expression));
-        }
-        std::string title = "Available Expressions V2<BR/>";
-        title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-        functions[0].print_cfg("lala.png", above, below, title);
-        // endregion
-    }
-
-    available_expressions(functions[0]);
+    functions[0].print_cfg("after.png");
 
     std::getchar();
     return 0;

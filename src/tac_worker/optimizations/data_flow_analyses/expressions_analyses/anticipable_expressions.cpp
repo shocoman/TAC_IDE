@@ -103,7 +103,7 @@ std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &function) {
     }
     std::string title = "Anticipable Expressions<BR/>";
     title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-    function.print_cfg("lala.png", above, below, title);
+    function.print_cfg("ant1.png", above, below, title);
     // endregion
     return {in_sets, out_sets};
 }

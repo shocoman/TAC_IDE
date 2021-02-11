@@ -116,7 +116,7 @@ std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &function) {
     }
     std::string title = "Available Expressions<BR/>";
     title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-    function.print_cfg("lala.png", above, below, title);
+    function.print_cfg("avail1.png", above, below, title);
     // endregion
 
     return {in_sets, out_sets};

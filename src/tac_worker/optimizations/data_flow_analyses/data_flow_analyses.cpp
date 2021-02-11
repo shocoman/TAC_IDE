@@ -394,3 +394,40 @@ void reaching_definitions(Function &function) {
     //    }
     // endregion
 }
+
+std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressions(Function &f) {
+    auto all_expressions = get_all_expressions_set(f);
+
+    auto [id_to_de_exprs, id_to_killed_exprs] = get_downward_exposed_and_killed_expressions(f);
+
+    auto [IN, OUT] =
+        data_flow_framework<Expression>(f, Flow::Forwards, Meet::Intersection, all_expressions,
+                                        [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
+                                            auto X = IN.at(id);
+                                            for (auto &expr : id_to_killed_exprs.at(id))
+                                                X.erase(expr);
+                                            for (auto &expr : id_to_de_exprs.at(id))
+                                                X.insert(expr);
+                                            return X;
+                                        });
+    return {IN, OUT};
+}
+
+std::pair<ID2EXPRS, ID2EXPRS> AnticipableExpressions(Function &f) {
+    auto all_expressions = get_all_expressions_set(f);
+
+    auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);
+
+    auto [IN, OUT] =
+        data_flow_framework<Expression>(f, Flow::Backwards, Meet::Intersection, all_expressions,
+                                        [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
+                                            auto X = OUT.at(id);
+                                            for (auto &expr : id_to_killed_exprs.at(id))
+                                                X.erase(expr);
+                                            for (auto &expr : id_to_ue_exprs.at(id))
+                                                X.insert(expr);
+                                            return X;
+                                        });
+
+    return {IN, OUT};
+}
