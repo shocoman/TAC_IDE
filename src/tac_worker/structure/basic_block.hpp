@@ -56,8 +56,31 @@ struct BasicBlock {
         predecessors.clear();
     }
 
+    BasicBlock *get_fallthrough_successor() {
+        if (quads.empty() || !quads.back().is_jump())
+            return *successors.begin();
+
+        auto jump_target = quads.back().dest->name;
+        for (auto &s : successors)
+            if (!s->lbl_name.has_value() && *s->lbl_name != jump_target)
+                return s;
+        return nullptr;
+    }
+
+    BasicBlock *get_jumped_to_successor() {
+        if (quads.empty() || !quads.back().is_jump())
+            return nullptr;
+
+        auto jump_target = quads.back().dest->name;
+        for (auto &s : successors)
+            if (s->lbl_name.has_value() && *s->lbl_name == jump_target)
+                return s;
+        return nullptr;
+    }
+
     bool allows_fallthrough() {
-        return quads.back().type != Quad::Type::Goto && quads.back().type != Quad::Type::Return;
+        return quads.empty() ||
+               quads.back().type != Quad::Type::Goto && quads.back().type != Quad::Type::Return;
     }
 
     bool has_phi_function(std::string name) {

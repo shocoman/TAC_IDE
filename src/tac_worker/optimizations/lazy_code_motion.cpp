@@ -30,14 +30,6 @@ void lazy_code_motion(Function &f) {
             UpwardExposed.at(b->id), union_of_sets(std::vector{latest_complement, UsedOut.at(b->id)})});
 
         for (auto &expr : all_expressions) {
-            if (for_expr_placement.count(expr) > 0) {
-                auto &[lhs, type, rhs] = expr;
-                auto new_quad = Quad(lhs, rhs, type);
-                new_quad.dest = Dest(expr_to_name.at(expr), {}, Dest::Type::Var);
-                b->quads.insert(b->quads.begin() + b->phi_functions, new_quad);
-
-                std::cout << "Placed: " << new_quad.fmt() << std::endl;
-            }
 
             if (for_name_replacement.count(expr) > 0) {
                 auto &[lhs, type, rhs] = expr;
@@ -55,9 +47,21 @@ void lazy_code_motion(Function &f) {
                     }
                 }
             }
+
+            if (for_expr_placement.count(expr) > 0) {
+                auto &[lhs, type, rhs] = expr;
+                auto new_quad = Quad(lhs, rhs, type);
+                new_quad.dest = Dest(expr_to_name.at(expr), {}, Dest::Type::Var);
+                // if block doesnt contain it already
+                if (std::find(b->quads.begin(), b->quads.end(), new_quad) == b->quads.end())
+                    b->quads.insert(b->quads.begin() + b->phi_functions, new_quad);
+
+                std::cout << "Placed: " << new_quad.fmt() << std::endl;
+            }
         }
     }
 }
+
 std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressionsLazyCodeMotion(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
     auto AntIn = AnticipableExpressions(f).first;
@@ -76,6 +80,7 @@ std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressionsLazyCodeMotion(Function &f) {
 
     return {IN, OUT};
 }
+
 ID2EXPRS EarliestExpressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
     auto X = AntIn;
     for (auto &[id, exprs] : AvailIn) {
@@ -85,14 +90,15 @@ ID2EXPRS EarliestExpressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
     }
     return X;
 }
+
 std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
-    auto [AntIn, AntOut] = AnticipableExpressions(f);
-    auto [AvailIn, AvailOut] = AvailableExpressionsLazyCodeMotion(f);
+    auto AntIn = AnticipableExpressions(f).first;
+    auto AvailIn = AvailableExpressionsLazyCodeMotion(f).first;
     auto earliest_expressions = EarliestExpressions(AntIn, AvailIn);
 
-    auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);
+    auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
 
     auto [IN, OUT] =
         data_flow_framework<Expression>(f, Flow::Forwards, Meet::Intersection, all_expressions,
@@ -106,15 +112,16 @@ std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f) {
                                         });
     return {IN, OUT};
 }
+
 ID2EXPRS LatestExpressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
-    auto [AntIn, AntOut] = AnticipableExpressions(f);
-    auto [AvailIn, AvailOut] = AvailableExpressionsLazyCodeMotion(f);
+    auto AntIn = AnticipableExpressions(f).first;
+    auto AvailIn = AvailableExpressionsLazyCodeMotion(f).first;
     auto earliest_expressions = EarliestExpressions(AntIn, AvailIn);
 
-    auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);
-    auto [PostIn, PostOut] = PostponableExpressions(f);
+    auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
+    auto PostIn = PostponableExpressions(f).first;
 
     ID2EXPRS Latest;
     for (auto &b : f.basic_blocks) {
@@ -136,9 +143,10 @@ ID2EXPRS LatestExpressions(Function &f) {
 
     return Latest;
 }
+
 std::pair<ID2EXPRS, ID2EXPRS> UsedExpressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
-    auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);
+    auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
     auto Latest = LatestExpressions(f);
 
     auto [IN, OUT] = data_flow_framework<Expression>(f, Flow::Backwards, Meet::Union, {},

@@ -4,6 +4,27 @@
 
 #include "graph_writer.hpp"
 
+namespace {
+std::string escape(const std::string &s) {
+    std::string buffer;
+    buffer.reserve(s.length() * 1.1);
+    for (const auto &ch : s) {
+        switch (ch) {
+        case '<':
+            buffer.append("&lt;");
+            break;
+        case '>':
+            buffer.append("&gt;");
+            break;
+        default:
+            buffer.push_back(ch);
+            break;
+        }
+    }
+    return buffer;
+}
+} // namespace
+
 void GraphWriter::add_edge(std::string node1, std::string node2, std::string edge_label) {
     edges.emplace_back(std::move(node1), std::move(node2), std::move(edge_label));
 }
@@ -31,19 +52,19 @@ void GraphWriter::render_to_file(const std::string &filename) {
 
         final_label += R"(<TABLE BORDER="0" CELLBORDER="1">)";
         if (additional_info_above.count(node))
-            final_label += "<TR><TD BORDER=\"0\">" + additional_info_above.at(node) + "</TD></TR>";
+            final_label += "<TR><TD BORDER=\"0\">" + escape(additional_info_above.at(node)) + "</TD></TR>";
         final_label += "<TR><TD>" + node_name + "</TD></TR>";
 
         if (!label_lines.empty()) {
             final_label += "<TR><TD><FONT>";
-            for (auto l : label_lines) {
+            for (const auto &l : label_lines) {
                 // align line to the left side
-                final_label += l + R"(<BR ALIGN="LEFT"/>)";
+                final_label += escape(l) + R"(<BR ALIGN="LEFT"/>)";
             }
             final_label += "</FONT></TD></TR>";
         }
         if (additional_info_below.count(node))
-            final_label += "<TR><TD BORDER=\"0\">" + additional_info_below.at(node) + "</TD></TR>";
+            final_label += "<TR><TD BORDER=\"0\">" + escape(additional_info_below.at(node)) + "</TD></TR>";
 
         final_label += "</TABLE>";
 
@@ -67,8 +88,8 @@ void GraphWriter::render_to_file(const std::string &filename) {
     agattr(g, AGRAPH, (char *)"fontname", (char *)font_name);
     agattr(g, AGRAPH, (char *)"fontsize", (char *)"25");
     agattr(g, AGRAPH, (char *)"labelloc", (char *)"t");
-//    agattr(g, AGRAPH, (char *)"label", (char *)graph_title.c_str());
-     agattr(g, AGRAPH, (char *)"label", agstrdup_html(g, (char *)graph_title.c_str()));
+    //    agattr(g, AGRAPH, (char *)"label", (char *)graph_title.c_str());
+    agattr(g, AGRAPH, (char *)"label", agstrdup_html(g, (char *)graph_title.c_str()));
     agattr(g, AGNODE, (char *)"fontname", (char *)font_name);
     agattr(g, AGNODE, (char *)"shape", (char *)"none");
     agattr(g, AGEDGE, (char *)"fontname", (char *)font_name);

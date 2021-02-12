@@ -76,6 +76,11 @@ struct Operand {
 
     bool is_number() const { return type == Type::LInt || type == Type::LDouble; }
 
+    bool is_true() const {
+        auto d = as_double();
+        return d.has_value() && *d > 0.0 ? true : false;
+    }
+
     void clear() {
         value.clear();
         type = Type::None;

@@ -66,22 +66,20 @@ struct Quad {
     }
 
     std::vector<std::string> get_rhs(bool include_constants = true) const {
-        if (type == Type::Call) // dont count functions
+        if (type == Type::Call) // dont count function call args
             return {};
 
         std::vector<std::string> rhs_vars;
-        if (dest) {
-            if (dest.value().type == Dest::Type::ArraySet)
-                rhs_vars.push_back(dest.value().index.value().value);
-        }
-        auto op1 = get_op(0);
-        auto op2 = get_op(1);
-        if (op1 && !op1->value.empty() && (include_constants || op1->is_var()))
-            rhs_vars.push_back(op1->get_string());
-        if (op2 && !op2->value.empty() && (include_constants || op2->is_var()))
-            rhs_vars.push_back(op2->get_string());
+        if (dest && dest->type == Dest::Type::ArraySet)
+            rhs_vars.push_back(dest->index->value);
+
+        for (auto &op : ops)
+            if (!op.get_string().empty() && (include_constants || op.is_var()))
+                rhs_vars.push_back(op.get_string());
+
         return rhs_vars;
     }
+
     std::optional<std::string> get_lhs() const {
         if (dest && !is_jump()) {
             return (dest.value().name);
@@ -89,6 +87,7 @@ struct Quad {
             return {};
         }
     }
+
     std::vector<std::string> get_used_vars() const {
         auto used_vars = get_rhs();
         if (auto l = get_lhs(); l.has_value()) {
@@ -97,12 +96,9 @@ struct Quad {
         return used_vars;
     }
 
-    bool is_jump() const {
-        return type == Type::Goto || type == Type::IfTrue || type == Type::IfFalse;
-    }
+    bool is_jump() const { return type == Type::Goto || type == Type::IfTrue || type == Type::IfFalse; }
     bool is_unary() const {
-        return type == Type::Deref || type == Type::Ref || type == Type::Assign ||
-               type == Type::UMinus;
+        return type == Type::Deref || type == Type::Ref || type == Type::Assign || type == Type::UMinus;
     }
     bool is_conditional_jump() const { return type == Type::IfTrue || type == Type::IfFalse; }
     bool is_assignment() const {
@@ -118,8 +114,7 @@ struct Quad {
     }
 
     static bool is_commutative(Type t) {
-        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq ||
-               t == Type::Neq;
+        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq || t == Type::Neq;
     }
     static bool is_critical(Type t) {
         return t == Type::Print || t == Type::Return || t == Type::Putparam || t == Type::Call;
@@ -134,8 +129,7 @@ struct Quad {
     }
 
     std::string fmt(bool only_rhs = false) const {
-        std::optional<std::string> destination =
-            dest.has_value() ? dest.value().fmt() : std::nullopt;
+        std::optional<std::string> destination = dest.has_value() ? dest.value().fmt() : std::nullopt;
 
         std::string command;
         if (destination.has_value() && !only_rhs)
@@ -203,8 +197,7 @@ struct Quad {
         case Type::Print:
             return "print_to_console " + get_op(0)->get_string();
         case Type::VarDeclaration:
-            return destination.value() + ": ." + get_op(0)->get_string() + " " +
-                   get_op(1)->get_string();
+            return destination.value() + ": ." + get_op(0)->get_string() + " " + get_op(1)->get_string();
         case Type::ArrayDeclaration:
             return destination.value() + ": .block " + dest->index->value + ", " +
                    get_op(0)->get_string() + ", " + get_op(1)->get_string();
