@@ -7,14 +7,8 @@
 void sparse_conditional_constant_propagation(Function &f) {
     auto &blocks = f.basic_blocks;
 
-    struct Place {
-        int block_num;
-        int quad_num;
-    };
-
-    auto print_place = [&](Place place) {
-        return "(" + std::to_string(place.block_num) + "; " + std::to_string(place.quad_num) + ")";
-    };
+    using Place = std::pair<int, int>;
+    using Position = std::pair<std::string, Place>;
 
     struct Value {
         enum class Type { Bottom /*Not a constant*/, Constant, Top /*Undefined (yet)*/ };
@@ -27,25 +21,26 @@ void sparse_conditional_constant_propagation(Function &f) {
 
     struct Record {
         Place defined_at = {-1, -1};
-        std::vector<Place> used_at{};
-        Value value{};
-
-        bool operator==(const Record &rhs) const { return value == rhs.value; }
-        bool operator!=(const Record &rhs) const { return value != rhs.value; }
+        std::vector<Place> used_at;
     };
 
-    std::map<std::string, Record> usingInfo;
+    std::map<std::string, Record> useInfo;
+    std::map<Position, Value> values;
+
     // fill in info
     for (auto &b : blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
 
             Place place{b->id, q_index};
-            if (!q.is_jump() && q.dest.has_value())
-                usingInfo[q.dest->name].defined_at = place;
+            if (!q.is_jump() && q.dest.has_value()) {
+                useInfo[q.dest->name].defined_at = place;
+                values[{q.dest->name, place}] = Value{.type = Value::Type::Top};
+            }
 
             for (const auto &op_name : q.get_rhs(false)) {
-                usingInfo[op_name].used_at.push_back(place);
+                useInfo[op_name].used_at.push_back(place);
+                values[{op_name, place}] = Value{.type = Value::Type::Top};
             }
         }
     }
@@ -64,38 +59,49 @@ void sparse_conditional_constant_propagation(Function &f) {
     std::vector<CFGEdge> CFGWorkList;
     std::vector<SSAEdge> SSAWorkList;
 
+    // fill cfg worklist with edges leaving entry node
     auto entry = f.find_entry_block();
     for (auto &s : entry->successors)
         CFGWorkList.emplace_back(entry->id, s->id);
 
-    auto EvaluateOverLattice = [&](Quad &q) -> Value {
-        std::vector<Value> values;
+    auto EvaluateOverLattice = [&](Place place, Quad &q) -> Value {
+        // it is either PHI or instruction with 2 operands
+        std::vector<Value> quad_values;
+
         for (auto &op : q.ops) {
-            if (op.is_var()) {
-                auto useInfo = usingInfo.at(op.get_string());
-                values.push_back(useInfo.value);
-            } else
-                values.push_back(Value{.type = Value::Type::Constant, .constant = op});
+            if (op.is_var())
+                quad_values.push_back(values.at({op.get_string(), place}));
+            else
+                quad_values.push_back(Value{.type = Value::Type::Constant, .constant = op});
         }
 
-        if (std::any_of(values.begin(), values.end(),
-                        [](auto &v) { return v.type == Value::Type::Bottom; }))
+        auto is_bottom = [](auto &v) { return v.type == Value::Type::Bottom; };
+        auto is_top = [](auto &v) { return v.type == Value::Type::Top; };
+        if (std::any_of(quad_values.begin(), quad_values.end(), is_bottom))
             return Value{.type = Value::Type::Bottom};
-        else if (std::all_of(values.begin(), values.end(),
-                             [](auto &v) { return v.type == Value::Type::Top; }))
+        else if (std::all_of(quad_values.begin(), quad_values.end(), is_top))
             return Value{.type = Value::Type::Top};
 
         std::vector<Operand> constants;
-        for (auto &v : values)
+        for (auto &v : quad_values)
             if (v.type == Value::Type::Constant)
                 constants.push_back(v.constant);
 
-        if (constants.size() == 1 ||
-            (constants.size() >= 2 &&
-             std::equal(constants.begin() + 1, constants.end(), constants.begin()))) {
+        if (q.type == Quad::Type::PhiNode) {
+            bool constants_equal = std::equal(constants.begin() + 1, constants.end(), constants.begin());
+            if (constants_equal)
+                return Value{.type = Value::Type::Constant, .constant = constants[0]};
+            else
+                return Value{.type = Value::Type::Bottom};
+        } else if (constants.size() != values.size()) {
+            return Value{.type = Value::Type::Bottom};
+        } else if (constants.size() == 1) {
             return Value{.type = Value::Type::Constant, .constant = constants[0]};
         } else {
-            return Value{.type = Value::Type::Bottom};
+            auto folded_quad = Quad(constants[0], constants[1], q.type);
+            constant_folding(folded_quad);
+            assert(folded_quad.type == Quad::Type::Assign);
+            return Value{.type = Value::Type::Constant, .constant = folded_quad.ops[0]};
         }
     };
 
@@ -104,55 +110,70 @@ void sparse_conditional_constant_propagation(Function &f) {
         auto &b = f.id_to_block.at(block_num);
         auto &q = b->quads[quad_num];
 
-        auto &dest_use_info = usingInfo.at(q.dest->name);
-        for (auto &used : q.get_rhs(false)) {
-            usingInfo[used].value = dest_use_info.value;
+        // for each value y used by the expression in m
+        //   let (x,y) be the SSA edge that supplies y (x - definition place, y - use place)
+        //   Value(y) ← Value(x)
+        for (auto &y : q.get_rhs(false)) {
+            values[{y, place}] = values.at({y, useInfo.at(y).defined_at});
         }
 
-        if (dest_use_info.value.type != Value::Type::Bottom) {
-            // Evaluate over lattice
-            Value v = EvaluateOverLattice(q);
-            if (v != dest_use_info.value) {
-                dest_use_info.value = v;
-                for (auto &used_at : dest_use_info.used_at)
-                    SSAWorkList.emplace_back(dest_use_info.defined_at, used_at);
+        auto &dest_value = values.at({q.dest->name, place});
+        if (dest_value.type != Value::Type::Bottom) {
+            Value v = EvaluateOverLattice(place, q);
+            if (dest_value != v) {
+                dest_value = v;
+                for (auto &used_at : useInfo.at(q.dest->name).used_at)
+                    SSAWorkList.emplace_back(place, used_at);
             }
         }
     };
 
     auto EvaluateConditional = [&](BasicBlock *b) {
+        Place place = {b->id, b->quads.size() - 1};
         auto &cond = b->quads.back();
         auto cond_var = *cond.get_op(0);
-        auto value = cond_var.is_var() ? usingInfo.at(cond_var.get_string()).value
-                                       : Value{.type = Value::Type::Constant, .constant = cond_var};
+        auto cond_var_name = cond_var.get_string();
+        auto value_at_use = cond_var.is_var()
+                                ? values.at({cond_var_name, place})
+                                : Value{.type = Value::Type::Constant, .constant = cond_var};
 
-        // ?????????? ??? if Value(d)  ̸= Value(s) then
-        // if (value.type != Value::Type::Bottom) {}
-        if (value.type == Value::Type::Constant) {
-            if (value.constant.is_true())
-                CFGWorkList.emplace_back(b->id, b->get_jumped_to_successor()->id);
-            else
-                CFGWorkList.emplace_back(b->id, b->get_fallthrough_successor()->id);
-        } else {
-            for (auto &s : b->successors) {
-                CFGWorkList.emplace_back(b->id, s->id);
+        if (value_at_use.type == Value::Type::Bottom) {
+            bool is_constant = value_at_use.type == Value::Type::Constant;
+            auto value_at_def = is_constant
+                                    ? value_at_use
+                                    : values.at({cond_var_name, useInfo.at(cond_var_name).defined_at});
+            if (is_constant || value_at_use != value_at_def) {
+                value_at_use = value_at_def;
+
+                if (value_at_use.type == Value::Type::Bottom) {
+                    for (auto &s : b->successors)
+                        CFGWorkList.emplace_back(b->id, s->id);
+                } else {
+                    bool make_jump =
+                        value_at_use.constant.is_true() && cond.type == Quad::Type::IfTrue ||
+                        !value_at_use.constant.is_true() && cond.type == Quad::Type::IfFalse;
+                    if (make_jump)
+                        CFGWorkList.emplace_back(b->id, b->get_jumped_to_successor()->id);
+                    else
+                        CFGWorkList.emplace_back(b->id, b->get_fallthrough_successor()->id);
+                }
             }
         }
     };
 
-    auto EvaluateOperands = [&](Quad &phi) {
+    auto EvaluateOperands = [&](Place place, Quad &phi) {
         std::string x = phi.dest->name;
-        if (usingInfo.at(x).value.type != Value::Type::Bottom) {
+        if (useInfo.at(x).value.type != Value::Type::Bottom) {
             for (auto &op : phi.get_rhs(false)) {
                 // ????
             }
         }
     };
 
-    auto EvaluateResult = [&](Quad &phi) {
-        auto &x_using_info = usingInfo.at(phi.dest->name);
+    auto EvaluateResult = [&](Place place, Quad &phi) {
+        auto &x_using_info = useInfo.at(phi.dest->name);
         if (x_using_info.value.type != Value::Type::Bottom) {
-            Value v = EvaluateOverLattice(phi);
+            Value v = EvaluateOverLattice(place, phi);
             if (x_using_info.value != v) {
                 x_using_info.value = v;
                 for (auto &used_at : x_using_info.used_at) {
@@ -167,16 +188,16 @@ void sparse_conditional_constant_propagation(Function &f) {
         auto &b = f.id_to_block.at(n);
 
         for (int i = 0; i < b->phi_functions; i++)
-            EvaluateOperands(b->quads[i]);
+            EvaluateOperands(Place{n, i}, b->quads[i]);
         for (int i = 0; i < b->phi_functions; i++)
-            EvaluateResult(b->quads[i]);
+            EvaluateResult(Place{n, i}, b->quads[i]);
     };
 
-    auto EvaluatePhi = [&](SSAEdge edge) {
+    auto EvaluatePhi = [&](BasicBlock *b, SSAEdge edge) {
         auto [s, d] = edge;
-        auto &phi = f.id_to_block.at(d.block_num)->quads[d.quad_num];
-        EvaluateOperands(phi);
-        EvaluateResult(phi);
+        auto &phi = f.id_to_block.at(d.first)->quads[d.second];
+        EvaluateOperands(d, phi);
+        EvaluateResult(d, phi);
     };
 
     while (!CFGWorkList.empty() || !SSAWorkList.empty()) {
@@ -223,10 +244,11 @@ void sparse_conditional_constant_propagation(Function &f) {
                 if (executed_edges.count({pred->id, c->id}) > 0)
                     any_entering_edge_is_executed = true;
             if (any_entering_edge_is_executed) {
-                if (c->quads[d.quad_num].type == Quad::Type::PhiNode)
-                    EvaluatePhi(edge);
-                else if (c->quads[d.quad_num].is_assignment())
-                    EvaluateAssign(Place{c->id, d.quad_num});
+                auto place = Place{c->id, d.second};
+                if (c->quads[d.second].type == Quad::Type::PhiNode)
+                    EvaluatePhi(place, edge);
+                else if (c->quads[d.second].is_assignment())
+                    EvaluateAssign(place);
                 else
                     EvaluateConditional(c);
             }
