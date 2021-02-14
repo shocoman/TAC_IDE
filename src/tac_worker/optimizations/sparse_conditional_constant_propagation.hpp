@@ -7,6 +7,7 @@
 
 #include <map>
 #include <set>
+#include <fmt/ranges.h>
 
 #include "tac_worker/structure/function.hpp"
 #include "tac_worker/print_utility.hpp"

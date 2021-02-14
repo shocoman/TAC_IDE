@@ -20,6 +20,8 @@ set(SOURCE_FILES
         src/tac_worker/optimizations/data_flow_analyses/dominators.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/available_expressions.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/available_expressions.hpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/anticipable_expressions.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/anticipable_expressions.hpp src/tac_worker/print_utility.hpp src/tac_worker/print_utility.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/utilities.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/earliest_expressions.cpp src/tac_worker/optimizations/data_flow_analyses/expressions_analyses/earliest_expressions.hpp src/tac_worker/optimizations/data_flow_analyses/data_flow_framework.cpp src/tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp src/tac_worker/optimizations/lazy_code_motion.cpp src/tac_worker/optimizations/lazy_code_motion.hpp src/tac_worker/optimizations/sparse_conditional_constant_propagation.cpp src/tac_worker/optimizations/sparse_conditional_constant_propagation.hpp)
 
 
+add_subdirectory(src/fmt)
+
 ### Creating exe and linking ###
 add_executable(tac_parser ${SOURCE_FILES})
 target_include_directories(tac_parser PUBLIC src)
@@ -52,4 +54,4 @@ target_sources(Parser PUBLIC
         src/parser/compiled_parser/parser.cpp
         )
 target_include_directories(Parser PUBLIC src/parser)
-target_link_libraries(tac_parser PRIVATE Parser)
+target_link_libraries(tac_parser PRIVATE Parser fmt::fmt)

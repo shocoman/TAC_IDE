@@ -143,12 +143,11 @@ void useless_code_elimination(Function &function) {
 
     // Clean Pass
     bool changed = true;
-    auto one_pass = [&](const std::unordered_map<int, int> &postorder_to_id) {
+    auto one_pass = [&](const std::map<int, int> &postorder_to_id) {
         std::unordered_set<int> block_ids_to_remove;
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
-            //            if (changed) break;
 
             auto block_it = id_to_block.find(id);
             if (block_it == id_to_block.end())
@@ -224,12 +223,10 @@ void useless_code_elimination(Function &function) {
         }
     };
 
-    int iter = 0;
     while (changed) {
-        iter++;
-        std::unordered_map<int, int> postorder_to_id;
-        for (auto &[id, rpo] : function.get_post_ordering())
-            postorder_to_id[rpo] = id;
+        std::map<int, int> postorder_to_id;
+        for (auto &[id, po] : function.get_post_ordering())
+            postorder_to_id[po] = id;
 
         changed = false;
         one_pass(postorder_to_id);

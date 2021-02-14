@@ -1,6 +1,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "fmt/ranges.h"
+
 #include "src/parser/driver/driver.hpp"
 #include "tac_worker/optimization_runner.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
@@ -10,6 +12,7 @@
 #include "tac_worker/optimizations/sparse_conditional_constant_propagation.hpp"
 #include "tac_worker/optimizations/lazy_code_motion.hpp"
 #include "tac_worker/print_utility.hpp"
+
 
 int main(int argc, char *argv[]) {
     // region CmdArg parse
@@ -24,7 +27,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    setenv("DISPLAY", "192.168.55.241:0", true);
+    setenv("DISPLAY", "172.18.41.81:0", true);
     ParseDriver drv;
 
 //    drv.parse("../_TestCode/myfile");
@@ -34,16 +37,17 @@ int main(int argc, char *argv[]) {
 //    drv.parse("../_TestCode/anticipable_expressions2.txt");
 //    drv.parse("../_TestCode/available_expressions3.txt");
 //    drv.parse("../_TestCode/FactorialProgram.txt");
-    drv.parse("../_TestCode/ssa_test.txt");
+//    drv.parse("../_TestCode/ssa_test.txt");
+    drv.parse("../_TestCode/sccp_test.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
 //    optimize(functions[0]);
 
     convert_to_ssa(f);
+    f.print_cfg("after.png");
 
     sparse_conditional_constant_propagation(f);
-    f.print_cfg("after.png");
 
     std::getchar();
     return 0;
