@@ -109,6 +109,16 @@ struct BasicBlock {
         quads.insert(quads.begin() + phi_functions, phi);
         phi_functions++;
     }
+
+    int add_quad_before_jump(Quad q) {
+        if (quads.empty() || !quads.back().is_jump()) {
+            quads.push_back(q);
+            return quads.size() - 1;
+        } else {
+            quads.insert(quads.end() - 1, q);
+            return quads.size() - 2;
+        }
+    }
 };
 
 using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;

@@ -105,8 +105,8 @@ check_call(['cmake', '--build','.'], cwd=build_dir)
 env = os.environ.copy()
 env['CTEST_OUTPUT_ON_FAILURE'] = '1'
 if call(['make', 'test'], env=env, cwd=build_dir):
-    with open(os.path.join(build_dir, 'Testing', 'Temporary', 'LastTest.log'), 'r') as f:
-        print(f.read())
+    with open(os.path.join(build_dir, 'Testing', 'Temporary', 'LastTest.log'), 'r') as func:
+        print(func.read())
     sys.exit(-1)
 
 # Install the library.

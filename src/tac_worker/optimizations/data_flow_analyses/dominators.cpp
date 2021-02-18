@@ -101,7 +101,7 @@ ID2IDOM find_immediate_dominators(Function &function) {
 }
 
 ID2DOMS find_dominators(Function &function) {
-    // forward-flow problem
+    // forward data-flow problem
     // n ← |N| - 1
     // Dom(0) ← {0}
     // for i ← 1 to n
@@ -157,15 +157,15 @@ ID2DOMS find_dominators(Function &function) {
     }
 
     // region Print Dominators
-    std::cout << "-- PRINT --" << std::endl;
-    for (auto &[id, doms] : id_to_dominators) {
-        std::cout << id << " (" << function.id_to_block.at(id)->get_name() << "): ";
-        for (auto &d : doms) {
-            std::cout << function.id_to_block.at(d)->get_name() << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "-- END_PRINT --" << std::endl;
+//    std::cout << "-- PRINT --" << std::endl;
+//    for (auto &[id, doms] : id_to_dominators) {
+//        std::cout << id << " (" << function.id_to_block.at(id)->get_name() << "): ";
+//        for (auto &d : doms) {
+//            std::cout << function.id_to_block.at(d)->get_name() << ", ";
+//        }
+//        std::cout << std::endl;
+//    }
+//    std::cout << "-- END_PRINT --" << std::endl;
     // endregion
 
     return id_to_dominators;
@@ -188,7 +188,7 @@ void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom) {
     system("feh dominator_tree.png &");
 }
 
-int get_common_dominator_id(int Z_id, int B_id, ID2IDOM &id_to_idom, ID2DOMS &id_to_doms) {
+int get_common_dominator_id(int Z_id, int B_id, const ID2IDOM &id_to_idom, const ID2DOMS &id_to_doms) {
     // if B dominates Z then
     //   return B
     // while Z does not dominate B do

@@ -67,14 +67,6 @@ void sparse_conditional_constant_propagation(Function &f) {
     auto EvaluateOverLattice = [&](Place place, Quad &q) -> Value {
         // it is either PHI or instruction with 2 (or 1?) operands
 
-//        fmt::print("{}\n", q.dest->name);
-//        if (q.dest->name == "a.3") {
-//            fmt::print("LOL\n");
-//        }
-//        if (q.dest->name == "a.2") {
-//            fmt::print("LOL\n");
-//        }
-
         std::vector<Value> quad_values;
         for (auto &op : q.ops) {
             if (op.is_var())
@@ -87,7 +79,7 @@ void sparse_conditional_constant_propagation(Function &f) {
         auto is_top = [](auto &v) { return v.type == Value::Type::Top; };
         if (std::any_of(quad_values.begin(), quad_values.end(), is_bottom))
             return Value{.type = Value::Type::Bottom};
-        else if (std::any_of(quad_values.begin(), quad_values.end(), is_top))
+        else if (std::any_of(quad_values.begin(), quad_values.end(), is_top) /*&& q.type != Quad::Type::PhiNode*/)
             return Value{.type = Value::Type::Top};
 
         std::vector<Operand> constants;
@@ -97,7 +89,7 @@ void sparse_conditional_constant_propagation(Function &f) {
 
         if (q.type == Quad::Type::PhiNode) {
             bool constants_equal = std::equal(constants.begin() + 1, constants.end(), constants.begin());
-            if (constants_equal)
+            if (constants_equal /*|| constants.size() == 1*/)
                 return Value{.type = Value::Type::Constant, .constant = constants[0]};
             else
                 return Value{.type = Value::Type::Bottom};

@@ -1,0 +1,15 @@
+B0:
+    A = 999
+    s = 0
+    i = 1
+    r100 = 100
+B1:
+    r1 = i - 1
+    r2 = r1 * 4
+    r3 = r2 + A
+    s = r3 + s
+    i = i + 1
+    $cmp = i < r100
+    if $cmp goto B1
+B2:
+    return 0

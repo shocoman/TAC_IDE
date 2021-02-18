@@ -94,7 +94,7 @@ contexts:
     - match: \bthis\b
       scope: variable.language.c++
     # common C++ instance var naming idiom -- fMemberName
-    - match: '\b(f|m)[[:upper:]]\w*\b'
+    - match: '\b(func|m)[[:upper:]]\w*\b'
       scope: variable.other.readwrite.member.c++
     # common C++ instance var naming idiom -- m_member_name
     - match: '\bm_[[:alnum:]_]+\b'

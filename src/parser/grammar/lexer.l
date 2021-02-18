@@ -107,7 +107,7 @@ yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::
             {"block", yy::parser::make_BLOCK },
     };
 
-    if (auto f = keywords.find(s); f != keywords.end()) return f->second(loc);
+    if (auto func = keywords.find(s); func != keywords.end()) return func->second(loc);
     else return yy::parser::make_IDENTIFIER(s, loc);
 }
 

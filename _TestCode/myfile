@@ -36,17 +36,17 @@
 // B3:
 //     e = b + 18
 //     s = a + b
-//     u = e + f
+//     u = e + func
 //     goto B5
 // B4:
 //     e = a + 17
 //     t = c + d
-//     u = e + f
+//     u = e + func
 //     goto B5
 // B5:
 //     v = a + b
 //     w = c + d
-//     x = e + f
+//     x = e + func
 //     goto B6
 // B6:
 //    y = a + b

@@ -120,11 +120,11 @@
 //    a = 4
 //    b = 4
 //    c = 4
-//    f = 2 + 3
+//    func = 2 + 3
 //    if b goto B2
 //B1:
 //    b = a + 3
-//    f = a + 3
+//    func = a + 3
 //    c = 2
 //    goto B3
 //B2:
@@ -135,4 +135,4 @@
 //    z = 3
 //B4:
 //    print_to_console 1
-//    return f
+//    return func
