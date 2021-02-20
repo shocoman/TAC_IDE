@@ -23,20 +23,20 @@ struct VariableInfo {
     std::string header;
 };
 
-struct OperatorStrengthReductionDriver {
-
+// operator strength reduction
+struct OSRDriver {
     Function &func;
     std::map<std::string, VariableInfo> useInfo;
     ID2DOMS id_to_doms;
     std::map<std::tuple<std::string, std::string, std::string>, std::string> operations_lookup_table;
     std::set<std::string> induction_variables;
 
-    explicit OperatorStrengthReductionDriver(Function &f);
+    explicit OSRDriver(Function &f);
 
     void OSR();
     void FillInUseDefGraph();
     auto GetQuad(VariableInfo::Place p) -> Quad &;
-    bool IsRegionConstant(const std::string &node_name, Operand &o);
+    bool IsCorrectIVarAndRConstPair(Operand &mb_iv, Operand &mb_rc);
     void Replace(const std::string &node_name);
     bool IsCandidateOperation(const std::string &node_name);
     bool IsValidUpdate(const std::string &node_name);
@@ -46,7 +46,7 @@ struct OperatorStrengthReductionDriver {
     void PrintSSAGraph();
     std::string Reduce(const std::string &node_name, Operand &induction_var, Operand &region_constant);
     std::string Apply(const std::string node_name, Operand &op1, Operand &op2);
-    std::string NewName();
+    std::string MakeNewName();
 };
 
 #endif // TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_OPERATOR_STRENGTH_REDUCTION_HPP

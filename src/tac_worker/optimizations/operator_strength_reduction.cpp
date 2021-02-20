@@ -4,27 +4,36 @@
 
 #include "operator_strength_reduction.hpp"
 
-OperatorStrengthReductionDriver::OperatorStrengthReductionDriver(Function &f) : func(f) {
+OSRDriver::OSRDriver(Function &f) : func(f) {
     id_to_doms = find_dominators(f);
     FillInUseDefGraph();
 
     OSR();
-    PrintSSAGraph();
+    //    PrintSSAGraph();
 
     for (auto &[name, var_info] : useInfo) {
-        fmt::print("{}:\n\t Defined at: {}\n\t Used at: {}\n\t Header: {}\n", name, var_info.defined_at,
-                   var_info.used_at, var_info.header);
+        fmt::print("{}:\n\t Defined at: {}\n\t Used at: {}\n\t Header: {}\nNum: {}\n", name,
+                   var_info.defined_at, var_info.used_at, var_info.header, var_info.num);
     }
 }
 
-void OperatorStrengthReductionDriver::OSR() {
+void OSRDriver::OSR() {
     // visit every unvisited node in ssa graph
+
+    std::vector<std::pair<std::string, VariableInfo>> ssa_nodes;
     for (auto &[name, var_info] : useInfo)
+        ssa_nodes.emplace_back(name, var_info);
+
+    std::sort(ssa_nodes.begin(), ssa_nodes.end(),
+              [](auto &n1, auto &n2) { return n1.second.defined_at < n2.second.defined_at; });
+
+    //    for (auto &[name, var_info] : useInfo)
+    for (auto &[name, var_info] : ssa_nodes)
         if (!var_info.visited)
             DFS(name);
 }
 
-void OperatorStrengthReductionDriver::FillInUseDefGraph() {
+void OSRDriver::FillInUseDefGraph() {
     for (auto &b : func.basic_blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
@@ -39,47 +48,49 @@ void OperatorStrengthReductionDriver::FillInUseDefGraph() {
     }
 }
 
-auto OperatorStrengthReductionDriver::GetQuad(VariableInfo::Place p) -> Quad & {
+auto OSRDriver::GetQuad(VariableInfo::Place p) -> Quad & {
     return func.id_to_block.at(p.first)->quads.at(p.second);
 }
 
-bool OperatorStrengthReductionDriver::IsRegionConstant(const std::string &node_name, Operand &o) {
-    if (o.is_constant())
+// IsCorrectInductionVariableAndRegionConstantPair
+bool OSRDriver::IsCorrectIVarAndRConstPair(Operand &mb_iv, Operand &mb_rc) {
+    // or loop invariant value
+    auto &iv_node = useInfo.at(mb_iv.value);
+    if (iv_node.header.empty() || !mb_iv.is_var())
+        return false;
+
+    if (mb_rc.is_constant())
         return true;
 
-    // or loop invariant value
-    auto &node = useInfo.at(node_name);
-    auto iv_header = node.header.empty() ? node_name : node.header;
-
-    auto iv_definition_block = useInfo.at(iv_header).defined_at.first;
-    auto constant_definition_block = useInfo.at(o.value).defined_at.first;
-    // check if operand definition dominates induction variable definition
-    return id_to_doms.at(iv_definition_block).count(constant_definition_block) > 0;
+    // check if region constant definition dominates induction variable header definition
+    auto iv_def_block = useInfo.at(iv_node.header).defined_at.first;
+    auto constant_def_block = useInfo.at(mb_rc.value).defined_at.first;
+    return id_to_doms.at(iv_def_block).count(constant_def_block) > 0;
 }
 
-bool OperatorStrengthReductionDriver::IsCandidateOperation(const std::string &node_name) {
+bool OSRDriver::IsCandidateOperation(const std::string &node_name) {
     auto &q = GetQuad(useInfo.at(node_name).defined_at);
     if (q.type == Quad::Type::Add || q.type == Quad::Type::Sub || q.type == Quad::Type::Mult) {
-        return q.ops[0].is_var() && IsRegionConstant(node_name, q.ops[1]) ||
-               IsRegionConstant(node_name, q.ops[0]) && q.ops[1].is_var() && q.type != Quad::Type::Sub;
+        return IsCorrectIVarAndRConstPair(q.ops[0], q.ops[1]) ||
+               IsCorrectIVarAndRConstPair(q.ops[1], q.ops[0]) && q.type != Quad::Type::Sub;
     }
     return false;
 }
 
-bool OperatorStrengthReductionDriver::IsValidUpdate(const std::string &node_name) {
+bool OSRDriver::IsValidUpdate(const std::string &node_name) {
     auto &q = GetQuad(useInfo.at(node_name).defined_at);
 
     bool induction_var_plus_constant =
-        q.type == Quad::Type::Add && (q.ops[0].is_var() && IsRegionConstant(node_name, q.ops[1]) ||
-                                      IsRegionConstant(node_name, q.ops[0]) && q.ops[1].is_var());
+        q.type == Quad::Type::Add && (IsCorrectIVarAndRConstPair(q.ops[0], q.ops[1]) ||
+                                      IsCorrectIVarAndRConstPair(q.ops[1], q.ops[0]));
     bool induction_var_minus_constant =
-        q.type == Quad::Type::Sub && (q.ops[0].is_var() && IsRegionConstant(node_name, q.ops[1]));
+        q.type == Quad::Type::Sub && IsCorrectIVarAndRConstPair(q.ops[0], q.ops[1]);
 
     return induction_var_plus_constant || induction_var_minus_constant ||
            q.type == Quad::Type::PhiNode || q.type == Quad::Type::Assign;
 }
 
-void OperatorStrengthReductionDriver::ClassifyIV(const std::vector<std::string> &SCC) {
+void OSRDriver::ClassifyIV(const std::vector<std::string> &SCC) {
     bool is_iv = true;
     for (auto &node_name : SCC)
         if (!IsValidUpdate(node_name))
@@ -103,9 +114,9 @@ void OperatorStrengthReductionDriver::ClassifyIV(const std::vector<std::string> 
     }
 }
 
-void OperatorStrengthReductionDriver::Process(const std::vector<std::string> &SCC) {
+void OSRDriver::Process(const std::vector<std::string> &SCC) {
     if (SCC.size() == 1) {
-        std::string n = *SCC.begin();
+        std::string n = SCC.front();
         if (IsCandidateOperation(n))
             Replace(n);
         else
@@ -114,7 +125,7 @@ void OperatorStrengthReductionDriver::Process(const std::vector<std::string> &SC
         ClassifyIV(SCC);
 }
 
-void OperatorStrengthReductionDriver::DFS(const std::string &name) {
+void OSRDriver::DFS(const std::string &name) {
     // Tarjan algorithm for finding strongly connected components in graph
     static std::vector<std::string> stack;
     static int next_num = 0;
@@ -150,14 +161,14 @@ void OperatorStrengthReductionDriver::DFS(const std::string &name) {
             stack.pop_back();
             SCC.push_back(x);
         } while (x != name);
-        if (SCC.size() > 1)
-            fmt::print("SCC: {}\n", SCC);
+        // if (SCC.size() > 1)
+        fmt::print("SCC: {}\n", SCC);
 
         Process(SCC);
     }
 }
 
-void OperatorStrengthReductionDriver::PrintSSAGraph() {
+void OSRDriver::PrintSSAGraph() {
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
     // print edges
@@ -185,37 +196,43 @@ void OperatorStrengthReductionDriver::PrintSSAGraph() {
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
 }
 
-void OperatorStrengthReductionDriver::Replace(const std::string &node_name) {
+void OSRDriver::Replace(const std::string &node_name) {
     auto &q = GetQuad(useInfo.at(node_name).defined_at);
-    auto &induction_var = q.ops[0].is_var() ? q.ops[0] : q.ops[1];
-    auto &region_constant = IsRegionConstant(node_name, q.ops[1]) ? q.ops[1] : q.ops[0];
+
+    auto [induction_var, region_constant] =
+        q.ops[0].is_var() ? std::pair{q.ops[0], q.ops[1]} : std::pair{q.ops[1], q.ops[0]};
 
     induction_variables.insert(induction_var.value);
     fmt::print("Replace: {}; {}; {}\n", node_name, induction_var.value, region_constant.value);
+    //    if (node_name == "s.2" || node_name[0] == '$') return;
+    auto result = Reduce(node_name, induction_var, region_constant);
 
-    //    auto result = Reduce(node_name, induction_var, region_constant);
-    //    // replace n with a copy from result
-    //    useInfo.at(node_name).header = useInfo.at(induction_var.value).header;
+    q.type = Quad::Type::Assign;
+    q.clear_op(1);
+    q.ops[0] = Operand(result, Operand::Type::Var);
+    //    fmt::print(" with: {}; {}\n", q.fmt(), GetQuad(useInfo.at(result).defined_at).fmt());
+    //     replace n with a copy from result
+    useInfo.at(node_name).header = useInfo.at(induction_var.value).header;
 }
 
-std::string OperatorStrengthReductionDriver::NewName() {
-    // get unused register name
-    int register_num = 0;
+std::string OSRDriver::MakeNewName() {
+    // find unused register name
+    int i = 0;
     std::string register_name;
     do {
-        register_name = fmt::format("$t{}", register_num);
-        ++register_num;
+        register_name = fmt::format("$t{}", i++);
     } while (useInfo.find(register_name) != useInfo.end());
     useInfo[register_name] = {};
     return register_name;
 }
 
-std::string OperatorStrengthReductionDriver::Reduce(const std::string &node_name, Operand &induction_var,
-                                                    Operand &region_constant) {
+std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_var,
+                              Operand &region_constant) {
     auto op_type = GetQuad(useInfo.at(node_name).defined_at).type;
+
     auto key = std::tuple{node_name, induction_var.value, region_constant.value};
     if (operations_lookup_table.count(key) == 0) {
-        std::string new_name = NewName();
+        std::string new_name = MakeNewName();
         operations_lookup_table[key] = new_name;
 
         auto &new_def = useInfo[new_name];
@@ -227,27 +244,28 @@ std::string OperatorStrengthReductionDriver::Reduce(const std::string &node_name
         for (auto &o : GetQuad(new_def.defined_at).ops) {
             if (useInfo.at(o.value).header == iv_def.header) {
                 // rewrite O with Reduce(node_name, o, region_constant)
-                Reduce(node_name, o, region_constant);
+                auto res = Reduce(node_name, o, region_constant);
+                o.value = res;
             } else if (op_type == Quad::Type::Mult ||
                        GetQuad(new_def.defined_at).type == Quad::Type::PhiNode) {
                 // replace O with Apply(node_name, o, region_constant)
-                Apply(node_name, o, region_constant);
+                auto res = Apply(node_name, o, region_constant);
+                o.value = res;
             }
         }
     }
     return operations_lookup_table.at(key);
 }
 
-std::string OperatorStrengthReductionDriver::Apply(const std::string node_name, Operand &op1,
-                                                   Operand &op2) {
+std::string OSRDriver::Apply(const std::string node_name, Operand &op1, Operand &op2) {
     auto key = std::tuple{node_name, op1.value, op2.value};
     if (operations_lookup_table.count(key) == 0) {
-        if (induction_variables.count(op1.value) > 0 && IsRegionConstant(node_name, op2)) {
+        if (IsCorrectIVarAndRConstPair(op1, op2)) {
             return Reduce(node_name, op1, op2);
-        } else if (induction_variables.count(op2.value) > 0 && IsRegionConstant(node_name, op1)) {
+        } else if (IsCorrectIVarAndRConstPair(op2, op1)) {
             return Reduce(node_name, op2, op1);
         } else {
-            std::string new_name = NewName();
+            std::string new_name = MakeNewName();
             operations_lookup_table[key] = new_name;
             auto q = Quad(op1, op2, GetQuad(useInfo.at(node_name).defined_at).type);
             q.dest = Dest(new_name, {}, Dest::Type::Var);

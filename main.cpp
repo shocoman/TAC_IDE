@@ -47,11 +47,12 @@ int main(int argc, char *argv[]) {
     //    optimize(functions[0]);
 
     convert_to_ssa(f);
-    f.print_cfg("after.png");
+//    f.print_cfg("before.png");
 
-    auto operator_reduction = OperatorStrengthReductionDriver(f);
+    auto operator_reduction = OSRDriver(f);
 
     //    sparse_conditional_constant_propagation(f);
+//    f.print_cfg("after.png");
 
     std::getchar();
     return 0;
