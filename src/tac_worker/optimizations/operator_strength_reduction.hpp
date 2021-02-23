@@ -29,23 +29,23 @@ struct OSRDriver {
     std::map<std::string, VariableInfo> useInfo;
     ID2DOMS id_to_doms;
     std::map<std::tuple<std::string, std::string, std::string>, std::string> operations_lookup_table;
-    std::set<std::string> induction_variables;
 
     explicit OSRDriver(Function &f);
 
     void OSR();
     void FillInUseDefGraph();
-    auto GetQuad(VariableInfo::Place p) -> Quad &;
+    Quad &GetQuad(VariableInfo::Place p);
     bool IsCorrectIVarAndRConstPair(Operand &mb_iv, Operand &mb_rc);
     void Replace(const std::string &node_name);
-    bool IsCandidateOperation(const std::string &node_name);
-    bool IsValidUpdate(const std::string &node_name);
+    bool IsCandidateOperation(const std::string &node_name, std::string header);
+    bool IsSCCValidIV(const std::vector<std::string> &SCC, std::string header);
+    bool IsRegionConst(std::string &name, std::string &header);
     void ClassifyIV(const std::vector<std::string> &SCC);
-    void Process(const std::vector<std::string> &SCC);
+    void ProcessSCC(const std::vector<std::string> &SCC);
     void DFS(const std::string &name);
     void PrintSSAGraph();
-    std::string Reduce(const std::string &node_name, Operand &induction_var, Operand &region_constant);
-    std::string Apply(const std::string node_name, Operand &op1, Operand &op2);
+    std::string Reduce(const std::string &node_name, Operand &induction_var, Operand &reg_const);
+    std::string Apply(const std::string &node_name, Operand &op1, Operand &op2);
     std::string MakeNewName();
 };
 

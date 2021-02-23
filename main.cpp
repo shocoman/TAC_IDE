@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    setenv("DISPLAY", "192.168.67.81:0", true);
+    setenv("DISPLAY", "192.168.72.177:0", true);
     ParseDriver drv;
 
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     auto operator_reduction = OSRDriver(f);
 
     //    sparse_conditional_constant_propagation(f);
-//    f.print_cfg("after.png");
+    f.print_cfg("after.png");
 
     std::getchar();
     return 0;
