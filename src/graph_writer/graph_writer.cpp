@@ -4,8 +4,7 @@
 
 #include "graph_writer.hpp"
 
-namespace {
-std::string escape(const std::string &s) {
+std::string escape_string(const std::string &s) {
     std::string buffer;
     buffer.reserve(s.length() * 1.1);
     for (const auto &ch : s) {
@@ -23,7 +22,6 @@ std::string escape(const std::string &s) {
     }
     return buffer;
 }
-} // namespace
 
 void GraphWriter::add_edge(std::string node1, std::string node2, std::string edge_label) {
     edges.emplace_back(std::move(node1), std::move(node2), std::move(edge_label));
@@ -39,32 +37,38 @@ void GraphWriter::set_node_text(const std::string &node_name,
 }
 
 void GraphWriter::render_to_file(const std::string &filename) {
-
     std::unordered_map<std::string, Agnode_t *> ag_nodes;
-    std::unordered_map<std::string, Agedge_t *> ag_edges;
 
     GVC_t *gvc = gvContext();
     Agraph_t *g = agopen((char *)"g", Agdirected, nullptr);
 
+    // add nodes
     for (auto &[node, label_lines] : node_texts) {
         std::string final_label;
         auto node_name = node_names.count(node) ? node_names.at(node) : node;
 
         final_label += R"(<TABLE BORDER="0" CELLBORDER="1">)";
         if (additional_info_above.count(node))
-            final_label += "<TR><TD BORDER=\"0\">" + escape(additional_info_above.at(node)) + "</TD></TR>";
-        final_label += "<TR><TD>" + node_name + "</TD></TR>";
+            final_label +=
+                fmt::format("<TR><TD BORDER='0'>{}</TD></TR>", additional_info_above.at(node));
+        // node title
+        final_label += fmt::format("<TR><TD COLSPAN='2' PORT='{0}_enter'>{0}</TD></TR>", node_name);
 
         if (!label_lines.empty()) {
-            final_label += "<TR><TD><FONT>";
+            final_label += "<TR><TD COLSPAN='2'><FONT>";
             for (const auto &l : label_lines) {
                 // align line to the left side
-                final_label += escape(l) + R"(<BR ALIGN="LEFT"/>)";
+                final_label += l + "<BR ALIGN='LEFT'/>";
             }
             final_label += "</FONT></TD></TR>";
         }
         if (additional_info_below.count(node))
-            final_label += "<TR><TD BORDER=\"0\">" + escape(additional_info_below.at(node)) + "</TD></TR>";
+            final_label +=
+                fmt::format("<TR><TD BORDER='0'>{}</TD></TR>", additional_info_below.at(node));
+
+        if (node_attributes.count(node_name) && node_attributes.at(node_name).count("true_branch"))
+            final_label +=
+                fmt::format("<TR><TD PORT='{0}_T'>T</TD><TD PORT='{0}_F'>F</TD></TR>", node_name);
 
         final_label += "</TABLE>";
 
@@ -74,21 +78,31 @@ void GraphWriter::render_to_file(const std::string &filename) {
         ag_nodes.emplace(node, ag_node);
     }
 
+    // add edges
     for (auto &[node1, node2, edge_name] : edges) {
-        auto n1 = ag_nodes.find(node1)->second;
-        auto n2 = ag_nodes.find(node2)->second;
+        auto &n1 = ag_nodes.at(node1);
+        auto &n2 = ag_nodes.at(node2);
 
         Agedge_t *e = agedge(g, n1, n2, (char *)edge_name.c_str(), 1);
+
+        if (node_attributes.count(node1) && node_attributes.at(node1).count("true_branch")) {
+            std::string &true_branch_name = node_attributes[node1]["true_branch"];
+            auto tail_port = fmt::format(true_branch_name == node2 ? "{}_T" : "{}_F", node1);
+            agsafeset(e, (char *)"tailport", (char *)tail_port.c_str(), (char *)"");
+        }
+
+        auto head_port = fmt::format("n", node2);
+        agsafeset(e, (char *)"headport", (char *)head_port.c_str(), (char *)"");
+
         agsafeset(e, (char *)"label", (char *)edge_name.c_str(), (char *)"");
-        ag_edges.emplace(edge_name, e);
     }
 
     // set shape and font for all nodes and edges
     auto font_name = "DejaVu Sans Mono";
     agattr(g, AGRAPH, (char *)"fontname", (char *)font_name);
     agattr(g, AGRAPH, (char *)"fontsize", (char *)"25");
-    agattr(g, AGRAPH, (char *)"labelloc", (char *)"t");
-    //    agattr(g, AGRAPH, (char *)"label", (char *)graph_title.c_str());
+    agattr(g, AGRAPH, (char *)"labelloc", (char *)"t"); // graph title position (top)
+
     agattr(g, AGRAPH, (char *)"label", agstrdup_html(g, (char *)graph_title.c_str()));
     agattr(g, AGNODE, (char *)"fontname", (char *)font_name);
     agattr(g, AGNODE, (char *)"shape", (char *)"none");
@@ -98,9 +112,8 @@ void GraphWriter::render_to_file(const std::string &filename) {
     gvLayout(gvc, g, "dot");
     int res = gvRenderFilename(gvc, g, "png", (char *)filename.c_str());
     gvRenderFilename(gvc, g, "dot", (char *)"graph_in_text.dot");
-    if (res) {
+    if (res)
         printf("Graphviz error. Something wrong with graph rendering: %i", res);
-    }
 
     gvFreeLayout(gvc, g);
     agclose(g);
@@ -108,87 +121,10 @@ void GraphWriter::render_to_file(const std::string &filename) {
 }
 
 void GraphWriter::add_info_above(const std::string &node, const std::string &info, bool above) {
-    if (above) {
+    if (above)
         additional_info_above[node] += info;
-    } else {
+    else
         additional_info_below[node] += info;
-    }
 }
 
 void GraphWriter::set_title(const std::string &title) { graph_title = title; }
-
-// void render_to_file2(const std::string &filename) {
-//    std::unordered_map<std::string, Agnode_t *> ag_nodes;
-//    std::unordered_map<std::string, Agedge_t *> ag_edges;
-//
-//    GVC_t *gvc = gvContext();
-//    Agraph_t *g = agopen((char *)"g", Agdirected, nullptr);
-//
-//    for (auto &[node, label_lines] : node_texts) {
-//        std::string final_label;
-//        auto node_name = node_names.count(node) ? node_names.at(node) : node;
-//
-//        final_label += node_name;
-//        if (!label_lines.empty()) {
-//            final_label += "|";
-//
-//            for (auto l : label_lines) {
-//                // escape utility symbols (<, >, ...)
-//                for (int i = l.size() - 1; i >= 0; --i) {
-//                    auto c = l.at(i);
-//                    if (c == '<' || c == '>') {
-//                        l.insert(i, 1, c);
-//                        l[i] = '\\';
-//                    }
-//                }
-//                // align line to the left side with \l
-//                final_label += l + "\\l";
-//            }
-//        }
-//
-//        // for correct vertical label formatting
-//        final_label.insert(0, "{");
-//        final_label.append("}");
-//
-//        Agnode_t *ag_node = agnode(g, (char *)node.c_str(), 1);
-//        agsafeset(ag_node, (char *)"label", (char *)final_label.c_str(), (char *)"");
-//
-//        ag_nodes.emplace(node, ag_node);
-//    }
-//
-//    for (auto &[node1, node2, edge_name] : edges) {
-//        auto n1 = ag_nodes.find(node1)->second;
-//        auto n2 = ag_nodes.find(node2)->second;
-//
-//        Agedge_t *e = agedge(g, n1, n2, (char *)edge_name.c_str(), 1);
-//        agsafeset(e, (char *)"label", (char *)edge_name.c_str(), (char *)"");
-//        // edge direction?
-//        // agsafeset(e, (char *) "headport", (char *) "n", (char *) "");
-//        // agsafeset(e, (char *) "tailport", (char *) "s", (char *) "");
-//        // agsafeset(e, (char *) "constraint", (char *) "false", (char *) "");
-//        ag_edges.emplace(edge_name, e);
-//    }
-//
-//    // set shape and font for nodes and edges
-//    auto font_name = "DejaVu Sans Mono";
-//    if (!ag_nodes.empty()) {
-//        agsafeset(ag_nodes.begin()->second, (char *)"fontname", (char *)font_name,
-//                  (char *)font_name);
-//        agsafeset(ag_nodes.begin()->second, (char *)"shape", (char *)"none", (char *)"none");
-//    }
-//    if (!ag_edges.empty()) {
-//        agsafeset(ag_edges.begin()->second, (char *)"fontname", (char *)font_name,
-//                  (char *)font_name);
-//    }
-//
-//    // print graph as png image to a file
-//    gvLayout(gvc, g, "dot");
-//    int res = gvRenderFilename(gvc, g, "png", (char *)filename.c_str());
-//    if (res) {
-//        printf("Graphviz error. Something wrong with graph rendering: %i", res);
-//    }
-//
-//    gvFreeLayout(gvc, g);
-//    agclose(g);
-//    gvFreeContext(gvc);
-//}

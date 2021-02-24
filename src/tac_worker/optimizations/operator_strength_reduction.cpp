@@ -12,8 +12,8 @@ OSRDriver::OSRDriver(Function &f) : func(f) {
     PrintSSAGraph();
 
     for (auto &[name, var_info] : useInfo) {
-        fmt::print("{}:\n\t Defined at: {}\n\t Used at: {}\n\t Header: {}\nNum: {}\n", name,
-                   var_info.defined_at, var_info.used_at, var_info.header, var_info.num);
+        fmt::print("{}:\n\t Defined at: {}\n\t Header: {}\nNum: {}\n", name, var_info.defined_at,
+                   var_info.header, var_info.num);
     }
 }
 
@@ -25,12 +25,12 @@ void OSRDriver::FillInUseDefGraph() {
             VariableInfo::Place place{b->id, q_index};
             if (!q.is_jump() && q.dest.has_value()) {
                 useInfo[q.dest->name].defined_at = place;
-                //                useInfo[q.dest->name].header = q.dest->name;
+                // useInfo[q.dest->name].header = q.dest->name;
             }
 
             for (const auto &op_name : q.get_rhs(true)) {
-                useInfo[op_name].used_at.push_back(place);
-                //                useInfo[op_name].header = op_name;
+                useInfo[op_name]; // insert dummy value if doesnt exist
+                // useInfo[op_name].header = op_name;
             }
         }
     }
@@ -60,7 +60,7 @@ void OSRDriver::DFS(const std::string &name) {
     auto &n = useInfo.at(name);
     n.num = next_num++;
     n.visited = true;
-    n.low = n.num;
+    n.lowlink = n.num;
 
     // skip constant nodes (nodes w/o definition)
     if (n.defined_at == std::pair{-1, -1}) {
@@ -75,13 +75,13 @@ void OSRDriver::DFS(const std::string &name) {
         auto &o = useInfo.at(op_name);
         if (!o.visited) {
             DFS(op_name);
-            n.low = std::min(n.low, o.low);
+            n.lowlink = std::min(n.lowlink, o.lowlink);
         }
         if (o.num < n.num && std::find(stack.begin(), stack.end(), op_name) != stack.end())
-            n.low = std::min(n.low, o.num);
+            n.lowlink = std::min(n.lowlink, o.num);
     }
 
-    if (n.low == n.num) {
+    if (n.lowlink == n.num) {
         // collect strongly connected component
         std::vector<std::string> SCC;
         std::string x;
@@ -219,17 +219,22 @@ void OSRDriver::Replace(const std::string &node_name) {
     auto &o1 = useInfo.at(q.ops[0].value);
     auto &o2 = useInfo.at(q.ops[1].value);
     auto [induction_var, region_constant] =
-        !o1.header.empty() && IsRegionConst(q.ops[1].value, o1.header) ? std::pair{q.ops[0], q.ops[1]}
-                                                                       : std::pair{q.ops[1], q.ops[0]};
+        !o2.header.empty() && IsRegionConst(q.ops[0].value, o2.header) ? std::pair{q.ops[1], q.ops[0]}
+                                                                       : std::pair{q.ops[0], q.ops[1]};
 
-    fmt::print("Replace: {}; {}; {}\n", node_name, induction_var.value, region_constant.value);
-    return;
+    fmt::print("Replace: {}; {}; {} => {}\n", node_name, induction_var.value, region_constant.value,
+               q.fmt());
+
+    fmt::print("Before => Suspicious quad: {}\n", q.fmt());
 
     auto result = Reduce(node_name, induction_var, region_constant);
+    fmt::print("After =>\n");
+    //    fmt::print("Suspicious quad: {}\n", q.fmt());
 
-    q.type = Quad::Type::Assign;
-    q.clear_op(1);
-    q.ops[0] = Operand(result, Operand::Type::Var);
+    auto &quad = GetQuad(useInfo.at(node_name).defined_at);
+    quad.type = Quad::Type::Assign;
+    quad.clear_op(1);
+    quad.ops[0] = Operand(result, Operand::Type::Var);
     useInfo.at(node_name).header = useInfo.at(induction_var.value).header;
 }
 
@@ -270,7 +275,7 @@ std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_v
         //        new_def.used_at = iv_def.used_at;
 
         for (auto &o : GetQuad(new_def.defined_at).ops) {
-            if (useInfo.at(o.value).header == iv_def.header) {
+            if (useInfo.at(o.value).header == iv_def.header && !iv_def.header.empty()) {
                 // rewrite O with Reduce(node_name, o, region_constant)
                 auto res = Reduce(node_name, o, reg_const);
                 o.value = res;
@@ -301,33 +306,34 @@ std::string OSRDriver::Apply(const std::string &node_name, Operand &op1, Operand
             auto q = Quad(op1, op2, GetQuad(useInfo.at(node_name).defined_at).type);
             q.dest = Dest(new_name, {}, Dest::Type::Var);
 
-            int insert_block_id;
+            auto [op1_block, op1_quad] = useInfo.at(op1.value).defined_at;
+            auto [op2_block, op2_quad] = useInfo.at(op2.value).defined_at;
+
             if (op1.is_constant() && op2.is_constant()) {
                 constant_folding(q);
-                insert_block_id = useInfo.at(node_name).defined_at.first;
+                auto &block = func.id_to_block.at(useInfo.at(node_name).defined_at.first);
+                block->quads.insert(block->quads.begin() + block->phi_functions, q);
+            } else if (op1.is_constant()) {
+                auto &block = func.id_to_block.at(op2_block);
+                block->quads.insert(block->quads.begin() + op2_quad + 1, q);
+            } else if (op2.is_constant()) {
+                auto &block = func.id_to_block.at(op1_block);
+                block->quads.insert(block->quads.begin() + op1_quad + 1, q);
+            } else if (is_dominated_by(id_to_doms, op1_block, op2_block)) {
+                // insert after op1
+                auto &block = func.id_to_block.at(op1_block);
+                block->quads.insert(block->quads.begin() + op1_quad + 1, q);
+            } else if (is_dominated_by(id_to_doms, op2_block, op1_block)) {
+                // insert after op2
+                auto &block = func.id_to_block.at(op2_block);
+                block->quads.insert(block->quads.begin() + op2_quad + 1, q);
             } else {
-                int op1_def_block = useInfo.at(op1.value).defined_at.first,
-                    op2_def_block = useInfo.at(op2.value).defined_at.first;
-
-                if (op1_def_block == -1) {
-                    insert_block_id = op2_def_block;
-                } else if (op2_def_block == -1) {
-                    insert_block_id = op1_def_block;
-                } else {
-                    func.reverse_graph();
-                    auto id_to_rev_idom = find_immediate_dominators(func);
-                    auto id_to_rev_doms = find_dominators(func);
-                    int common_postdom_id = get_common_dominator_id(op1_def_block, op2_def_block,
-                                                                    id_to_rev_idom, id_to_rev_doms);
-                    insert_block_id = common_postdom_id;
-                    func.reverse_graph();
-                }
+                // Insert into postdominator of two blocks
+                assert("We shouldn't be here!");
             }
 
-            int pos = func.id_to_block.at(insert_block_id)->add_quad_before_jump(q);
-            auto &def = useInfo.at(new_name);
-            def.defined_at = std::pair{insert_block_id, pos};
-            def.header.clear();
+            useInfo.at(new_name).header.clear();
+            FillInUseDefGraph();
         }
     }
 

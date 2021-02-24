@@ -16,9 +16,8 @@
 struct VariableInfo {
     using Place = std::pair<int, int>;
     Place defined_at = {-1, -1};
-    std::vector<Place> used_at;
 
-    int num = 0, low = 0;
+    int num = 0, lowlink = 0;
     bool visited = false;
     std::string header;
 };

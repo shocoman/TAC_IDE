@@ -19,13 +19,12 @@ struct BasicBlock {
     std::optional<std::string> jumps_to;
     std::unordered_set<BasicBlock *> successors;
     std::unordered_set<BasicBlock *> predecessors;
-
     int phi_functions = 0;
+
     std::string get_name() const {
         if (lbl_name.has_value()) {
             return lbl_name.value();
         } else if (!node_name.empty()) {
-            //            return "BB " + std::to_string(id);
             return node_name;
         } else {
             return "BB #" + std::to_string(id);
@@ -57,12 +56,15 @@ struct BasicBlock {
     }
 
     BasicBlock *get_fallthrough_successor() {
-        if (quads.empty() || !quads.back().is_jump())
+        auto s2 = get_name();
+        if (successors.empty())
+            return nullptr;
+        else if (allows_fallthrough() && successors.size() == 1)
             return *successors.begin();
 
-        auto jump_target = quads.back().dest->name;
+        auto &jump_target = quads.back().dest->name;
         for (auto &s : successors)
-            if (!s->lbl_name.has_value() && *s->lbl_name != jump_target)
+            if (!s->lbl_name.has_value() || *s->lbl_name != jump_target)
                 return s;
         return nullptr;
     }
@@ -71,7 +73,7 @@ struct BasicBlock {
         if (quads.empty() || !quads.back().is_jump())
             return nullptr;
 
-        auto jump_target = quads.back().dest->name;
+        auto &jump_target = quads.back().dest->name;
         for (auto &s : successors)
             if (s->lbl_name.has_value() && *s->lbl_name == jump_target)
                 return s;

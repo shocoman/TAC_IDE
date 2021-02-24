@@ -30,7 +30,6 @@ int main(int argc, char *argv[]) {
     setenv("DISPLAY", "192.168.72.177:0", true);
     ParseDriver drv;
 
-
     //    drv.parse("../_TestCode/myfile");
     //    drv.parse("../_TestCode/reach_def_test.txt");
     //    drv.parse("../_TestCode/lazy_code_motion.txt");
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
     convert_to_ssa(f);
 //    f.print_cfg("before.png");
 
-    auto operator_reduction = OSRDriver(f);
+//    auto operator_reduction = OSRDriver(f);
 
     //    sparse_conditional_constant_propagation(f);
     f.print_cfg("after.png");

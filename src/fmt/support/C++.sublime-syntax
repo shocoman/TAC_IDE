@@ -378,7 +378,7 @@ contexts:
               (\[[^\]]+\]|[am]s|[diouxXDOUeEfFgGaACcSspn%]) # conversion type
           scope: constant.other.placeholder.c++
         - match: '\{\{|\}\}'
-          scope: constant.character.escape.c++
+          scope: constant.character.escape_string.c++
         - include: formatting-syntax
     - include: scope:source.c#strings
 

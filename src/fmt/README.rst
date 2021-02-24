@@ -355,7 +355,7 @@ Projects using this library
 * `quasardb <https://www.quasardb.net/>`_: a distributed, high-performance,
   associative database
   
-* `Quill <https://github.com/odygrd/quill>`_: asynchronous low-latency logging library
+* `Quill <https://github.com/odygrd/quill>`_: asynchronous lowlink-latency logging library
 
 * `QKW <https://github.com/ravijanjam/qkw>`_: generalizing aliasing to simplify
   navigation, and executing complex multi-line terminal command sequences

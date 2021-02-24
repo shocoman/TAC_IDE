@@ -506,7 +506,7 @@ void vprint(std::FILE* f, const text_style& ts, const S& format,
 /**
   \rst
   Formats a string and prints it to the specified file stream using ANSI
-  escape sequences to specify text formatting.
+  escape_string sequences to specify text formatting.
 
   **Example**::
 
@@ -523,7 +523,7 @@ void print(std::FILE* f, const text_style& ts, const S& format_str,
 }
 
 /**
-  Formats a string and prints it to stdout using ANSI escape sequences to
+  Formats a string and prints it to stdout using ANSI escape_string sequences to
   specify text formatting.
   Example:
     fmt::print(fmt::emphasis::bold | fg(fmt::color::red),
@@ -547,7 +547,7 @@ inline std::basic_string<Char> vformat(
 /**
   \rst
   Formats arguments and returns the result as a string using ANSI
-  escape sequences to specify text formatting.
+  escape_string sequences to specify text formatting.
 
   **Example**::
 

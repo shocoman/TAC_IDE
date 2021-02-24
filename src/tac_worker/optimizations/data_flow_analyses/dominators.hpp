@@ -18,6 +18,7 @@ ID2IDOM find_immediate_dominators(Function &function);
 ID2DOMS find_dominators(Function &function);
 void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom);
 
+bool is_dominated_by(const ID2DOMS &id_to_doms, int a_id, int b_id);
 int get_common_dominator_id(int Z_id, int B_id, const ID2IDOM &id_to_idom, const ID2DOMS &id_to_doms);
 
 #endif // TAC_PARSER_DOMINATORS_HPP

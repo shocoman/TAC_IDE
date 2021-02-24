@@ -18,16 +18,20 @@ void Function::print_cfg(std::string filename,
             dot_writer.add_info_above(node_name, additional_info_above.at(n->id), true);
         if (additional_info_below.count(n->id))
             dot_writer.add_info_above(node_name, additional_info_below.at(n->id), false);
-        if (visited.find(node_name) == visited.end()) {
-            visited.insert(node_name);
+        if (visited.insert(node_name).second) {
 
             std::vector<std::string> quad_lines;
 
             // print all quads as text
             for (auto &q : n->quads) {
-                quad_lines.emplace_back(q.fmt());
+                quad_lines.emplace_back(escape_string(q.fmt()));
             }
             dot_writer.set_node_text(node_name, quad_lines);
+
+            // attribute for correct branch display
+            if (auto branch_target = n->get_jumped_to_successor()) {
+                dot_writer.node_attributes[node_name]["true_branch"] = branch_target->get_name();
+            }
 
             // print edges
             for (auto &s : n->successors) {

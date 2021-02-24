@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <fmt/ranges.h>
 
 class GraphWriter {
     std::unordered_map<std::string, std::string> node_names, additional_info_above,
@@ -26,6 +27,11 @@ class GraphWriter {
     void render_to_file(const std::string &filename);
     void add_info_above(const std::string &node, const std::string &info, bool above);
     void set_title(const std::string &title);
+
+    using NodeAttributeMap = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>;
+    NodeAttributeMap node_attributes;
 };
+
+std::string escape_string(const std::string &s);
 
 #endif // TAC_PARSER_GRAPH_WRITER_HPP

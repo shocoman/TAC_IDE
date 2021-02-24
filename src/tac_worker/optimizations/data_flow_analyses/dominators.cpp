@@ -188,20 +188,24 @@ void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom) {
     system("feh dominator_tree.png &");
 }
 
+
+// check if 'b' dominates 'a'
+bool is_dominated_by(const ID2DOMS &id_to_doms, int a_id, int b_id) {
+    auto &dominators_of_a = id_to_doms.at(a_id);
+    return dominators_of_a.find(b_id) != dominators_of_a.end();
+}
+
 int get_common_dominator_id(int Z_id, int B_id, const ID2IDOM &id_to_idom, const ID2DOMS &id_to_doms) {
+    // pseudo code
     // if B dominates Z then
     //   return B
     // while Z does not dominate B do
     //   Z = idom(Z)
     // return Z
-    auto dominates = [&](int a_id, int b_id) {
-        // check if 'a' dominates 'b'
-        return id_to_doms.at(b_id).count(a_id) > 0;
-    };
 
-    if (dominates(B_id, Z_id))
+    if (is_dominated_by(id_to_doms, Z_id, B_id))
         return B_id;
-    while (!dominates(Z_id, B_id))
+    while (!is_dominated_by(id_to_doms, B_id, Z_id))
         Z_id = id_to_idom.at(Z_id);
     return Z_id;
 }

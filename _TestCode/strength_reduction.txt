@@ -12,4 +12,4 @@ B1:
     $cmp = i < r100
     if $cmp goto B1
 B2:
-    return 0
+    return s
