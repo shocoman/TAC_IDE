@@ -29,7 +29,8 @@ void Function::print_cfg(std::string filename,
             dot_writer.set_node_text(node_name, quad_lines);
 
             // attribute for correct branch display
-            if (auto branch_target = n->get_jumped_to_successor()) {
+            if (auto branch_target = n->get_jumped_to_successor();
+                branch_target && n->successors.size() > 1) {
                 dot_writer.node_attributes[node_name]["true_branch"] = branch_target->get_name();
             }
 
@@ -61,10 +62,9 @@ void Function::connect_blocks() {
             basic_blocks[i]->add_successor(basic_blocks[i + 1].get());
         }
         if (auto jump_to = basic_blocks[i]->jumps_to; jump_to.has_value()) {
-            auto block =
-                std::find_if(basic_blocks.begin(), basic_blocks.end(), [&jump_to](auto &e) {
-                    return e->lbl_name.has_value() && e->lbl_name.value() == jump_to.value();
-                });
+            auto block = std::find_if(basic_blocks.begin(), basic_blocks.end(), [&jump_to](auto &e) {
+                return e->lbl_name.has_value() && e->lbl_name.value() == jump_to.value();
+            });
 
             basic_blocks[i]->add_successor(block->get());
         }
@@ -76,7 +76,8 @@ void Function::add_missing_jumps() {
         if (basic_blocks[i]->quads.empty())
             continue;
         auto &last_q = basic_blocks[i]->quads.back();
-        if (last_q.type != Quad::Type::Return && !last_q.is_jump() && !basic_blocks[i]->successors.empty()) {
+        if (last_q.type != Quad::Type::Return && !last_q.is_jump() &&
+            !basic_blocks[i]->successors.empty()) {
             Dest dest((*basic_blocks[i]->successors.begin())->lbl_name.value(), {},
                       Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
@@ -106,7 +107,7 @@ void Function::add_entry_and_exit_block() {
         exit_block->node_name = "Exit";
         //        exit_block->id = basic_blocks.back()->id + 1;
         exit_block->id = 0;
-//        exit_block->lbl_name = "EXIT_BLOCK";
+        //        exit_block->lbl_name = "EXIT_BLOCK";
         //        exit_block->quads.push_back(Quad(std::string("0"), {}, Quad::Type::Return));
 
         for (auto &f : final_blocks) {
@@ -177,8 +178,7 @@ BasicBlock *Function::find_exit_block() const {
 
 void Function::print_basic_block_info() const {
     for (const auto &b : basic_blocks) {
-        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE")
-                  << std::endl;
+        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE") << std::endl;
     }
 }
 
@@ -198,7 +198,6 @@ void Function::update_block_ids() {
     int id = 0;
     for (auto &b : basic_blocks) {
         b->id = id++;
-//        if (b->lbl_name.has_value()) b->node_name = b->lbl_name.value();
         id_to_block[b->id] = b.get();
     }
 }

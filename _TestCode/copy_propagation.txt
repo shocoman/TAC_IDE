@@ -1,0 +1,11 @@
+B1:
+    a = 99
+    b = a
+    c = 4 * b
+    $cmp = c > b
+    if $cmp goto B3
+B2:
+    d = b + 2
+B3:
+    e = a + b
+    return 0

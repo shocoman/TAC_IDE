@@ -17,8 +17,8 @@ void constant_folding(Quad &n) {
     bool is_lnum = n.get_op(0)->is_number();
     bool is_rnum = n.get_op(1)->is_number();
 
-    double l = n.get_op(0)->get_double();
-    double r = n.get_op(1)->get_double();
+    double l = n.get_op(0)->as_double().value_or(0);
+    double r = n.get_op(1)->as_double().value_or(0);
     if (is_lnum && is_rnum) {
         double res = 0;
         switch (n.type) {
@@ -36,7 +36,6 @@ void constant_folding(Quad &n) {
             break;
         default: {
             // relational operations
-
             bool res = false;
             switch (n.type) {
             case Quad::Type::Lt:
@@ -124,41 +123,16 @@ void constant_folding(Quad &n) {
 }
 
 void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
-    //    std::map<std::string, int> value_numbers;
-    //    std::map<int, std::string> value_number_to_name;
-    //    std::map<OpRecord, int> operations;
-    //    quads.clear();
-    //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("a", {},
-    //    Dest::Type::Var))); quads.emplace_back(Quad("x", "y", Quad::Type::Add,
-    //    Dest("b", {}, Dest::Type::Var))); quads.emplace_back(Quad("x", "0",
-    //    Quad::Type::Mult, Dest("a", {}, Dest::Type::Var)));
-    //    quads.emplace_back(Quad("x", "y", Quad::Type::Add, Dest("c", {},
-    //    Dest::Type::Var))); quads.emplace_back(Quad("t1", {},
-    //    Quad::Type::IfTrue, Dest("LABEL2", {}, Dest::Type::JumpLabel)));
-    //    quads.emplace_back(Quad("t1", {}, Quad::Type::IfTrue, Dest("LABEL2", {},
-    //    Dest::Type::JumpLabel))); quads.emplace_back(Quad("0", {},
-    //    Quad::Type::Assign, Dest("a", {}, Dest::Type::Var)));
-    //    quads.emplace_back(Quad("0", {}, Quad::Type::Assign, Dest("b", {},
-    //    Dest::Type::Var))); quads.emplace_back(Quad("0", {}, Quad::Type::Assign,
-    //    Dest("c", {}, Dest::Type::Var))); quads.emplace_back(Quad("0", {},
-    //    Quad::Type::Assign, Dest("d", {}, Dest::Type::Var)));
-
     for (auto &q : quads) {
-        if (q.is_jump()) {
-            std::cout << q.fmt() << std::endl;
+        if (q.is_jump())
             continue;
-        }
 
-        if (Quad::is_foldable(q.type)) {
+        if (Quad::is_foldable(q.type))
             constant_folding(q);
-        }
 
         // generate and/or save value number for every operand
-        auto operand_values = std::vector<int>{};
+        std::vector<int> operand_values;
         for (auto &op : q.get_rhs()) {
-            if (op.empty())
-                continue;
-
             if (!t.get_value_number_by_name(op).has_value()) {
                 t.set_value_number_for_name(op, t.current_number);
                 t.set_name_for_value(t.current_number, op);
@@ -180,26 +154,26 @@ void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
             op_value = op.value();
 
             q.type = Quad::Type::Assign;
-            std::string val = t.get_name_by_value_number(op_value).value();
-            q.ops[0] = Operand(val);
+            std::string name = t.get_name_by_value_number(op_value).value();
+            q.ops[0] = Operand(name);
             q.clear_op(1);
-
         } else {
             t.set_operation_value(op_hash_key, t.current_number);
             op_value = t.current_number;
 
-            t.set_name_for_value(t.current_number, q.dest.value().name);
-            t.current_number++;
+            if (q.dest.has_value()) {
+                t.set_name_for_value(t.current_number, q.dest->name);
+                t.current_number++;
+            }
         }
-        t.set_value_number_for_name(q.dest.value().name, op_value);
 
-        std::cout << q.fmt() << std::endl;
+        if (q.dest.has_value())
+            t.set_value_number_for_name(q.dest->name, op_value);
     }
-    std::cout << std::endl;
 }
 
-void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> &blocks) {
-    std::vector<BasicBlock *> work_list{blocks.front().get()};
+void superlocal_value_numbering(Function &function) {
+    std::vector<BasicBlock *> work_list = {function.find_entry_block()};
     std::unordered_set<int> visited_blocks;
 
     using SVNFuncType = std::function<void(BasicBlock *, ValueNumberTableStack &)>;
@@ -207,14 +181,11 @@ void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> &blocks
         t.push_table();
         local_value_numbering(b->quads, t);
 
-        for (auto &s : b->successors) {
-            if (s->predecessors.size() == 1) {
+        for (auto &s : b->successors)
+            if (s->predecessors.size() == 1)
                 SVN(s, t);
-            } else if (visited_blocks.find(b->id) == visited_blocks.end()) {
-                visited_blocks.insert(b->id);
+            else if (visited_blocks.insert(b->id).second)
                 work_list.push_back(s);
-            }
-        }
 
         t.pop_table();
     };
@@ -227,9 +198,8 @@ void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> &blocks
     }
 }
 
-void dominator_based_value_numbering(Function &function, ID2IDOM &id_to_idom) {
-    BasicBlocks &blocks = function.basic_blocks;
-    ID2Block &id_to_block = function.id_to_block;
+void dominator_based_value_numbering(Function &function) {
+    auto id_to_idom = find_immediate_dominators(function);
 
     using DVNTFuncType = std::function<void(BasicBlock *, DValueNumberTableStack &)>;
     DVNTFuncType dvnt = [&](BasicBlock *b, DValueNumberTableStack &t) {
@@ -314,13 +284,12 @@ void dominator_based_value_numbering(Function &function, ID2IDOM &id_to_idom) {
         // call for each child in dominator tree
         for (auto &[child_id, parent_id] : id_to_idom)
             if (b->id == parent_id)
-                dvnt(id_to_block.at(child_id), t);
+                dvnt(function.id_to_block.at(child_id), t);
 
         t.pop_table();
     };
 
-    // assume first block is entry
-    auto b = blocks.front().get();
+    auto entry = function.find_entry_block();
     DValueNumberTableStack t;
-    dvnt(b, t);
+    dvnt(entry, t);
 }

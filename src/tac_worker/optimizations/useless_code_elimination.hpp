@@ -11,6 +11,9 @@
 #include "tac_worker/structure/function.hpp"
 #include "ssa.hpp"
 
+void remove_noncritical_operations(Function &f);
+void remove_unreachable_blocks(Function &f);
+void merge_basic_blocks(Function &f);
 
 void useless_code_elimination(Function &function);
 

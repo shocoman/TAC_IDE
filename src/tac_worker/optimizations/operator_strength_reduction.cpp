@@ -9,7 +9,7 @@ OSRDriver::OSRDriver(Function &f) : func(f) {
     FillInUseDefGraph();
 
     OSR();
-    PrintSSAGraph();
+//    PrintSSAGraph();
 
     for (auto &[name, var_info] : useInfo) {
         fmt::print("{}:\n\t Defined at: {}\n\t Header: {}\nNum: {}\n", name, var_info.defined_at,
@@ -200,7 +200,7 @@ void OSRDriver::PrintSSAGraph() {
             }
 
             auto &q = GetQuad(val.defined_at);
-            dot_writer.set_node_text(node_name, {q.fmt(true)});
+            dot_writer.set_node_text(node_name, {escape_string(q.fmt(true))});
 
             for (auto &s : q.get_rhs(true))
                 dot_writer.add_edge(node_name, s);

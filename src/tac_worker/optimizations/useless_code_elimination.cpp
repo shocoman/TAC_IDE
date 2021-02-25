@@ -4,68 +4,56 @@
 
 #include "useless_code_elimination.hpp"
 
-void useless_code_elimination(Function &function) {
+void remove_noncritical_operations(Function &f) {
+    BasicBlocks &blocks = f.basic_blocks;
+    ID2Block &id_to_block = f.id_to_block;
 
-    BasicBlocks &blocks = function.basic_blocks;
-    ID2Block &id_to_block = function.id_to_block;
+    f.reverse_graph();
+    auto id_to_rev_idom = find_immediate_dominators(f);
+    auto reverse_df = find_dominance_frontier(f.basic_blocks, id_to_rev_idom);
+    f.reverse_graph();
 
-    function.reverse_graph();
-    auto id_to_rev_idom = find_immediate_dominators(function);
-    ID2DF reverse_df = find_dominance_frontier(function.basic_blocks, id_to_rev_idom);
-    function.reverse_graph();
-
-    struct Place {
-        int block_num;
-        int quad_num;
-
-        bool operator<(const Place &o) const {
-            return std::tie(block_num, quad_num) < std::tie(o.block_num, o.quad_num);
-        }
-    };
+    using Place = std::pair<int, int>;
 
     struct VarInfo {
         bool critical = false;
         Place defined_at = {-1, -1};
-        std::vector<Place> used_at;
     };
 
     std::map<Place, VarInfo> using_info;
     std::unordered_map<std::string, Place> name_to_place;
 
-    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
-        auto &b = blocks[b_index];
+    for (const auto &b : blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
-            Place place{b_index, q_index};
+            Place place = {b->id, q_index};
 
             using_info[place].defined_at = place;
-            if (q.is_jump()) {
+            if (q.is_jump())
                 name_to_place[*b->lbl_name] = place;
-            } else {
+            else
                 name_to_place[q.dest->name] = place;
-            }
         }
     }
 
     // mark critical quads/operations
-    std::set<Place> work_list;
-    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
-        auto &b = blocks[b_index];
-        for (int i = 0; i < b->quads.size(); ++i) {
-            auto &q = b->quads[i];
+    std::vector<Place> work_list;
+    for (const auto &b : blocks) {
+        for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
+            auto &q = b->quads[q_index];
 
             if (Quad::is_critical(q.type)) {
-                Place place{b_index, i};
+                Place place = {b->id, q_index};
                 using_info.at(place).critical = true;
-                work_list.insert(place);
+                work_list.push_back(place);
             }
         }
     }
 
     while (!work_list.empty()) {
-        auto next_place = *work_list.begin();
-        work_list.erase(next_place);
-        auto &q = blocks[next_place.block_num]->quads[next_place.quad_num];
+        auto [block_id, quad_i] = work_list.back();
+        work_list.pop_back();
+        auto &q = f.id_to_block.at(block_id)->quads[quad_i];
 
         for (const auto &op : q.ops) {
             if (op.is_var() && q.type != Quad::Type::Call) {
@@ -73,13 +61,12 @@ void useless_code_elimination(Function &function) {
                 auto &var_use_info = using_info.at(defined_place);
                 if (!var_use_info.critical) {
                     var_use_info.critical = true;
-                    work_list.insert(defined_place);
+                    work_list.push_back(defined_place);
                 }
             }
         }
 
-        auto &current_block = blocks[next_place.block_num];
-        for (auto &b_id : reverse_df.at(current_block->id)) {
+        for (auto &b_id : reverse_df.at(block_id)) {
             int dom_block_num = -1;
             for (int i = 0; i < blocks.size(); ++i)
                 if (blocks[i]->id == b_id)
@@ -90,36 +77,35 @@ void useless_code_elimination(Function &function) {
             Place place{dom_block_num, jump_quad_num};
             if (!using_info.at(place).critical) {
                 using_info.at(place).critical = true;
-                work_list.insert(place);
+                work_list.push_back(place);
             }
         }
     }
 
     // Sweep Pass (remove non critical quads/operations)
-    for (auto b_index = 0; b_index < blocks.size(); ++b_index) {
-        auto &b = blocks[b_index];
+    for (const auto &b : blocks) {
         for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
             auto &q = b->quads[q_index];
 
-            Place place{b_index, q_index};
+            Place place{b->id, q_index};
             if (!using_info.at(place).critical) {
-                if (q.is_jump()) {
-                    if (!using_info.at(place).critical) {
-                        auto closest_post_dominator = id_to_block.at(id_to_rev_idom.at(b->id));
-                        q.type = Quad::Type::Goto;
-                        q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
-                        b->remove_successors();
-                        b->add_successor(closest_post_dominator);
-                    }
+                if (q.is_conditional_jump()) {
+                    auto closest_post_dominator = id_to_block.at(id_to_rev_idom.at(b->id));
+                    q.type = Quad::Type::Goto;
+                    q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
+                    b->remove_successors();
+                    b->add_successor(closest_post_dominator);
                 } else {
                     b->quads.erase(b->quads.begin() + q_index);
                 }
             }
         }
     }
+}
 
-    // Mark unreachable blocks
-    auto root = function.find_entry_block();
+void remove_unreachable_blocks(Function &f) {
+    // Mark reachable blocks
+    auto root = f.find_entry_block();
     std::unordered_set<int> reachable_ids;
     std::function<void(BasicBlock(*))> reachable_walker = [&](BasicBlock *b) {
         if (reachable_ids.insert(b->id).second)
@@ -129,30 +115,29 @@ void useless_code_elimination(Function &function) {
     reachable_walker(root);
 
     // Remove unreachable blocks
-    for (int i = blocks.size() - 1; i >= 0; --i) {
-        auto &b = blocks[i];
-        if (reachable_ids.find(b->id) == reachable_ids.end()) {
-            b->node_name += " (REMOVE) ";
-
+    for (int i = f.basic_blocks.size() - 1; i >= 0; --i) {
+        auto &b = f.basic_blocks[i];
+        if (reachable_ids.count(b->id) == 0) {
             b->remove_successors();
             b->remove_predecessors();
-            id_to_block.erase(b->id);
-            blocks.erase(blocks.begin() + i);
+            f.id_to_block.erase(b->id);
+            f.basic_blocks.erase(f.basic_blocks.begin() + i);
         }
     }
+}
 
-    // Clean Pass
+void merge_basic_blocks(Function &f) {
+    // Clean Pass (merge blocks, etc)
     bool changed = true;
     auto one_pass = [&](const std::map<int, int> &postorder_to_id) {
         std::unordered_set<int> block_ids_to_remove;
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
-
-            auto block_it = id_to_block.find(id);
-            if (block_it == id_to_block.end())
+            if (f.id_to_block.count(id) == 0 || f.id_to_block.at(id)->quads.empty())
                 continue;
-            auto &b = block_it->second;
+
+            auto &b = f.id_to_block.at(id);
 
             // replace branch with jump
             if (b->successors.size() == 1 && b->quads.back().is_conditional_jump()) {
@@ -212,25 +197,32 @@ void useless_code_elimination(Function &function) {
         }
 
         // erase removed blocks
-        for (int i = blocks.size() - 1; i >= 0; --i) {
-            auto &b = blocks[i];
-            if (block_ids_to_remove.find(b->id) != block_ids_to_remove.end()) {
+        for (int i = f.basic_blocks.size() - 1; i >= 0; --i) {
+            auto &b = f.basic_blocks[i];
+            if (block_ids_to_remove.count(b->id) > 0) {
                 b->remove_predecessors();
                 b->remove_successors();
-                id_to_block.erase(b->id);
-                blocks.erase(blocks.begin() + i);
+                f.id_to_block.erase(b->id);
+                f.basic_blocks.erase(f.basic_blocks.begin() + i);
             }
         }
     };
 
     while (changed) {
+        changed = false;
+
         std::map<int, int> postorder_to_id;
-        for (auto &[id, po] : function.get_post_ordering())
+        for (auto &[id, po] : f.get_post_ordering())
             postorder_to_id[po] = id;
 
-        changed = false;
         one_pass(postorder_to_id);
     }
+}
 
-//    function.print_to_console();
+void useless_code_elimination(Function &function) {
+    remove_noncritical_operations(function);
+    remove_unreachable_blocks(function);
+    merge_basic_blocks(function);
+
+    function.update_block_ids();
 }

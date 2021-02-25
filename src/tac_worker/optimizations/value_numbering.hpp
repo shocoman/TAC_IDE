@@ -11,10 +11,14 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <fmt/ranges.h>
 
 #include "../structure/basic_block.hpp"
 #include "../structure/function.hpp"
 #include "../structure/quadruple/quadruple.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
+
+void constant_folding(Quad &n);
 
 struct ValueNumberTableStack {
     using OpRecord = std::tuple<Quad::Type, std::vector<int>>;
@@ -48,8 +52,7 @@ struct ValueNumberTableStack {
 
     std::optional<std::string> get_name_by_value_number(int value) {
         for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
-            if (auto n = it->value_number_to_name.find(value);
-                n != it->value_number_to_name.end()) {
+            if (auto n = it->value_number_to_name.find(value); n != it->value_number_to_name.end()) {
                 return n->second;
             }
         }
@@ -70,11 +73,8 @@ struct ValueNumberTableStack {
     void pop_table() { tables.pop_back(); }
 };
 
-void constant_folding(Quad &n);
-
 void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t);
-
-void superlocal_value_numbering(std::vector<std::unique_ptr<BasicBlock>> &blocks);
+void superlocal_value_numbering(Function &function);
 
 ////////////////////////////////////////////////////////////////////////
 /////////////// DOMINATOR BASED VALUE NUMBERING ////////////////////////
@@ -100,9 +100,7 @@ struct DValueNumberTableStack {
         tables.back().value_number_to_name[value] = name;
     }
 
-    void set_operation_value(DOpRecord op, std::string value) {
-        tables.back().operations[op] = value;
-    }
+    void set_operation_value(DOpRecord op, std::string value) { tables.back().operations[op] = value; }
 
     std::optional<std::string> get_value_number_by_name(const std::string &name) {
         for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
@@ -115,8 +113,7 @@ struct DValueNumberTableStack {
 
     std::optional<std::string> get_name_by_value_number(std::string value) {
         for (auto it = tables.rbegin(); it != tables.rend(); ++it) {
-            if (auto n = it->value_number_to_name.find(value);
-                n != it->value_number_to_name.end()) {
+            if (auto n = it->value_number_to_name.find(value); n != it->value_number_to_name.end()) {
                 return n->second;
             }
         }
@@ -148,6 +145,6 @@ struct DValueNumberTableStack {
     void pop_table() { tables.pop_back(); }
 };
 
-void dominator_based_value_numbering(Function &function, ID2IDOM &id_to_idom);
+void dominator_based_value_numbering(Function &function);
 
 #endif // TAC_PARSER_LOCAL_VALUE_NUMBERING_H
