@@ -166,7 +166,7 @@ void sparse_conditional_constant_propagation(Function &f) {
         if (values.at({x, place}).type != Value::Type::Bottom) {
             for (auto &op : phi.ops) {
                 auto op_name = op.get_string();
-                CFGEdge cfg_edge = {op.predecessor_id, place.first};
+                CFGEdge cfg_edge = {op.phi_predecessor->id, place.first};
                 auto &value_at_def = values.at({op_name, useInfo.at(op_name).defined_at});
                 auto &value_at_use = values.at({op_name, place});
                 if (executed_edges.count(cfg_edge) > 0)

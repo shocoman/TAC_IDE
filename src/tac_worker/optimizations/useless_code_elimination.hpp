@@ -9,7 +9,7 @@
 #include <map>
 
 #include "tac_worker/structure/function.hpp"
-#include "ssa.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
 
 void remove_noncritical_operations(Function &f);
 void remove_unreachable_blocks(Function &f);

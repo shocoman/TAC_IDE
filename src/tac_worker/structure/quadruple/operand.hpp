@@ -5,12 +5,13 @@
 #ifndef TAC_PARSER_OPERAND_HPP
 #define TAC_PARSER_OPERAND_HPP
 
+struct BasicBlock;
 struct Operand {
     enum class Type { None, Var, LInt, LDouble, LBool, LChar, LString };
 
     std::string value;
     Type type;
-    int predecessor_id = -1; // for SSA (phi node)
+    BasicBlock *phi_predecessor = nullptr; // for SSA (phi node)
 
     Operand() : type(Type::None) {}
 

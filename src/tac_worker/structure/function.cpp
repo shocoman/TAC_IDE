@@ -87,34 +87,39 @@ void Function::add_missing_jumps() {
 }
 
 void Function::add_entry_and_exit_block() {
-    // assume there is already one and only one entry block
-    // you don't need to add another one
-    auto entry_block = std::make_unique<BasicBlock>();
-    entry_block->node_name = "Entry";
-    entry_block->id = 0;
-    entry_block->add_successor(basic_blocks.front().get());
-    basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
+    auto entry_block_name = "Entry";
+    auto exit_block_name = "Exit";
 
-    // find blocks without successors (ending blocks) and connect them with exit block
-    // if there are more than 1
-    std::vector<BasicBlock *> final_blocks;
-    for (auto &n : basic_blocks)
-        if (n->successors.empty())
-            final_blocks.emplace_back(n.get());
+    bool has_entry = false, has_exit = false;
+    for (auto &b : basic_blocks)
+        if (b->get_name() == entry_block_name)
+            has_entry = true;
+        else if (b->get_name() == exit_block_name)
+            has_exit = true;
 
-    if (!final_blocks.empty()) {
-        auto exit_block = std::make_unique<BasicBlock>();
-        exit_block->node_name = "Exit";
-        //        exit_block->id = basic_blocks.back()->id + 1;
-        exit_block->id = 0;
-        //        exit_block->lbl_name = "EXIT_BLOCK";
-        //        exit_block->quads.push_back(Quad(std::string("0"), {}, Quad::Type::Return));
+    if (!has_entry) {
+        auto entry_block = std::make_unique<BasicBlock>();
+        entry_block->node_name = entry_block_name;
+        entry_block->add_successor(basic_blocks.front().get());
+        basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
+    }
 
-        for (auto &f : final_blocks) {
-            f->add_successor(exit_block.get());
+    if (!has_exit) {
+        // find blocks without successors (ending blocks) and connect them with exit block
+        std::vector<BasicBlock *> final_blocks;
+        for (auto &n : basic_blocks)
+            if (n->successors.empty())
+                final_blocks.emplace_back(n.get());
+
+        if (!final_blocks.empty()) {
+            auto exit_block = std::make_unique<BasicBlock>();
+            exit_block->node_name = exit_block_name;
+
+            for (auto &f : final_blocks)
+                f->add_successor(exit_block.get());
+
+            basic_blocks.push_back(std::move(exit_block));
         }
-
-        basic_blocks.push_back(std::move(exit_block));
     }
 }
 

@@ -152,22 +152,14 @@ void sparse_simple_constant_propagation(BasicBlocks &blocks) {
 
     for (auto &[name, useInfo] : usingInfo) {
         if (useInfo.value_type == ValType::Constant) {
-            auto &q = blocks[useInfo.defined_at.block_num]->quads[useInfo.defined_at.quad_num];
+            auto [block, quad] = useInfo.defined_at;
+            auto &q = blocks[block]->quads[quad];
             q.type = Quad::Type::Assign;
             q.ops[0] = useInfo.constant;
             q.clear_op(1);
         }
     }
 
-    // update phi-function positions
-    for (auto &b : blocks) {
-        b->phi_functions = 0;
-        for (int i = 0; i < b->quads.size(); ++i) {
-            auto &q = b->quads[i];
-            if (q.type == Quad::Type::PhiNode) {
-                std::swap(b->quads[i], b->quads[b->phi_functions]);
-                b->phi_functions++;
-            }
-        }
-    }
+    for (auto &b : blocks)
+        b->update_phi_positions();
 }

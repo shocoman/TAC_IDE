@@ -109,11 +109,11 @@ ID2DOMS find_dominators(Function &function) {
     // changed ← true
     // while (changed)
     //   changed ← false
-    //      for i ← 1 to n
-    //          temp ← {i} ∪ ( j ∈ preds(i) Dom( j ) )
-    //          if temp ̸= Dom(i) then
-    //              Dom(i) ← temp
-    //              changed ← true
+    //   for i ← 1 to n
+    //       temp ← {i} ∪ ( j ∈ preds(i) Dom( j ) )
+    //       if temp  ̸= Dom(i) then
+    //           Dom(i) ← temp
+    //           changed ← true
 
     auto &blocks = function.basic_blocks;
     auto &id_to_block = function.id_to_block;

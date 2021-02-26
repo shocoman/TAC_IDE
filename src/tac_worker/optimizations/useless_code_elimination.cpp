@@ -9,43 +9,39 @@ void remove_noncritical_operations(Function &f) {
     ID2Block &id_to_block = f.id_to_block;
 
     f.reverse_graph();
-    auto id_to_rev_idom = find_immediate_dominators(f);
-    auto reverse_df = find_dominance_frontier(f.basic_blocks, id_to_rev_idom);
+    auto id_to_ipostdom = find_immediate_dominators(f);
+    auto reverse_df = find_dominance_frontier(f.basic_blocks, id_to_ipostdom);
     f.reverse_graph();
 
-    using Place = std::pair<int, int>;
+    using Position = std::pair<int, int>;
 
-    struct VarInfo {
-        bool critical = false;
-        Place defined_at = {-1, -1};
-    };
+    std::set<Position> critical_operations;
+    std::unordered_map<std::string, Position> name_to_position;
 
-    std::map<Place, VarInfo> using_info;
-    std::unordered_map<std::string, Place> name_to_place;
-
+    // record positions for each operation
     for (const auto &b : blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
-            Place place = {b->id, q_index};
 
-            using_info[place].defined_at = place;
-            if (q.is_jump())
-                name_to_place[*b->lbl_name] = place;
-            else
-                name_to_place[q.dest->name] = place;
+            auto op_name = q.is_jump() ? b->get_name() : q.dest->name;
+            name_to_position.emplace(op_name, Position{b->id, q_index});
         }
     }
 
     // mark critical quads/operations
-    std::vector<Place> work_list;
+    std::vector<Position> work_list;
     for (const auto &b : blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
+            Position pos = {b->id, q_index};
+
+            // every unconditional jump is critical
+            if (q.type == Quad::Type::Goto)
+                critical_operations.insert(pos);
 
             if (Quad::is_critical(q.type)) {
-                Place place = {b->id, q_index};
-                using_info.at(place).critical = true;
-                work_list.push_back(place);
+                critical_operations.insert(pos);
+                work_list.push_back(pos);
             }
         }
     }
@@ -53,49 +49,51 @@ void remove_noncritical_operations(Function &f) {
     while (!work_list.empty()) {
         auto [block_id, quad_i] = work_list.back();
         work_list.pop_back();
-        auto &q = f.id_to_block.at(block_id)->quads[quad_i];
+        auto &q = f.id_to_block.at(block_id)->quads.at(quad_i);
 
-        for (const auto &op : q.ops) {
-            if (op.is_var() && q.type != Quad::Type::Call) {
-                auto &defined_place = name_to_place.at(op.value);
-                auto &var_use_info = using_info.at(defined_place);
-                if (!var_use_info.critical) {
-                    var_use_info.critical = true;
-                    work_list.push_back(defined_place);
-                }
-            }
+        for (auto &op : q.get_rhs(false)) {
+            auto &defined_position = name_to_position.at(op);
+            if (critical_operations.insert(defined_position).second)
+                work_list.push_back(defined_position);
         }
 
         for (auto &b_id : reverse_df.at(block_id)) {
-            int dom_block_num = -1;
-            for (int i = 0; i < blocks.size(); ++i)
-                if (blocks[i]->id == b_id)
-                    dom_block_num = i;
-            auto dom_block = id_to_block.at(b_id);
-            int jump_quad_num = dom_block->quads.size() - 1;
+            auto &b = id_to_block.at(b_id);
+            if (b->quads.empty())
+                continue;
 
-            Place place{dom_block_num, jump_quad_num};
-            if (!using_info.at(place).critical) {
-                using_info.at(place).critical = true;
-                work_list.push_back(place);
-            }
+            Position jump_position{b_id, b->quads.size() - 1};
+            if (critical_operations.insert(jump_position).second)
+                work_list.push_back(jump_position);
         }
     }
+
+    // id of blocks that contain at least one marked instruction
+    std::set<int> marked_blocks;
+    for (auto [block, quad] : critical_operations)
+        marked_blocks.insert(block);
 
     // Sweep Pass (remove non critical quads/operations)
     for (const auto &b : blocks) {
         for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
             auto &q = b->quads[q_index];
 
-            Place place{b->id, q_index};
-            if (!using_info.at(place).critical) {
+            Position position{b->id, q_index};
+            bool op_is_not_critical = critical_operations.find(position) == critical_operations.end();
+            if (op_is_not_critical) {
                 if (q.is_conditional_jump()) {
-                    auto closest_post_dominator = id_to_block.at(id_to_rev_idom.at(b->id));
+                    // replace with jump to closest "marked" postdominator
+                    int post_dom_id;
+                    do {
+                        post_dom_id = id_to_ipostdom.at(b->id);
+                    } while (marked_blocks.count(post_dom_id) == 0);
+
+                    auto closest_post_dominator = id_to_block.at(post_dom_id);
                     q.type = Quad::Type::Goto;
-                    q.dest = Dest(*closest_post_dominator->lbl_name, {}, Dest::Type::JumpLabel);
+                    q.dest = Dest(closest_post_dominator->lbl_name.value(), {}, Dest::Type::JumpLabel);
                     b->remove_successors();
                     b->add_successor(closest_post_dominator);
-                } else {
+                } else if (q.type != Quad::Type::Goto) {
                     b->quads.erase(b->quads.begin() + q_index);
                 }
             }
@@ -127,6 +125,16 @@ void remove_unreachable_blocks(Function &f) {
 }
 
 void merge_basic_blocks(Function &f) {
+    // temporary remove exit block (hack)
+    auto exit_block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
+                                   [](auto &b) { return b->get_name() == "Exit"; });
+    if (exit_block != f.basic_blocks.end()) {
+        f.id_to_block.erase(exit_block->get()->id);
+        exit_block->get()->remove_successors();
+        exit_block->get()->remove_predecessors();
+        f.basic_blocks.erase(exit_block);
+    }
+
     // Clean Pass (merge blocks, etc)
     bool changed = true;
     auto one_pass = [&](const std::map<int, int> &postorder_to_id) {
@@ -169,17 +177,20 @@ void merge_basic_blocks(Function &f) {
                 // combine two blocks into one
                 else if (succ->predecessors.size() == 1) {
                     // remove last jump
-                    b->quads.pop_back();
-                    // copy operations
-                    b->quads.insert(b->quads.end(), succ->quads.begin(), succ->quads.end());
-                    // copy successors
-                    b->remove_successors();
-                    for (auto &s : succ->successors) {
-                        s->predecessors.erase(succ);
-                        b->add_successor(s);
+                    if (b->quads.back().type == Quad::Type::Goto) {
+                        b->quads.pop_back();
                     }
+                    // copy operations
+                    succ->quads.insert(succ->quads.end(), b->quads.begin(), b->quads.end());
+                    succ->update_phi_positions();
+                    // copy predecessors
+                    for (auto &p : b->predecessors)
+                        p->add_successor(succ);
+                    b->remove_successors();
+                    b->remove_predecessors();
                     // remove successor
-                    block_ids_to_remove.insert(succ->id);
+                    block_ids_to_remove.insert(b->id);
+
                     changed = true;
                 }
 
@@ -195,6 +206,8 @@ void merge_basic_blocks(Function &f) {
                 }
             }
         }
+
+        // update phis
 
         // erase removed blocks
         for (int i = f.basic_blocks.size() - 1; i >= 0; --i) {
@@ -224,5 +237,6 @@ void useless_code_elimination(Function &function) {
     remove_unreachable_blocks(function);
     merge_basic_blocks(function);
 
+    function.add_entry_and_exit_block();
     function.update_block_ids();
 }

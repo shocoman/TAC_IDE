@@ -5,6 +5,7 @@
 #ifndef TAC_PARSER_BASIC_BLOCK_HPP
 #define TAC_PARSER_BASIC_BLOCK_HPP
 
+#include <fmt/ranges.h>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -21,106 +22,19 @@ struct BasicBlock {
     std::unordered_set<BasicBlock *> predecessors;
     int phi_functions = 0;
 
-    std::string get_name() const {
-        if (lbl_name.has_value()) {
-            return lbl_name.value();
-        } else if (!node_name.empty()) {
-            return node_name;
-        } else {
-            return "BB #" + std::to_string(id);
-        }
-    }
-
-    std::string fmt() const {
-        std::string out;
-        for (auto &q : quads)
-            out += q.fmt() + "\n";
-        return out;
-    }
-
-    void add_successor(BasicBlock *s) {
-        successors.emplace(s);
-        s->predecessors.emplace(this);
-    }
-
-    void remove_successors() {
-        for (auto &s : successors)
-            s->predecessors.erase(this);
-        successors.clear();
-    }
-
-    void remove_predecessors() {
-        for (auto &s : predecessors)
-            s->successors.erase(this);
-        predecessors.clear();
-    }
-
-    BasicBlock *get_fallthrough_successor() {
-        auto s2 = get_name();
-        if (successors.empty())
-            return nullptr;
-        else if (allows_fallthrough() && successors.size() == 1)
-            return *successors.begin();
-
-        auto &jump_target = quads.back().dest->name;
-        for (auto &s : successors)
-            if (!s->lbl_name.has_value() || *s->lbl_name != jump_target)
-                return s;
-        return nullptr;
-    }
-
-    BasicBlock *get_jumped_to_successor() {
-        if (quads.empty() || !quads.back().is_jump())
-            return nullptr;
-
-        auto &jump_target = quads.back().dest->name;
-        for (auto &s : successors)
-            if (s->lbl_name.has_value() && *s->lbl_name == jump_target)
-                return s;
-        return nullptr;
-    }
-
-    bool allows_fallthrough() {
-        return quads.empty() ||
-               quads.back().type != Quad::Type::Goto && quads.back().type != Quad::Type::Return;
-    }
-
-    bool has_phi_function(std::string name) {
-        for (int i = 0; i < phi_functions; ++i) {
-            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
-                return true;
-        }
-        return false;
-    }
-
-    Quad &get_phi_function(std::string name) {
-        for (int i = 0; i < phi_functions; ++i) {
-            if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
-                return quads[i];
-        }
-    }
-
-    void add_phi_function(std::string lname, const std::vector<std::string> &rnames) {
-        Quad phi({}, {}, Quad::Type::PhiNode, Dest(lname, {}, Dest::Type::Var));
-        std::vector<Operand> ops;
-        for (auto &n : rnames) {
-            ops.emplace_back(n);
-        }
-        phi.ops = ops;
-
-        quads.insert(quads.begin() + phi_functions, phi);
-        phi_functions++;
-    }
-
-    int add_quad_before_jump(Quad q) {
-        if (quads.empty() || !quads.back().is_jump()) {
-            quads.push_back(q);
-            return quads.size() - 1;
-        } else {
-            quads.insert(quads.end() - 1, q);
-            return quads.size() - 2;
-        }
-    }
+    std::string get_name() const;
+    std::string fmt() const;
+    void add_successor(BasicBlock *s);
+    void remove_successors();
+    void remove_predecessors();
+    BasicBlock *get_fallthrough_successor();
+    BasicBlock *get_jumped_to_successor();
+    bool allows_fallthrough();
+    bool has_phi_function(std::string name);
+    Quad &get_phi_function(std::string name);
+    void add_phi_function(std::string lname, const std::vector<std::string> &rnames);
+    int add_quad_before_jump(Quad q);
+    void update_phi_positions();
 };
 
 using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;

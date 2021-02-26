@@ -130,7 +130,7 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
                     next_name = name;
                 }
                 Operand op(next_name, Operand::Type::Var);
-                op.predecessor_id = block->id;
+                op.phi_predecessor = block;
                 phi.ops.push_back(op);
             }
         }
@@ -147,7 +147,7 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
     rename(function.find_entry_block()->id);
 }
 
-void remove_phi_functions(Function &function) {
+void convert_from_ssa(Function &function) {
     BasicBlocks &blocks = function.basic_blocks;
     ID2Block &id_to_block = function.id_to_block;
 
@@ -159,9 +159,9 @@ void remove_phi_functions(Function &function) {
             for (auto &op : phi.ops) {
 
                 // Predecessor id could change after optimizations
-                if (replace_block_id.find({op.predecessor_id, b->id}) == replace_block_id.end() &&
-                    id_to_block.at(op.predecessor_id)->successors.size() > 1) {
-                    auto *pred = id_to_block.at(op.predecessor_id);
+                if (replace_block_id.find({op.phi_predecessor->id, b->id}) == replace_block_id.end() &&
+                    id_to_block.at(op.phi_predecessor->id)->successors.size() > 1) {
+                    auto *pred = id_to_block.at(op.phi_predecessor->id);
 
                     auto split_block = std::make_unique<BasicBlock>();
                     split_block->quads.push_back(
@@ -176,7 +176,7 @@ void remove_phi_functions(Function &function) {
                     split_block->lbl_name = split_block->get_name();
 
                     id_to_block[split_block->id] = split_block.get();
-                    replace_block_id[{op.predecessor_id, b->id}] = split_block->id;
+                    replace_block_id[{op.phi_predecessor->id, b->id}] = split_block->id;
 
                     pred->successors.erase(b.get());
                     b->predecessors.erase(pred);
@@ -195,10 +195,10 @@ void remove_phi_functions(Function &function) {
                 }
 
                 BasicBlock *pred;
-                if (replace_block_id.find({op.predecessor_id, b->id}) != replace_block_id.end()) {
-                    pred = id_to_block.at(replace_block_id.at({op.predecessor_id, b->id}));
+                if (replace_block_id.find({op.phi_predecessor->id, b->id}) != replace_block_id.end()) {
+                    pred = id_to_block.at(replace_block_id.at({op.phi_predecessor->id, b->id}));
                 } else {
-                    pred = id_to_block.at(op.predecessor_id);
+                    pred = id_to_block.at(op.phi_predecessor->id);
                 }
                 auto insert_pos =
                     pred->quads.back().is_jump() ? pred->quads.end() - 1 : pred->quads.end();

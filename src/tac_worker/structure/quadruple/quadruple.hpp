@@ -2,6 +2,7 @@
 #define TAC_PARSER_QUADRUPLE_HPP
 
 #include <algorithm>
+#include <fmt/ranges.h>
 #include <optional>
 #include <ostream>
 #include <utility>
@@ -9,6 +10,7 @@
 
 #include "destination.hpp"
 #include "operand.hpp"
+
 
 struct Quad {
     enum class Type {
@@ -55,18 +57,16 @@ struct Quad {
     }
 
     std::optional<Operand> get_op(int i) const {
-        if (i < ops.size())
-            return ops.at(i);
-        else
-            return {};
+        return i < ops.size() ? std::make_optional(ops.at(i)) : std::nullopt;
     }
+
     void clear_op(int i) {
         if (i < ops.size())
             ops.erase(ops.begin() + i);
     }
 
     std::vector<std::string> get_rhs(bool include_constants = true) const {
-        if (type == Type::Call) // dont count function call args
+        if (type == Type::Call) // don't count function call args (you don't need them)
             return {};
 
         std::vector<std::string> rhs_vars;
@@ -74,37 +74,36 @@ struct Quad {
             rhs_vars.push_back(dest->index->value);
 
         for (auto &op : ops)
-            if (!op.get_string().empty() && (include_constants || op.is_var()))
+            if (op.is_var() || (include_constants && op.is_constant()))
                 rhs_vars.push_back(op.get_string());
 
         return rhs_vars;
     }
 
     std::optional<std::string> get_lhs() const {
-        if (dest && !is_jump()) {
-            return (dest.value().name);
-        } else {
-            return {};
-        }
+        return dest && !is_jump() ? std::make_optional(dest.value().name) : std::nullopt;
     }
 
     std::vector<std::string> get_used_vars() const {
-        auto used_vars = get_rhs();
-        if (auto l = get_lhs(); l.has_value()) {
+        auto used_vars = get_rhs(false);
+        if (auto l = get_lhs(); l.has_value())
             used_vars.push_back(l.value());
-        }
         return used_vars;
     }
 
     bool is_jump() const { return type == Type::Goto || type == Type::IfTrue || type == Type::IfFalse; }
+
     bool is_unary() const {
         return type == Type::Deref || type == Type::Ref || type == Type::Assign || type == Type::UMinus;
     }
+
     bool is_conditional_jump() const { return type == Type::IfTrue || type == Type::IfFalse; }
+
     bool is_assignment() const {
         return !(is_jump() || type == Type::Return || type == Type::Nop || type == Type::Halt ||
                  type == Type::Putparam || (type == Type::Call && !dest.has_value()));
     }
+
     bool is_binary() const {
         auto binaries = {
             Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt, Type::Gt, Type::Eq, Type::Neq,
@@ -116,9 +115,11 @@ struct Quad {
     static bool is_commutative(Type t) {
         return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq || t == Type::Neq;
     }
+
     static bool is_critical(Type t) {
         return t == Type::Print || t == Type::Return || t == Type::Putparam || t == Type::Call;
     }
+
     static bool is_foldable(Type t) {
         auto foldables = {
             Type::Add, Type::Sub, Type::Mult, Type::Div,    Type::Lt,
@@ -202,10 +203,10 @@ struct Quad {
             return destination.value() + ": .block " + dest->index->value + ", " +
                    get_op(0)->get_string() + ", " + get_op(1)->get_string();
         case Type::PhiNode:
-            std::string output;
+            std::vector<std::string> operators;
             for (auto &o : ops)
-                output += o.value + " ";
-            return command + "phi ( " + output + ")";
+                operators.push_back(fmt::format("{}", o.value));
+            return command + fmt::format("phi {}", operators);
         }
 
         if (unary_op.has_value()) {

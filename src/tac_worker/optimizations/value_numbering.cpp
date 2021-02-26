@@ -273,9 +273,9 @@ void dominator_based_value_numbering(Function &function) {
                 auto &phi = succ->quads[i];
                 for (auto &op : phi.ops) {
                     if (auto v = t.get_value_number_by_name(op.value); v.has_value()) {
-                        int tmp = op.predecessor_id;
+                        auto tmp = op.phi_predecessor;
                         op = Operand(v.value());
-                        op.predecessor_id = tmp;
+                        op.phi_predecessor = tmp;
                     }
                 }
             }

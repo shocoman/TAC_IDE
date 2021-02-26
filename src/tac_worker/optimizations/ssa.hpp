@@ -21,6 +21,6 @@ void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
 
 void convert_to_ssa(Function &function);
 
-void remove_phi_functions(Function &function);
+void convert_from_ssa(Function &function);
 
 #endif // TAC_PARSER_SSA_HPP
