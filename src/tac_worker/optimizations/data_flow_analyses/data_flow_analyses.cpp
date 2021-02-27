@@ -18,11 +18,9 @@ void liveness_analyses_on_block(const BasicBlocks &nodes) {
         std::map<std::string, LivenessState> block_liveness_nametable;
 
         // init vars used in the block
-        for (auto &q : n->quads) {
-            for (auto &u : q.get_used_vars()) {
+        for (auto &q : n->quads)
+            for (auto &u : q.get_used_vars())
                 block_liveness_nametable.emplace(u, LivenessState{true, -1});
-            }
-        }
 
         for (int i = n->quads.size() - 1; i >= 0; --i) {
             std::map<std::string, LivenessState> current_nametable;
@@ -31,22 +29,21 @@ void liveness_analyses_on_block(const BasicBlocks &nodes) {
             auto rhs = q.get_rhs();
 
             // Step 1. attach info about x,y,z to i
-            if (lhs.has_value()) {
+            if (lhs.has_value())
                 current_nametable[lhs.value()] = block_liveness_nametable.at(lhs.value());
-            }
-            for (auto &r : rhs) {
+
+            for (auto &r : rhs)
                 current_nametable[r] = block_liveness_nametable.at(r);
-            }
+
             // save in reversed order
             block_liveness_data.emplace(block_liveness_data.begin(), current_nametable);
             // Step 2. update name table about x (live=false)
-            if (lhs.has_value()) {
+            if (lhs.has_value())
                 block_liveness_nametable[lhs.value()] = LivenessState{false, -69};
-            }
+
             // Step 3. update name table about y,z (live=true, next_use=i)
-            for (const auto &r : rhs) {
+            for (const auto &r : rhs)
                 block_liveness_nametable[r] = LivenessState{true, i};
-            }
         }
 
         for (int i = 0; i < n->quads.size(); ++i) {
@@ -431,4 +428,3 @@ std::pair<ID2EXPRS, ID2EXPRS> AnticipableExpressions(Function &f) {
 
     return {IN, OUT};
 }
-

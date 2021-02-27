@@ -10,10 +10,8 @@
 #include <fmt/ranges.h>
 
 #include "tac_worker/structure/function.hpp"
-#include "tac_worker/print_utility.hpp"
 #include "tac_worker/optimizations/value_numbering.hpp"
 
 void sparse_conditional_constant_propagation(Function &f);
-
 
 #endif // TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_SPARSE_CONDITIONAL_CONSTANT_PROPAGATION_HPP

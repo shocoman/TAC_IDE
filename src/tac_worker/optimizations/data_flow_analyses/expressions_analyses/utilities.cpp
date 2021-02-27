@@ -15,7 +15,7 @@ std::set<Expression> get_all_expressions_set(Function &f) {
 
 std::string print_expression(Expression expr) {
     auto &[lhs, type, rhs] = expr;
-    return Quad(lhs, rhs, type).fmt(true);
+    return escape_string(Quad(lhs, rhs, type).fmt(true));
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> get_upward_exposed_and_killed_expressions(Function &f) {

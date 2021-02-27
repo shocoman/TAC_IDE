@@ -35,16 +35,16 @@ std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &function) {
     }
     // endregion
     // region Print UpwardExposed and Killed Expressions CFG
-    {
-        std::unordered_map<int, std::string> above, below;
-        for (auto &[id, e_gen] : id_to_ue_exprs) {
-            above.emplace(id, "UE: " + print_into_string_with(e_gen, print_expression));
-            above[id] += "<BR/>KILLED: " + print_into_string_with(id_to_killed.at(id), print_expression);
-        }
-        std::string title = "Upward Exposed and Killed Expressions<BR/>";
-        title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-        function.print_cfg("lala2.png", above, below, title);
-    }
+//    {
+//        std::unordered_map<int, std::string> above, below;
+//        for (auto &[id, e_gen] : id_to_ue_exprs) {
+//            above.emplace(id, "UE: " + print_into_string_with(e_gen, print_expression));
+//            above[id] += "<BR/>KILLED: " + print_into_string_with(id_to_killed.at(id), print_expression);
+//        }
+//        std::string title = "Upward Exposed and Killed Expressions<BR/>";
+//        title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
+//        function.print_cfg("lala2.png", above, below, title);
+//    }
     // endregion
 
     std::map<int, std::set<Expression>> in_sets, out_sets;
@@ -96,14 +96,14 @@ std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &function) {
     }
     // endregion
     // region Print Anticipable Expressions CFG
-    std::unordered_map<int, std::string> above, below;
-    for (auto &[id, out] : out_sets) {
-        above.emplace(id, "IN: " + print_into_string_with(in_sets.at(id), print_expression));
-        below.emplace(id, "OUT: " + print_into_string_with(out, print_expression));
-    }
-    std::string title = "Anticipable Expressions<BR/>";
-    title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-    function.print_cfg("ant1.png", above, below, title);
+//    std::unordered_map<int, std::string> above, below;
+//    for (auto &[id, out] : out_sets) {
+//        above.emplace(id, "IN: " + print_into_string_with(in_sets.at(id), print_expression));
+//        below.emplace(id, "OUT: " + print_into_string_with(out, print_expression));
+//    }
+//    std::string title = "Anticipable Expressions<BR/>";
+//    title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
+//    function.print_cfg("ant1.png", above, below, title);
     // endregion
     return {in_sets, out_sets};
 }
