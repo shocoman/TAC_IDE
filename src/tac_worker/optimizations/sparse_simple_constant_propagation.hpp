@@ -8,6 +8,6 @@
 #include "../optimization_runner.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
 
-void sparse_simple_constant_propagation(BasicBlocks &blocks);
+void sparse_simple_constant_propagation(Function &location);
 
 #endif // TAC_PARSER_SPARSE_SIMPLE_CONSTANT_PROPAGATION_HPP

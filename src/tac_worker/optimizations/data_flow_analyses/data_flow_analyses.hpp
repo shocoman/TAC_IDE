@@ -22,20 +22,31 @@ void liveness_analyses_engineering_compiler(Function &function);
 void liveness_analyses_dragon_book(Function &function);
 void reaching_definitions(Function &function);
 
-std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressions(Function &f);
-std::pair<ID2EXPRS, ID2EXPRS> AnticipableExpressions(Function &f);
+std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &f);
+std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f);
 
-template <typename T>
-void print_analyses_result_on_graph(
-    Function &f, std::pair<std::map<int, std::set<T>>, std::map<int, std::set<T>>> input,
-    std::string title) {
+template <template <typename...> typename Map, template <typename> typename Set, typename SetType,
+          typename F>
+void print_analyses_result_on_graph(Function &f, Map<int, Set<SetType>> IN, Map<int, Set<SetType>> OUT,
+                                    std::string title, F func) {
+    static_assert(std::is_same<Map<int, Set<SetType>>, std::map<int, Set<SetType>>>::value ||
+                      std::is_same<Map<int, Set<SetType>>, std::unordered_map<int, Set<SetType>>>::value,
+                  "Function can only get std::map or std::unordered_map.");
+    static_assert(std::is_same<Set<SetType>, std::set<SetType>>::value ||
+                      std::is_same<Set<SetType>, std::unordered_set<SetType>>::value,
+                  "Function can only get std::set or std::unordered_set as map value.");
+
     std::unordered_map<int, std::string> above, below;
-    auto &[IN, OUT] = input;
     for (auto &[id, in] : IN)
-        above.emplace(id, "IN: " + print_into_string_with(in, print_expression));
+        above.emplace(id, "IN: " + print_into_string_with(in, func));
     for (auto &[id, out] : OUT)
-        below.emplace(id, "OUT: " + print_into_string_with(out, print_expression));
-    f.print_cfg(title + ".png", above, below, title);
+        below.emplace(id, "OUT: " + print_into_string_with(out, func));
+    // replace spaces in title
+    auto title_wo_spaces = title;
+    for (auto &ch : title_wo_spaces)
+        if (std::isspace(ch))
+            ch = '_';
+    f.print_cfg(title_wo_spaces + ".png", above, below, title);
 }
 
 #endif // TAC_PARSER_DATA_FLOW_ANALYSES_HPP

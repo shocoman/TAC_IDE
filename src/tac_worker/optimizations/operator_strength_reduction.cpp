@@ -11,10 +11,9 @@ OSRDriver::OSRDriver(Function &f) : func(f) {
     OSR();
 //    PrintSSAGraph();
 
-    for (auto &[name, var_info] : useInfo) {
-        fmt::print("{}:\n\t Defined at: {}\n\t Header: {}\nNum: {}\n", name, var_info.defined_at,
-                   var_info.header, var_info.num);
-    }
+//    for (auto &[name, var_info] : useInfo)
+//        fmt::print("{}:\n\t Defined at: {}\n\t Header: {}\nNum: {}\n", name, var_info.defined_at,
+//                   var_info.header, var_info.num);
 }
 
 void OSRDriver::FillInUseDefGraph() {
@@ -278,12 +277,16 @@ std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_v
             if (useInfo.at(o.value).header == iv_def.header && !iv_def.header.empty()) {
                 // rewrite O with Reduce(node_name, o, region_constant)
                 auto res = Reduce(node_name, o, reg_const);
-                o.value = res;
+                auto pred = o.phi_predecessor;
+                o = Operand(res);
+                o.phi_predecessor = pred;
             } else if (op_type == Quad::Type::Mult ||
                        GetQuad(new_def.defined_at).type == Quad::Type::PhiNode) {
                 // replace O with Apply(node_name, o, region_constant)
                 auto res = Apply(node_name, o, reg_const);
-                o.value = res;
+                auto pred = o.phi_predecessor;
+                o = Operand(res);
+                o.phi_predecessor = pred;
             }
         }
     }
@@ -338,4 +341,9 @@ std::string OSRDriver::Apply(const std::string &node_name, Operand &op1, Operand
     }
 
     return operations_lookup_table.at(key);
+}
+
+void operator_strength_reduction(Function &f) {
+    auto operator_reduction = OSRDriver(f);
+
 }

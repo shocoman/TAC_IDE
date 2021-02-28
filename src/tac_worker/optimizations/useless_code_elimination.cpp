@@ -51,10 +51,16 @@ void remove_noncritical_operations(Function &f) {
         work_list.pop_back();
         auto &q = f.id_to_block.at(block_id)->quads.at(quad_i);
 
+        if (q.dest.has_value()) {
+            std::string dest = q.dest->name;
+            fmt::format("\n");
+        }
+
         for (auto &op : q.get_rhs(false)) {
             auto &defined_position = name_to_position.at(op);
-            if (critical_operations.insert(defined_position).second)
+            if (critical_operations.insert(defined_position).second) {
                 work_list.push_back(defined_position);
+            }
         }
 
         for (auto &b_id : reverse_df.at(block_id)) {
@@ -83,9 +89,9 @@ void remove_noncritical_operations(Function &f) {
             if (op_is_not_critical) {
                 if (q.is_conditional_jump()) {
                     // replace with jump to closest "marked" postdominator
-                    int post_dom_id;
+                    int post_dom_id = b->id;
                     do {
-                        post_dom_id = id_to_ipostdom.at(b->id);
+                        post_dom_id = id_to_ipostdom.at(post_dom_id);
                     } while (marked_blocks.count(post_dom_id) == 0);
 
                     auto closest_post_dominator = id_to_block.at(post_dom_id);
@@ -94,6 +100,8 @@ void remove_noncritical_operations(Function &f) {
                     b->remove_successors();
                     b->add_successor(closest_post_dominator);
                 } else if (q.type != Quad::Type::Goto) {
+                    if (b->quads[q_index].type == Quad::Type::PhiNode)
+                        --b->phi_functions;
                     b->quads.erase(b->quads.begin() + q_index);
                 }
             }
@@ -125,15 +133,20 @@ void remove_unreachable_blocks(Function &f) {
 }
 
 void merge_basic_blocks(Function &f) {
-    // temporary remove exit block (hack)
-    auto exit_block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
-                                   [](auto &b) { return b->get_name() == "Exit"; });
-    if (exit_block != f.basic_blocks.end()) {
-        f.id_to_block.erase(exit_block->get()->id);
-        exit_block->get()->remove_successors();
-        exit_block->get()->remove_predecessors();
-        f.basic_blocks.erase(exit_block);
-    }
+    // temporary remove entry and exit block (hack)
+    auto RemoveBlock = [&](std::string name) {
+        auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
+                                        [name](auto &b) { return b->get_name() == name; });
+        if (block != f.basic_blocks.end()) {
+            f.id_to_block.erase(block->get()->id);
+            block->get()->remove_successors();
+            block->get()->remove_predecessors();
+            f.basic_blocks.erase(block);
+        }
+    };
+
+    RemoveBlock("Entry");
+    RemoveBlock("Exit");
 
     // Clean Pass (merge blocks, etc)
     bool changed = true;
@@ -207,7 +220,7 @@ void merge_basic_blocks(Function &f) {
             }
         }
 
-        // update phis
+        // update phis ???
 
         // erase removed blocks
         for (int i = f.basic_blocks.size() - 1; i >= 0; --i) {

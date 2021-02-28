@@ -19,8 +19,6 @@ std::map<std::pair<int, int>, std::set<Expression>> earliest_expressions(Functio
 
     std::map<std::pair<int, int>, std::set<Expression>> earliest_exprs;
     for (auto &[i, j] : all_edges) {
-        auto i_block = f.id_to_block.at(i), j_block = f.id_to_block.at(j);
-
         auto AntIn_j = ant_in.at(j);
 
         auto NOT_AvailOut_i = all_expressions;
@@ -35,13 +33,12 @@ std::map<std::pair<int, int>, std::set<Expression>> earliest_expressions(Functio
 
         auto earliest_ij = intersection_of_sets(std::vector{AntIn_j, NOT_AvailOut_i, NOT_AntOut_i});
         earliest_exprs.emplace(std::pair{i, j}, earliest_ij);
-        std::cout << "Edge (" << i_block->get_name() << ", " << j_block->get_name() << ": "
-                  << print_into_string_with(earliest_ij, print_expression) << std::endl;
     }
     return earliest_exprs;
 }
 
-void later_placement_expressions(Function &function) {
+std::pair<std::map<int, std::set<Expression>>, std::map<std::pair<int, int>, std::set<Expression>>>
+later_placement_expressions(Function &function) {
     // forward data-flow problem
     auto &blocks = function.basic_blocks;
     auto &id_to_block = function.id_to_block;
@@ -52,39 +49,10 @@ void later_placement_expressions(Function &function) {
     std::sort(id_rpo_pairs.begin(), id_rpo_pairs.end(),
               [](auto &a, auto &b) { return a.second < b.second; });
 
-    // universal set
     std::set<Expression> all_expressions = get_all_expressions_set(function);
-
-    //    // region Print all expressions
-    //    std::cout << "Expressions: " << std::endl;
-    //    for (auto &expr : all_expressions)
-    //        std::cout << print_expression(expr) << std::endl;
-    //    // endregion
 
     auto [id_to_ue_exprs, id_to_killed] = get_upward_exposed_and_killed_expressions(function);
     auto earliest = earliest_expressions(function);
-
-    //    // region Print UpwardExposed and Killed Expressions to Console
-    //    for (auto &[id, e_gen] : id_to_ue_exprs) {
-    //        std::cout << id_to_block.at(id)->get_name();
-    //        std::cout << "UE: " + print_into_string_with(e_gen, print_expression) << std::endl;
-    //        std::cout << "KILLED: " + print_into_string_with(id_to_killed.at(id), print_expression)
-    //                  << std::endl;
-    //    }
-    //    // endregion
-    //    // region Print UpwardExposed and Killed Expressions CFG
-    //    {
-    //        std::unordered_map<int, std::string> above, below;
-    //        for (auto &[id, e_gen] : id_to_ue_exprs) {
-    //            above.emplace(id, "UE: " + print_into_string_with(e_gen, print_expression));
-    //            above[id] += "<BR/>KILLED: " + print_into_string_with(id_to_killed.at(id),
-    //            print_expression);
-    //        }
-    //        std::string title = "Upward Exposed and Killed Expressions<BR/>";
-    //        title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-    //        function.print_cfg("lala2.png", above, below, title);
-    //    }
-    //    // endregion
 
     std::map<int, std::set<Expression>> LaterIn;
     std::map<std::pair<int, int>, std::set<Expression>> Later;
@@ -140,24 +108,5 @@ void later_placement_expressions(Function &function) {
                   << print_into_string_with(exprs, print_expression) << std::endl;
     }
 
-    //    // region Print Anticipable Expressions to Console
-    //    std::cout << "Anticipable Expressions" << std::endl;
-    //    for (auto &[id, out] : Later) {
-    //        std::cout << id_to_block.at(id)->get_name() << std::endl;
-    //        std::cout << "\tIN: " + print_into_string_with(LaterIn.at(id), print_expression) <<
-    //        std::endl; std::cout << "\tOUT: " + print_into_string_with(out, print_expression) <<
-    //        std::endl;
-    //    }
-    //    // endregion
-    //    // region Print Anticipable Expressions CFG
-    //    std::unordered_map<int, std::string> above, below;
-    //    for (auto &[id, out] : Later) {
-    //        above.emplace(id, "IN: " + print_into_string_with(LaterIn.at(id), print_expression));
-    //        below.emplace(id, "OUT: " + print_into_string_with(out, print_expression));
-    //    }
-    //    std::string title = "Anticipable Expressions<BR/>";
-    //    title += "All Expressions: " + print_into_string_with(all_expressions, print_expression);
-    //    function.print_cfg("lala.png", above, below, title);
-    //    // endregion
-    //    return {LaterIn, Later};
+    return {LaterIn, Later};
 }

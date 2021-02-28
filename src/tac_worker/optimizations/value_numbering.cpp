@@ -205,10 +205,10 @@ void dominator_based_value_numbering(Function &function) {
     DVNTFuncType dvnt = [&](BasicBlock *b, DValueNumberTableStack &t) {
         t.push_table();
 
-        // process every phi Function
+        // process every phi function
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
-            std::set<Operand> ops_set(phi.ops.begin(), phi.ops.end());
+            std::set<Operand> operands(phi.ops.begin(), phi.ops.end());
             // phi is meaningless (all operands are equal)
             if (std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin())) {
                 t.set_value_number_for_name(phi.dest->name, phi.ops[0].value);
@@ -217,37 +217,31 @@ void dominator_based_value_numbering(Function &function) {
                 --i;
             }
             // or phi is redundant (same as one of the previous phi functions)
-            else if (auto v = t.get_phi_node_by_operation(ops_set); v.has_value()) {
+            else if (auto v = t.get_phi_node_by_operation(operands); v.has_value()) {
                 t.set_value_number_for_name(phi.dest->name, v.value());
                 b->quads.erase(b->quads.begin() + i);
                 --b->phi_functions;
                 --i;
             } else {
                 t.set_value_number_for_name(phi.dest->name, phi.dest->name);
-                t.set_phi_node_for_value(ops_set, phi.dest->name);
+                t.set_phi_node_for_value(operands, phi.dest->name);
             }
         }
 
         // work through each assignment of the form 'x = y op z'
         for (int i = b->phi_functions; i < b->quads.size(); ++i) {
             auto &q = b->quads[i];
-            if (q.is_jump())
+            if (!q.is_assignment())
                 continue;
-
-            if (Quad::is_foldable(q.type)) {
-                constant_folding(q);
-            }
 
             // overwrite 'x' and 'y' with saved value number
             for (auto &op : q.ops) {
                 if (auto v = t.get_value_number_by_name(op.value); v.has_value())
                     op = Operand(v.value());
-                else {
-                    // for literals?
-                    // std::cout << "PANIC!!!" << std::endl;
-                    // t.set_value_number_for_name(op.value, op.value);
-                }
             }
+
+            if (Quad::is_foldable(q.type))
+                constant_folding(q);
 
             std::vector<std::string> expr;
             for (auto &op : q.ops)
@@ -256,14 +250,14 @@ void dominator_based_value_numbering(Function &function) {
                 std::sort(expr.begin(), expr.end());
             auto op_hash_key = std::tuple{q.type, expr};
 
-            if (auto v = t.get_value_number_by_operation(op_hash_key);
-                v.has_value() && q.dest.has_value()) {
+            auto v = t.get_value_number_by_operation(op_hash_key);
+            if (v.has_value()) {
                 t.set_value_number_for_name(q.dest->name, v.value());
                 b->quads.erase(b->quads.begin() + i);
                 --i;
-            } else if (q.dest.has_value()) {
+            } else {
                 t.set_value_number_for_name(q.dest->name, q.dest->name);
-                t.set_operation_value(op_hash_key, q.dest->name);
+                t.set_operation_for_value_number(op_hash_key, q.dest->name);
             }
         }
 
@@ -273,9 +267,9 @@ void dominator_based_value_numbering(Function &function) {
                 auto &phi = succ->quads[i];
                 for (auto &op : phi.ops) {
                     if (auto v = t.get_value_number_by_name(op.value); v.has_value()) {
-                        auto tmp = op.phi_predecessor;
+                        auto pred = op.phi_predecessor;
                         op = Operand(v.value());
-                        op.phi_predecessor = tmp;
+                        op.phi_predecessor = pred;
                     }
                 }
             }

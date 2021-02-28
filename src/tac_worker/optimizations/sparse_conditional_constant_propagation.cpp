@@ -70,7 +70,7 @@ void sparse_conditional_constant_propagation(Function &f) {
         std::vector<Value> quad_values;
         for (auto &op : q.ops) {
             if (op.is_var())
-                quad_values.push_back(values.at({op.get_string(), place /*useInfo.at(op.get_string()).defined_at*/ }));
+                quad_values.push_back(values.at({op.get_string(), place}));
             else
                 quad_values.push_back(Value{.type = Value::Type::Constant, .constant = op});
         }
@@ -79,7 +79,8 @@ void sparse_conditional_constant_propagation(Function &f) {
         auto is_top = [](auto &v) { return v.type == Value::Type::Top; };
         if (std::any_of(quad_values.begin(), quad_values.end(), is_bottom))
             return Value{.type = Value::Type::Bottom};
-        else if (std::any_of(quad_values.begin(), quad_values.end(), is_top) /*&& q.type != Quad::Type::PhiNode*/)
+        else if (std::any_of(quad_values.begin(), quad_values.end(), is_top) &&
+                 q.type != Quad::Type::PhiNode)
             return Value{.type = Value::Type::Top};
 
         std::vector<Operand> constants;
@@ -89,7 +90,7 @@ void sparse_conditional_constant_propagation(Function &f) {
 
         if (q.type == Quad::Type::PhiNode) {
             bool constants_equal = std::equal(constants.begin() + 1, constants.end(), constants.begin());
-            if (constants_equal /*|| constants.size() == 1*/)
+            if (constants_equal)
                 return Value{.type = Value::Type::Constant, .constant = constants[0]};
             else
                 return Value{.type = Value::Type::Bottom};

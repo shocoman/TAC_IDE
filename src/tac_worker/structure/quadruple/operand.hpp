@@ -15,7 +15,8 @@ struct Operand {
 
     Operand() : type(Type::None) {}
 
-    Operand(std::string s, Type t) : value(std::move(s)), type(t) {}
+    Operand(std::string s, Type t, BasicBlock *phi_pred = nullptr)
+        : value(std::move(s)), type(t), phi_predecessor(phi_pred) {}
 
     Operand(const std::string &s) {
         char *end = nullptr;

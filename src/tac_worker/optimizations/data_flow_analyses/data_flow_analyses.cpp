@@ -3,8 +3,6 @@
 //
 
 #include "data_flow_analyses.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/anticipable_expressions.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/available_expressions.hpp"
 
 void liveness_analyses_on_block(const BasicBlocks &nodes) {
     // block level liveness analyses
@@ -392,7 +390,7 @@ void reaching_definitions(Function &function) {
     // endregion
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressions(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
     auto [id_to_de_exprs, id_to_killed_exprs] = get_downward_exposed_and_killed_expressions(f);
@@ -410,7 +408,7 @@ std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressions(Function &f) {
     return {IN, OUT};
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> AnticipableExpressions(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
     auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);
@@ -428,3 +426,4 @@ std::pair<ID2EXPRS, ID2EXPRS> AnticipableExpressions(Function &f) {
 
     return {IN, OUT};
 }
+

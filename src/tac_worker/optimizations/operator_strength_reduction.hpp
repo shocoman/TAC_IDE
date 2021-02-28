@@ -48,4 +48,7 @@ struct OSRDriver {
     std::string MakeNewName();
 };
 
+
+void operator_strength_reduction(Function& f);
+
 #endif // TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_OPERATOR_STRENGTH_REDUCTION_HPP
