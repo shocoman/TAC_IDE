@@ -1,3 +1,4 @@
+#include <any>
 #include <iostream>
 #include <unordered_set>
 
@@ -5,6 +6,7 @@
 
 #include "src/parser/driver/driver.hpp"
 #include "tac_worker/optimization_runner.hpp"
+#include "tac_worker/optimizations/copy_propagation.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/earliest_expressions.hpp"
@@ -12,7 +14,6 @@
 #include "tac_worker/optimizations/lazy_code_motion.hpp"
 #include "tac_worker/optimizations/operator_strength_reduction.hpp"
 #include "tac_worker/optimizations/sparse_conditional_constant_propagation.hpp"
-#include "tac_worker/optimizations/copy_propagation.hpp"
 
 int main(int argc, char *argv[]) {
     // region CmdArg parse
@@ -38,8 +39,9 @@ int main(int argc, char *argv[]) {
     //            drv.parse("../_TestCode/available_expressions3.txt");
     //    drv.parse("../_TestCode/FactorialProgram.txt");
     //    drv.parse("../_TestCode/ssa_test.txt");
-    //        drv.parse("../_TestCode/sccp_test.txt");
-    drv.parse("../_TestCode/strength_reduction.txt");
+    drv.parse("../_TestCode/sccp_test.txt");
+    //    drv.parse("../_TestCode/sccp2.txt");
+    //    drv.parse("../_TestCode/strength_reduction.txt");
     //    drv.parse("../_TestCode/copy_propagation.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
@@ -48,17 +50,13 @@ int main(int argc, char *argv[]) {
 
     convert_to_ssa(f);
 
+    //    f.print_cfg("before.png");
 
-    f.print_cfg("before.png");
-
-    operator_strength_reduction(f);
-    useless_code_elimination(f);
-    sparse_simple_constant_propagation(f);
-    copy_propagation_on_ssa(f);
-    useless_code_elimination(f);
+    sparse_conditional_constant_propagation(f);
 
     f.print_cfg("after.png");
 
     std::getchar();
+
     return 0;
 }

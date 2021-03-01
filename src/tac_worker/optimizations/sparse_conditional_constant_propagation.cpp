@@ -26,31 +26,40 @@ void sparse_conditional_constant_propagation(Function &f) {
         bool operator!=(const Value &rhs) const { return !(*this == rhs); }
     };
 
-    struct VariableInfo {
+    struct UseDefInfo {
         Place defined_at = {-1, -1};
         std::vector<Place> used_at;
     };
 
-    std::map<std::string, VariableInfo> useInfo;
+    std::map<std::string, UseDefInfo> use_def_graph;
     std::map<Position, Value> values;
 
-    // fill in info
+    // fill in info (def-use graph)
     for (auto &b : blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
 
             Place place{b->id, q_index};
             if (!q.is_jump() && q.dest.has_value()) {
-                useInfo[q.dest->name].defined_at = place;
-                values[{q.dest->name, place}] = Value{.type = Value::Type::Top};
+                use_def_graph[q.dest->name].defined_at = place;
+
+                values[{q.dest->name, place}] =
+                    (q.type == Quad::Type::Getparam || q.type == Quad::Type::Call)
+                        ? Value{.type = Value::Type::Bottom}
+                        : Value{.type = Value::Type::Top};
             }
 
             for (const auto &op_name : q.get_rhs(false)) {
-                useInfo[op_name].used_at.push_back(place);
+                use_def_graph[op_name].used_at.push_back(place);
                 values[{op_name, place}] = Value{.type = Value::Type::Top};
             }
         }
     }
+
+    for (auto &[name, use_def_info] : use_def_graph) {
+        fmt::print("{}: {}; {}\n", name, use_def_info.defined_at, use_def_info.used_at);
+    }
+    fmt::print("Done\n");
 
     using CFGEdge = std::pair<int, int>;
     using SSAEdge = std::pair<Place, Place>;
@@ -59,7 +68,7 @@ void sparse_conditional_constant_propagation(Function &f) {
     std::vector<CFGEdge> CFGWorkList;
     std::vector<SSAEdge> SSAWorkList;
 
-    // fill cfg worklist with edges leaving entry node
+    // init cfg worklist with edges leaving entry node
     auto entry = f.find_entry_block();
     for (auto &s : entry->successors)
         CFGWorkList.emplace_back(entry->id, s->id);
@@ -115,7 +124,7 @@ void sparse_conditional_constant_propagation(Function &f) {
         //   let (x,y) be the SSA edge that supplies y (x - definition place, y - use place)
         //   Value(y) ← Value(x)
         for (auto &y : q.get_rhs(false)) {
-            values[{y, place}] = values.at({y, useInfo.at(y).defined_at});
+            values[{y, place}] = values.at({y, use_def_graph.at(y).defined_at});
         }
 
         auto &dest_value = values.at({q.dest->name, place});
@@ -123,7 +132,7 @@ void sparse_conditional_constant_propagation(Function &f) {
             Value v = EvaluateOverLattice(place, q);
             if (dest_value != v) {
                 dest_value = v;
-                for (auto &used_at : useInfo.at(q.dest->name).used_at)
+                for (auto &used_at : use_def_graph.at(q.dest->name).used_at)
                     SSAWorkList.emplace_back(place, used_at);
             }
         }
@@ -131,18 +140,18 @@ void sparse_conditional_constant_propagation(Function &f) {
 
     auto EvaluateConditional = [&](BasicBlock *b) {
         Place place = {b->id, b->quads.size() - 1};
-        auto &cond = b->quads.back();
-        auto cond_var = *cond.get_op(0);
+        auto &cond_quad = b->quads.back();
+        auto cond_var = *cond_quad.get_op(0);
         auto cond_var_name = cond_var.get_string();
         auto constant = Value{.type = Value::Type::Constant, .constant = cond_var};
         auto &value_at_use = cond_var.is_var() ? values.at({cond_var_name, place}) : constant;
 
         if (value_at_use.type != Value::Type::Bottom) {
-            bool is_constant = value_at_use.type == Value::Type::Constant;
-            auto value_at_def = is_constant
-                                    ? value_at_use
-                                    : values.at({cond_var_name, useInfo.at(cond_var_name).defined_at});
-            if (is_constant || value_at_use != value_at_def) {
+            auto value_at_def =
+                cond_var.is_constant()
+                    ? value_at_use
+                    : values.at({cond_var_name, use_def_graph.at(cond_var_name).defined_at});
+            if (cond_var.is_constant() || value_at_use != value_at_def) {
                 value_at_use = value_at_def;
 
                 if (value_at_use.type == Value::Type::Bottom) {
@@ -150,8 +159,8 @@ void sparse_conditional_constant_propagation(Function &f) {
                         CFGWorkList.emplace_back(b->id, s->id);
                 } else {
                     bool make_jump =
-                        value_at_use.constant.is_true() && cond.type == Quad::Type::IfTrue ||
-                        !value_at_use.constant.is_true() && cond.type == Quad::Type::IfFalse;
+                        value_at_use.constant.is_true() && cond_quad.type == Quad::Type::IfTrue ||
+                        !value_at_use.constant.is_true() && cond_quad.type == Quad::Type::IfFalse;
                     if (make_jump)
                         CFGWorkList.emplace_back(b->id, b->get_jumped_to_successor()->id);
                     else
@@ -168,7 +177,7 @@ void sparse_conditional_constant_propagation(Function &f) {
             for (auto &op : phi.ops) {
                 auto op_name = op.get_string();
                 CFGEdge cfg_edge = {op.phi_predecessor->id, place.first};
-                auto &value_at_def = values.at({op_name, useInfo.at(op_name).defined_at});
+                auto &value_at_def = values.at({op_name, use_def_graph.at(op_name).defined_at});
                 auto &value_at_use = values.at({op_name, place});
                 if (executed_edges.count(cfg_edge) > 0)
                     value_at_use = value_at_def;
@@ -178,7 +187,7 @@ void sparse_conditional_constant_propagation(Function &f) {
 
     auto EvaluatePhiResult = [&](Place place, Quad &phi) {
         std::string x = phi.dest->name;
-        auto &x_use_info = useInfo.at(x);
+        auto &x_use_info = use_def_graph.at(x);
         auto &x_value = values.at({x, place});
         if (x_value.type != Value::Type::Bottom) {
             Value v = EvaluateOverLattice(place, phi);
@@ -213,9 +222,8 @@ void sparse_conditional_constant_propagation(Function &f) {
             auto [m, n] = edge;
             CFGWorkList.pop_back();
 
-            if (executed_edges.count(edge) == 0) {
-                executed_edges.insert(edge);
-
+            // if edge wasn't executed before
+            if (executed_edges.insert(edge).second) {
                 EvaluateAllPhisInBlock(edge);
 
                 bool no_other_entering_edge_is_executed = true;
@@ -228,7 +236,7 @@ void sparse_conditional_constant_propagation(Function &f) {
 
                     for (int q_index = b->phi_functions; q_index < b->quads.size(); q_index++) {
                         auto &q = b->quads[q_index];
-                        if (q.is_assignment() && q.type != Quad::Type::Call)
+                        if (q.is_assignment())
                             EvaluateAssign(Place{b->id, q_index});
                     }
 
@@ -255,7 +263,7 @@ void sparse_conditional_constant_propagation(Function &f) {
                 auto &q = c->quads[d.second];
                 if (q.type == Quad::Type::PhiNode)
                     EvaluatePhi(edge);
-                else if (q.is_assignment() && q.type != Quad::Type::Call)
+                else if (q.is_assignment())
                     EvaluateAssign(place);
                 else
                     EvaluateConditional(c);
@@ -289,4 +297,30 @@ void sparse_conditional_constant_propagation(Function &f) {
         else if (value.type == Value::Type::Constant)
             fmt::print("Constants: {}\n", value.constant.get_string());
     }
+
+    // Rewrite Program
+    for (auto &[name, use_def_info] : use_def_graph) {
+        auto [b_id, quad] = use_def_info.defined_at;
+        auto &def_q = f.id_to_block.at(b_id)->quads.at(quad);
+
+        auto def_key = std::pair{name, use_def_info.defined_at};
+        if (values.count(def_key) > 0 && values.at(def_key).type == Value::Type::Constant) {
+
+            def_q.type = Quad::Type::Assign;
+            def_q.ops[0] = values.at(def_key).constant;
+            def_q.clear_op(1);
+
+            for (auto &[block_id, quad_num] : use_def_info.used_at) {
+                auto &constant = values.at(def_key).constant;
+
+                auto &use_q = f.id_to_block.at(block_id)->quads.at(quad_num);
+                for (auto &op : use_q.ops)
+                    if (op.value == name)
+                        op = Operand(constant.value, constant.type, op.phi_predecessor);
+            }
+        }
+    }
+
+    for (auto &b : blocks)
+        b->update_phi_positions();
 }

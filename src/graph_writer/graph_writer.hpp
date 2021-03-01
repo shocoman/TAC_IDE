@@ -5,13 +5,13 @@
 #ifndef TAC_PARSER_GRAPH_WRITER_HPP
 #define TAC_PARSER_GRAPH_WRITER_HPP
 
+#include <fmt/ranges.h>
 #include <fstream>
 #include <gvc.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <fmt/ranges.h>
 
 class GraphWriter {
     std::unordered_map<std::string, std::string> node_names, additional_info_above,
@@ -19,6 +19,9 @@ class GraphWriter {
     std::vector<std::pair<std::string, std::vector<std::string>>> node_texts;
     std::vector<std::tuple<std::string, std::string, std::string>> edges;
     std::string graph_title;
+
+    using NodeAttributeMap = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>;
+    NodeAttributeMap node_attributes;
 
   public:
     void set_node_text(const std::string &node_name, const std::vector<std::string> &text_lines);
@@ -28,8 +31,8 @@ class GraphWriter {
     void add_info_above(const std::string &node, const std::string &info, bool above);
     void set_title(const std::string &title);
 
-    using NodeAttributeMap = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>;
-    NodeAttributeMap node_attributes;
+    void set_attribute(const std::string &n, const std::string &attr, const std::string &val);
+    std::optional<std::string> get_attribute(const std::string &n, const std::string &attr);
 };
 
 std::string escape_string(const std::string &s);

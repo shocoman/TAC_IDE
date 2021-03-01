@@ -171,21 +171,27 @@ ID2DOMS find_dominators(Function &function) {
     return id_to_dominators;
 }
 
-void print_dominator_tree(ID2Block &id_to_block, ID2IDOM &id_to_idom) {
+void print_dominator_tree(Function &f) {
+    auto id_to_idom = find_immediate_dominators(f);
+
     GraphWriter writer;
     for (const auto &[id1, id2] : id_to_idom) {
         // make a connection between blocks[id1] and blocks[block_id]
-        const auto name1 = id_to_block.at(id2)->node_name;
-        const auto name2 = id_to_block.at(id1)->node_name;
+        auto name1 = f.id_to_block.at(id2)->get_name();
+        auto name2 = f.id_to_block.at(id1)->get_name();
         writer.set_node_name(name1, name1);
         writer.set_node_name(name2, name2);
         writer.set_node_text(name1, {});
         writer.set_node_text(name2, {});
         writer.add_edge(name1, name2);
+
+        writer.set_attribute(name1, "subscript", fmt::format("{}", id2));
+        writer.set_attribute(name2, "subscript", fmt::format("{}", id1));
     }
 
-    writer.render_to_file("dominator_tree.png");
-    system("feh dominator_tree.png &");
+    writer.set_title("Dominator Tree");
+    writer.render_to_file("graphs/dominator_tree.png");
+    system("sxiv -g 1000x1000+20+20 graphs/dominator_tree.png &");
 }
 
 

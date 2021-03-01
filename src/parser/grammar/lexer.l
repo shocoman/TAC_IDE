@@ -22,6 +22,7 @@ int [0-9]+
 float {int}\.{int}?
 string \"([^\\\"]|\\.)*\"
 char '([^'\\\n]|\\.)'
+bool true|false
 
 blank [ \t\r]
 line_comment "//".*
@@ -49,7 +50,9 @@ empty_line ^{blank}*\n
 "&"     return yy::parser::make_REF(loc);
 
 "<"     return yy::parser::make_CMP_LT(loc);
+"<="    return yy::parser::make_CMP_LTE(loc);
 ">"     return yy::parser::make_CMP_GT(loc);
+">="    return yy::parser::make_CMP_GTE(loc);
 "=="    return yy::parser::make_CMP_EQ(loc);
 "!="    return yy::parser::make_CMP_NEQ(loc);
 
@@ -65,6 +68,7 @@ empty_line ^{blank}*\n
 
 
 {char}   return yy::parser::make_CHAR(yytext[1], loc);
+{bool}   return yy::parser::make_BOOL(yytext, loc);
 {string} return yy::parser::make_STRING(yytext, loc);
 {float}  return make_NUMBER(yytext, loc, false);
 {int}    return make_NUMBER(yytext, loc, true);

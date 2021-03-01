@@ -14,10 +14,10 @@
 #include "data_flow_analyses/dominators.hpp"
 #include "value_numbering.hpp"
 
-void place_phi_functions(Function &function, ID2IDOM &id_to_immediate_dominator,
-                         ID2DF &id_to_dominance_frontier,
+void place_phi_functions(Function &function,
                          std::map<std::string, std::set<BasicBlock *>> &var_to_blocks,
-                         std::set<std::string> &global_names, std::set<std::string> &all_names);
+                         std::set<std::string> &global_names);
+void rename_variables(Function &function, std::set<std::string> &global_names);
 
 void convert_to_ssa(Function &function);
 

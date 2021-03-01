@@ -41,8 +41,14 @@ void constant_folding(Quad &n) {
             case Quad::Type::Lt:
                 res = l < r;
                 break;
+            case Quad::Type::Lte:
+                res = l <= r;
+                break;
             case Quad::Type::Gt:
                 res = l > r;
+                break;
+            case Quad::Type::Gte:
+                res = l >= r;
                 break;
             case Quad::Type::Eq:
                 res = l == r;

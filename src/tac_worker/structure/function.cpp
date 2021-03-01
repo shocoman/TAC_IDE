@@ -6,8 +6,10 @@
 
 void Function::print_cfg(std::string filename,
                          std::unordered_map<int, std::string> additional_info_above,
-                         std::unordered_map<int, std::string> additional_info_below,
-                         std::string title) const {
+                         std::unordered_map<int, std::string> additional_info_below, std::string title) {
+    auto id_to_rpo = get_reverse_post_ordering();
+    auto id_to_po = get_post_ordering();
+
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
     // print edges
@@ -20,9 +22,8 @@ void Function::print_cfg(std::string filename,
             dot_writer.add_info_above(node_name, additional_info_below.at(n->id), false);
         if (visited.insert(node_name).second) {
 
-            std::vector<std::string> quad_lines;
-
             // print all quads as text
+            std::vector<std::string> quad_lines;
             for (auto &q : n->quads) {
                 quad_lines.emplace_back(escape_string(q.fmt()));
             }
@@ -31,8 +32,14 @@ void Function::print_cfg(std::string filename,
             // attribute for correct branch display
             if (auto branch_target = n->get_jumped_to_successor();
                 branch_target && n->successors.size() > 1) {
-                dot_writer.node_attributes[node_name]["true_branch"] = branch_target->get_name();
+                dot_writer.set_attribute(node_name, "true_branch", branch_target->get_name());
             }
+
+            // display subscript of the block
+            int rpo = id_to_rpo.at(n->id);
+            int po = id_to_po.at(n->id);
+            dot_writer.set_attribute(node_name, "subscript",
+                                     fmt::format("<BR/>id={};rpo={};po={}", n->id, rpo, po));
 
             // print edges
             for (auto &s : n->successors) {

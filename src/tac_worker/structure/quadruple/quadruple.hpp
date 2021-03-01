@@ -11,7 +11,6 @@
 #include "destination.hpp"
 #include "operand.hpp"
 
-
 struct Quad {
     enum class Type {
         Nop,
@@ -21,7 +20,9 @@ struct Quad {
         Div,
         UMinus,
         Lt,
+        Lte,
         Gt,
+        Gte,
         Eq,
         Neq,
         Assign,
@@ -106,7 +107,8 @@ struct Quad {
 
     bool is_binary() const {
         auto binaries = {
-            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt, Type::Gt, Type::Eq, Type::Neq,
+            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt,
+            Type::Lte, Type::Gt,  Type::Gte,  Type::Eq,  Type::Neq,
         };
         return std::any_of(binaries.begin(), binaries.end(),
                            [this](auto expr_type) { return this->type == expr_type; });
@@ -122,8 +124,8 @@ struct Quad {
 
     static bool is_foldable(Type t) {
         auto foldables = {
-            Type::Add, Type::Sub, Type::Mult, Type::Div,    Type::Lt,
-            Type::Gt,  Type::Eq,  Type::Neq,  Type::UMinus,
+            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt,     Type::Lte,
+            Type::Gt,  Type::Gte, Type::Eq,   Type::Neq, Type::UMinus,
         };
         return std::any_of(foldables.begin(), foldables.end(),
                            [t](auto expr_type) { return t == expr_type; });
@@ -157,8 +159,14 @@ struct Quad {
         case Type::Lt:
             op = "<";
             break;
+        case Type::Lte:
+            op = "<=";
+            break;
         case Type::Gt:
             op = ">";
+            break;
+        case Type::Gte:
+            op = ">=";
             break;
         case Type::Eq:
             op = "==";

@@ -3,6 +3,8 @@
 //
 
 #include "basic_block.hpp"
+
+#include <utility>
 std::string BasicBlock::get_name() const {
     if (lbl_name.has_value())
         return lbl_name.value();
@@ -54,13 +56,15 @@ BasicBlock *BasicBlock::get_jumped_to_successor() {
             return s;
     return nullptr;
 }
+
 bool BasicBlock::allows_fallthrough() {
     return quads.empty() ||
            quads.back().type != Quad::Type::Goto && quads.back().type != Quad::Type::Return;
 }
+
 bool BasicBlock::has_phi_function(std::string name) {
     for (int i = 0; i < phi_functions; ++i) {
-        if (quads[i].type == Quad::Type::PhiNode && quads[i].dest.value().name == name)
+        if (quads[i].type == Quad::Type::PhiNode && quads[i].dest->name == name)
             return true;
     }
     return false;
@@ -74,17 +78,18 @@ Quad &BasicBlock::get_phi_function(std::string name) {
     return quads[0];
 }
 
-void BasicBlock::add_phi_function(std::string lname, const std::vector<std::string> &rnames) {
-    Quad phi({}, {}, Quad::Type::PhiNode, Dest(lname, {}, Dest::Type::Var));
-    std::vector<Operand> ops;
-    for (auto &n : rnames) {
-        ops.emplace_back(n);
-    }
-    phi.ops = ops;
+void BasicBlock::add_phi_function(std::string phi_name, const std::vector<std::string> &ops) {
+    Quad phi({}, {}, Quad::Type::PhiNode);
+    phi.dest = Dest(std::move(phi_name), {}, Dest::Type::Var);
+    std::vector<Operand> operands;
+    for (auto &n : ops)
+        operands.emplace_back(n);
+    phi.ops = operands;
 
     quads.insert(quads.begin() + phi_functions, phi);
     phi_functions++;
 }
+
 int BasicBlock::add_quad_before_jump(Quad q) {
     if (quads.empty() || !quads.back().is_jump()) {
         quads.push_back(q);
@@ -104,4 +109,14 @@ void BasicBlock::update_phi_positions() {
                 quads.end());
     quads.insert(quads.begin(), phi_nodes.begin(), phi_nodes.end());
     phi_functions = phi_nodes.size();
+}
+
+void BasicBlock::print_phi_nodes() {
+    for (auto &q : quads)
+        if (q.type == Quad::Type::PhiNode) {
+            std::vector<std::string> operators;
+            for (auto &o : q.ops)
+                operators.push_back(fmt::format("{}({})", o.value, o.phi_predecessor->get_name()));
+            fmt::print("{} = phi {}", q.dest->name, operators);
+        }
 }

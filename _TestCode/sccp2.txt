@@ -1,0 +1,20 @@
+B1:
+    a = 3
+    d = 2
+    g = 5
+B2:
+    f = a + d
+    a = g - d
+    $cmp = f > g
+    if $cmp goto B4
+B3:
+    f = g + 1
+    goto B5
+B4:
+    $cmp2 = g >= a
+    if $cmp2 goto ReturnBlock
+B5:
+    d = 2
+    goto B2
+ReturnBlock:
+    return 0

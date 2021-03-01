@@ -32,9 +32,10 @@ struct BasicBlock {
     bool allows_fallthrough();
     bool has_phi_function(std::string name);
     Quad &get_phi_function(std::string name);
-    void add_phi_function(std::string lname, const std::vector<std::string> &rnames);
+    void add_phi_function(std::string phi_name, const std::vector<std::string> &ops);
     int add_quad_before_jump(Quad q);
     void update_phi_positions();
+    void print_phi_nodes();
 };
 
 using BasicBlocks = std::vector<std::unique_ptr<BasicBlock>>;

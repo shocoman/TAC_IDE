@@ -27,7 +27,7 @@
 %define api.token.prefix {TOK_}
 %token
     IFTRUE   "if"
-    IFFALSE  "ifFalse"
+    IFFALSE  "iffalse"
     GOTO     "goto"
     HALT     "halt"
     CALL     "call"
@@ -36,6 +36,8 @@
     NOP      "nop"
     RETURN   "return"
     PRINT    "print"
+    NEWLINE  "newline"
+    BLOCK    "block"
     NEWLINE  "newline"
     BLOCK    "block"
 
@@ -47,7 +49,9 @@
     REF     "&"
 
     CMP_LT  "<"
+    CMP_LTE "<="
     CMP_GT  ">"
+    CMP_GTE ">="
     CMP_EQ  "=="
     CMP_NEQ "!="
 
@@ -63,6 +67,7 @@
 
 %token <std::string> IDENTIFIER "identifier"
 %token <std::string> STRING "string"
+%token <std::string> BOOL "bool"
 %token <char> CHAR "char"
 %token <int> INT "int"
 %token <double> FLOAT "float"
@@ -123,7 +128,7 @@ assignment: dest "=" value { $value.dest = $dest; $$ = $value; };
 if_statement:
     "if" term "goto" "identifier"[id]        { $$ = Quad($term, {}, Quad::Type::IfTrue);
                                                 $$.dest = Dest($id, {}, Dest::Type::JumpLabel); }
-|   "ifFalse" term "goto" "identifier"[id]   { $$ = Quad($term, {}, Quad::Type::IfFalse);
+|   "iffalse" term "goto" "identifier"[id]   { $$ = Quad($term, {}, Quad::Type::IfFalse);
                                                 $$.dest = Dest($id, {}, Dest::Type::JumpLabel);}
 ;
 
@@ -150,7 +155,9 @@ value:
 |   term "*"  term          { $$ = Quad($1, $3, Quad::Type::Mult); }
 |   term "/"  term          { $$ = Quad($1, $3, Quad::Type::Div); }
 |   term "<"  term          { $$ = Quad($1, $3, Quad::Type::Lt); }
+|   term "<="  term         { $$ = Quad($1, $3, Quad::Type::Lte); }
 |   term ">"  term          { $$ = Quad($1, $3, Quad::Type::Gt); }
+|   term ">="  term         { $$ = Quad($1, $3, Quad::Type::Gte); }
 |   term "==" term          { $$ = Quad($1, $3, Quad::Type::Eq); }
 |   term "!=" term          { $$ = Quad($1, $3, Quad::Type::Neq); }
 |   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
@@ -162,6 +169,7 @@ term:
 |   "char"          { $$ = Operand(std::string(1, $1), Operand::Type::LChar); }
 |   "int"           { $$ = Operand(std::to_string($1), Operand::Type::LInt); }
 |   "float"         { $$ = Operand(std::to_string($1), Operand::Type::LDouble); }
+|   "bool"          { $$ = Operand($1, Operand::Type::LBool); }
 ;
 
 %%

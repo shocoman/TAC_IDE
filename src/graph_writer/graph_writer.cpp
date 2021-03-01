@@ -36,6 +36,12 @@ void GraphWriter::set_node_text(const std::string &node_name,
     node_texts.emplace_back(node_name, text_lines);
 }
 
+std::optional<std::string> GraphWriter::get_attribute(const std::string &n, const std::string &attr) {
+    return (node_attributes.count(n) && node_attributes.at(n).count(attr))
+               ? std::make_optional(node_attributes.at(n).at(attr))
+               : std::nullopt;
+}
+
 void GraphWriter::render_to_file(const std::string &filename) {
     std::unordered_map<std::string, Agnode_t *> ag_nodes;
 
@@ -51,8 +57,17 @@ void GraphWriter::render_to_file(const std::string &filename) {
         if (additional_info_above.count(node))
             final_label +=
                 fmt::format("<TR><TD BORDER='0'>{}</TD></TR>", additional_info_above.at(node));
+
+        std::string subscript;
+        if (auto v = get_attribute(node_name, "subscript"); v.has_value())
+            subscript = fmt::format("<FONT COLOR='gray35' POINT-SIZE='13'>"
+                                    "<SUB><I>{}</I></SUB></FONT>",
+                                    v.value());
+
         // node title
-        final_label += fmt::format("<TR><TD COLSPAN='2' PORT='{0}_enter'>{0}</TD></TR>", node_name);
+        final_label += fmt::format("<TR><TD COLSPAN='2' PORT='{0}_enter'>"
+                                   "{0}{1}</TD></TR>",
+                                   node_name, subscript);
 
         if (!label_lines.empty()) {
             final_label += "<TR><TD COLSPAN='2'><FONT>";
@@ -66,8 +81,10 @@ void GraphWriter::render_to_file(const std::string &filename) {
             final_label +=
                 fmt::format("<TR><TD BORDER='0'>{}</TD></TR>", additional_info_below.at(node));
 
-//        if (node_attributes.count(node_name) && node_attributes.at(node_name).count("true_branch"))
-//            final_label += fmt::format("<TR><TD PORT='{0}_T'>T</TD><TD PORT='{0}_F'>F</TD></TR>", node_name);
+        //        if (node_attributes.count(node_name) &&
+        //        node_attributes.at(node_name).count("true_branch"))
+        //            final_label += fmt::format("<TR><TD PORT='{0}_T'>T</TD><TD
+        //            PORT='{0}_F'>F</TD></TR>", node_name);
 
         final_label += "</TABLE>";
 
@@ -84,14 +101,14 @@ void GraphWriter::render_to_file(const std::string &filename) {
 
         Agedge_t *e = agedge(g, n1, n2, (char *)edge_name.c_str(), 1);
 
-//        if (node_attributes.count(node1) && node_attributes.at(node1).count("true_branch")) {
-//            std::string &true_branch_name = node_attributes[node1]["true_branch"];
-//            auto tail_port = fmt::format(true_branch_name == node2 ? "{}_T" : "{}_F", node1);
-//            agsafeset(e, (char *)"tailport", (char *)tail_port.c_str(), (char *)"");
-//        }
+        //        if (node_attributes.count(node1) && node_attributes.at(node1).count("true_branch")) {
+        //            std::string &true_branch_name = node_attributes[node1]["true_branch"];
+        //            auto tail_port = fmt::format(true_branch_name == node2 ? "{}_T" : "{}_F", node1);
+        //            agsafeset(e, (char *)"tailport", (char *)tail_port.c_str(), (char *)"");
+        //        }
 
-//        auto head_port = fmt::format("{}_enter", node2);
-//        agsafeset(e, (char *)"headport", (char *)head_port.c_str(), (char *)"");
+        //        auto head_port = fmt::format("{}_enter", node2);
+        //        agsafeset(e, (char *)"headport", (char *)head_port.c_str(), (char *)"");
 
         agsafeset(e, (char *)"label", (char *)edge_name.c_str(), (char *)"");
     }
@@ -127,3 +144,7 @@ void GraphWriter::add_info_above(const std::string &node, const std::string &inf
 }
 
 void GraphWriter::set_title(const std::string &title) { graph_title = title; }
+
+void GraphWriter::set_attribute(const std::string &n, const std::string &attr, const std::string &val) {
+    node_attributes[n][attr] = val;
+}

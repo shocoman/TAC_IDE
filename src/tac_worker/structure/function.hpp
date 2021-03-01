@@ -10,7 +10,6 @@
 #include "basic_block.hpp"
 #include "graph_writer/graph_writer.hpp"
 
-
 struct Function {
     std::string name = "None";
     BasicBlocks basic_blocks;
@@ -28,10 +27,9 @@ struct Function {
 
     void print_to_console() const;
     void print_basic_block_info() const;
-    void print_cfg(std::string filename,
-                   std::unordered_map<int, std::string> additional_info_above = {},
+    void print_cfg(std::string filename, std::unordered_map<int, std::string> additional_info_above = {},
                    std::unordered_map<int, std::string> additional_info_below = {},
-                   std::string title = {}) const;
+                   std::string title = {});
 
     void update_block_ids();
     void connect_blocks();
