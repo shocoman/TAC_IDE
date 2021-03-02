@@ -8,7 +8,7 @@ std::vector<Function> collect_quads_into_functions(std::unordered_map<std::strin
                                                    std::vector<Quad> &quads) {
     const auto main_function = "main";
     auto main_function_exists = labels.find(main_function) != labels.end();
-//    assert(main_function_exists && "where is 'main' Function?");
+    //    assert(main_function_exists && "where is 'main' Function?");
 
     std::unordered_set<std::string> function_names;
     for (const auto &q : quads) {
@@ -54,9 +54,8 @@ std::vector<Function> collect_quads_into_functions(std::unordered_map<std::strin
     return functions;
 }
 
-std::vector<Function>
-split_basic_blocks_into_functions(BasicBlocks blocks,
-                                  std::unordered_set<std::string> function_names) {
+std::vector<Function> split_basic_blocks_into_functions(BasicBlocks blocks,
+                                                        std::unordered_set<std::string> function_names) {
 
     std::vector<BasicBlocks> basic_block_groups;
 
@@ -118,9 +117,11 @@ get_leading_quad_indices(const std::vector<Quad> &quads,
 }
 
 bool is_builtin_function(const std::string &func_name) {
-    auto ends_with = [&](const std::string &ending) {
-        return func_name.size() >= ending.size() &&
-               !func_name.compare(func_name.size() - ending.size(), ending.size(), ending);
+    auto built_in_functions = {
+        "iwrite", "fwrite",  "cwrite", "swrite", "iread",  "fread",    "cread",
+        "sread",  "toascii", "tobyte", "toword", "tolong", "todouble",
     };
-    return ends_with("read") || ends_with("write");
+
+    return std::any_of(built_in_functions.begin(), built_in_functions.end(),
+                       [&](auto &f) { return func_name == f; });
 }

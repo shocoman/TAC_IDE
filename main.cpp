@@ -10,6 +10,7 @@
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/earliest_expressions.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/print_graph.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/use_def_graph.hpp"
 #include "tac_worker/optimizations/lazy_code_motion.hpp"
 #include "tac_worker/optimizations/operator_strength_reduction.hpp"
@@ -38,11 +39,12 @@ int main(int argc, char *argv[]) {
     //        drv.parse("../_TestCode/anticipable_expressions2.txt");
     //            drv.parse("../_TestCode/available_expressions3.txt");
     //    drv.parse("../_TestCode/FactorialProgram.txt");
-    //    drv.parse("../_TestCode/ssa_test.txt");
-    drv.parse("../_TestCode/sccp_test.txt");
+    drv.parse("../_TestCode/ssa_test.txt");
+    //    drv.parse("../_TestCode/sccp_test.txt");
     //    drv.parse("../_TestCode/sccp2.txt");
     //    drv.parse("../_TestCode/strength_reduction.txt");
     //    drv.parse("../_TestCode/copy_propagation.txt");
+    //    drv.parse("../_TestCode/bob_maxcol.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
@@ -54,7 +56,12 @@ int main(int argc, char *argv[]) {
 
     sparse_conditional_constant_propagation(f);
 
-    f.print_cfg("after.png");
+    //    print_depth_first_search_tree(f);
+    //    print_dominator_tree(f);
+    //    print_control_dependence(f);
+    //    print_postdominator_tree(f);
+
+//    f.print_cfg("after.png");
 
     std::getchar();
 

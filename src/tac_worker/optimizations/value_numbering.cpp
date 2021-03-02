@@ -205,7 +205,7 @@ void superlocal_value_numbering(Function &function) {
 }
 
 void dominator_based_value_numbering(Function &function) {
-    auto id_to_idom = find_immediate_dominators(function);
+    auto id_to_idom = get_immediate_dominators(function);
 
     using DVNTFuncType = std::function<void(BasicBlock *, DValueNumberTableStack &)>;
     DVNTFuncType dvnt = [&](BasicBlock *b, DValueNumberTableStack &t) {

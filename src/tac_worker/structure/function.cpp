@@ -11,7 +11,6 @@ void Function::print_cfg(std::string filename,
     auto id_to_po = get_post_ordering();
 
     GraphWriter dot_writer;
-    std::unordered_set<std::string> visited;
     // print edges
     for (const auto &n : basic_blocks) {
         auto node_name = n->get_name();
@@ -20,33 +19,42 @@ void Function::print_cfg(std::string filename,
             dot_writer.add_info_above(node_name, additional_info_above.at(n->id), true);
         if (additional_info_below.count(n->id))
             dot_writer.add_info_above(node_name, additional_info_below.at(n->id), false);
-        if (visited.insert(node_name).second) {
 
-            // print all quads as text
-            std::vector<std::string> quad_lines;
-            for (auto &q : n->quads) {
-                quad_lines.emplace_back(escape_string(q.fmt()));
-            }
-            dot_writer.set_node_text(node_name, quad_lines);
+        // print all quads as text
+        std::vector<std::string> quad_lines;
+        for (auto &q : n->quads) {
+            quad_lines.emplace_back(escape_string(q.fmt()));
+        }
+        dot_writer.set_node_text(node_name, quad_lines);
 
-            // attribute for correct branch display
-            if (auto branch_target = n->get_jumped_to_successor();
-                branch_target && n->successors.size() > 1) {
-                dot_writer.set_attribute(node_name, "true_branch", branch_target->get_name());
-            }
+        // attribute for correct branch display
+        if (auto branch_target = n->get_jumped_to_successor();
+            branch_target && n->successors.size() > 1) {
+            dot_writer.set_attribute(node_name, "true_branch", branch_target->get_name());
+        }
 
-            // display subscript of the block
-            int rpo = id_to_rpo.at(n->id);
-            int po = id_to_po.at(n->id);
-            dot_writer.set_attribute(node_name, "subscript",
-                                     fmt::format("<BR/>id={};rpo={};po={}", n->id, rpo, po));
+        // display subscript of the block
+        int rpo = id_to_rpo.at(n->id);
+        int po = id_to_po.at(n->id);
+        dot_writer.set_attribute(node_name, "subscript",
+                                 fmt::format("<BR/>id={};rpo={};po={}", n->id, rpo, po));
 
-            // print edges
-            for (auto &s : n->successors) {
-                dot_writer.add_edge(node_name, s->get_name(), s->lbl_name.value_or(""));
-            }
+        // print edges
+        for (auto &s : n->successors) {
+            std::unordered_map<std::string, std::string> attributes = {
+                {"label", s->lbl_name.value_or("")},
+                //                    {"color", "brown"},
+                //                    {"style", "dashed"},
+            };
+
+            dot_writer.add_edge(node_name, s->get_name(), attributes);
         }
     }
+
+    //    dot_writer.legend_marks = {{"Forward edge", "black", "solid"},
+    //                               {"Back edge", "green", "dashed"},
+    //                               {"Cross edge", "cyan", "dotted"}};
+
     filename = "graphs/" + filename;
     dot_writer.set_title(title);
     dot_writer.render_to_file(filename);
@@ -116,17 +124,24 @@ void Function::add_entry_and_exit_block() {
         std::vector<BasicBlock *> final_blocks;
         for (auto &n : basic_blocks)
             if (n->successors.empty())
-                final_blocks.emplace_back(n.get());
+                final_blocks.push_back(n.get());
 
-        if (!final_blocks.empty()) {
-            auto exit_block = std::make_unique<BasicBlock>();
-            exit_block->node_name = exit_block_name;
-
-            for (auto &f : final_blocks)
-                f->add_successor(exit_block.get());
-
-            basic_blocks.push_back(std::move(exit_block));
+        // if there are no such blocks, get a block with a greatest reverse post order number
+        if (final_blocks.empty()) {
+            auto id_to_rpo = get_reverse_post_ordering();
+            auto last_block_it =
+                std::max_element(id_to_rpo.begin(), id_to_rpo.end(),
+                                 [&](auto &p1, auto &p2) { return p1.second < p2.second; });
+            final_blocks.push_back(id_to_block.at(last_block_it->first));
         }
+
+        auto exit_block = std::make_unique<BasicBlock>();
+        exit_block->node_name = exit_block_name;
+
+        for (auto &f : final_blocks)
+            f->add_successor(exit_block.get());
+
+        basic_blocks.push_back(std::move(exit_block));
     }
 }
 

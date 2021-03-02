@@ -9,8 +9,8 @@ void remove_noncritical_operations(Function &f) {
     ID2Block &id_to_block = f.id_to_block;
 
     f.reverse_graph();
-    auto id_to_ipostdom = find_immediate_dominators(f);
-    auto reverse_df = find_dominance_frontier(f.basic_blocks, id_to_ipostdom);
+    auto id_to_ipostdom = get_immediate_dominators(f);
+    auto reverse_df = get_dominance_frontier(f, id_to_ipostdom);
     f.reverse_graph();
 
     using Position = std::pair<int, int>;

@@ -298,6 +298,8 @@ void sparse_conditional_constant_propagation(Function &f) {
             fmt::print("Constants: {}\n", value.constant.get_string());
     }
 
+    std::set<Place> changed_places;
+
     // Rewrite Program
     for (auto &[name, use_def_info] : use_def_graph) {
         auto [b_id, quad] = use_def_info.defined_at;
@@ -305,22 +307,78 @@ void sparse_conditional_constant_propagation(Function &f) {
 
         auto def_key = std::pair{name, use_def_info.defined_at};
         if (values.count(def_key) > 0 && values.at(def_key).type == Value::Type::Constant) {
+            auto &constant = values.at(def_key).constant;
+            if (def_q.ops[0].value != constant.value)
+                changed_places.insert(use_def_info.defined_at);
 
             def_q.type = Quad::Type::Assign;
-            def_q.ops[0] = values.at(def_key).constant;
+            def_q.ops[0] = constant;
             def_q.clear_op(1);
 
             for (auto &[block_id, quad_num] : use_def_info.used_at) {
-                auto &constant = values.at(def_key).constant;
-
                 auto &use_q = f.id_to_block.at(block_id)->quads.at(quad_num);
                 for (auto &op : use_q.ops)
-                    if (op.value == name)
+                    if (op.value == name) {
+                        if (op.value != constant.value)
+                            changed_places.emplace(block_id, quad_num);
                         op = Operand(constant.value, constant.type, op.phi_predecessor);
+                    }
             }
         }
     }
 
     for (auto &b : blocks)
         b->update_phi_positions();
+
+    std::unordered_set<int> visited_blocks, useless_blocks;
+    for (auto &n : f.basic_blocks)
+        for (auto &s : n->successors)
+            if (executed_edges.count({n->id, s->id}))
+                visited_blocks.insert({n->id, s->id});
+    for (auto &n : f.basic_blocks)
+        if (visited_blocks.count(n->id) == 0)
+            useless_blocks.insert(n->id);
+
+    fmt::print("Useless blocks: {}\n", useless_blocks);
+
+    // Pring graph
+    GraphWriter dot_writer;
+    dot_writer.legend_marks = {{"Executed edge", "red", "solid"}, {"Ignored edge", "black", "solid"}};
+
+    // print edges
+    for (const auto &n : f.basic_blocks) {
+        auto node_name = n->get_name();
+
+        dot_writer.set_attribute(node_name, "subscript", fmt::format("id={}", n->id));
+        if (useless_blocks.count(n->id)) {
+            dot_writer.set_attribute(node_name, "style", "dashed");
+            dot_writer.set_attribute(node_name, "color", "red");
+        }
+
+        // print all quads as text
+        std::vector<std::string> quad_lines;
+        for (int i = 0; i < n->quads.size(); ++i) {
+            std::string s = escape_string(n->quads[i].fmt());
+            if (changed_places.count({n->id, i}))
+                s = fmt::format("<B>{}</B>", s);
+
+            quad_lines.emplace_back(s);
+        }
+        dot_writer.set_node_text(node_name, quad_lines);
+
+        for (auto &s : n->successors) {
+            std::unordered_map<std::string, std::string> attributes = {
+                {"label", s->lbl_name.value_or("")},
+            };
+            if (executed_edges.count({n->id, s->id}))
+                attributes["color"] = "red";
+
+            dot_writer.add_edge(node_name, s->get_name(), attributes);
+        }
+    }
+
+    std::string filename = "graphs/sccp_result.png";
+    dot_writer.set_title("SCCP result");
+    dot_writer.render_to_file(filename);
+    system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
 }

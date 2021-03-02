@@ -15,7 +15,7 @@ struct Function {
     BasicBlocks basic_blocks;
     ID2Block id_to_block;
 
-    Function() = delete;
+    Function() = default;
     Function(BasicBlocks blocks) : basic_blocks(std::move(blocks)) {
         name = basic_blocks[0]->lbl_name.value_or("None");
 

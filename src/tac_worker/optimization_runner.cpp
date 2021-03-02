@@ -12,7 +12,7 @@ void optimize(Function &function) {
     ID2Block &id_to_block = function.id_to_block;
 
     auto rpo = function.get_reverse_post_ordering();
-    auto id_to_idom = find_immediate_dominators(function);
+    auto id_to_idom = get_immediate_dominators(function);
 
 //    convert_to_ssa(function);
 //    dominator_based_value_numbering(function, id_to_idom);

@@ -31,8 +31,8 @@ void place_phi_functions(Function &function,
                          std::map<std::string, std::set<BasicBlock *>> &var_to_blocks,
                          std::set<std::string> &global_names) {
 
-    ID2IDOM id_to_idom = find_immediate_dominators(function);
-    ID2DF id_to_dominance_frontier = find_dominance_frontier(function.basic_blocks, id_to_idom);
+    ID2IDOM id_to_idom = get_immediate_dominators(function);
+    ID2DF id_to_dominance_frontier = get_dominance_frontier(function, id_to_idom);
 
     //    fmt::print("Global names: {}; All names: {}\n", global_names, all_names);
     //    fmt::print("Dominance Frontier:\n {}\n", id_to_dominance_frontier);
@@ -59,7 +59,7 @@ void place_phi_functions(Function &function,
 }
 
 void rename_variables(Function &function, std::set<std::string> &global_names) {
-    ID2IDOM id_to_idom = find_immediate_dominators(function);
+    ID2IDOM id_to_idom = get_immediate_dominators(function);
 
     std::map<std::string, int> name_to_counter;
     std::map<std::string, std::vector<int>> name_to_stack;

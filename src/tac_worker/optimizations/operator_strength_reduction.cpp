@@ -5,7 +5,7 @@
 #include "operator_strength_reduction.hpp"
 
 OSRDriver::OSRDriver(Function &f) : func(f) {
-    id_to_doms = find_dominators(f);
+    id_to_doms = get_dominators(f);
     FillInUseDefGraph();
 
     OSR();
