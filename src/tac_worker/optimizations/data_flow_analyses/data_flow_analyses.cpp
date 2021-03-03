@@ -57,189 +57,48 @@ void liveness_analyses_on_block(const BasicBlocks &nodes) {
     }
 }
 
-void liveness_analyses_engineering_compiler(Function &function) {
-    BasicBlocks &blocks = function.basic_blocks;
-
-    struct BlockLiveState {
-        std::set<std::string> UEVar;   // upward exposed variables
-        std::set<std::string> VarKill; // killed (re-assigned) variables
-        std::set<std::string> LiveOut; // 'live' variables
-    };
-    std::map<int, BlockLiveState> block_live_states;
-
-    // get UEVar and VarKill
-    for (auto &b : blocks) {
-        BlockLiveState b_state;
-
-        for (const auto &q : b->quads) {
-            for (auto &r : q.get_rhs(false))
-                if (b_state.VarKill.find(r) == b_state.VarKill.end())
-                    b_state.UEVar.emplace(r);
-
-            if (auto lhs = q.get_lhs(); lhs.has_value())
-                b_state.VarKill.insert(lhs.value());
-        }
-
-        block_live_states[b->id] = b_state;
-    }
-
-    auto live_out = [&block_live_states](BasicBlock *b) {
-        std::set<std::string> &live_out_state = block_live_states.at(b->id).LiveOut;
-        auto prev_live_out_state = live_out_state;
-
-        // IN[B] = 'use' U (OUT[B] - 'def')
-        for (const auto &s : b->successors) {
-            auto &state = block_live_states.at(s->id);
-
-            std::set_union(live_out_state.begin(), live_out_state.end(), state.UEVar.begin(),
-                           state.UEVar.end(), std::inserter(live_out_state, live_out_state.end()));
-
-            std::set<std::string> live_without_varkill;
-            std::set_difference(state.LiveOut.begin(), state.LiveOut.end(), state.VarKill.begin(),
-                                state.VarKill.end(),
-                                std::inserter(live_without_varkill, live_without_varkill.end()));
-
-            std::set_union(live_out_state.begin(), live_out_state.end(), live_without_varkill.begin(),
-                           live_without_varkill.end(),
-                           std::inserter(live_out_state, live_out_state.end()));
-        }
-
-        return prev_live_out_state != live_out_state;
-    };
-
-    int iter = 0;
-    bool changed = true;
-    while (changed) {
-        changed = false;
-        iter++;
-        for (const auto &b : blocks) {
-            if (live_out(b.get()))
-                changed = true;
-        }
-    }
-
-    // region Live Analyses Print
-    std::cout << "Iterations: " << iter << std::endl;
-    for (auto &[i, b] : block_live_states) {
-        std::cout << "LiveOut for " << function.id_to_block.at(i)->get_name() << ": ";
-        for (auto &a : b.LiveOut) {
-            std::cout << a << "; ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    // endregion
-}
-
-void liveness_analyses_dragon_book(Function &function) {
+std::pair<ID2Defs, ID2Defs> live_variable_analyses(Function &f) {
     // backward data-flow analysis
-    auto &blocks = function.basic_blocks;
-    auto &id_to_block = function.id_to_block;
 
-    auto id_to_po = function.get_post_ordering();
-    auto id_po_pairs = std::vector<std::pair<int, int>>(id_to_po.begin(), id_to_po.end());
-    // sort in post order
-    std::sort(id_po_pairs.begin(), id_po_pairs.end(),
-              [](auto &a, auto &b) { return a.second < b.second; });
-
-    // calculate definitions
+    // calculate upward-exposed uses and var definitions
     using DefinitionsSet = std::unordered_set<std::string>;
-    std::unordered_map<int, DefinitionsSet> id_to_uses;
-    std::unordered_map<int, DefinitionsSet> id_to_defs;
-    for (const auto &b : blocks) {
-        DefinitionsSet uses_in_block;
-        DefinitionsSet defs_in_block;
+    std::unordered_map<int, DefinitionsSet> id_to_ue_uses, id_to_defs;
+    for (const auto &b : f.basic_blocks) {
+        DefinitionsSet ue_uses_in_block, defs_in_block;
 
         for (const auto &q : b->quads) {
             for (auto &r : q.get_rhs(false))
-                uses_in_block.insert(r);
+                if (defs_in_block.count(r) == 0)
+                    ue_uses_in_block.insert(r);
 
             if (q.is_assignment())
                 defs_in_block.insert(q.dest->name);
         }
 
-        id_to_uses[b->id] = uses_in_block;
+        id_to_ue_uses[b->id] = ue_uses_in_block;
         id_to_defs[b->id] = defs_in_block;
     }
 
-    // region GenKillPrint
-    std::cout << "DefUsePrint" << std::endl;
-    for (auto &[id, uses] : id_to_uses) {
-        std::cout << "Block: " << id_to_block.at(id)->get_name() << std::endl;
-        std::cout << " Uses: ";
-        for (auto &name : uses) {
-            std::cout << name << ", ";
-        }
-        std::cout << std::endl;
-        std::cout << " DefinitionsSet: ";
-        auto &defs = id_to_defs.at(id);
-        for (auto &name : defs) {
-            std::cout << name << ", ";
-        }
-        std::cout << std::endl;
-    }
-    // endregion
+    auto [IN, OUT] = data_flow_framework<std::string>(f, Flow::Backwards, Meet::Union, {},
+                                                      [&](auto &IN, auto &OUT, int id) {
+                                                          auto X = OUT.at(id);
+                                                          for (auto &def : id_to_defs.at(id))
+                                                              X.erase(def);
+                                                          for (auto &use : id_to_ue_uses.at(id))
+                                                              X.insert(use);
+                                                          return X;
+                                                      });
 
-    std::unordered_map<int, DefinitionsSet> in_sets;
-    std::unordered_map<int, DefinitionsSet> out_sets;
+//    print_analyses_result_on_graph(
+//        f, id_to_ue_uses, id_to_defs, "Variable definitions and upward-exposed uses",
+//        [](auto &v) { return v; }, "UE Uses", "Definitions");
+//    print_analyses_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v; });
 
-    auto exit_node = function.find_exit_block();
-    for (auto &b : blocks)
-        in_sets[b->id] = {};
+    auto &uninitialized_vars = OUT.at(f.find_entry_block()->id);
+    if (!uninitialized_vars.empty())
+        fmt::print("Possibly uninitialized variables: {}\n", uninitialized_vars);
 
-    bool changed = true;
-    while (changed) {
-        changed = false;
-
-        // iterate in post order
-        for (auto &[id, po] : id_po_pairs) {
-            if (po == exit_node->id) // skip exit block
-                continue;
-            auto &block = id_to_block.at(id);
-
-            // calculate OUT set
-            // OUT[B] = Union of successors' INs
-            DefinitionsSet OUT;
-            for (auto &succ : block->successors) {
-                auto &succs_in = in_sets.at(succ->id);
-                for (auto &d : succs_in)
-                    OUT.insert(d);
-            }
-            out_sets[id] = OUT;
-
-            // calculate IN set
-            // IN[B] = 'use' U (OUT[B] - 'def')
-            // (OUT[B] - 'def')
-            auto &defined = id_to_defs.at(id);
-            for (auto &d : defined)
-                OUT.erase(d);
-
-            // 'use' U (OUT[B] - 'def')
-            auto IN = id_to_uses.at(id);
-            for (auto &not_redefined : OUT)
-                IN.insert(not_redefined);
-
-            if (in_sets.at(id) != IN)
-                changed = true;
-            // IN[B] = 'use' U (OUT[B] - 'def')
-            in_sets[id] = IN;
-        }
-    }
-
-    // region LiveVariable Print
-    for (auto &[id, out] : out_sets) {
-        auto block_name = id_to_block.at(id)->get_name();
-        std::cout << block_name << "; OUT: ";
-        for (auto &name : out)
-            std::cout << name << ", ";
-        std::cout << std::endl;
-        auto in = in_sets.at(id);
-        std::cout << block_name << "; IN: ";
-        for (auto &name : in)
-            std::cout << name << ", ";
-        std::cout << std::endl << std::endl;
-    }
-    // endregion
+    return std::pair{IN, OUT};
 }
 
 void reaching_definitions(Function &function) {
@@ -426,4 +285,3 @@ std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f) {
 
     return {IN, OUT};
 }
-

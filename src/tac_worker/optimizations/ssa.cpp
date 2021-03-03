@@ -5,15 +5,16 @@
 #include "ssa.hpp"
 
 void convert_to_ssa(Function &function) {
+//    auto [LiveIn, LiveOut] = live_variable_analyses(function);
+
     // find global names
-    std::set<std::string> all_names;
     std::map<std::string, std::set<BasicBlock *>> var_to_block;
-    std::set<std::string> global_names;
+    std::set<std::string> global_names, all_names;
     for (auto &b : function.basic_blocks) {
         std::set<std::string> var_kill;
         for (const auto &q : b->quads) {
             for (auto &op : q.get_rhs(false))
-                if (var_kill.find(op) == var_kill.end())
+//                if (var_kill.find(op) == var_kill.end())
                     global_names.insert(op);
             if (auto lhs = q.get_lhs(); lhs.has_value()) {
                 var_kill.insert(lhs.value());
@@ -22,6 +23,8 @@ void convert_to_ssa(Function &function) {
             }
         }
     }
+
+//    fmt::print("Global names: {}\n", global_names);
 
     place_phi_functions(function, var_to_block, global_names);
     rename_variables(function, all_names);
@@ -37,6 +40,7 @@ void place_phi_functions(Function &function,
     //    fmt::print("Global names: {}; All names: {}\n", global_names, all_names);
     //    fmt::print("Dominance Frontier:\n {}\n", id_to_dominance_frontier);
 
+    auto [LiveIn, LiveOut] = live_variable_analyses(function);
     // place phi functions
     for (auto &name : global_names) {
         std::vector<BasicBlock *> work_list;
@@ -46,6 +50,9 @@ void place_phi_functions(Function &function,
 
         for (int i = 0; i < work_list.size(); ++i) {
             for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
+                if (LiveIn.at(d).count(name) == 0)
+                    continue;
+
                 auto d_block = function.id_to_block.at(d);
                 if (not d_block->has_phi_function(name)) {
                     d_block->add_phi_function(name, {});

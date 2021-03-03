@@ -1,11 +1,43 @@
 B1:
-    a = 99
-    b = a
-    c = 4 * b
-    $cmp = c > b
-    if $cmp goto B3
+    a = 2
+    b = 3
+    c = a + b
+    d = c
+    e = d * d
+    h = 0
+    goto B2
 B2:
-    d = b + 2
+    f = a + c
+    g = e
+    a = g + d
+    cmp1 = a < c
+    if cmp1 goto B4
 B3:
-    e = a + b
+    h = g + 1
+    goto B5
+B4:
+    f = d - g
+    cmp2 = f > a
+    if cmp2 goto B6
+B5:
+    b = g * a
+    cmp3 = h < f
+    if cmp3 goto B2
+BEND:
     return 0
+B6:
+    c = 2
+    goto BEND
+
+
+// B1:
+//     a = 99
+//     b = a
+//     c = 4 * b
+//     $cmp = c > b
+//     if $cmp goto B3
+// B2:
+//     d = b + 2
+// B3:
+//     e = a + b
+//     return 0

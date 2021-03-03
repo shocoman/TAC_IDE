@@ -12,6 +12,7 @@
 #include "../quad_preparation.hpp"
 #include "../structure/function.hpp"
 #include "data_flow_analyses/dominators.hpp"
+#include "data_flow_analyses/data_flow_analyses.hpp"
 #include "value_numbering.hpp"
 
 void place_phi_functions(Function &function,

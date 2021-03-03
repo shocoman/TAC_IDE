@@ -37,23 +37,25 @@ int main(int argc, char *argv[]) {
     //    drv.parse("../_TestCode/lazy_code_motion.txt");
     //        drv.parse("../_TestCode/anticipable_expressions.txt");
     //        drv.parse("../_TestCode/anticipable_expressions2.txt");
-    //            drv.parse("../_TestCode/available_expressions3.txt");
+    //    drv.parse("../_TestCode/available_expressions3.txt");
     //    drv.parse("../_TestCode/FactorialProgram.txt");
-    drv.parse("../_TestCode/ssa_test.txt");
+//    drv.parse("../_TestCode/ssa_test.txt");
     //    drv.parse("../_TestCode/sccp_test.txt");
     //    drv.parse("../_TestCode/sccp2.txt");
     //    drv.parse("../_TestCode/strength_reduction.txt");
-    //    drv.parse("../_TestCode/copy_propagation.txt");
+            drv.parse("../_TestCode/copy_propagation.txt");
     //    drv.parse("../_TestCode/bob_maxcol.txt");
+    //    drv.parse("../_TestCode/live_test.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
     //    optimize(functions[0]);
 
-    convert_to_ssa(f);
+        convert_to_ssa(f);
 
     //    f.print_cfg("before.png");
 
+//    live_variable_analyses(f);
 
     f.print_cfg("after.png");
 
