@@ -13,11 +13,11 @@
 #include "tac_worker/structure/function.hpp"
 
 
-std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressionsLazyCodeMotion(Function& f);
-ID2EXPRS EarliestExpressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn);
-std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f);
-ID2EXPRS LatestExpressions(Function &f);
-std::pair<ID2EXPRS, ID2EXPRS> UsedExpressions(Function &f);
+std::pair<ID2EXPRS, ID2EXPRS> available_expressions_lazy_code_motion(Function& f);
+ID2EXPRS earliest_expressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn);
+std::pair<ID2EXPRS, ID2EXPRS> postponable_expressions(Function &f);
+ID2EXPRS latest_expressions(Function &f);
+std::pair<ID2EXPRS, ID2EXPRS> used_expressions(Function &f);
 
 void lazy_code_motion(Function &f);
 

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    setenv("DISPLAY", "192.168.9.177:0", true);
+    setenv("DISPLAY", "192.168.95.1:0", true);
     ParseDriver drv;
 
     //    drv.parse("../_TestCode/myfile");
@@ -54,14 +54,8 @@ int main(int argc, char *argv[]) {
 
     //    f.print_cfg("before.png");
 
-    sparse_conditional_constant_propagation(f);
 
-    //    print_depth_first_search_tree(f);
-    //    print_dominator_tree(f);
-    //    print_control_dependence(f);
-    //    print_postdominator_tree(f);
-
-//    f.print_cfg("after.png");
+    f.print_cfg("after.png");
 
     std::getchar();
 

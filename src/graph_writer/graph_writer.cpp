@@ -94,8 +94,8 @@ void GraphWriter::render_to_file(const std::string &filename) {
 
         Agnode_t *ag_node = agnode(g, (char *)node.c_str(), 1);
         agset(ag_node, (char *)"label", agstrdup_html(g, (char *)final_label.c_str()));
-        if (auto v = get_attribute(node_name, "pencolor"); v.has_value())
-            agset(ag_node, (char *)"pencolor", (char *)v.value().c_str());
+        if (auto v = get_attribute(node_name, "color"); v.has_value())
+            agsafeset(ag_node, (char *)"color", (char *)v.value().c_str(), (char*)"");
 
         ag_nodes.emplace(node, ag_node);
     }

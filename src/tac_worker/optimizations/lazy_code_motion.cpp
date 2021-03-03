@@ -8,14 +8,26 @@ void lazy_code_motion(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
     auto UpwardExposed = get_upward_exposed_and_killed_expressions(f).first;
 
-    auto Latest = LatestExpressions(f);
-    auto UsedOut = UsedExpressions(f).second;
+    auto Latest = latest_expressions(f);
+    auto UsedOut = used_expressions(f).second;
 
-    // name every expression
+    // collect all defined vars
+    std::unordered_set<std::string> used_var_names;
+    for (auto &b : f.basic_blocks)
+        for (auto &q : b->quads)
+            if (q.dest.has_value())
+                used_var_names.insert(q.dest->name);
+
+    // uniquely name every expression
     std::map<Expression, std::string> expr_to_name;
     int i = 0;
-    for (auto &e : all_expressions)
-        expr_to_name[e] = "$t" + std::to_string(++i);
+    for (auto &expr : all_expressions) {
+        std::string new_name;
+        do {
+            new_name = "$t_lcm" + std::to_string(++i);
+        } while (used_var_names.count(new_name) > 0);
+        expr_to_name[expr] = new_name;
+    }
 
     for (auto &b : f.basic_blocks) {
         if (b->quads.empty())
@@ -30,7 +42,6 @@ void lazy_code_motion(Function &f) {
             UpwardExposed.at(b->id), union_of_sets(std::vector{latest_complement, UsedOut.at(b->id)})});
 
         for (auto &expr : all_expressions) {
-
             if (for_name_replacement.count(expr) > 0) {
                 auto &[lhs, type, rhs] = expr;
 
@@ -52,17 +63,17 @@ void lazy_code_motion(Function &f) {
                 auto &[lhs, type, rhs] = expr;
                 auto new_quad = Quad(lhs, rhs, type);
                 new_quad.dest = Dest(expr_to_name.at(expr), {}, Dest::Type::Var);
-                // if block doesnt contain it already
+                // if block doesn't contain it already
                 if (std::find(b->quads.begin(), b->quads.end(), new_quad) == b->quads.end())
                     b->quads.insert(b->quads.begin() + b->phi_functions, new_quad);
 
-                std::cout << "Placed: " << new_quad.fmt() << std::endl;
+                std::cout << "Put: " << new_quad.fmt() << std::endl;
             }
         }
     }
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressionsLazyCodeMotion(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> available_expressions_lazy_code_motion(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
     auto AntIn = anticipable_expressions(f).first;
     auto KilledExprs = get_downward_exposed_and_killed_expressions(f).second;
@@ -81,7 +92,7 @@ std::pair<ID2EXPRS, ID2EXPRS> AvailableExpressionsLazyCodeMotion(Function &f) {
     return {IN, OUT};
 }
 
-ID2EXPRS EarliestExpressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
+ID2EXPRS earliest_expressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
     auto X = AntIn;
     for (auto &[id, exprs] : AvailIn) {
         auto &x = X.at(id);
@@ -91,12 +102,12 @@ ID2EXPRS EarliestExpressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
     return X;
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> postponable_expressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
     auto AntIn = anticipable_expressions(f).first;
-    auto AvailIn = AvailableExpressionsLazyCodeMotion(f).first;
-    auto earliest_expressions = EarliestExpressions(AntIn, AvailIn);
+    auto AvailIn = available_expressions_lazy_code_motion(f).first;
+    auto earliest_exprs = earliest_expressions(AntIn, AvailIn);
 
     auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
 
@@ -104,7 +115,7 @@ std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f) {
         data_flow_framework<Expression>(f, Flow::Forwards, Meet::Intersection, all_expressions,
                                         [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
                                             auto X = IN.at(id);
-                                            for (auto &expr : earliest_expressions.at(id))
+                                            for (auto &expr : earliest_exprs.at(id))
                                                 X.insert(expr);
                                             for (auto &expr : id_to_ue_exprs.at(id))
                                                 X.erase(expr);
@@ -113,41 +124,40 @@ std::pair<ID2EXPRS, ID2EXPRS> PostponableExpressions(Function &f) {
     return {IN, OUT};
 }
 
-ID2EXPRS LatestExpressions(Function &f) {
+ID2EXPRS latest_expressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
 
     auto AntIn = anticipable_expressions(f).first;
-    auto AvailIn = AvailableExpressionsLazyCodeMotion(f).first;
-    auto earliest_expressions = EarliestExpressions(AntIn, AvailIn);
+    auto AvailIn = available_expressions_lazy_code_motion(f).first;
+    auto earliest_exprs = earliest_expressions(AntIn, AvailIn);
 
     auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
-    auto PostIn = PostponableExpressions(f).first;
+    auto PostIn = postponable_expressions(f).first;
 
     ID2EXPRS Latest;
     for (auto &b : f.basic_blocks) {
         std::vector<std::set<Expression>> successors_exprs;
-        std::transform(
-            b->successors.begin(), b->successors.end(), std::back_inserter(successors_exprs),
-            [&](auto s) {
-                return union_of_sets(std::vector{earliest_expressions.at(s->id), PostIn.at(s->id)});
-            });
+        std::transform(b->successors.begin(), b->successors.end(), std::back_inserter(successors_exprs),
+                       [&](auto s) {
+                           return union_of_sets(std::vector{earliest_exprs.at(s->id), PostIn.at(s->id)});
+                       });
 
         auto complementary = all_expressions;
         for (auto &e : intersection_of_sets(successors_exprs))
             complementary.erase(e);
 
         Latest[b->id] = intersection_of_sets(
-            std::vector{union_of_sets(std::vector{earliest_expressions[b->id], PostIn[b->id]}),
+            std::vector{union_of_sets(std::vector{earliest_exprs[b->id], PostIn[b->id]}),
                         union_of_sets(std::vector{id_to_ue_exprs.at(b->id), complementary})});
     }
 
     return Latest;
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> UsedExpressions(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> used_expressions(Function &f) {
     auto all_expressions = get_all_expressions_set(f);
     auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
-    auto Latest = LatestExpressions(f);
+    auto Latest = latest_expressions(f);
 
     auto [IN, OUT] = data_flow_framework<Expression>(f, Flow::Backwards, Meet::Union, {},
                                                      [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {

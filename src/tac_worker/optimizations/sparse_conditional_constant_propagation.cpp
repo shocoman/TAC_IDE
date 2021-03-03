@@ -299,7 +299,6 @@ void sparse_conditional_constant_propagation(Function &f) {
     }
 
     std::set<Place> changed_places;
-
     // Rewrite Program
     for (auto &[name, use_def_info] : use_def_graph) {
         auto [b_id, quad] = use_def_info.defined_at;
@@ -313,12 +312,13 @@ void sparse_conditional_constant_propagation(Function &f) {
 
             def_q.type = Quad::Type::Assign;
             def_q.ops[0] = constant;
-            def_q.clear_op(1);
+            def_q.ops.erase(def_q.ops.begin() + 1, def_q.ops.end());
 
             for (auto &[block_id, quad_num] : use_def_info.used_at) {
                 auto &use_q = f.id_to_block.at(block_id)->quads.at(quad_num);
                 for (auto &op : use_q.ops)
-                    if (op.value == name) {
+                    // ignore phi's ops
+                    if (op.value == name && use_q.type != Quad::Type::PhiNode) {
                         if (op.value != constant.value)
                             changed_places.emplace(block_id, quad_num);
                         op = Operand(constant.value, constant.type, op.phi_predecessor);
@@ -330,30 +330,33 @@ void sparse_conditional_constant_propagation(Function &f) {
     for (auto &b : blocks)
         b->update_phi_positions();
 
-    std::unordered_set<int> visited_blocks, useless_blocks;
+    std::unordered_set<int> useless_blocks;
+    for (auto &b : f.basic_blocks)
+        useless_blocks.insert(b->id);
     for (auto &n : f.basic_blocks)
         for (auto &s : n->successors)
-            if (executed_edges.count({n->id, s->id}))
-                visited_blocks.insert({n->id, s->id});
-    for (auto &n : f.basic_blocks)
-        if (visited_blocks.count(n->id) == 0)
-            useless_blocks.insert(n->id);
+            if (executed_edges.count({n->id, s->id})) {
+                useless_blocks.erase(n->id);
+                useless_blocks.erase(s->id);
+            }
 
-    fmt::print("Useless blocks: {}\n", useless_blocks);
+    print_sccp_result_graph(f, executed_edges, useless_blocks, changed_places);
 
-    // Pring graph
+    remove_useless_blocks(f, useless_blocks);
+}
+
+void print_sccp_result_graph(Function &f, std::set<std::pair<int, int>> &executed_edges,
+                             std::unordered_set<int> &useless_blocks,
+                             std::set<std::pair<int, int>> &changed_places) {
     GraphWriter dot_writer;
-    dot_writer.legend_marks = {{"Executed edge", "red", "solid"}, {"Ignored edge", "black", "solid"}};
+    dot_writer.legend_marks = {{"Executed edge", "red", "solid"}, {"Ignored edge", "black", "dashed"}};
 
-    // print edges
     for (const auto &n : f.basic_blocks) {
         auto node_name = n->get_name();
 
         dot_writer.set_attribute(node_name, "subscript", fmt::format("id={}", n->id));
-        if (useless_blocks.count(n->id)) {
+        if (useless_blocks.count(n->id))
             dot_writer.set_attribute(node_name, "style", "dashed");
-            dot_writer.set_attribute(node_name, "color", "red");
-        }
 
         // print all quads as text
         std::vector<std::string> quad_lines;
@@ -372,6 +375,8 @@ void sparse_conditional_constant_propagation(Function &f) {
             };
             if (executed_edges.count({n->id, s->id}))
                 attributes["color"] = "red";
+            else
+                attributes["style"] = "dashed";
 
             dot_writer.add_edge(node_name, s->get_name(), attributes);
         }
@@ -381,4 +386,52 @@ void sparse_conditional_constant_propagation(Function &f) {
     dot_writer.set_title("SCCP result");
     dot_writer.render_to_file(filename);
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+}
+
+void remove_useless_blocks(Function &f, std::unordered_set<int> &useless_blocks) {
+    for (auto b_id : useless_blocks) {
+        auto &block = f.id_to_block.at(b_id);
+
+        // rewrite if's of predecessors
+        for (auto &pred : block->predecessors) {
+            if (pred->quads.empty())
+                continue;
+            auto &q = pred->quads.back();
+            if (q.is_conditional_jump()) {
+                pred->successors.erase(block);
+
+                BasicBlock *left_jump_target = *pred->successors.begin();
+                if (auto &jump_target = left_jump_target->lbl_name; jump_target.has_value()) {
+                    q = Quad({}, {}, Quad::Type::Goto);
+                    q.dest = Dest(jump_target.value(), {}, Dest::Type::JumpLabel);
+                } else
+                    pred->quads.pop_back();
+            }
+        }
+
+        // rewrite phi's of successors
+        for (auto &succ : block->successors) {
+            for (int i = 0; i < succ->phi_functions; ++i) {
+                auto &phi = succ->quads[i];
+                for (int j = phi.ops.size() - 1; j >= 0; --j)
+                    if (phi.ops[j].phi_predecessor->id == b_id)
+                        phi.clear_op(j);
+
+                // if phi has only one OP or all ops are equal
+                bool ops_equal = std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin());
+                if (ops_equal) {
+                    phi.ops.erase(phi.ops.begin() + 1, phi.ops.end());
+                    phi.type = Quad::Type::Assign;
+                }
+            }
+
+            succ->update_phi_positions();
+        }
+
+        // remove block
+        block->remove_predecessors();
+        block->remove_successors();
+        f.basic_blocks.erase(std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
+                                          [b_id](auto &block) { return block->id == b_id; }));
+    }
 }
