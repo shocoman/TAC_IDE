@@ -69,7 +69,7 @@ void sparse_conditional_constant_propagation(Function &f) {
     std::vector<SSAEdge> SSAWorkList;
 
     // init cfg worklist with edges leaving entry node
-    auto entry = f.find_entry_block();
+    auto entry = f.get_entry_block();
     for (auto &s : entry->successors)
         CFGWorkList.emplace_back(entry->id, s->id);
 

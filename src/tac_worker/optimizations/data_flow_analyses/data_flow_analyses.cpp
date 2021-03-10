@@ -95,7 +95,7 @@ std::pair<ID2Defs, ID2Defs> live_variable_analyses(Function &f) {
     //    print_analysis_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v;
     //    });
 
-    auto &uninitialized_vars = OUT.at(f.find_entry_block()->id);
+    auto &uninitialized_vars = OUT.at(f.get_entry_block()->id);
     if (!uninitialized_vars.empty())
         fmt::print("Possibly uninitialized variables: {}\n", uninitialized_vars);
 

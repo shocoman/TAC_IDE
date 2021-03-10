@@ -102,19 +102,20 @@ void Function::add_missing_jumps() {
 }
 
 void Function::add_entry_and_exit_block() {
-    auto entry_block_name = "Entry";
-    auto exit_block_name = "Exit";
+    auto entry_block_name = "# Entry #";
+    auto exit_block_name = "# Exit #";
 
     bool has_entry = false, has_exit = false;
     for (auto &b : basic_blocks)
-        if (b->get_name() == entry_block_name)
+        if (b->type == BasicBlock::Type::Entry)
             has_entry = true;
-        else if (b->get_name() == exit_block_name)
+        else if (b->type == BasicBlock::Type::Exit)
             has_exit = true;
 
     if (!has_entry) {
         auto entry_block = std::make_unique<BasicBlock>();
         entry_block->node_name = entry_block_name;
+        entry_block->type = BasicBlock::Type::Entry;
         entry_block->add_successor(basic_blocks.front().get());
         basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
     }
@@ -136,6 +137,7 @@ void Function::add_entry_and_exit_block() {
         }
 
         auto exit_block = std::make_unique<BasicBlock>();
+        exit_block->type = BasicBlock::Type::Exit;
         exit_block->node_name = exit_block_name;
 
         for (auto &f : final_blocks)
@@ -185,20 +187,25 @@ std::unordered_map<int, int> Function::get_post_ordering() {
 }
 
 void Function::reverse_graph() {
-    for (auto &b : basic_blocks)
+    for (auto &b : basic_blocks) {
         std::swap(b->successors, b->predecessors);
+        if (b->type == BasicBlock::Type::Entry)
+            b->type = BasicBlock::Type::Exit;
+        else if (b->type == BasicBlock::Type::Exit)
+            b->type = BasicBlock::Type::Entry;
+    }
 }
 
-BasicBlock *Function::find_entry_block() const {
+BasicBlock *Function::get_entry_block() const {
     for (const auto &b : basic_blocks)
-        if (b->predecessors.empty())
+        if (b->type == BasicBlock::Type::Entry)
             return b.get();
     return nullptr;
 }
 
-BasicBlock *Function::find_exit_block() const {
+BasicBlock *Function::get_exit_block() const {
     for (const auto &b : basic_blocks)
-        if (b->successors.empty())
+        if (b->type == BasicBlock::Type::Exit)
             return b.get();
     return nullptr;
 }
@@ -210,7 +217,7 @@ void Function::print_basic_block_info() const {
 }
 
 void Function::remove_blocks_without_predecessors() {
-    auto entry = find_entry_block();
+    auto entry = get_entry_block();
     for (auto it = basic_blocks.begin(); it != basic_blocks.end();) {
         if (it->get()->id != entry->id && it->get()->predecessors.empty()) {
             it = basic_blocks.erase(it);

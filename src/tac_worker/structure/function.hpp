@@ -42,8 +42,8 @@ struct Function {
     std::unordered_map<int, int> get_reverse_post_ordering() const;
     Quad& get_quad(int block_id, int quad_i) const;
 
-    BasicBlock *find_entry_block() const;
-    BasicBlock *find_exit_block() const;
+    BasicBlock *get_entry_block() const;
+    BasicBlock *get_exit_block() const;
 };
 
 #endif // TAC_PARSER_FUNCTION_HPP

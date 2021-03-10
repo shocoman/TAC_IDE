@@ -138,7 +138,7 @@ void print_depth_first_search_tree(Function &f) {
         node_infos[b->id].rpostorder = rpostorder--;
     };
 
-    DFS(f.find_entry_block());
+    DFS(f.get_entry_block());
 
     GraphWriter dot_writer;
     dot_writer.legend_marks = {

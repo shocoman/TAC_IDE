@@ -57,7 +57,7 @@ later_placement_expressions(Function &function) {
     std::map<int, std::set<Expression>> LaterIn;
     std::map<std::pair<int, int>, std::set<Expression>> Later;
 
-    auto entry_node = function.find_entry_block();
+    auto entry_node = function.get_entry_block();
     LaterIn[entry_node->id] = {};
     for (auto &b : blocks)
         if (b->id != entry_node->id)

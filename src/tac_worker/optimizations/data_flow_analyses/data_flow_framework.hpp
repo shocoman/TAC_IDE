@@ -23,8 +23,8 @@ data_flow_framework(Function &f, Flow flow, Meet meet_operator, std::set<T> init
     auto &id_to_block = f.id_to_block;
 
     auto [visit_order, boundary_node] =
-        flow == Flow::Forwards ? std::pair(f.get_reverse_post_ordering(), f.find_entry_block())
-                               : std::pair(f.get_post_ordering(), f.find_exit_block());
+        flow == Flow::Forwards ? std::pair(f.get_reverse_post_ordering(), f.get_entry_block())
+                               : std::pair(f.get_post_ordering(), f.get_exit_block());
 
     auto sorted_visit_order = std::vector<std::pair<int, int>>(visit_order.begin(), visit_order.end());
     std::sort(sorted_visit_order.begin(), sorted_visit_order.end(),

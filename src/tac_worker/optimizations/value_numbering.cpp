@@ -145,31 +145,30 @@ void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
                 if (q.type != Quad::Type::Assign)
                     t.current_number++;
             }
-            operand_values.push_back(t.get_value_number_by_name(op).value());
+            operand_values.push_back(*t.get_value_number_by_name(op));
         }
 
         if (Quad::is_commutative(q.type))
             std::sort(operand_values.begin(), operand_values.end());
         auto op_hash_key = std::tuple{q.type, operand_values};
 
-        // if hash key is already in the table replace current type with a copy
-        // otherwise insert new value number with hash key
+        // if hash key is already in the table replace current type with a copy operation
         int op_value;
         auto op = t.get_value_number_by_operation(op_hash_key);
-        if (op.has_value() && op == t.get_value_number_by_name(*t.get_name_by_value_number(*op))) {
+        if (op && op == t.get_value_number_by_name(*t.get_name_by_value_number(*op))) {
             op_value = op.value();
 
-            q.type = Quad::Type::Assign;
-            std::string name = t.get_name_by_value_number(op_value).value();
-            q.ops[0] = Operand(name);
-            q.clear_op(1);
-        } else {
+            std::string name = *t.get_name_by_value_number(op_value);
+            q = Quad(Operand(name), {}, Quad::Type::Assign, q.dest);
+        }
+        // otherwise insert new value number with hash key
+        else {
             t.set_operation_value(op_hash_key, t.current_number);
             op_value = t.current_number;
 
             if (q.dest.has_value()) {
                 t.set_name_for_value(t.current_number, q.dest->name);
-                t.current_number++;
+                ++t.current_number;
             }
         }
 
@@ -179,7 +178,7 @@ void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
 }
 
 void superlocal_value_numbering(Function &function) {
-    std::vector<BasicBlock *> work_list = {function.find_entry_block()};
+    std::vector<BasicBlock *> work_list = {function.get_entry_block()};
     std::unordered_set<int> visited_blocks;
 
     using SVNFuncType = std::function<void(BasicBlock *, ValueNumberTableStack &)>;
@@ -289,7 +288,7 @@ void dominator_based_value_numbering(Function &function) {
         t.pop_table();
     };
 
-    auto entry = function.find_entry_block();
+    auto entry = function.get_entry_block();
     DValueNumberTableStack t;
     dvnt(entry, t);
 }

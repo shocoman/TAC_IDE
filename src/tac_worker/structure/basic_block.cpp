@@ -90,7 +90,7 @@ void BasicBlock::add_phi_function(std::string phi_name, const std::vector<std::s
     phi_functions++;
 }
 
-int BasicBlock::add_quad_before_jump(Quad q) {
+int BasicBlock::append_quad(Quad q) {
     if (quads.empty() || !quads.back().is_jump()) {
         quads.push_back(q);
         return quads.size() - 1;

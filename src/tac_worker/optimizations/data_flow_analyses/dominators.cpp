@@ -5,14 +5,14 @@
 #include "dominators.hpp"
 
 ID2DF get_dominance_frontier(Function &f, ID2IDOM &id_to_immediate_dominator) {
-    std::unordered_map<int, std::unordered_set<int>> id_to_dominance_frontier;
+    ID2DF id_to_dominance_frontier;
     for (const auto &b : f.basic_blocks)
         id_to_dominance_frontier[b->id] = {};
     for (const auto &b : f.basic_blocks) {
         if (b->predecessors.size() > 1) {
             for (const auto &pred : b->predecessors) {
-                int runner_id = pred->id;
 
+                int runner_id = pred->id;
                 while (runner_id != id_to_immediate_dominator.at(b->id)) {
                     id_to_dominance_frontier[runner_id].insert(b->id);
                     runner_id = id_to_immediate_dominator.at(runner_id);
@@ -20,6 +20,7 @@ ID2DF get_dominance_frontier(Function &f, ID2IDOM &id_to_immediate_dominator) {
             }
         }
     }
+
     return id_to_dominance_frontier;
 }
 
@@ -49,7 +50,7 @@ ID2IDOM get_immediate_dominators(Function &function) {
         return id_to_block.at(finger1);
     };
 
-    auto entry_node_id = function.find_entry_block()->id;
+    auto entry_node_id = function.get_entry_block()->id;
     id_to_idom[entry_node_id] = entry_node_id;
 
     int iterations = 0;
@@ -130,7 +131,7 @@ ID2DOMS get_dominators(Function &function) {
     for (auto &b : blocks)
         id_to_dominators[b->id] = N;
 
-    auto entry = function.find_entry_block();
+    auto entry = function.get_entry_block();
     id_to_dominators[entry->id] = {entry->id};
 
     int iterations = 0;

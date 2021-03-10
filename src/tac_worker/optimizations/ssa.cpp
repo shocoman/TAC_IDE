@@ -137,7 +137,7 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
             name_to_stack.at(n).pop_back();
     };
 
-    RenameVars(function.find_entry_block()->id);
+    RenameVars(function.get_entry_block()->id);
 }
 
 void convert_from_ssa(Function &function) {
@@ -188,7 +188,7 @@ void convert_from_ssa(Function &function) {
                         ? id_to_block.at(replace_block_id.at({op.phi_predecessor->id, b->id}))
                         : id_to_block.at(op.phi_predecessor->id);
 
-                pred->add_quad_before_jump(Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
+                pred->append_quad(Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
             }
         }
 
@@ -265,7 +265,7 @@ void convert_from_ssa2(Function &f) {
 
                 auto copy_op = Quad(Operand(map.at(src)), {}, Quad::Type::Assign);
                 copy_op.dest = Dest(dest, {}, Dest::Type::Var);
-                b->add_quad_before_jump(copy_op);
+                b->append_quad(copy_op);
                 map[src] = dest;
 
                 for (auto &[_src, _dest] : copy_set)
@@ -280,7 +280,7 @@ void convert_from_ssa2(Function &f) {
                 auto copy_op = Quad(Operand(dest), {}, Quad::Type::Assign);
                 auto new_t = MakeNewName();
                 copy_op.dest = Dest(new_t, {}, Dest::Type::Var);
-                b->add_quad_before_jump(copy_op);
+                b->append_quad(copy_op);
                 map[dest] = new_t;
                 worklist.emplace(src, dest);
             }
@@ -309,7 +309,7 @@ void convert_from_ssa2(Function &f) {
         stacks = stack_copy;
     };
 
-    InsertCopies(f.find_entry_block());
+    InsertCopies(f.get_entry_block());
 
     // remove phis
     for (auto &b : f.basic_blocks) {

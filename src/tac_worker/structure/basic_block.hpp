@@ -13,7 +13,10 @@
 #include "quadruple/quadruple.hpp"
 
 struct BasicBlock {
+    enum class Type { Entry, Normal, Exit };
+
     int id;
+    Type type = Type::Normal;
     std::string node_name;
     std::optional<std::string> lbl_name;
     std::vector<Quad> quads;
@@ -24,16 +27,19 @@ struct BasicBlock {
 
     std::string get_name() const;
     std::string fmt() const;
+
+    int append_quad(Quad q);
     void add_successor(BasicBlock *s);
     void remove_successors();
     void remove_predecessors();
+
     BasicBlock *get_fallthrough_successor();
     BasicBlock *get_jumped_to_successor();
     bool allows_fallthrough();
+
     bool has_phi_function(std::string name);
     Quad &get_phi_function(std::string name);
     void add_phi_function(std::string phi_name, const std::vector<std::string> &ops);
-    int add_quad_before_jump(Quad q);
     void update_phi_positions();
     void print_phi_nodes();
 };

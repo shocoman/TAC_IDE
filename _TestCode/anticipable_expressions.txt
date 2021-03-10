@@ -1,6 +1,7 @@
 N1:
     a = 5
     b = 10
+    c = 1
 N2:
     e = b - c
     c = 6
@@ -18,4 +19,4 @@ N5:
 N6:
     d = b + c
     e = a * b
-    return 0
+    return e

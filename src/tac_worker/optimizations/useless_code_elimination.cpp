@@ -5,44 +5,29 @@
 #include "useless_code_elimination.hpp"
 
 void remove_noncritical_operations(Function &f) {
-    BasicBlocks &blocks = f.basic_blocks;
-    ID2Block &id_to_block = f.id_to_block;
-
     // compute reverse dominance frontier
     f.reverse_graph();
     auto id_to_ipostdom = get_immediate_dominators(f);
     auto reverse_df = get_dominance_frontier(f, id_to_ipostdom);
     f.reverse_graph();
 
-
     auto use_def_graph = UseDefGraph(f);
     std::set<UseDefGraph::Location> critical_operations;
-    std::unordered_map<std::string, UseDefGraph::Location> name_to_position;
-
-    // record positions for each operation
-    for (const auto &b : blocks) {
-        for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
-            auto &q = b->quads[q_index];
-
-            auto op_name = q.is_jump() ? b->get_name() : q.dest->name;
-            name_to_position.emplace(op_name, Position{b->id, q_index});
-        }
-    }
 
     // mark critical quads/operations
-    std::vector<Position> work_list;
-    for (const auto &b : blocks) {
+    std::vector<UseDefGraph::Location> work_list;
+    for (const auto &b : f.basic_blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
-            Position pos = {b->id, q_index};
+            UseDefGraph::Location location = {b->id, q_index};
 
             // every unconditional jump is critical
             if (q.type == Quad::Type::Goto)
-                critical_operations.insert(pos);
+                critical_operations.insert(location);
 
             if (Quad::is_critical(q.type)) {
-                critical_operations.insert(pos);
-                work_list.push_back(pos);
+                critical_operations.insert(location);
+                work_list.push_back(location);
             }
         }
     }
@@ -50,21 +35,23 @@ void remove_noncritical_operations(Function &f) {
     while (!work_list.empty()) {
         auto [block_id, quad_i] = work_list.back();
         work_list.pop_back();
-        auto &q = f.id_to_block.at(block_id)->quads.at(quad_i);
+        auto &q = f.get_quad(block_id, quad_i);
 
+        // mark quad's operands as critical
         for (auto &op : q.get_rhs(false)) {
-            auto &defined_position = name_to_position.at(op);
-            if (critical_operations.insert(defined_position).second) {
-                work_list.push_back(defined_position);
-            }
+            auto use = UseDefGraph::Use{{block_id, quad_i}, op};
+            auto &definitions = use_def_graph.use_to_definitions.at(use);
+            for (auto &def : definitions)
+                if (critical_operations.insert(def.location).second)
+                    work_list.push_back(def.location);
         }
 
         for (auto &b_id : reverse_df.at(block_id)) {
-            auto &b = id_to_block.at(b_id);
+            auto &b = f.id_to_block.at(b_id);
             if (b->quads.empty())
                 continue;
 
-            Position jump_position{b_id, b->quads.size() - 1};
+            UseDefGraph::Location jump_position{b_id, b->quads.size() - 1};
             if (critical_operations.insert(jump_position).second)
                 work_list.push_back(jump_position);
         }
@@ -76,21 +63,21 @@ void remove_noncritical_operations(Function &f) {
         marked_blocks.insert(block);
 
     // Sweep Pass (remove non critical quads/operations)
-    for (const auto &b : blocks) {
+    for (const auto &b : f.basic_blocks) {
         for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
             auto &q = b->quads[q_index];
 
-            Position position{b->id, q_index};
-            bool op_is_not_critical = critical_operations.find(position) == critical_operations.end();
+            UseDefGraph::Location location{b->id, q_index};
+            bool op_is_not_critical = critical_operations.find(location) == critical_operations.end();
             if (op_is_not_critical) {
                 if (q.is_conditional_jump()) {
-                    // replace with jump to closest "marked" postdominator
+                    // replace quad with jump to closest "marked" postdominator
                     int post_dom_id = b->id;
                     do {
                         post_dom_id = id_to_ipostdom.at(post_dom_id);
                     } while (marked_blocks.count(post_dom_id) == 0);
 
-                    auto closest_post_dominator = id_to_block.at(post_dom_id);
+                    auto closest_post_dominator = f.id_to_block.at(post_dom_id);
                     q.type = Quad::Type::Goto;
                     q.dest = Dest(closest_post_dominator->lbl_name.value(), {}, Dest::Type::JumpLabel);
                     b->remove_successors();
@@ -107,14 +94,14 @@ void remove_noncritical_operations(Function &f) {
 
 void remove_unreachable_blocks(Function &f) {
     // Mark reachable blocks
-    auto root = f.find_entry_block();
+    auto root = f.get_entry_block();
     std::unordered_set<int> reachable_ids;
-    std::function<void(BasicBlock(*))> reachable_walker = [&](BasicBlock *b) {
+    std::function<void(BasicBlock(*))> MarkReachableBlocks = [&](BasicBlock *b) {
         if (reachable_ids.insert(b->id).second)
             for (auto &succ : b->successors)
-                reachable_walker(succ);
+                MarkReachableBlocks(succ);
     };
-    reachable_walker(root);
+    MarkReachableBlocks(root);
 
     // Remove unreachable blocks
     for (int i = f.basic_blocks.size() - 1; i >= 0; --i) {
@@ -130,9 +117,9 @@ void remove_unreachable_blocks(Function &f) {
 
 void merge_basic_blocks(Function &f) {
     // temporary remove entry and exit block (hack)
-    auto RemoveBlock = [&](std::string name) {
+    auto RemoveBlock = [&](auto b_type) {
         auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
-                                  [name](auto &b) { return b->get_name() == name; });
+                                  [b_type](auto &b) { return b->type == b_type; });
         if (block != f.basic_blocks.end()) {
             f.id_to_block.erase(block->get()->id);
             block->get()->remove_successors();
@@ -141,12 +128,12 @@ void merge_basic_blocks(Function &f) {
         }
     };
 
-    RemoveBlock("Entry");
-    RemoveBlock("Exit");
+    RemoveBlock(BasicBlock::Type::Entry);
+    RemoveBlock(BasicBlock::Type::Exit);
 
     // Clean Pass (merge blocks, etc)
     bool changed = true;
-    auto one_pass = [&](const std::map<int, int> &postorder_to_id) {
+    auto CleanPass = [&](const std::map<int, int> &postorder_to_id) {
         std::unordered_set<int> block_ids_to_remove;
 
         // walk through blocks in post order
@@ -237,8 +224,10 @@ void merge_basic_blocks(Function &f) {
         for (auto &[id, po] : f.get_post_ordering())
             postorder_to_id[po] = id;
 
-        one_pass(postorder_to_id);
+        CleanPass(postorder_to_id);
     }
+
+    f.add_entry_and_exit_block();
 }
 
 void useless_code_elimination(Function &function) {
@@ -246,56 +235,5 @@ void useless_code_elimination(Function &function) {
     remove_unreachable_blocks(function);
     merge_basic_blocks(function);
 
-    function.add_entry_and_exit_block();
     function.update_block_ids();
-}
-
-void remove_noncritical_code_non_ssa(Function &f) {
-    auto use_def_graph = UseDefGraph(f);
-
-    // Mark critical quads/operations
-    std::set<UseDefGraph::Location> critical_operations;
-    std::vector<UseDefGraph::Location> work_list;
-    for (auto &b : f.basic_blocks)
-        for (int quad_i = 0; quad_i < b->quads.size(); ++quad_i) {
-            auto &q = b->quads[quad_i];
-
-            if (Quad::is_critical(q.type) || q.is_jump()) {
-                UseDefGraph::Location location = {b->id, quad_i};
-                critical_operations.insert(location);
-                work_list.push_back(location);
-            }
-        }
-
-    // Propagate and update critical quads
-    while (!work_list.empty()) {
-        auto [block_id, quad_i] = work_list.back();
-        work_list.pop_back();
-        auto &q = f.get_quad(block_id, quad_i);
-
-        // mark quad's operands as critical
-        for (auto &op : q.get_rhs(false)) {
-            auto use = UseDefGraph::Use{{block_id, quad_i}, op};
-            auto &definitions = use_def_graph.use_to_definitions.at(use);
-
-            for (auto &def : definitions)
-                if (critical_operations.insert(def.location).second)
-                    work_list.push_back(def.location);
-        }
-    }
-
-    // Sweep Pass (remove non critical quads/operations)
-    for (const auto &b : f.basic_blocks) {
-        for (int q_index = b->quads.size() - 1; q_index >= 0; --q_index) {
-            auto &q = b->quads[q_index];
-
-            UseDefGraph::Location location{b->id, q_index};
-            bool op_is_not_critical = critical_operations.find(location) == critical_operations.end();
-            if (op_is_not_critical) {
-                if (b->quads[q_index].type == Quad::Type::PhiNode)
-                    --b->phi_functions;
-                b->quads.erase(b->quads.begin() + q_index);
-            }
-        }
-    }
 }
