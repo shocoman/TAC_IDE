@@ -45,7 +45,7 @@ android {
     defaultConfig {
         minSdkVersion 21    // Android 5.0+
         targetSdkVersion 25 // Follow Compile SDK
-        versionCode 21      // Follow release count
+        versionCode 21      // Follow release counter
         versionName "5.3.0" // Follow Official version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         

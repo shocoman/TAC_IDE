@@ -688,7 +688,7 @@ format_to_n_result<OutputIt> format_to_n(OutputIt out, size_t n, const S&,
   constexpr auto compiled = detail::compile<Args...>(S());
   auto it = format_to(detail::truncating_iterator<OutputIt>(out, n), compiled,
                       args...);
-  return {it.base(), it.count()};
+  return {it.base(), it.counter()};
 }
 
 template <typename CompiledFormat, typename... Args>

@@ -5,7 +5,7 @@
 #include "lazy_code_motion.hpp"
 
 void lazy_code_motion(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
     auto UpwardExposed = get_upward_exposed_and_killed_expressions(f).first;
 
     auto Latest = latest_expressions(f);
@@ -74,7 +74,7 @@ void lazy_code_motion(Function &f) {
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> available_expressions_lazy_code_motion(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
     auto AntIn = anticipable_expressions(f).first;
     auto KilledExprs = get_downward_exposed_and_killed_expressions(f).second;
 
@@ -103,7 +103,7 @@ ID2EXPRS earliest_expressions(ID2EXPRS &AntIn, ID2EXPRS &AvailIn) {
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> postponable_expressions(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
 
     auto AntIn = anticipable_expressions(f).first;
     auto AvailIn = available_expressions_lazy_code_motion(f).first;
@@ -125,7 +125,7 @@ std::pair<ID2EXPRS, ID2EXPRS> postponable_expressions(Function &f) {
 }
 
 ID2EXPRS latest_expressions(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
 
     auto AntIn = anticipable_expressions(f).first;
     auto AvailIn = available_expressions_lazy_code_motion(f).first;
@@ -155,7 +155,7 @@ ID2EXPRS latest_expressions(Function &f) {
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> used_expressions(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
     auto id_to_ue_exprs = get_upward_exposed_and_killed_expressions(f).first;
     auto Latest = latest_expressions(f);
 

@@ -4,7 +4,7 @@
 
 #include "utilities.hpp"
 
-std::set<Expression> get_all_expressions_set(Function &f) {
+std::set<Expression> get_all_expressions(Function &f) {
     std::set<Expression> all_expressions;
     for (auto &b : f.basic_blocks)
         for (auto &q : b->quads)
@@ -19,7 +19,7 @@ std::string print_expression(Expression expr) {
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> get_upward_exposed_and_killed_expressions(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
 
     ID2EXPRS id_to_ue_exprs, id_to_killed_exprs;
     for (auto &b : f.basic_blocks) {
@@ -56,7 +56,7 @@ std::pair<ID2EXPRS, ID2EXPRS> get_upward_exposed_and_killed_expressions(Function
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> get_downward_exposed_and_killed_expressions(Function &f) {
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
 
     // Calculate e_gen and e_kill sets for each block
     std::map<int, std::set<Expression>> id_to_e_gen, id_to_e_kill;
@@ -87,4 +87,14 @@ std::pair<ID2EXPRS, ID2EXPRS> get_downward_exposed_and_killed_expressions(Functi
     }
 
     return {id_to_e_gen, id_to_e_kill};
+}
+
+std::string split_long_string(std::string str, int max_length) {
+    std::string delimiter = "<BR/>";
+    for (int j = 0, i = max_length; i < str.size(); i += max_length, j += delimiter.length()) {
+        int pos = str.find(',', i+j);
+        if (pos >= str.size()-1) break;
+        str.insert(pos + 1, delimiter);
+    }
+    return str;
 }

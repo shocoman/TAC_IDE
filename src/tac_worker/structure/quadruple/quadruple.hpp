@@ -198,7 +198,7 @@ struct Quad {
         case Type::Putparam:
             return "putparam " + get_op(0)->get_string();
         case Type::Getparam:
-            return "getparam " + get_op(0)->get_string();
+            return "getparam " + dest->name;
         case Type::Nop:
             return "nop";
         case Type::Return:

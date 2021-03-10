@@ -228,3 +228,5 @@ void Function::update_block_ids() {
         id_to_block[b->id] = b.get();
     }
 }
+
+Quad &Function::get_quad(int block_id, int quad_i) const { return id_to_block.at(block_id)->quads.at(quad_i);}

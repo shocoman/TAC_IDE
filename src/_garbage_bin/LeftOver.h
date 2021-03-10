@@ -85,4 +85,64 @@ void foo() {
 }
 
 
+void andersen_points_to_analysis(Function &f) {
+    std::map<std::string, std::set<std::string>> points_to;
+    std::map<std::string, std::set<std::string>> deref_operator_edges;
+    std::map<std::string, std::set<std::string>> deref_assign_edges;
+
+    for (auto &b : f.basic_blocks)
+        for (auto &q : b->quads) {
+            if (!q.is_assignment())
+                continue;
+
+            auto &op = q.get_op(0)->value;
+            auto &dest = q.dest->name;
+            if (q.type == Quad::Type::Ref) { // a = &b
+                points_to[dest].insert(op);
+            } else if (q.type == Quad::Type::Assign && q.dest->type != Dest::Type::Deref) { // a = b
+                for (auto &pnt : points_to[op])
+                    points_to[dest].insert(pnt);
+            } else if (q.type == Quad::Type::Deref) { // a = *b
+                deref_operator_edges[op].insert(dest);
+            } else if (q.type == Quad::Type::Assign && q.dest->type == Dest::Type::Deref) { // *a = b
+                deref_assign_edges[dest].insert(op);
+            }
+        }
+
+    std::queue<std::string> work_queue;
+    for (auto &[v, pnt_to] : points_to)
+        if (!pnt_to.empty())
+            work_queue.push(v);
+
+    while (!work_queue.empty()) {
+        std::string v = work_queue.front();
+        work_queue.pop();
+
+        for (auto &a : points_to[v]) {
+            for (auto &p : deref_operator_edges[v])
+                if (points_to[a].insert(p).second) {
+                    fmt::print("Edge: ({}, {})\n", a, p);
+                    work_queue.push(a);
+                }
+
+            for (auto &q : deref_assign_edges[v])
+                if (points_to[q].insert(a).second) {
+                    fmt::print("Edge: ({}, {})\n", q, a);
+                    work_queue.push(q);
+                }
+        }
+
+        for (auto &q : points_to[v]) {
+            bool changed = false;
+            for (auto &z : points_to[v])
+                changed |= points_to[q].insert(z).second;
+            if (changed)
+                work_queue.push(q);
+        }
+    }
+
+    fmt::print("{}\n", points_to);
+}
+
+
 #endif //TAC_PARSER_LEFTOVER_H

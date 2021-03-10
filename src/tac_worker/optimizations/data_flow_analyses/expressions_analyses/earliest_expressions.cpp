@@ -6,7 +6,7 @@
 
 std::map<std::pair<int, int>, std::set<Expression>> earliest_expressions(Function &f) {
     // Earliest(i, j) = AntIn(j) ∩ !AvailOut(i) ∩ (ExprKill(i) ∪ !AntOut(i))
-    auto all_expressions = get_all_expressions_set(f);
+    auto all_expressions = get_all_expressions(f);
     auto [ant_in, ant_out] = anticipable_expressions(f);
     auto [avail_in, avail_out] = available_expressions(f);
     auto [ue_exprs, killed_exprs] = get_upward_exposed_and_killed_expressions(f);
@@ -49,7 +49,7 @@ later_placement_expressions(Function &function) {
     std::sort(id_rpo_pairs.begin(), id_rpo_pairs.end(),
               [](auto &a, auto &b) { return a.second < b.second; });
 
-    std::set<Expression> all_expressions = get_all_expressions_set(function);
+    std::set<Expression> all_expressions = get_all_expressions(function);
 
     auto [id_to_ue_exprs, id_to_killed] = get_upward_exposed_and_killed_expressions(function);
     auto earliest = earliest_expressions(function);

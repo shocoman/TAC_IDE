@@ -1,0 +1,9 @@
+B0:
+    p = &a
+    q = &b
+    *p = q
+    //r = &c
+    //s = p
+    //t = *p
+    //*s = r
+    return 0

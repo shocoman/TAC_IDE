@@ -1,10 +1,8 @@
 
 B0:
 
-    a = b + c
-    b = a - d
-    //c = b + c
-    //d = a - d
+    m = 6
+    n = 2
 B1:
     i = m-1
     j = m-1

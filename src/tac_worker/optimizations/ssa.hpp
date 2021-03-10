@@ -23,5 +23,6 @@ void rename_variables(Function &function, std::set<std::string> &global_names);
 void convert_to_ssa(Function &function);
 
 void convert_from_ssa(Function &function);
+void convert_from_ssa2(Function &function);
 
 #endif // TAC_PARSER_SSA_HPP

@@ -67,7 +67,6 @@ template <typename T> std::unordered_set<T> union_of_sets(std::vector<std::unord
     }
 }
 
-
 template <template <typename... > class ContainerT, typename F, typename... Args>
 std::string print_into_string_with(const ContainerT<Args...> &container, F func) {
     std::ostringstream stream;

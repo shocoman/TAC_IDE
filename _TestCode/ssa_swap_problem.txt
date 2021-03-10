@@ -1,0 +1,15 @@
+B0:
+    a = 3
+    b = 5
+    c = a + b
+B1:
+    t = a
+
+    a = b + 1
+    c = a + 1
+    b = t
+    if t goto B1
+B2:
+    putparam a
+    putparam b
+    return 0
