@@ -64,7 +64,6 @@ void Function::print_cfg(std::string filename,
 void Function::print_to_console() const {
     for (auto &b : basic_blocks) {
         std::cout << " *** BasicBlock: " << b->node_name << "; " << b->lbl_name.value_or("NONE")
-                  << "; Jumps to " << b->jumps_to.value_or("NONE")
                   << "; Successors: " << b->successors.size()
                   << "; Predecessors: " << b->predecessors.size() << " \n"
                   << b->fmt();
@@ -73,15 +72,18 @@ void Function::print_to_console() const {
 
 void Function::connect_blocks() {
     for (int i = 0; i < basic_blocks.size(); ++i) {
-        if (i != basic_blocks.size() - 1 && basic_blocks[i]->allows_fallthrough()) {
-            basic_blocks[i]->add_successor(basic_blocks[i + 1].get());
+        auto &b = basic_blocks[i];
+        if (i < basic_blocks.size() - 1 && b->allows_fallthrough()) {
+            b->add_successor(basic_blocks[i + 1].get());
         }
-        if (auto jump_to = basic_blocks[i]->jumps_to; jump_to.has_value()) {
-            auto block = std::find_if(basic_blocks.begin(), basic_blocks.end(), [&jump_to](auto &e) {
-                return e->lbl_name.has_value() && e->lbl_name.value() == jump_to.value();
+
+        if (!b->quads.empty() && b->quads.back().is_jump()) {
+            auto &jump_target = b->quads.back().dest->name;
+            auto block = std::find_if(basic_blocks.begin(), basic_blocks.end(), [&](auto &e) {
+                return e->lbl_name.has_value() && e->lbl_name.value() == jump_target;
             });
 
-            basic_blocks[i]->add_successor(block->get());
+            b->add_successor(block->get());
         }
     }
 }
@@ -91,10 +93,8 @@ void Function::add_missing_jumps() {
         if (b->quads.empty() || b->type != BasicBlock::Type::Normal)
             continue;
         auto &last_q = b->quads.back();
-        if (last_q.type != Quad::Type::Return && !last_q.is_jump() &&
-            !b->successors.empty()) {
-            Dest dest((*b->successors.begin())->lbl_name.value(), {},
-                      Dest::Type::JumpLabel);
+        if (last_q.type != Quad::Type::Return && !last_q.is_jump() && !b->successors.empty()) {
+            Dest dest((*b->successors.begin())->lbl_name.value(), {}, Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
             b->quads.push_back(jump);
         }
@@ -207,7 +207,8 @@ BasicBlock *Function::get_exit_block() const {
 
 void Function::print_basic_block_info() const {
     for (const auto &b : basic_blocks) {
-        std::cout << "ID: " << b->id << "; JUMPS TO: " << b->jumps_to.value_or("NOWHERE") << std::endl;
+        fmt::print("ID: {:2}; LABEL NAME: {:4}; PREDS: {:2}; SUCCS: {:2}\n", b->id,
+                   b->lbl_name.value_or("NONE"), b->predecessors.size(), b->successors.size());
     }
 }
 
@@ -231,7 +232,9 @@ void Function::update_block_ids() {
     }
 }
 
-Quad &Function::get_quad(int block_id, int quad_i) const { return id_to_block.at(block_id)->quads.at(quad_i);}
+Quad &Function::get_quad(int block_id, int quad_i) const {
+    return id_to_block.at(block_id)->quads.at(quad_i);
+}
 
 void Function::print_as_code() const {
     std::string code;

@@ -20,7 +20,6 @@ struct BasicBlock {
     std::string node_name;
     std::optional<std::string> lbl_name;
     std::vector<Quad> quads;
-    std::optional<std::string> jumps_to;
     std::unordered_set<BasicBlock *> successors;
     std::unordered_set<BasicBlock *> predecessors;
     int phi_functions = 0;

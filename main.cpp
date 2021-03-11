@@ -58,14 +58,13 @@ int main(int argc, char *argv[]) {
     auto &f = functions[0];
     //    optimize(functions[0]);
 
-        convert_to_ssa(f);
+    convert_to_ssa(f);
     //    copy_propagation_on_ssa(f);
-    f.print_cfg("before.png");
+    //    f.print_cfg("before.png");
     //    convert_from_ssa(f);
-    useless_code_elimination(f);
 
-    f.print_cfg("after.png");
-    f.print_as_code();
+    useless_code_elimination(f);
+    f.print_cfg("before.png");
 
     std::getchar();
 

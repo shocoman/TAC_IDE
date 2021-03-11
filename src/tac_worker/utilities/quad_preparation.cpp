@@ -8,7 +8,7 @@ std::vector<Function> collect_quads_into_functions(std::unordered_map<std::strin
                                                    std::vector<Quad> &quads) {
     const auto main_function = "main";
     auto main_function_exists = labels.find(main_function) != labels.end();
-    //    assert(main_function_exists && "where is 'main' Function?");
+    //    assert(main_function_exists && "where is 'main' function?");
 
     std::unordered_set<std::string> function_names;
     for (const auto &q : quads) {
@@ -60,8 +60,7 @@ std::vector<Function> split_basic_blocks_into_functions(BasicBlocks blocks,
     std::vector<BasicBlocks> basic_block_groups;
 
     for (auto &b : blocks) {
-        if (basic_block_groups.empty() ||
-            function_names.find(b->lbl_name.value_or("")) != function_names.end()) {
+        if (basic_block_groups.empty() || function_names.count(b->lbl_name.value_or("")) > 0) {
             basic_block_groups.emplace_back();
         }
         basic_block_groups.back().emplace_back(std::move(b));
@@ -82,10 +81,8 @@ BasicBlocks construct_basic_blocks_from_indices(
     for (int i = 0, node_number = 0; i <= quads.size(); i++) {
         // if current quad is a leader
         if (auto leader_index = leader_indices.find(i); leader_index != leader_indices.end()) {
-            if (curr_node != nullptr) {
-                curr_node->jumps_to = leader_index->second;
+            if (curr_node != nullptr)
                 nodes.emplace_back(curr_node);
-            }
             curr_node = new BasicBlock();
             curr_node->id = node_number++;
             curr_node->node_name = curr_node->get_name();

@@ -16,10 +16,30 @@ struct Function {
     ID2Block id_to_block;
 
     Function() = default;
+
     Function(BasicBlocks blocks) : basic_blocks(std::move(blocks)) {
         if (!basic_blocks.empty())
             function_name = basic_blocks.at(0)->lbl_name.value_or(function_name);
 
+        connect_blocks();
+        add_missing_jumps();
+        add_entry_and_exit_block();
+        update_block_ids();
+    }
+
+    Function(const Function &f) {
+        for (auto &b : f.basic_blocks) {
+            if (b->type != BasicBlock::Type::Normal)
+                continue;
+
+            auto block_copy = std::make_unique<BasicBlock>(*b);
+            block_copy->successors.clear();
+            block_copy->predecessors.clear();
+            basic_blocks.emplace_back(std::move(block_copy));
+        }
+
+        if (!basic_blocks.empty())
+            function_name = basic_blocks.at(0)->lbl_name.value_or(function_name);
         connect_blocks();
         add_missing_jumps();
         add_entry_and_exit_block();
@@ -42,7 +62,7 @@ struct Function {
 
     std::unordered_map<int, int> get_post_ordering();
     std::unordered_map<int, int> get_reverse_post_ordering() const;
-    Quad& get_quad(int block_id, int quad_i) const;
+    Quad &get_quad(int block_id, int quad_i) const;
 
     BasicBlock *get_entry_block() const;
     BasicBlock *get_exit_block() const;
