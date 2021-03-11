@@ -4,9 +4,8 @@ B0:
 B1:
     t = a
     a = b
-    c = a
     b = t
-    if t goto B1
+    if 0 goto B1
 B2:
     putparam a
     putparam b

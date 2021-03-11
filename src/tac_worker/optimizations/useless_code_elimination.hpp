@@ -17,6 +17,5 @@ void remove_unreachable_blocks(Function &f);
 void merge_basic_blocks(Function &f);
 
 void useless_code_elimination(Function &function);
-void remove_noncritical_code_non_ssa(Function &f);
 
 #endif // TAC_PARSER_USELESS_CODE_ELIMINATION_HPP

@@ -99,48 +99,45 @@ void copy_propagation_on_non_ssa(Function &f) {
                                                          return X;
                                                      });
 
-//    fmt::print("All copies: ");
-//    for (auto &ass : all_assignments)
-//        fmt::print("{}={}{}, ", ass.lhs, ass.rhs, ass.location);
+    //    fmt::print("All copies: ");
+    //    for (auto &ass : all_assignments)
+    //        fmt::print("{}={}{}, ", ass.lhs, ass.rhs, ass.location);
 
-//    auto print_assignment = [&](auto &ass) {
-//        return fmt::format("{}={}{}", ass.lhs, ass.rhs, ass.location);
-//    };
-//    print_analysis_result_on_graph(f, id_to_gen, id_to_kill, "GenKill copies", print_assignment, "Gen",
-//                                   "Kill");
-//    print_analysis_result_on_graph(f, IN, OUT, "Copy propagated", print_assignment);
+    //    auto print_assignment = [&](auto &ass) {
+    //        return fmt::format("{}={}{}", ass.lhs, ass.rhs, ass.location);
+    //    };
+    //    print_analysis_result_on_graph(f, id_to_gen, id_to_kill, "GenKill copies", print_assignment,
+    //    "Gen",
+    //                                   "Kill");
+    //    print_analysis_result_on_graph(f, IN, OUT, "Copy propagated", print_assignment);
 
-
-    // propagate
-    for (auto &b : f.basic_blocks) {
-        std::map<std::string, std::string> dst_to_src, src_to_dst;
-        for (auto &ass : IN[b->id]) {
-            dst_to_src[ass.lhs] = ass.rhs;
-            src_to_dst[ass.rhs] = ass.lhs;
+    // Propagation in block
+    auto InvalidateCopy = [](auto &copy_map, auto &def) {
+        for (auto it = copy_map.begin(); it != copy_map.end();) {
+            if (it->first == def || it->second == def)
+                it = copy_map.erase(it);
+            else
+                ++it;
         }
+    };
+
+    for (auto &b : f.basic_blocks) {
+        std::map<std::string, std::string> dst_to_src;
+        for (auto &ass : IN[b->id])
+            dst_to_src[ass.lhs] = ass.rhs;
 
         for (auto &q : b->quads) {
+            // replace operands
             for (auto &op : q.ops)
                 if (op.is_var())
                     if (dst_to_src.count(op.value) > 0)
                         op.value = dst_to_src.at(op.value);
 
+            // update copies
             if (q.is_assignment()) {
-                auto def = q.dest->name;
-
-                if (dst_to_src.count(def) > 0) {
-                    src_to_dst.erase(dst_to_src.at(def));
-                    dst_to_src.erase(def);
-                }
-                if (src_to_dst.count(def) > 0) {
-                    dst_to_src.erase(src_to_dst.at(def));
-                    src_to_dst.erase(def);
-                }
-
-                if (q.type == Quad::Type::Assign && q.get_op(0)->is_var()) {
-                    dst_to_src[def] = q.get_op(0)->get_string();
-                    src_to_dst[q.get_op(0)->get_string()] = def;
-                }
+                InvalidateCopy(dst_to_src, q.dest->name);
+                if (q.type == Quad::Type::Assign && q.get_op(0)->is_var())
+                    dst_to_src[q.dest->name] = q.get_op(0)->get_string();
             }
         }
     }

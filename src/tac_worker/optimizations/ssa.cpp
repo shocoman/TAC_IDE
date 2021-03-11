@@ -140,72 +140,8 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
     RenameVars(function.get_entry_block()->id);
 }
 
-void convert_from_ssa(Function &function) {
-    BasicBlocks &blocks = function.basic_blocks;
-    ID2Block &id_to_block = function.id_to_block;
-
-    BasicBlocks new_blocks;
-    for (auto &b : blocks) {
-        std::map<std::pair<int, int>, int> replace_block_id;
-        for (int i = 0; i < b->phi_functions; ++i) {
-            auto &phi = b->quads[i];
-            for (auto &op : phi.ops) {
-
-                if (replace_block_id.find({op.phi_predecessor->id, b->id}) == replace_block_id.end() &&
-                    id_to_block.at(op.phi_predecessor->id)->successors.size() > 1) {
-                    auto &pred = id_to_block.at(op.phi_predecessor->id);
-
-                    auto split_block = std::make_unique<BasicBlock>();
-                    split_block->quads.push_back(Quad(
-                        {}, {}, Quad::Type::Goto, Dest(b->lbl_name.value(), {}, Dest::Type::JumpLabel)));
-
-                    split_block->id =
-                        !new_blocks.empty() ? new_blocks.back()->id + 1 : blocks.back()->id + 1;
-                    split_block->node_name = split_block->get_name();
-                    split_block->lbl_name = split_block->get_name();
-
-                    id_to_block[split_block->id] = split_block.get();
-                    replace_block_id[{op.phi_predecessor->id, b->id}] = split_block->id;
-
-                    pred->successors.erase(b.get());
-                    b->predecessors.erase(pred);
-
-                    if (pred->quads.back().dest->name == b->lbl_name) {
-                        pred->quads.back().dest->name = split_block->lbl_name.value();
-                    } else {
-                        Dest dest(split_block->lbl_name.value(), {}, Dest::Type::JumpLabel);
-                        pred->quads.push_back(Quad({}, {}, Quad::Type::Goto, dest));
-                    }
-
-                    pred->add_successor(split_block.get());
-                    split_block->add_successor(b.get());
-
-                    new_blocks.push_back(std::move(split_block));
-                }
-
-                BasicBlock *pred =
-                    (replace_block_id.count({op.phi_predecessor->id, b->id}) > 0)
-                        ? id_to_block.at(replace_block_id.at({op.phi_predecessor->id, b->id}))
-                        : id_to_block.at(op.phi_predecessor->id);
-
-                pred->append_quad(Quad(op.value, {}, Quad::Type::Assign, phi.dest.value()));
-            }
-        }
-
-        b->quads.erase(b->quads.begin(), b->quads.begin() + b->phi_functions);
-        b->phi_functions = 0;
-    }
-
-    blocks.reserve(blocks.size() + new_blocks.size());
-    std::move(std::begin(new_blocks), std::end(new_blocks), std::back_inserter(blocks));
-    function.update_block_ids();
-}
-
-void convert_from_ssa2(Function &f) {
-    auto MakeNewName = [&]() {
-        static int counter = 0;
-        return fmt::format("$tt_{}", counter++);
-    };
+void convert_from_ssa(Function &f) {
+    NewNameGenerator new_name_generator(f);
 
     auto live_out = live_variable_analyses(f).second;
     auto id_to_idom = get_immediate_dominators(f);
@@ -252,7 +188,7 @@ void convert_from_ssa2(Function &f) {
                 if (live_out.at(b->id).count(dest) > 0) {
                     // insert copy from 'dest' to new temp 't' at phi-node defining 'dest'
                     auto copy_op = Quad(Operand(dest), {}, Quad::Type::Assign);
-                    auto new_t = MakeNewName();
+                    auto new_t = new_name_generator.make_new_name();
                     copy_op.dest = Dest(new_t, {}, Dest::Type::Var);
                     for (auto &block : f.basic_blocks)
                         for (int i = 0; i < block->phi_functions; ++i)
@@ -278,7 +214,7 @@ void convert_from_ssa2(Function &f) {
                 copy_set.erase({src, dest});
 
                 auto copy_op = Quad(Operand(dest), {}, Quad::Type::Assign);
-                auto new_t = MakeNewName();
+                auto new_t = new_name_generator.make_new_name();
                 copy_op.dest = Dest(new_t, {}, Dest::Type::Var);
                 b->append_quad(copy_op);
                 map[dest] = new_t;
@@ -292,10 +228,8 @@ void convert_from_ssa2(Function &f) {
         for (auto &q : b->quads)
             for (auto &op : q.ops)
                 if (q.type != Quad::Type::Call && !stacks[op.value].empty()) {
-                    if (stacks[op.value].back() != q.dest->name) {
+                    if (stacks[op.value].back() != q.dest->name)
                         op.value = stacks[op.value].back();
-                    }
-
                 }
 
         ScheduleCopies(b);

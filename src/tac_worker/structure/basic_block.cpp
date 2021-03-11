@@ -5,34 +5,44 @@
 #include "basic_block.hpp"
 
 #include <utility>
+
 std::string BasicBlock::get_name() const {
-    if (lbl_name.has_value())
+    if (type == BasicBlock::Type::Entry)
+        return "# Entry #";
+    else if (type == BasicBlock::Type::Exit)
+        return "# Exit #";
+    else if (lbl_name.has_value())
         return lbl_name.value();
     else if (!node_name.empty())
         return node_name;
     else
-        return fmt::format("BB #{}", id);
+        return fmt::format("#BB_{}", id);
 }
+
 std::string BasicBlock::fmt() const {
     std::string out;
     for (auto &q : quads)
         out += q.fmt() + "\n";
     return out;
 }
+
 void BasicBlock::add_successor(BasicBlock *s) {
     successors.emplace(s);
     s->predecessors.emplace(this);
 }
+
 void BasicBlock::remove_successors() {
     for (auto &s : successors)
         s->predecessors.erase(this);
     successors.clear();
 }
+
 void BasicBlock::remove_predecessors() {
     for (auto &s : predecessors)
         s->successors.erase(this);
     predecessors.clear();
 }
+
 BasicBlock *BasicBlock::get_fallthrough_successor() {
     auto s2 = get_name();
     if (successors.empty())
@@ -46,6 +56,7 @@ BasicBlock *BasicBlock::get_fallthrough_successor() {
             return s;
     return nullptr;
 }
+
 BasicBlock *BasicBlock::get_jumped_to_successor() {
     if (quads.empty() || !quads.back().is_jump())
         return nullptr;

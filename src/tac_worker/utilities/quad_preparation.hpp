@@ -11,8 +11,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "structure/basic_block.hpp"
-#include "structure/function.hpp"
+#include "tac_worker/structure/basic_block.hpp"
+#include "tac_worker/structure/function.hpp"
 
 bool is_builtin_function(const std::string &func_name);
 

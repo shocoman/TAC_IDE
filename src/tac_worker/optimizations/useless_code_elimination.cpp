@@ -69,7 +69,8 @@ void remove_noncritical_operations(Function &f) {
 
             UseDefGraph::Location location{b->id, q_index};
             bool op_is_not_critical = critical_operations.find(location) == critical_operations.end();
-            if (op_is_not_critical) {
+            bool quad_is_self_copy = q.type == Quad::Type::Assign && q.dest->name == q.ops[0].value;
+            if (op_is_not_critical || quad_is_self_copy) {
                 if (q.is_conditional_jump()) {
                     // replace quad with jump to closest "marked" postdominator
                     int post_dom_id = b->id;
@@ -170,12 +171,17 @@ void merge_basic_blocks(Function &f) {
                     changed = true;
                 }
 
-                // combine two blocks into one
+                // combine two blocks into one (merge 'b' into 'succ')
                 else if (succ->predecessors.size() == 1) {
-                    // remove last jump
-                    if (b->quads.back().type == Quad::Type::Goto) {
-                        b->quads.pop_back();
+                    // update predecessors' jump operations
+                    for (auto &pred : b->predecessors) {
+                        auto jump_target = pred->get_jumped_to_successor();
+                        if (jump_target != nullptr && jump_target->id == b->id)
+                            pred->quads.back().dest->name = succ->lbl_name.value();
                     }
+                    // remove last jump
+                    if (b->quads.back().type == Quad::Type::Goto)
+                        b->quads.pop_back();
                     // copy operations
                     succ->quads.insert(succ->quads.end(), b->quads.begin(), b->quads.end());
                     succ->update_phi_positions();

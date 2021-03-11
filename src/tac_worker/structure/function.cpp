@@ -102,9 +102,6 @@ void Function::add_missing_jumps() {
 }
 
 void Function::add_entry_and_exit_block() {
-    auto entry_block_name = "# Entry #";
-    auto exit_block_name = "# Exit #";
-
     bool has_entry = false, has_exit = false;
     for (auto &b : basic_blocks)
         if (b->type == BasicBlock::Type::Entry)
@@ -114,7 +111,6 @@ void Function::add_entry_and_exit_block() {
 
     if (!has_entry) {
         auto entry_block = std::make_unique<BasicBlock>();
-        entry_block->node_name = entry_block_name;
         entry_block->type = BasicBlock::Type::Entry;
         entry_block->add_successor(basic_blocks.front().get());
         basic_blocks.insert(basic_blocks.begin(), std::move(entry_block));
@@ -138,7 +134,6 @@ void Function::add_entry_and_exit_block() {
 
         auto exit_block = std::make_unique<BasicBlock>();
         exit_block->type = BasicBlock::Type::Exit;
-        exit_block->node_name = exit_block_name;
 
         for (auto &f : final_blocks)
             f->add_successor(exit_block.get());

@@ -6,7 +6,6 @@
 #include "fmt/ranges.h"
 
 #include "src/parser/driver/driver.hpp"
-#include "tac_worker/optimization_runner.hpp"
 #include "tac_worker/optimizations/copy_propagation.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
 #include "tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp"
@@ -17,6 +16,7 @@
 #include "tac_worker/optimizations/lazy_code_motion.hpp"
 #include "tac_worker/optimizations/operator_strength_reduction.hpp"
 #include "tac_worker/optimizations/sparse_conditional_constant_propagation.hpp"
+#include "tac_worker/utilities/optimization_runner.hpp"
 
 int main(int argc, char *argv[]) {
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     //    drv.parse("../_TestCode/anticipable_expressions2.txt");
     //    drv.parse("../_TestCode/available_expressions3.txt");
     //    drv.parse("../_TestCode/FactorialProgram.txt");
-    //    drv.parse("../_TestCode/ssa_test.txt");
+//    drv.parse("../_TestCode/ssa_test.txt");
     //    drv.parse("../_TestCode/sccp_test.txt");
     //    drv.parse("../_TestCode/sccp2.txt");
     //    drv.parse("../_TestCode/strength_reduction.txt");
@@ -51,24 +51,17 @@ int main(int argc, char *argv[]) {
     //    drv.parse("../_TestCode/live_test.txt");
     //    drv.parse("../_TestCode/ref_test.txt");
     //    drv.parse("../_TestCode/copy_propagation2.txt");
-    drv.parse("../_TestCode/ssa_swap_problem.txt");
+        drv.parse("../_TestCode/ssa_swap_problem.txt");
+    //    drv.parse("../_TestCode/ssa_lost_copy_problem.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
     //    optimize(functions[0]);
 
     convert_to_ssa(f);
-//    f.print_cfg("before.png");
-    //    copy_propagation_on_ssa(f);
-    //    useless_code_elimination(f);
-    //    f.print_cfg("after_copyprop.png");
-
-    convert_from_ssa2(f);
-    useless_code_elimination(f);
-
+    copy_propagation_on_ssa(f);
     f.print_cfg("before.png");
-
-    copy_propagation_on_non_ssa(f);
+    convert_from_ssa(f);
     useless_code_elimination(f);
 
     f.print_cfg("after.png");

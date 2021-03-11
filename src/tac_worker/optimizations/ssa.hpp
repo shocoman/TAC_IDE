@@ -9,11 +9,12 @@
 #include <set>
 
 #include "../../graph_writer/graph_writer.hpp"
-#include "../quad_preparation.hpp"
 #include "../structure/function.hpp"
-#include "data_flow_analyses/dominators.hpp"
 #include "data_flow_analyses/data_flow_analyses.hpp"
+#include "data_flow_analyses/dominators.hpp"
+#include "tac_worker/utilities/quad_preparation.hpp"
 #include "value_numbering.hpp"
+#include "tac_worker/utilities/new_name_generator.hpp"
 
 void place_phi_functions(Function &function,
                          std::map<std::string, std::set<BasicBlock *>> &var_to_blocks,
@@ -21,8 +22,6 @@ void place_phi_functions(Function &function,
 void rename_variables(Function &function, std::set<std::string> &global_names);
 
 void convert_to_ssa(Function &function);
-
 void convert_from_ssa(Function &function);
-void convert_from_ssa2(Function &function);
 
 #endif // TAC_PARSER_SSA_HPP

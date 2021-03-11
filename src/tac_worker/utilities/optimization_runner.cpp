@@ -5,7 +5,7 @@
 #include <numeric>
 
 #include "optimization_runner.hpp"
-#include "optimizations/data_flow_analyses/dominators.hpp"
+#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
 
 void optimize(Function &function) {
     BasicBlocks &blocks = function.basic_blocks;
