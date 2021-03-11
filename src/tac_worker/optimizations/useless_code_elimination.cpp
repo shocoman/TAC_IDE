@@ -174,11 +174,12 @@ void merge_basic_blocks(Function &f) {
                 // combine two blocks into one (merge 'b' into 'succ')
                 else if (succ->predecessors.size() == 1) {
                     // update predecessors' jump operations
-                    for (auto &pred : b->predecessors) {
-                        auto jump_target = pred->get_jumped_to_successor();
-                        if (jump_target != nullptr && jump_target->id == b->id)
-                            pred->quads.back().dest->name = succ->lbl_name.value();
-                    }
+//                    for (auto &pred : b->predecessors) {
+//                        auto jump_target = pred->get_jumped_to_successor();
+//                        if (jump_target != nullptr && jump_target->id == b->id)
+//                            pred->quads.back().dest->name = succ->lbl_name.value();
+//                    }
+                    succ->lbl_name = b->lbl_name;
                     // remove last jump
                     if (b->quads.back().type == Quad::Type::Goto)
                         b->quads.pop_back();

@@ -87,16 +87,16 @@ void Function::connect_blocks() {
 }
 
 void Function::add_missing_jumps() {
-    for (int i = 0; i < basic_blocks.size() - 1; ++i) {
-        if (basic_blocks[i]->quads.empty())
+    for (auto &b : basic_blocks) {
+        if (b->quads.empty() || b->type != BasicBlock::Type::Normal)
             continue;
-        auto &last_q = basic_blocks[i]->quads.back();
+        auto &last_q = b->quads.back();
         if (last_q.type != Quad::Type::Return && !last_q.is_jump() &&
-            !basic_blocks[i]->successors.empty()) {
-            Dest dest((*basic_blocks[i]->successors.begin())->lbl_name.value(), {},
+            !b->successors.empty()) {
+            Dest dest((*b->successors.begin())->lbl_name.value(), {},
                       Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
-            basic_blocks[i]->quads.push_back(jump);
+            b->quads.push_back(jump);
         }
     }
 }
@@ -232,3 +232,22 @@ void Function::update_block_ids() {
 }
 
 Quad &Function::get_quad(int block_id, int quad_i) const { return id_to_block.at(block_id)->quads.at(quad_i);}
+
+void Function::print_as_code() const {
+    std::string code;
+    bool has_function_name = false;
+    for (auto &b : basic_blocks) {
+        if (b->type == BasicBlock::Type::Normal) {
+            if (function_name == b->get_name())
+                has_function_name = true;
+            code += fmt::format("\n{}:\n", b->get_name());
+        }
+        for (auto &q : b->quads)
+            code += fmt::format("\t{}\n", q.fmt());
+    }
+    // add function name
+    if (!has_function_name)
+        code.insert(0, fmt::format("\n{}: // Function name", function_name));
+
+    fmt::print("{}\n", code);
+}

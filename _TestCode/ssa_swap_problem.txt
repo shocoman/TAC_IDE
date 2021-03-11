@@ -9,4 +9,4 @@ B1:
 B2:
     putparam a
     putparam b
-    return 0
+    // return 0

@@ -11,21 +11,23 @@
 #include "graph_writer/graph_writer.hpp"
 
 struct Function {
-    std::string name = "None";
+    std::string function_name = "Function_has_no_name";
     BasicBlocks basic_blocks;
     ID2Block id_to_block;
 
     Function() = default;
     Function(BasicBlocks blocks) : basic_blocks(std::move(blocks)) {
-        name = basic_blocks[0]->lbl_name.value_or("None");
+        if (!basic_blocks.empty())
+            function_name = basic_blocks.at(0)->lbl_name.value_or(function_name);
 
         connect_blocks();
-        add_entry_and_exit_block();
         add_missing_jumps();
+        add_entry_and_exit_block();
         update_block_ids();
     }
 
     void print_to_console() const;
+    void print_as_code() const;
     void print_basic_block_info() const;
     void print_cfg(std::string filename, std::unordered_map<int, std::string> additional_info_above = {},
                    std::unordered_map<int, std::string> additional_info_below = {},

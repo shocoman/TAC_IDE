@@ -12,6 +12,7 @@
 #include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
 #include "tac_worker/optimizations/value_numbering.hpp"
 #include "tac_worker/structure/function.hpp"
+#include "tac_worker/utilities/new_name_generator.hpp"
 
 struct VariableInfo {
     using Place = std::pair<int, int>;
@@ -28,6 +29,7 @@ struct OSRDriver {
     std::map<std::string, VariableInfo> useInfo;
     ID2DOMS id_to_doms;
     std::map<std::tuple<std::string, std::string, std::string>, std::string> operations_lookup_table;
+    NewNameGenerator new_name_generator;
 
     explicit OSRDriver(Function &f);
 
@@ -45,7 +47,6 @@ struct OSRDriver {
     void PrintSSAGraph();
     std::string Reduce(const std::string &node_name, Operand &induction_var, Operand &reg_const);
     std::string Apply(const std::string &node_name, Operand &op1, Operand &op2);
-    std::string MakeNewName();
 };
 
 

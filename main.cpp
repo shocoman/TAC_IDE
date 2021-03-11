@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     //    drv.parse("../_TestCode/anticipable_expressions2.txt");
     //    drv.parse("../_TestCode/available_expressions3.txt");
     //    drv.parse("../_TestCode/FactorialProgram.txt");
-//    drv.parse("../_TestCode/ssa_test.txt");
+    drv.parse("../_TestCode/ssa_test.txt");
     //    drv.parse("../_TestCode/sccp_test.txt");
     //    drv.parse("../_TestCode/sccp2.txt");
     //    drv.parse("../_TestCode/strength_reduction.txt");
@@ -51,20 +51,22 @@ int main(int argc, char *argv[]) {
     //    drv.parse("../_TestCode/live_test.txt");
     //    drv.parse("../_TestCode/ref_test.txt");
     //    drv.parse("../_TestCode/copy_propagation2.txt");
-        drv.parse("../_TestCode/ssa_swap_problem.txt");
+    //    drv.parse("../_TestCode/ssa_swap_problem.txt");
     //    drv.parse("../_TestCode/ssa_lost_copy_problem.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
     //    optimize(functions[0]);
 
-    convert_to_ssa(f);
-    copy_propagation_on_ssa(f);
+        convert_to_ssa(f);
+    //    copy_propagation_on_ssa(f);
     f.print_cfg("before.png");
-    convert_from_ssa(f);
+    //    convert_from_ssa(f);
     useless_code_elimination(f);
 
     f.print_cfg("after.png");
+    f.print_as_code();
+
     std::getchar();
 
     return 0;

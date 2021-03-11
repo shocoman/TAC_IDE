@@ -66,6 +66,7 @@ void place_phi_functions(Function &function,
 }
 
 void rename_variables(Function &function, std::set<std::string> &global_names) {
+    char delim = '_';
     ID2IDOM id_to_idom = get_immediate_dominators(function);
 
     std::map<std::string, int> name_to_counter;
@@ -75,11 +76,11 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
         name_to_stack[name] = {};
     }
 
-    auto MakeNewName = [&](auto &name) {
+    auto MakeNewSSAName = [&](auto &name) {
         int i = name_to_counter.at(name);
         name_to_counter.at(name)++;
         name_to_stack.at(name).push_back(i);
-        return fmt::format("{}.{}", name, i);
+        return fmt::format("{}{}{}", name, delim, i);
     };
 
     std::function<void(int)> RenameVars = [&](int block_id) {
@@ -90,7 +91,7 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
         for (int i = 0; i < block->phi_functions; ++i) {
             auto &phi = block->quads[i];
             pushed_names.push_back(phi.dest->name);
-            phi.dest->name = MakeNewName(phi.dest->name);
+            phi.dest->name = MakeNewSSAName(phi.dest->name);
         }
 
         // rename other operations of form 'x = y + z'
@@ -98,15 +99,13 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
             auto &q = block->quads[i];
             auto op1 = q.get_op(0), op2 = q.get_op(1);
 
-            if (op1 && op1->is_var() && name_to_stack.count(op1->value) > 0)
-                q.ops[0].value += "." + std::to_string(name_to_stack.at(op1->value).back());
-
-            if (op2 && op2->is_var() && name_to_stack.count(op2->value) > 0)
-                q.ops[1].value += "." + std::to_string(name_to_stack.at(op2->value).back());
+            for (auto &op : q.ops)
+                if (op.is_var() && name_to_stack.count(op.value) > 0)
+                    op.value += fmt::format("{}{}", delim, name_to_stack.at(op.value).back());
 
             if (q.dest && global_names.count(q.dest->name) > 0) {
                 pushed_names.push_back(q.dest->name);
-                q.dest->name = MakeNewName(q.dest->name);
+                q.dest->name = MakeNewSSAName(q.dest->name);
             }
         }
 
@@ -115,12 +114,12 @@ void rename_variables(Function &function, std::set<std::string> &global_names) {
             for (int i = 0; i < s->phi_functions; ++i) {
                 auto &phi = s->quads[i];
                 auto name = phi.dest->name;
-                auto name_without_suffix = name.substr(0, name.find_first_of('.', 0));
+                auto name_without_suffix = name.substr(0, name.find_first_of(delim, 0));
 
                 auto stack = name_to_stack.find(name_without_suffix);
                 std::string next_name =
                     (stack != name_to_stack.end() && !stack->second.empty())
-                        ? name_without_suffix + "." + std::to_string(stack->second.back())
+                        ? name_without_suffix + fmt::format("{}{}", delim, stack->second.back())
                         : name;
 
                 Operand op(next_name, Operand::Type::Var, block);

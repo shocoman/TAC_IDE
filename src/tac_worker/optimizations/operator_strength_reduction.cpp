@@ -4,7 +4,7 @@
 
 #include "operator_strength_reduction.hpp"
 
-OSRDriver::OSRDriver(Function &f) : func(f) {
+OSRDriver::OSRDriver(Function &f) : func(f), new_name_generator(f) {
     id_to_doms = get_dominators(f);
     FillInUseDefGraph();
 
@@ -237,23 +237,13 @@ void OSRDriver::Replace(const std::string &node_name) {
     useInfo.at(node_name).header = useInfo.at(induction_var.value).header;
 }
 
-std::string OSRDriver::MakeNewName() {
-    // find unused register name
-    int i = 0;
-    std::string register_name;
-    do {
-        register_name = fmt::format("$t{}", i++);
-    } while (useInfo.find(register_name) != useInfo.end());
-    useInfo[register_name] = {};
-    return register_name;
-}
 
 std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_var, Operand &reg_const) {
     auto op_type = GetQuad(useInfo.at(node_name).defined_at).type;
 
     auto key = std::tuple{node_name, induction_var.value, reg_const.value};
     if (operations_lookup_table.count(key) == 0) {
-        std::string new_name = MakeNewName();
+        std::string new_name = new_name_generator.make_new_name();
         operations_lookup_table[key] = new_name;
 
         // make copy of induction variable operation ???
@@ -304,7 +294,7 @@ std::string OSRDriver::Apply(const std::string &node_name, Operand &op1, Operand
         } else if (!o2.header.empty() && IsRegionConst(op1.value, o2.header)) {
             return Reduce(node_name, op2, op1);
         } else {
-            std::string new_name = MakeNewName();
+            std::string new_name = new_name_generator.make_new_name();
             operations_lookup_table[key] = new_name;
             auto q = Quad(op1, op2, GetQuad(useInfo.at(node_name).defined_at).type);
             q.dest = Dest(new_name, {}, Dest::Type::Var);

@@ -11,23 +11,11 @@ void lazy_code_motion(Function &f) {
     auto Latest = latest_expressions(f);
     auto UsedOut = used_expressions(f).second;
 
-    // collect all defined vars
-    std::unordered_set<std::string> used_var_names;
-    for (auto &b : f.basic_blocks)
-        for (auto &q : b->quads)
-            if (q.dest.has_value())
-                used_var_names.insert(q.dest->name);
-
     // uniquely name every expression
+    NewNameGenerator new_name_generator(f);
     std::map<Expression, std::string> expr_to_name;
-    int i = 0;
-    for (auto &expr : all_expressions) {
-        std::string new_name;
-        do {
-            new_name = "$t_lcm" + std::to_string(++i);
-        } while (used_var_names.count(new_name) > 0);
-        expr_to_name[expr] = new_name;
-    }
+    for (auto &expr : all_expressions)
+        expr_to_name[expr] = new_name_generator.make_new_name();
 
     for (auto &b : f.basic_blocks) {
         if (b->quads.empty())

@@ -11,6 +11,7 @@
 #include "data_flow_analyses/data_flow_analyses.hpp"
 #include "data_flow_analyses/expressions_analyses/utilities.hpp"
 #include "tac_worker/structure/function.hpp"
+#include "tac_worker/utilities/new_name_generator.hpp"
 
 
 std::pair<ID2EXPRS, ID2EXPRS> available_expressions_lazy_code_motion(Function& f);

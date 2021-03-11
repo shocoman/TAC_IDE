@@ -69,8 +69,9 @@ BasicBlock *BasicBlock::get_jumped_to_successor() {
 }
 
 bool BasicBlock::allows_fallthrough() {
-    return quads.empty() ||
-           quads.back().type != Quad::Type::Goto && quads.back().type != Quad::Type::Return;
+    return quads.empty() || quads.back().type != Quad::Type::Goto &&
+                                quads.back().type != Quad::Type::Return &&
+                                type != BasicBlock::Type::Exit;
 }
 
 bool BasicBlock::has_phi_function(std::string name) {
