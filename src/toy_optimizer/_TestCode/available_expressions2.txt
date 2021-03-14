@@ -1,0 +1,18 @@
+B1:
+    e1 = a * b
+    e2 = b * c
+B2:
+    e3 = c * d
+    if 0 goto B4
+B3:
+    c = 2
+    goto B5
+B4:
+    d = 3
+B5:
+    e4 = d * e
+    e1 = a * b
+    if 0 goto B2
+B6:
+    e4 = d * e
+    return 0

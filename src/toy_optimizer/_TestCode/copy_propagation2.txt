@@ -1,0 +1,29 @@
+B1:
+    a = 0
+    b = 0
+    z = 0
+    y = 0
+    q = 0
+    x = y
+    p = q
+    H = q
+    if 0 goto B3
+B2:
+    c = a + b
+    x = z
+    goto B5
+B3:
+    //q = 3
+    Z = q
+    //p = 3
+    F = Z
+    G = H
+    x = z
+    goto B4
+B4:
+    k = x + 0
+    goto B5
+B5:
+    m = x + 0
+    n = p
+    return 0

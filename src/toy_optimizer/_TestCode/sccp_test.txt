@@ -1,0 +1,8 @@
+B0:
+    i = 0
+B1:
+    i = i + 1
+    $t0 = i < 100
+    if $t0 goto B1
+B2:
+    return i

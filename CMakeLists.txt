@@ -1,50 +1,63 @@
 cmake_minimum_required(VERSION 3.17)
-project(tac_parser CXX)
+project(toy_ide)
+
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_BUILD_TYPE RELEASE)
-
 set(CMAKE_CXX_FLAGS_DEBUG "-O1")
-#set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+
+#add_subdirectory(src/tac_simulator) # include tac simulator
+#add_subdirectory(src/toy_optimizer/lib/fmt)
+add_subdirectory(src/toy_optimizer)
+list(TRANSFORM TOY_OPTIMIZER_SOURCE_FILES PREPEND "src/toy_optimizer/")
+
+### WxWidgets ########################################
+find_package(wxWidgets REQUIRED core base stc html #[[ gl net media ribbon xrc xml richtext aui]] )
+include(${wxWidgets_USE_FILE})
 
 
-# My Program
-set(SOURCE_FILES
-        main.cpp
-        src/graph_writer/graph_writer.cpp src/tac_worker/utilities/optimization_runner.cpp src/tac_worker/structure/basic_block.cpp   src/tac_worker/structure/function.cpp src/tac_worker/utilities/quad_preparation.cpp src/tac_worker/optimizations/ssa.cpp src/tac_worker/optimizations/ssa.hpp src/tac_worker/optimizations/value_numbering.cpp src/tac_worker/optimizations/useless_code_elimination.cpp src/tac_worker/optimizations/sparse_simple_constant_propagation.cpp src/tac_worker/data_flow_analyses/data_flow_analyses.cpp src/tac_worker/data_flow_analyses/dominators.cpp src/tac_worker/data_flow_analyses/expressions_analyses/utilities.cpp src/tac_worker/data_flow_analyses/expressions_analyses/earliest_expressions.cpp src/tac_worker/data_flow_analyses/expressions_analyses/earliest_expressions.hpp src/tac_worker/data_flow_analyses/data_flow_framework.hpp src/tac_worker/optimizations/lazy_code_motion.cpp src/tac_worker/optimizations/lazy_code_motion.hpp src/tac_worker/optimizations/sparse_conditional_constant_propagation.cpp src/tac_worker/optimizations/sparse_conditional_constant_propagation.hpp src/tac_worker/optimizations/operator_strength_reduction.cpp src/tac_worker/optimizations/operator_strength_reduction.hpp src/tac_worker/optimizations/copy_propagation.cpp src/tac_worker/optimizations/copy_propagation.hpp src/tac_worker/data_flow_analyses/ssa_graph.cpp src/tac_worker/data_flow_analyses/ssa_graph.hpp src/tac_worker/data_flow_analyses/print_graph.cpp src/tac_worker/data_flow_analyses/print_graph.hpp src/tac_worker/data_flow_analyses/use_def_graph.cpp src/tac_worker/data_flow_analyses/use_def_graph.hpp src/tac_worker/utilities/new_name_generator.cpp src/tac_worker/utilities/new_name_generator.hpp src/tac_worker/structure/program.cpp src/tac_worker/structure/program.hpp)
-
-### Library for text formatting ###
-add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
-
-### Creating exe and linking ###
-add_executable(tac_parser ${SOURCE_FILES})
-target_include_directories(tac_parser PUBLIC src)
-
-
-### Graphviz ###
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_plugins")
-find_package(Graphviz)
-target_include_directories(tac_parser PUBLIC ${graphviz_INCLUDE_DIRECTORIES})
-target_include_directories(tac_parser PUBLIC src/parser)
-target_link_libraries(tac_parser PRIVATE ${graphviz_LIBRARIES})
+#### LLVM ########################################
+find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+add_executable(llvm_simulator src/llvm_simulator/llvm_simulator.cpp)
+llvm_map_components_to_libnames(llvm_libs support core irreader mcjit jitlink x86asmparser x86codegen)
+target_link_libraries(llvm_simulator ${llvm_libs})
 
 
 ### Flex/Bison ###
-if (WIN32)
-    set(BISON_COMPILE_FLAGS, "-Wcounterexamples")
-    set(FLEX_COMPILE_FLAGS, "--wincompat")
-endif ()
-find_package(BISON)
-find_package(FLEX)
-file(MAKE_DIRECTORY src/parser/compiled_parser)
-BISON_TARGET(MyParser src/parser/grammar/parser.y ../src/parser/compiled_parser/parser.cpp COMPILE_FLAGS ${BISON_COMPILE_FLAGS})
-FLEX_TARGET(MyScanner src/parser/grammar/lexer.l ../src/parser/compiled_parser/lexer.cpp COMPILE_FLAGS ${FLEX_COMPILE_FLAGS})
-ADD_FLEX_BISON_DEPENDENCY(MyScanner MyParser)
-
-add_library(Parser SHARED ${BISON_MyParser_OUTPUTS} ${FLEX_MyScanner_OUTPUTS})
-target_sources(Parser PUBLIC
-        src/parser/driver/driver.cpp
-        src/parser/compiled_parser/lexer.cpp
-        src/parser/compiled_parser/parser.cpp
+add_library(BisonParser SHARED ${BISON_MyParser_OUTPUTS} ${FLEX_MyScanner_OUTPUTS})
+target_sources(BisonParser PUBLIC
+        src/toy_optimizer/src/utilities/parser/driver/driver.cpp
+        src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp
+        src/toy_optimizer/src/utilities/parser/compiled_parser/parser.cpp
         )
-target_include_directories(Parser PUBLIC src/parser)
-target_link_libraries(tac_parser PRIVATE Parser fmt::fmt)
+target_include_directories(BisonParser PUBLIC src/toy_optimizer/src/utilities/parser)
+
+
+### GUI (main program) ########################################
+set(EDITOR_SOURCES src/gui_code_editor/the_app.cpp
+        src/gui_code_editor/windows/main_window/main_window.cpp
+        src/gui_code_editor/windows/main_window/scintilla_definitions.cpp
+        src/gui_code_editor/windows/main_window/code_editor_control.cpp
+        src/gui_code_editor/windows/optimization_window/llvm_ir/optimization_select.cpp
+        src/gui_code_editor/windows/function_selection_window/function_chooser.cpp
+        src/gui_code_editor/windows/image_viewer/convert_dot_to_image.cpp
+        src/gui_code_editor/windows/image_viewer/image_panel.cpp
+        src/gui_code_editor/windows/image_viewer/graph_view.cpp
+        src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_choose_window.cpp
+        src/gui_code_editor/windows/optimization_window/toy_ir/my_html_window.cpp
+        src/gui_code_editor/generated_gui_classes/my_generated_gui.cpp
+        src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_description_window.cpp
+        src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_description_window.hpp)
+add_executable(toy_ide main.cpp ${EDITOR_SOURCES} ${TOY_OPTIMIZER_SOURCE_FILES})
+target_include_directories(toy_ide PUBLIC src src/gui_code_editor)
+target_link_libraries(toy_ide PUBLIC fmt::fmt BisonParser)
+
+
+
+### Graphviz ########################################
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_plugins")
+find_package(Graphviz)
+target_include_directories(toy_ide PUBLIC "${graphviz_INCLUDE_DIRECTORIES}")
+
+target_link_libraries(toy_ide PUBLIC ${wxWidgets_LIBRARIES} ${llvm_libs} ${graphviz_LIBRARIES})
