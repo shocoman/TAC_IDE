@@ -8,8 +8,8 @@
 #include <map>
 #include <set>
 
-#include "data_flow_analyses/data_flow_analyses.hpp"
-#include "data_flow_analyses/expressions_analyses/utilities.hpp"
+#include "tac_worker/data_flow_analyses/data_flow_analyses.hpp"
+#include "tac_worker/data_flow_analyses/expressions_analyses/utilities.hpp"
 #include "tac_worker/structure/function.hpp"
 #include "tac_worker/utilities/new_name_generator.hpp"
 

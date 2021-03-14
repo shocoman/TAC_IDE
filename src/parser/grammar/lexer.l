@@ -115,17 +115,21 @@ yy::parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::parser::
     else return yy::parser::make_IDENTIFIER(s, loc);
 }
 
-void ParseDriver::scan_begin()
-{
+void ParseDriver::scan_from_file_begin() {
+    yylex_destroy();
     yy_flex_debug = trace_scanning;
-    // yy_flex_debug = 1;
-    if (file.empty() || file == "-")
+    if (file_name.empty() || file_name == "-")
         yyin = stdin;
-    else if (!(yyin = fopen(file.c_str(), "r")))
-    {
-        std::cerr << "cannot open " << file << ": " << strerror(errno) << std::endl;
+    else if (!(yyin = fopen(file_name.c_str(), "r"))) {
+        std::cerr << "cannot open " << file_name << ": " << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
     }
+}
+
+void ParseDriver::scan_from_string_begin(const std::string &str) {
+    yylex_destroy();
+    yy_flex_debug = trace_scanning;
+    yy_scan_string(str.c_str());
 }
 
 void ParseDriver::scan_end() {

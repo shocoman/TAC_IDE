@@ -10,8 +10,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "tac_worker/optimizations/data_flow_analyses/data_flow_analyses.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp"
+#include "data_flow_analyses.hpp"
+#include "data_flow_framework.hpp"
 #include "tac_worker/structure/function.hpp"
 
 struct UseDefGraph {

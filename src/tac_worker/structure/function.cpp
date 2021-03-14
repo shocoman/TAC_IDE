@@ -4,7 +4,7 @@
 
 #include "function.hpp"
 
-void Function::print_cfg(std::string filename,
+std::vector<char> Function::print_cfg(std::string filename,
                          std::unordered_map<int, std::string> additional_info_above,
                          std::unordered_map<int, std::string> additional_info_below, std::string title) {
     auto id_to_rpo = get_reverse_post_ordering();
@@ -57,8 +57,9 @@ void Function::print_cfg(std::string filename,
 
     filename = "graphs/" + filename;
     dot_writer.set_title(title);
-    dot_writer.render_to_file(filename);
+    std::vector<char> image_data = dot_writer.render_to_file(filename);
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+    return image_data;
 }
 
 void Function::print_to_console() const {

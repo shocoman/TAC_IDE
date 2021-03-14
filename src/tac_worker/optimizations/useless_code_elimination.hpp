@@ -9,8 +9,8 @@
 #include <map>
 
 #include "tac_worker/structure/function.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/use_def_graph.hpp"
+#include "tac_worker/data_flow_analyses/dominators.hpp"
+#include "tac_worker/data_flow_analyses/use_def_graph.hpp"
 
 void remove_noncritical_operations(Function &f);
 void remove_unreachable_blocks(Function &f);

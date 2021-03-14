@@ -32,7 +32,7 @@ class GraphWriter {
     void set_node_name(const std::string &node, const std::string &name);
     void add_edge(std::string node1, std::string node2,
                   std::unordered_map<std::string, std::string> attributes = {});
-    void render_to_file(const std::string &filename);
+    std::vector<char> render_to_file(const std::string &filename);
     void add_info_above(const std::string &node, const std::string &info, bool above);
     void set_title(const std::string &title);
 

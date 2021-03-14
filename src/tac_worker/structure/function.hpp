@@ -49,7 +49,7 @@ struct Function {
     void print_to_console() const;
     void print_as_code() const;
     void print_basic_block_info() const;
-    void print_cfg(std::string filename, std::unordered_map<int, std::string> additional_info_above = {},
+    std::vector<char> print_cfg(std::string filename, std::unordered_map<int, std::string> additional_info_above = {},
                    std::unordered_map<int, std::string> additional_info_below = {},
                    std::string title = {});
 

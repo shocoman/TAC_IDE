@@ -5,7 +5,7 @@
 #ifndef TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_DATA_FLOW_ANALYSES_EXPRESSIONS_ANALYSES_EARLIEST_EXPRESSIONS_HPP
 #define TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_DATA_FLOW_ANALYSES_EXPRESSIONS_ANALYSES_EARLIEST_EXPRESSIONS_HPP
 
-#include "../data_flow_analyses.hpp"
+#include "tac_worker/data_flow_analyses/data_flow_analyses.hpp"
 #include "tac_worker/structure/function.hpp"
 #include "utilities.hpp"
 

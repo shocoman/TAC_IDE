@@ -6,9 +6,10 @@
 #define TAC_PARSER_UTILITIES_HPP
 
 #include <algorithm>
-#include <sstream>
+#include <fmt/ranges.h>
 #include <iterator>
 #include <set>
+#include <sstream>
 #include <unordered_set>
 #include <vector>
 
@@ -67,7 +68,7 @@ template <typename T> std::unordered_set<T> union_of_sets(std::vector<std::unord
     }
 }
 
-template <template <typename... > class ContainerT, typename F, typename... Args>
+template <template <typename...> class ContainerT, typename F, typename... Args>
 std::string print_into_string_with(const ContainerT<Args...> &container, F func) {
     std::ostringstream stream;
     stream << "{";

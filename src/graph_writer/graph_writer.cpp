@@ -43,7 +43,7 @@ std::optional<std::string> GraphWriter::get_attribute(const std::string &n, cons
                : std::nullopt;
 }
 
-void GraphWriter::render_to_file(const std::string &filename) {
+std::vector<char> GraphWriter::render_to_file(const std::string &filename) {
     std::unordered_map<std::string, Agnode_t *> ag_nodes;
 
     GVC_t *gvc = gvContext();
@@ -141,9 +141,18 @@ void GraphWriter::render_to_file(const std::string &filename) {
     if (res)
         printf("Graphviz error. Something wrong with graph rendering: %i", res);
 
+    // render to file
+    unsigned int buffer_length = 0;
+    char *buffer;
+    gvRenderData(gvc, g, "png", &buffer, &buffer_length);
+    std::vector<char> image_data(buffer, buffer+buffer_length);
+    gvFreeRenderData(buffer);
+
     gvFreeLayout(gvc, g);
     agclose(g);
     gvFreeContext(gvc);
+
+    return image_data;
 }
 
 void GraphWriter::add_info_above(const std::string &node, const std::string &info, bool above) {

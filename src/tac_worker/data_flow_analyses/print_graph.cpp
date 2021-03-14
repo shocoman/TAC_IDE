@@ -4,7 +4,7 @@
 
 #include "print_graph.hpp"
 
-void print_dominator_tree(Function &f) {
+std::vector<char> print_dominator_tree(Function &f) {
     auto id_to_idom = get_immediate_dominators(f);
     auto id_to_doms = get_dominance_frontier(f, id_to_idom);
 
@@ -24,11 +24,12 @@ void print_dominator_tree(Function &f) {
     }
 
     writer.set_title("Dominator Tree and Dominance Frontier");
-    writer.render_to_file("graphs/dominator_tree.png");
+    std::vector<char> image_data = writer.render_to_file("graphs/dominator_tree.png");
     system("sxiv -g 1000x1000+20+20 graphs/dominator_tree.png &");
+    return image_data;
 }
 
-void print_postdominator_tree(Function &f) {
+std::vector<char> print_postdominator_tree(Function &f) {
     f.reverse_graph();
     auto id_to_idom = get_immediate_dominators(f);
     auto id_to_doms = get_dominance_frontier(f, id_to_idom);
@@ -50,11 +51,12 @@ void print_postdominator_tree(Function &f) {
     }
 
     writer.set_title("Postdominator Tree and Postdominance Frontier");
-    writer.render_to_file("graphs/dominator_tree.png");
+    std::vector<char> image_data = writer.render_to_file("graphs/dominator_tree.png");
     system("sxiv -g 1000x1000+20+20 graphs/dominator_tree.png &");
+    return image_data;
 }
 
-void print_control_dependence(Function &f) {
+std::vector<char> print_control_dependence(Function &f) {
     f.reverse_graph();
     auto id_to_postdom = get_immediate_dominators(f);
     f.reverse_graph();
@@ -86,26 +88,27 @@ void print_control_dependence(Function &f) {
     }
 
     writer.set_title("Control Dependence");
-    writer.render_to_file("graphs/control_dependence.png");
+    std::vector<char> image_data = writer.render_to_file("graphs/control_dependence.png");
     system("sxiv -g 1000x1000+20+20 graphs/control_dependence.png &");
+    return image_data;
 }
 
-void print_available_expressions(Function &f) {
+std::vector<char> print_available_expressions(Function &f) {
     auto [AvailIn, AvailOut] = available_expressions(f);
-    print_analysis_result_on_graph(f, AvailIn, AvailOut, "Available expressions", print_expression);
+    return print_analysis_result_on_graph(f, AvailIn, AvailOut, "Available expressions", print_expression);
 }
 
-void print_anticipable_expressions(Function &f) {
+std::vector<char> print_anticipable_expressions(Function &f) {
     auto [AntIn, AntOut] = anticipable_expressions(f);
-    print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable expressions", print_expression);
+    return print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable expressions", print_expression);
 }
 
-void print_live_variable(Function &f) {
+std::vector<char> print_live_variable(Function &f) {
     auto [IN, OUT] = live_variable_analyses(f);
-    print_analysis_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v; });
+    return print_analysis_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v; });
 }
 
-void print_depth_first_search_tree(Function &f) {
+std::vector<char> print_depth_first_search_tree(Function &f) {
     auto id_to_doms = get_dominators(f);
 
     int preorder = 1;
@@ -178,11 +181,12 @@ void print_depth_first_search_tree(Function &f) {
 
     dot_writer.set_title("Depth-First Search Spanning Tree");
     std::string filename = "graphs/dfs_tree.png";
-    dot_writer.render_to_file(filename);
+    std::vector<char> image_data = dot_writer.render_to_file(filename);
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+    return image_data;
 }
 
-void print_ue_de_and_killed_expressions(Function &f) {
+std::vector<char> print_ue_de_and_killed_expressions(Function &f) {
     auto all_expressions = get_all_expressions(f);
     auto [downward_exposed, killed] = get_downward_exposed_and_killed_expressions(f);
     auto upward_exposed = get_upward_exposed_and_killed_expressions(f).first;
@@ -200,7 +204,7 @@ void print_ue_de_and_killed_expressions(Function &f) {
 
     std::string title = "UE, DE and killed expressions";
     title += "<BR/>All expressions: " + print_into_string_with(all_expressions, print_expression);
-    f.print_cfg("expressions_info.png", above, below, title);
+    return f.print_cfg("expressions_info.png", above, below, title);
 }
 
 

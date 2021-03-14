@@ -9,7 +9,7 @@
 #include <map>
 #include <set>
 
-#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
+#include "tac_worker/data_flow_analyses/dominators.hpp"
 #include "tac_worker/optimizations/value_numbering.hpp"
 #include "tac_worker/structure/function.hpp"
 #include "tac_worker/utilities/new_name_generator.hpp"

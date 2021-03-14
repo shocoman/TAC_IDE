@@ -13,10 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "../structure/basic_block.hpp"
-#include "../structure/function.hpp"
-#include "../structure/quadruple/quadruple.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/dominators.hpp"
+#include "tac_worker/structure/function.hpp"
+#include "tac_worker/data_flow_analyses/dominators.hpp"
 
 void constant_folding(Quad &n);
 

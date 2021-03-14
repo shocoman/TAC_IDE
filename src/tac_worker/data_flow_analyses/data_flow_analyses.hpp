@@ -12,9 +12,9 @@
 #include <tuple>
 #include <vector>
 
-#include "tac_worker/optimizations/data_flow_analyses/data_flow_framework.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/expressions_analyses/utilities.hpp"
-#include "tac_worker/optimizations/data_flow_analyses/set_utilities.hpp"
+#include "data_flow_framework.hpp"
+#include "set_utilities.hpp"
+#include "tac_worker/data_flow_analyses/expressions_analyses/utilities.hpp"
 #include "tac_worker/structure/function.hpp"
 
 using ID2Defs = std::map<int, std::set<std::string>>;
@@ -27,9 +27,10 @@ std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f);
 
 template <template <typename...> typename Map, template <typename> typename Set, typename SetType,
           typename F>
-void print_analysis_result_on_graph(Function &f, Map<int, Set<SetType>> IN, Map<int, Set<SetType>> OUT,
-                                    std::string title, F func, std::string IN_name = "IN",
-                                    std::string OUT_name = "OUT") {
+std::vector<char> print_analysis_result_on_graph(Function &f, Map<int, Set<SetType>> IN,
+                                                 Map<int, Set<SetType>> OUT, std::string title, F func,
+                                                 std::string IN_name = "IN",
+                                                 std::string OUT_name = "OUT") {
     static_assert(std::is_same<Map<int, Set<SetType>>, std::map<int, Set<SetType>>>::value ||
                       std::is_same<Map<int, Set<SetType>>, std::unordered_map<int, Set<SetType>>>::value,
                   "Function can only get std::map or std::unordered_map.");
@@ -49,7 +50,7 @@ void print_analysis_result_on_graph(Function &f, Map<int, Set<SetType>> IN, Map<
     for (auto &ch : title_wo_spaces)
         if (std::isspace(ch) || !std::isalnum(ch))
             ch = '_';
-    f.print_cfg(title_wo_spaces + ".png", above, below, title);
+    return f.print_cfg(title_wo_spaces + ".png", above, below, title);
 }
 
 #endif // TAC_PARSER_DATA_FLOW_ANALYSES_HPP

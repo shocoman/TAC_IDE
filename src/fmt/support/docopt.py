@@ -21,7 +21,7 @@ class DocoptLanguageError(Exception):
 
 class DocoptExit(SystemExit):
 
-    """Exit in case user invoked program with incorrect arguments."""
+    """Exit in case user invoked Program with incorrect arguments."""
 
     usage = ''
 

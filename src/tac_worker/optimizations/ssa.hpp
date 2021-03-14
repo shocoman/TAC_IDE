@@ -8,10 +8,10 @@
 #include <numeric>
 #include <set>
 
-#include "../../graph_writer/graph_writer.hpp"
+#include "graph_writer/graph_writer.hpp"
 #include "../structure/function.hpp"
-#include "data_flow_analyses/data_flow_analyses.hpp"
-#include "data_flow_analyses/dominators.hpp"
+#include "tac_worker/data_flow_analyses/data_flow_analyses.hpp"
+#include "tac_worker/data_flow_analyses/dominators.hpp"
 #include "tac_worker/utilities/quad_preparation.hpp"
 #include "value_numbering.hpp"
 #include "tac_worker/utilities/new_name_generator.hpp"
