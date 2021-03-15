@@ -11,48 +11,29 @@ EVT_LEFT_UP(ImagePanel::mouseReleased)
 EVT_MOUSEWHEEL(ImagePanel::mouseWheelMoved)
 EVT_MOTION(ImagePanel::mouseMoved)
 
-EVT_PAINT(ImagePanel::paintEvent)
+EVT_PAINT(ImagePanel::OnPaint)
 EVT_SIZE(ImagePanel::OnSize)
 END_EVENT_TABLE()
 
-ImagePanel::ImagePanel(wxWindow *parent, const wxImage &image) : wxPanel(parent) {
-    m_original_image = image;
-    m_bitmap_image = wxBitmap(m_original_image);
-    m_x = GetParent()->GetSize().x/2 - m_bitmap_image.GetWidth()/2;
-    m_y = GetParent()->GetSize().y/2 - m_bitmap_image.GetHeight()/2;
-}
+ImagePanel::ImagePanel(wxWindow *parent, const wxImage &image) : wxPanel(parent) { updateImage(image); }
 
 ImagePanel::ImagePanel(wxWindow *parent, wxWindowID winid, const wxPoint &pos, const wxSize &size,
                        long style, const wxString &name)
     : wxPanel(parent, winid, pos, size, style, name) {
-    m_original_image = wxImage(200, 200);
-    m_bitmap_image = wxBitmap(m_original_image);
-    m_x = GetParent()->GetSize().x/2 - m_bitmap_image.GetWidth()/2;
-    m_y = GetParent()->GetSize().y/2 - m_bitmap_image.GetHeight()/2;
+    updateImage(wxImage(200, 200));
 }
 
 void ImagePanel::updateImage(const wxImage &image) {
     m_original_image = image;
+    m_transformed_image = m_original_image.Copy();
     m_bitmap_image = wxBitmap(m_original_image);
-    m_x = GetParent()->GetSize().x/2 - m_bitmap_image.GetWidth()/2;
-    m_y = GetParent()->GetSize().y/2 - m_bitmap_image.GetHeight()/2;
-    m_scale = 0.5;
+    m_offset_x = GetParent()->GetSize().x / 2 - m_bitmap_image.GetWidth() / 2;
+    m_offset_y = GetParent()->GetSize().y / 2 - m_bitmap_image.GetHeight() / 2;
     Refresh();
-}
 
-void ImagePanel::paintEvent(wxPaintEvent &evt) {
-    wxPaintDC dc(this);
-    render(dc);
-}
-
-void ImagePanel::paintNow() {
-    wxClientDC dc(this);
-    render(dc);
-}
-
-void ImagePanel::render(wxDC &dc) {
-    dc.SetLogicalScale(m_scale, m_scale);
-    dc.DrawBitmap(m_original_image, m_x, m_y, false);
+    m_zoom = 1.0f;
+    m_offset_x = 0.0f;
+    m_offset_y = 0.0f;
 }
 
 void ImagePanel::OnSize(wxSizeEvent &event) {
@@ -62,12 +43,14 @@ void ImagePanel::OnSize(wxSizeEvent &event) {
 
 void ImagePanel::mouseMoved(wxMouseEvent &event) {
     auto [x, y] = event.GetPosition();
+    mouse_pos = {x, y};
+
     auto [prev_x, prev_y] = m_prev_mouse_pos;
     int delta_x = x - prev_x, delta_y = y - prev_y;
 
     if (m_lmb_pressed) {
-        m_x += int((double)delta_x / m_scale);
-        m_y += int((double)delta_y / m_scale);
+        m_offset_x += int((double)delta_x * m_zoom);
+        m_offset_y += int((double)delta_y * m_zoom);
         Refresh();
     }
 
@@ -82,8 +65,51 @@ void ImagePanel::mouseDown(wxMouseEvent &event) {
 void ImagePanel::mouseReleased(wxMouseEvent &event) { m_lmb_pressed = false; }
 
 void ImagePanel::mouseWheelMoved(wxMouseEvent &event) {
+    m_should_update = true;
     auto delta = event.m_wheelRotation;
-    int sign = (delta > 0 ? 1 : -1);
-    m_scale += 0.1 * sign;
+    SetZoom(m_zoom * (delta > 0 ? 2.0 : 0.5), event.GetPosition());
+}
+
+void ImagePanel::OnPaint(wxPaintEvent &evt) {
+    wxPaintDC dc(this);
+
+//    if (m_should_update) {
+//        m_should_update = false;
+//
+//        wxSize new_size = m_original_image.GetSize();
+//        new_size = {int(double(new_size.x) * m_zoom), int((double)new_size.y * m_zoom)};
+//
+//        m_transformed_image = m_original_image.Scale(new_size.x, new_size.y,
+//                                                     wxImageResizeQuality::wxIMAGE_QUALITY_BILINEAR);
+//        m_bitmap_image = wxBitmap(m_transformed_image);
+//    }
+
+    dc.SetBrush(*wxWHITE_BRUSH);
+    dc.SetPen(*wxWHITE_PEN);
+    dc.DrawRectangle(GetClientSize());
+
+
+
+    if (m_bitmap_image.IsOk()) {
+        dc.SetUserScale(m_zoom, m_zoom);
+        dc.DrawBitmap(m_bitmap_image, m_offset_x / m_zoom, m_offset_y / m_zoom, true);
+
+        dc.SetUserScale(1., 1.);
+        dc.SetPen(*wxBLACK_PEN);
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+        dc.DrawRoundedRectangle({0, 0}, dc.GetSize(), 5);
+    } else {
+        dc.DrawText("Bitmap not OK", 10, 10);
+    }
+}
+
+void ImagePanel::SetZoom(double zoom, const wxPoint &center) {
+    double image_x = ((double)center.x - m_offset_x) / m_zoom;
+    double image_y = ((double)center.y - m_offset_y) / m_zoom;
+
+    m_offset_x = center.x - image_x * zoom;
+    m_offset_y = center.y - image_y * zoom;
+
+    m_zoom = zoom;
     Refresh();
 }

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(toy_ide)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_CXX_FLAGS_DEBUG "-O1")
+set(CMAKE_CXX_FLAGS_DEBUG "-O1")
 
 
 #add_subdirectory(src/tac_simulator) # include tac simulator

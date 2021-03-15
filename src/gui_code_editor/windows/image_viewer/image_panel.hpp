@@ -11,13 +11,17 @@
 
 class ImagePanel : public wxPanel {
 
-    wxImage m_original_image;
+    wxImage m_original_image, m_transformed_image;
     wxBitmap m_bitmap_image;
+    bool m_should_update = false;
 
     wxPoint m_prev_mouse_pos = {0, 0};
-    int m_x = 0, m_y = 0;
     bool m_lmb_pressed = false;
-    double m_scale = 1.0;
+    wxSize mouse_pos = {0, 0};
+
+    double m_zoom = 1.0f;
+    double m_offset_x = 0.0f;
+    double m_offset_y = 0.0f;
 
   public:
     ImagePanel(wxWindow *parent, const wxImage &image);
@@ -38,12 +42,11 @@ class ImagePanel : public wxPanel {
     void mouseDown(wxMouseEvent &event);
     void mouseWheelMoved(wxMouseEvent &event);
     void mouseReleased(wxMouseEvent &event);
-    void rightClick(wxMouseEvent &event);
-    void mouseLeftWindow(wxMouseEvent &event);
-    void keyPressed(wxKeyEvent &event);
-    void keyReleased(wxKeyEvent &event);
 
     void updateImage(const wxImage &image);
+
+    void OnPaint( wxPaintEvent &evt );
+    void SetZoom( double zoom, const wxPoint &center );
 
     DECLARE_EVENT_TABLE()
 };

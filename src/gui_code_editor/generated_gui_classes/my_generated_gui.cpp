@@ -17,7 +17,7 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 
 	wxStaticBoxSizer* sbSizer1;
-	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Control Flow Graph") ), wxVERTICAL );
+	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Control Flow Graph")), wxVERTICAL );
 
 	m_graph_panel = new ImagePanel( sbSizer1->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	sbSizer1->Add( m_graph_panel, 3, wxALL|wxEXPAND, 5 );
