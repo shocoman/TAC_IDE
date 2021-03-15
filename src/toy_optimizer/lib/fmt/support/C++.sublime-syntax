@@ -94,7 +94,7 @@ contexts:
     - match: \bthis\b
       scope: variable.language.c++
     # common C++ instance var naming idiom -- fMemberName
-    - match: '\b(func|m)[[:upper:]]\w*\b'
+    - match: '\b(f|m)[[:upper:]]\w*\b'
       scope: variable.other.readwrite.member.c++
     # common C++ instance var naming idiom -- m_member_name
     - match: '\bm_[[:alnum:]_]+\b'
@@ -378,7 +378,7 @@ contexts:
               (\[[^\]]+\]|[am]s|[diouxXDOUeEfFgGaACcSspn%]) # conversion type
           scope: constant.other.placeholder.c++
         - match: '\{\{|\}\}'
-          scope: constant.character.escape_string.c++
+          scope: constant.character.escape.c++
         - include: formatting-syntax
     - include: scope:source.c#strings
 

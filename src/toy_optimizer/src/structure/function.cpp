@@ -5,8 +5,9 @@
 #include "function.hpp"
 
 std::vector<char> Function::print_cfg(std::string filename,
-                         std::unordered_map<int, std::string> additional_info_above,
-                         std::unordered_map<int, std::string> additional_info_below, std::string title) {
+                                      std::unordered_map<int, std::string> additional_info_above,
+                                      std::unordered_map<int, std::string> additional_info_below,
+                                      std::string title) {
     auto id_to_rpo = get_reverse_post_ordering();
     auto id_to_po = get_post_ordering();
 
@@ -58,7 +59,10 @@ std::vector<char> Function::print_cfg(std::string filename,
     filename = "graphs/" + filename;
     dot_writer.set_title(title);
     std::vector<char> image_data = dot_writer.render_to_file(filename);
+
+#ifdef DISPLAY_GRAPHS
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
     return image_data;
 }
 
@@ -254,4 +258,19 @@ void Function::print_as_code() const {
         code.insert(0, fmt::format("\n{}: // Function name", function_name));
 
     fmt::print("{}\n", code);
+}
+
+void Function::update_phi_predecessors_after_clone() {
+    for (auto &b : basic_blocks)
+        for (int i = 0; i < b->phi_functions; ++i) {
+            auto &phi = b->quads[i];
+            for (auto &op : phi.ops) {
+                int pred_id = op.phi_predecessor->id;
+                op.phi_predecessor = nullptr;
+                for (auto &pred : b->predecessors)
+                    if (pred->id == pred_id)
+                        op.phi_predecessor = pred;
+                assert(op.phi_predecessor != nullptr && "Can't find right phi predecessor!");
+            }
+        }
 }

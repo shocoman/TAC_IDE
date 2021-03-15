@@ -66,7 +66,9 @@ struct SSAGraph {
         filename = "graphs/" + filename;
         dot_writer.set_title("UseDef Graph");
         dot_writer.render_to_file(filename);
+#ifdef DISPLAY_GRAPHS
         system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
     }
 };
 

@@ -7,10 +7,12 @@ endif()
 
 # Determine if fmt is built as a subproject (using add_subdirectory)
 # or if it is the master project.
-set(MASTER_PROJECT OFF)
-if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  set(MASTER_PROJECT ON)
-  message(STATUS "CMake version: ${CMAKE_VERSION}")
+if (NOT DEFINED FMT_MASTER_PROJECT)
+  set(FMT_MASTER_PROJECT OFF)
+  if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(FMT_MASTER_PROJECT ON)
+    message(STATUS "CMake version: ${CMAKE_VERSION}")
+  endif ()
 endif ()
 
 # Joins arguments and places the results in ${result_var}.
@@ -44,7 +46,7 @@ endfunction()
 # Set the default CMAKE_BUILD_TYPE to Release.
 # This should be done before the project command since the latter can set
 # CMAKE_BUILD_TYPE itself (it does so for nmake).
-if (MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
+if (FMT_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
   set_verbose(CMAKE_BUILD_TYPE Release CACHE STRING
               "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or "
               "CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
@@ -61,9 +63,9 @@ option(FMT_WERROR "Halt the compilation with an error on compiler warnings."
        OFF)
 
 # Options that control generation of various targets.
-option(FMT_DOC "Generate the doc target." ${MASTER_PROJECT})
-option(FMT_INSTALL "Generate the install target." ${MASTER_PROJECT})
-option(FMT_TEST "Generate the test target." ${MASTER_PROJECT})
+option(FMT_DOC "Generate the doc target." ${FMT_MASTER_PROJECT})
+option(FMT_INSTALL "Generate the install target." ${FMT_MASTER_PROJECT})
+option(FMT_TEST "Generate the test target." ${FMT_MASTER_PROJECT})
 option(FMT_FUZZ "Generate the fuzz target." OFF)
 option(FMT_CUDA_TEST "Generate the cuda-test target." OFF)
 option(FMT_OS "Include core requiring OS (Windows/Posix) " ON)
@@ -88,11 +90,11 @@ if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif ()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-  "support/cmake")
+  "${CMAKE_CURRENT_SOURCE_DIR}/support/cmake")
 
-include(support/cmake/cxx14.cmake)
+include(cxx14)
 include(CheckCXXCompilerFlag)
-include(support/cmake/JoinPaths.cmake)
+include(JoinPaths)
 
 list(FIND CMAKE_CXX_COMPILE_FEATURES "cxx_variadic_templates" index)
 if (${index} GREATER -1)
@@ -119,7 +121,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
       set(PEDANTIC_COMPILE_FLAGS ${PEDANTIC_COMPILE_FLAGS} -Wdouble-promotion
           -Wtrampolines -Wzero-as-null-pointer-constant -Wuseless-cast
-          -Wvector-operation-performance -Wsized-deallocation)
+          -Wvector-operation-performance -Wsized-deallocation -Wshadow)
   endif ()
   if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
       set(PEDANTIC_COMPILE_FLAGS ${PEDANTIC_COMPILE_FLAGS} -Wshift-overflow=2
@@ -130,7 +132,7 @@ endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(PEDANTIC_COMPILE_FLAGS -Wall -Wextra -pedantic -Wconversion -Wundef
-      -Wdeprecated -Wweak-vtables)
+      -Wdeprecated -Wweak-vtables -Wshadow)
   check_cxx_compiler_flag(-Wzero-as-null-pointer-constant HAS_NULLPTR_WARNING)
   if (HAS_NULLPTR_WARNING)
     set(PEDANTIC_COMPILE_FLAGS ${PEDANTIC_COMPILE_FLAGS}
@@ -144,7 +146,7 @@ if (MSVC)
   set(WERROR_FLAG /WX)
 endif ()
 
-if (MASTER_PROJECT AND CMAKE_GENERATOR MATCHES "Visual Studio")
+if (FMT_MASTER_PROJECT AND CMAKE_GENERATOR MATCHES "Visual Studio")
   # If Microsoft SDK is installed create script run-msbuild.bat that
   # calls SetEnv.cmd to set up build environment and runs msbuild.
   # It is useful when building Visual Studio projects with the SDK
@@ -183,8 +185,9 @@ function(add_headers VAR)
 endfunction()
 
 # Define the fmt library, its includes and the needed defines.
-add_headers(FMT_HEADERS chrono.h color.h compile.h core.h format.h format-inl.h
-                        locale.h os.h ostream.h posix.h printf.h ranges.h)
+add_headers(FMT_HEADERS args.h chrono.h color.h compile.h core.h format.h
+                        format-inl.h locale.h os.h ostream.h posix.h printf.h
+                        ranges.h)
 if (FMT_OS)
   set(FMT_SOURCES src/format.cc src/os.cc)
 else()
@@ -294,6 +297,13 @@ if (FMT_INSTALL)
     INSTALL_DESTINATION ${FMT_CMAKE_DIR})
 
   set(INSTALL_TARGETS fmt fmt-header-only)
+
+  # Install the library and headers.
+  install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name}
+          LIBRARY DESTINATION ${FMT_LIB_DIR}
+          ARCHIVE DESTINATION ${FMT_LIB_DIR}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
   # Use a namespace because CMake provides better diagnostics for namespaced
   # imported targets.
   export(TARGETS ${INSTALL_TARGETS} NAMESPACE fmt::
@@ -305,12 +315,6 @@ if (FMT_INSTALL)
     DESTINATION ${FMT_CMAKE_DIR})
   install(EXPORT ${targets_export_name} DESTINATION ${FMT_CMAKE_DIR}
           NAMESPACE fmt::)
-
-  # Install the library and headers.
-  install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name}
-          LIBRARY DESTINATION ${FMT_LIB_DIR}
-          ARCHIVE DESTINATION ${FMT_LIB_DIR}
-          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   install(FILES $<TARGET_PDB_FILE:${INSTALL_TARGETS}>
           DESTINATION ${FMT_LIB_DIR} OPTIONAL)
@@ -339,8 +343,8 @@ if (FMT_FUZZ)
   target_compile_definitions(fmt PUBLIC FMT_FUZZ)
 endif ()
 
-set(gitignore ../../../../.gitignore)
-if (MASTER_PROJECT AND EXISTS ${gitignore})
+set(gitignore ${PROJECT_SOURCE_DIR}/.gitignore)
+if (FMT_MASTER_PROJECT AND EXISTS ${gitignore})
   # Get the list of ignored files from .gitignore.
   file (STRINGS ${gitignore} lines)
   list(REMOVE_ITEM lines /doc/html)

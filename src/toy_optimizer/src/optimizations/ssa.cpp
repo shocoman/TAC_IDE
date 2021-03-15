@@ -162,7 +162,7 @@ void convert_from_ssa(Function &f) {
                 for (auto &op : phi.ops)
                     if (op.phi_predecessor->id == b->id)
                         src = op.value;
-                assert(!src.empty());
+                assert(!src.empty() && "Can't find right phi predecessor!");
 
                 copy_set.emplace(src, dest);
                 map[src] = src;

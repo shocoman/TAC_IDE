@@ -78,8 +78,8 @@
      #include <fmt/os.h>
 
      int main() {
-       auto func = fmt::output_file("guide");
-       func.print("The answer is {}.", 42);
+       auto f = fmt::output_file("guide");
+       f.print("The answer is {}.", 42);
      }
 
 * Added a formatter for ``std::chrono::time_point<system_clock>``
@@ -131,7 +131,7 @@
 
      #include <fmt/compile.h>
 
-     char* func(char* buf) {
+     char* f(char* buf) {
        return fmt::format_to(buf, FMT_COMPILE("x{}"), 42);
      }
 
@@ -1357,8 +1357,8 @@
 
      #include <fmt/compile.h>
 
-     auto func = fmt::compile<int>("{}");
-     std::string s = fmt::format(func, 42); // can be called multiple times to
+     auto f = fmt::compile<int>("{}");
+     std::string s = fmt::format(f, 42); // can be called multiple times to
                                          // format different values
      // s == "42"
 
@@ -1763,7 +1763,7 @@
 
   .. code:: c++
 
-     print(fmt(L"{:func}"), 42); // compile-time error: invalid type specifier
+     print(fmt(L"{:f}"), 42); // compile-time error: invalid type specifier
 
   Thanks `@XZiar <https://github.com/XZiar>`_.
 
@@ -2554,7 +2554,7 @@
 
 * Moved ``fmt::printf()`` to new ``printf.h`` header and allowed ``%s`` as
   generic specifier (`#453 <https://github.com/fmtlib/fmt/pull/453>`_),
-  made ``%.func`` more conformant to regular ``printf()``
+  made ``%.f`` more conformant to regular ``printf()``
   (`#490 <https://github.com/fmtlib/fmt/pull/490>`_), added custom writer
   support (`#476 <https://github.com/fmtlib/fmt/issues/476>`_) and implemented
   missing custom argument formatting
@@ -3475,7 +3475,7 @@ Fixes
 
   .. code:: c++
 
-      void func(fmt::Writer &w);
+      void f(fmt::Writer &w);
 
   This doesn't affect the formatting API.
 
@@ -3644,8 +3644,8 @@ Fixes
 
   .. code:: c++
 
-    FILE *func = fopen(filename, "r");
-    if (!func)
+    FILE *f = fopen(filename, "r");
+    if (!f)
       ThrowSystemError(errno, "Failed to open file '{}'") << filename;
 
   will throw ``SystemError`` exception with description

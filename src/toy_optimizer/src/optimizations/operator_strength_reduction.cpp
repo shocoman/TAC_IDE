@@ -209,7 +209,9 @@ void OSRDriver::PrintSSAGraph() {
     std::string filename = "graphs/ssa_graph.png";
     dot_writer.set_title("SSA Graph");
     dot_writer.render_to_file(filename);
+#ifdef DISPLAY_GRAPHS
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
 }
 
 void OSRDriver::Replace(const std::string &node_name) {

@@ -21,7 +21,7 @@ class DocoptLanguageError(Exception):
 
 class DocoptExit(SystemExit):
 
-    """Exit in case user invoked Program with incorrect arguments."""
+    """Exit in case user invoked program with incorrect arguments."""
 
     usage = ''
 
@@ -58,7 +58,7 @@ class Pattern(object):
         """Fix elements that should accumulate/increment values."""
         either = [list(child.children) for child in transform(self).children]
         for case in either:
-            for e in [child for child in case if case.counter(child) > 1]:
+            for e in [child for child in case if case.count(child) > 1]:
                 if type(e) is Argument or type(e) is Option and e.argcount:
                     if e.value is None:
                         e.value = []

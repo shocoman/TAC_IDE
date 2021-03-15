@@ -385,7 +385,9 @@ void print_sccp_result_graph(Function &f, std::set<std::pair<int, int>> &execute
     std::string filename = "graphs/sccp_result.png";
     dot_writer.set_title("SCCP result");
     dot_writer.render_to_file(filename);
+#ifdef DISPLAY_GRAPHS
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
 }
 
 void remove_useless_blocks(Function &f, std::unordered_set<int> &useless_blocks) {

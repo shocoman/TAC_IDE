@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.17)
 project(toy_ide)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_DEBUG "-O1")
-set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O1")
+
 
 #add_subdirectory(src/tac_simulator) # include tac simulator
 #add_subdirectory(src/toy_optimizer/lib/fmt)
 add_subdirectory(src/toy_optimizer)
 list(TRANSFORM TOY_OPTIMIZER_SOURCE_FILES PREPEND "src/toy_optimizer/")
+
 
 ### WxWidgets ########################################
 find_package(wxWidgets REQUIRED core base stc html #[[ gl net media ribbon xrc xml richtext aui]] )
@@ -48,11 +49,10 @@ set(EDITOR_SOURCES src/gui_code_editor/the_app.cpp
         src/gui_code_editor/windows/optimization_window/toy_ir/my_html_window.cpp
         src/gui_code_editor/generated_gui_classes/my_generated_gui.cpp
         src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_description_window.cpp
-        src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_description_window.hpp)
+        src/gui_code_editor/windows/optimization_window/toy_ir/toy_optimization_description_window.hpp src/gui_code_editor/utilities/image_loading.cpp src/gui_code_editor/utilities/image_loading.hpp)
 add_executable(toy_ide main.cpp ${EDITOR_SOURCES} ${TOY_OPTIMIZER_SOURCE_FILES})
 target_include_directories(toy_ide PUBLIC src src/gui_code_editor)
 target_link_libraries(toy_ide PUBLIC fmt::fmt BisonParser)
-
 
 
 ### Graphviz ########################################

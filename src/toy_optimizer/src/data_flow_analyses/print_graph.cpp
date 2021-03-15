@@ -25,7 +25,9 @@ std::vector<char> print_dominator_tree(Function &f) {
 
     writer.set_title("Dominator Tree and Dominance Frontier");
     std::vector<char> image_data = writer.render_to_file("graphs/dominator_tree.png");
+#ifdef DISPLAY_GRAPHS
     system("sxiv -g 1000x1000+20+20 graphs/dominator_tree.png &");
+#endif
     return image_data;
 }
 
@@ -52,7 +54,9 @@ std::vector<char> print_postdominator_tree(Function &f) {
 
     writer.set_title("Postdominator Tree and Postdominance Frontier");
     std::vector<char> image_data = writer.render_to_file("graphs/dominator_tree.png");
+#ifdef DISPLAY_GRAPHS
     system("sxiv -g 1000x1000+20+20 graphs/dominator_tree.png &");
+#endif
     return image_data;
 }
 
@@ -89,7 +93,9 @@ std::vector<char> print_control_dependence(Function &f) {
 
     writer.set_title("Control Dependence");
     std::vector<char> image_data = writer.render_to_file("graphs/control_dependence.png");
+#ifdef DISPLAY_GRAPHS
     system("sxiv -g 1000x1000+20+20 graphs/control_dependence.png &");
+#endif
     return image_data;
 }
 
@@ -182,7 +188,9 @@ std::vector<char> print_depth_first_search_tree(Function &f) {
     dot_writer.set_title("Depth-First Search Spanning Tree");
     std::string filename = "graphs/dfs_tree.png";
     std::vector<char> image_data = dot_writer.render_to_file(filename);
+#ifdef DISPLAY_GRAPHS
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
     return image_data;
 }
 

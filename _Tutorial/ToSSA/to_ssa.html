@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>TO SSA</title>
+</head>
+<body>
+
+<p> В этом тексте описывается конвертация промежуточного представления программы в SSA форму. </p>
+    Для примера продемонстрируем промежуточные шаги:
+
+    <ul>
+        <li>Граф программы до конвертации: <br/>
+            <ABYSS CFG_BEFORE_CONVERT /> </li>
+        <li>Список глобальных имен: <br/>
+            <ABYSS LIST_OF_GLOBAL_NAMES /> </li>
+        <li>В "минимальной" SSA форме, Ф-узлы ставятся на фронте доминаторов: <br/>
+            <ABYSS DOMINATOR_FRONTIER /> </li>
+        <li>В "Pruned" SSA форме, Ф-узлы не ставятся для неживых переменных: <br/>
+            <ABYSS LIVE_ANALYSIS /> </li>
+        <li>Граф программы после вставки Ф-узлов, но до переименования: <br/>
+            <ABYSS CFG_BEFORE_RENAME /> </li>
+        <li>Граф программы после конвертации: <br/>
+            <ABYSS CFG_AFTER_CONVERT /> </li>
+    </ul>
+
+
+</body>
+</html>

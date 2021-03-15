@@ -1,5 +1,6 @@
 #include <any>
 #include <iostream>
+#include <optimizations/ssa.hpp>
 #include <queue>
 #include <unordered_set>
 
@@ -15,9 +16,10 @@
 #include "optimizations/lazy_code_motion.hpp"
 #include "optimizations/operator_strength_reduction.hpp"
 #include "optimizations/sparse_conditional_constant_propagation.hpp"
+#include "optimizations/useless_code_elimination.hpp"
+#include "optimizations/ssa.hpp"
 #include "structure/program.hpp"
 #include "utilities/parser/driver/driver.hpp"
-#include "optimizations/ssa.hpp"
 
 int main(int argc, char *argv[]) {
 
@@ -33,7 +35,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    setenv("DISPLAY", "172.17.19.225:0", true);
+    //    setenv("DISPLAY", "172.17.19.225:0", true);
     ParseDriver drv;
 
     //    drv.parse_from_file("../_TestCode/myfile");
@@ -57,15 +59,27 @@ int main(int argc, char *argv[]) {
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
-    //    optimize(functions[0]);
 
     convert_to_ssa(f);
+    auto f_copy = f;
+
+    useless_code_elimination(f);
+    convert_from_ssa(f_copy);
+
+    f.print_cfg();
+    f_copy.print_cfg("cfg_copy.png");
+
+
+    //    SSAConvertationDriver ssa_convertation_driver(f);
+    //    ssa_convertation_driver.convert_to_ssa();
+
+    //    convert_to_ssa(f);
     //    copy_propagation_on_ssa(f);
     //    f.print_cfg("before.png");
     //    convert_from_ssa(f);
 
     //    useless_code_elimination(f);
-    f.print_cfg("before.png");
+    //    f.print_cfg("before.png") ;
 
     std::getchar();
 

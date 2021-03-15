@@ -11,14 +11,14 @@ bool TheApp::OnInit() {
     SetAppName(APP_NAME);
 
     // create application frame
-    m_frame = new MainWindowFrame(nullptr, APP_NAME);
+//    m_frame = new MainWindowFrame(nullptr, APP_NAME);
 
     // set application icon
     // m_frame->SetIcon (wxICON(aaaa));
 
     // open application frame
-    m_frame->Layout();
-    m_frame->Show(true);
+//    m_frame->Layout();
+//    m_frame->Show(true);
 
     wxFileInputStream input(wxT("../_TestCode/ssa_test.txt"));
     wxTextInputStream text(input, wxT("\x09"), wxConvUTF8);
@@ -28,8 +28,12 @@ bool TheApp::OnInit() {
         code << text.ReadLine() + "\n";
     }
 
-    auto *win = new ToyOptimizationChooseWindow(m_frame, code);
-    win->Layout();
+    auto program = Program::from_program_code(code.ToStdString());
+    auto &f = program.functions[0];
+    auto graph = f.print_cfg();
+
+    auto *win = new ToyOptimizationChooseWindow(nullptr, code);
+//    auto *win = GraphView::fromImageData(nullptr, graph);
     win->ShowModal();
 
     return true;

@@ -1,4 +1,4 @@
-// A Bison parser, made by GNU Bison 3.7.1.
+// A Bison parser, made by GNU Bison 3.5.1.
 
 // Skeleton implementation for Bison LALR(1) parsers in C++
 
@@ -30,9 +30,8 @@
 // This special exception was added by the Free Software Foundation in
 // version 2.2 of Bison.
 
-// DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-// especially those whose name start with YY_ or yy_.  They are
-// private implementation details that can be changed or removed.
+// Undocumented macros, especially those whose name start with YY_,
+// are private implementation details.  Do not rely on them.
 
 
 
@@ -42,11 +41,11 @@
 
 
 // Unqualified %code blocks.
-#line 23 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 23 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
     #include "../parser/driver/driver.hpp"
 
-#line 50 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 49 "../src/utilities/parser/compiled_parser/parser.cpp"
 
 
 #ifndef YY_
@@ -60,7 +59,6 @@
 #  define YY_(msgid) msgid
 # endif
 #endif
-
 
 // Whether we are compiled with exception support.
 #ifndef YY_EXCEPTIONS
@@ -117,7 +115,7 @@
 # define YY_STACK_PRINT()               \
   do {                                  \
     if (yydebug_)                       \
-      yy_stack_print_ ();                \
+      yystack_print_ ();                \
   } while (false)
 
 #else // !YYDEBUG
@@ -138,7 +136,49 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 142 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 140 "../src/utilities/parser/compiled_parser/parser.cpp"
+
+
+  /* Return YYSTR after stripping away unnecessary quotes and
+     backslashes, so that it's suitable for yyerror.  The heuristic is
+     that double-quoting is unnecessary unless the string contains an
+     apostrophe, a comma, or backslash (other than backslash-backslash).
+     YYSTR is taken from yytname.  */
+  std::string
+  parser::yytnamerr_ (const char *yystr)
+  {
+    if (*yystr == '"')
+      {
+        std::string yyr;
+        char const *yyp = yystr;
+
+        for (;;)
+          switch (*++yyp)
+            {
+            case '\'':
+            case ',':
+              goto do_not_strip_quotes;
+
+            case '\\':
+              if (*++yyp != '\\')
+                goto do_not_strip_quotes;
+              else
+                goto append;
+
+            append:
+            default:
+              yyr += *yyp;
+              break;
+
+            case '"':
+              return yyr;
+            }
+      do_not_strip_quotes: ;
+      }
+
+    return yystr;
+  }
+
 
   /// Build a parser object.
   parser::parser (ParseDriver& drv_yyarg)
@@ -159,7 +199,7 @@ namespace yy {
   {}
 
   /*---------------.
-  | symbol kinds.  |
+  | Symbol types.  |
   `---------------*/
 
 
@@ -190,13 +230,13 @@ namespace yy {
     : state (s)
   {}
 
-  parser::symbol_kind_type
-  parser::by_state::kind () const YY_NOEXCEPT
+  parser::symbol_number_type
+  parser::by_state::type_get () const YY_NOEXCEPT
   {
     if (state == empty_state)
-      return symbol_kind::S_YYEMPTY;
+      return empty_symbol;
     else
-      return YY_CAST (symbol_kind_type, yystos_[+state]);
+      return yystos_[+state];
   }
 
   parser::stack_symbol_type::stack_symbol_type ()
@@ -205,41 +245,41 @@ namespace yy {
   parser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
     : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
   {
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_dest: // dest
+      case 43: // dest
         value.YY_MOVE_OR_COPY< Dest > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_term: // term
+      case 51: // term
         value.YY_MOVE_OR_COPY< Operand > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_value: // value
-      case symbol_kind::S_quadruple: // quadruple
-      case symbol_kind::S_if_statement: // if_statement
-      case symbol_kind::S_goto: // goto
-      case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_var_declaration: // var_declaration
+      case 44: // value
+      case 45: // quadruple
+      case 46: // if_statement
+      case 47: // goto
+      case 48: // assignment
+      case 49: // var_declaration
         value.YY_MOVE_OR_COPY< Quad > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_CHAR: // "char"
+      case 38: // "char"
         value.YY_MOVE_OR_COPY< char > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_FLOAT: // "float"
+      case 40: // "float"
         value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_INT: // "int"
+      case 39: // "int"
         value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-      case symbol_kind::S_STRING: // "string"
-      case symbol_kind::S_BOOL: // "bool"
-      case symbol_kind::S_label: // label
+      case 35: // "identifier"
+      case 36: // "string"
+      case 37: // "bool"
+      case 50: // label
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
@@ -256,41 +296,41 @@ namespace yy {
   parser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
     : super_type (s, YY_MOVE (that.location))
   {
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_dest: // dest
+      case 43: // dest
         value.move< Dest > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_term: // term
+      case 51: // term
         value.move< Operand > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_value: // value
-      case symbol_kind::S_quadruple: // quadruple
-      case symbol_kind::S_if_statement: // if_statement
-      case symbol_kind::S_goto: // goto
-      case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_var_declaration: // var_declaration
+      case 44: // value
+      case 45: // quadruple
+      case 46: // if_statement
+      case 47: // goto
+      case 48: // assignment
+      case 49: // var_declaration
         value.move< Quad > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_CHAR: // "char"
+      case 38: // "char"
         value.move< char > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_FLOAT: // "float"
+      case 40: // "float"
         value.move< double > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_INT: // "int"
+      case 39: // "int"
         value.move< int > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-      case symbol_kind::S_STRING: // "string"
-      case symbol_kind::S_BOOL: // "bool"
-      case symbol_kind::S_label: // label
+      case 35: // "identifier"
+      case 36: // "string"
+      case 37: // "bool"
+      case 50: // label
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
@@ -299,7 +339,7 @@ namespace yy {
     }
 
     // that is emptied.
-    that.kind_ = symbol_kind::S_YYEMPTY;
+    that.type = empty_symbol;
   }
 
 #if YY_CPLUSPLUS < 201103L
@@ -307,41 +347,41 @@ namespace yy {
   parser::stack_symbol_type::operator= (const stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_dest: // dest
+      case 43: // dest
         value.copy< Dest > (that.value);
         break;
 
-      case symbol_kind::S_term: // term
+      case 51: // term
         value.copy< Operand > (that.value);
         break;
 
-      case symbol_kind::S_value: // value
-      case symbol_kind::S_quadruple: // quadruple
-      case symbol_kind::S_if_statement: // if_statement
-      case symbol_kind::S_goto: // goto
-      case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_var_declaration: // var_declaration
+      case 44: // value
+      case 45: // quadruple
+      case 46: // if_statement
+      case 47: // goto
+      case 48: // assignment
+      case 49: // var_declaration
         value.copy< Quad > (that.value);
         break;
 
-      case symbol_kind::S_CHAR: // "char"
+      case 38: // "char"
         value.copy< char > (that.value);
         break;
 
-      case symbol_kind::S_FLOAT: // "float"
+      case 40: // "float"
         value.copy< double > (that.value);
         break;
 
-      case symbol_kind::S_INT: // "int"
+      case 39: // "int"
         value.copy< int > (that.value);
         break;
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-      case symbol_kind::S_STRING: // "string"
-      case symbol_kind::S_BOOL: // "bool"
-      case symbol_kind::S_label: // label
+      case 35: // "identifier"
+      case 36: // "string"
+      case 37: // "bool"
+      case 50: // label
         value.copy< std::string > (that.value);
         break;
 
@@ -357,41 +397,41 @@ namespace yy {
   parser::stack_symbol_type::operator= (stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
+    switch (that.type_get ())
     {
-      case symbol_kind::S_dest: // dest
+      case 43: // dest
         value.move< Dest > (that.value);
         break;
 
-      case symbol_kind::S_term: // term
+      case 51: // term
         value.move< Operand > (that.value);
         break;
 
-      case symbol_kind::S_value: // value
-      case symbol_kind::S_quadruple: // quadruple
-      case symbol_kind::S_if_statement: // if_statement
-      case symbol_kind::S_goto: // goto
-      case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_var_declaration: // var_declaration
+      case 44: // value
+      case 45: // quadruple
+      case 46: // if_statement
+      case 47: // goto
+      case 48: // assignment
+      case 49: // var_declaration
         value.move< Quad > (that.value);
         break;
 
-      case symbol_kind::S_CHAR: // "char"
+      case 38: // "char"
         value.move< char > (that.value);
         break;
 
-      case symbol_kind::S_FLOAT: // "float"
+      case 40: // "float"
         value.move< double > (that.value);
         break;
 
-      case symbol_kind::S_INT: // "int"
+      case 39: // "int"
         value.move< int > (that.value);
         break;
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-      case symbol_kind::S_STRING: // "string"
-      case symbol_kind::S_BOOL: // "bool"
-      case symbol_kind::S_label: // label
+      case 35: // "identifier"
+      case 36: // "string"
+      case 37: // "bool"
+      case 50: // label
         value.move< std::string > (that.value);
         break;
 
@@ -417,21 +457,23 @@ namespace yy {
 #if YYDEBUG
   template <typename Base>
   void
-  parser::yy_print_ (std::ostream& yyo, const basic_symbol<Base>& yysym) const
+  parser::yy_print_ (std::ostream& yyo,
+                                     const basic_symbol<Base>& yysym) const
   {
     std::ostream& yyoutput = yyo;
     YYUSE (yyoutput);
+    symbol_number_type yytype = yysym.type_get ();
+#if defined __GNUC__ && ! defined __clang__ && ! defined __ICC && __GNUC__ * 100 + __GNUC_MINOR__ <= 408
+    // Avoid a (spurious) G++ 4.8 warning about "array subscript is
+    // below array bounds".
     if (yysym.empty ())
-      yyo << "empty symbol";
-    else
-      {
-        symbol_kind_type yykind = yysym.kind ();
-        yyo << (yykind < YYNTOKENS ? "token" : "nterm")
-            << ' ' << yysym.name () << " ("
-            << yysym.location << ": ";
-        YYUSE (yykind);
-        yyo << ')';
-      }
+      std::abort ();
+#endif
+    yyo << (yytype < yyntokens_ ? "token" : "nterm")
+        << ' ' << yytname_[yytype] << " ("
+        << yysym.location << ": ";
+    YYUSE (yytype);
+    yyo << ')';
   }
 #endif
 
@@ -490,11 +532,11 @@ namespace yy {
   parser::state_type
   parser::yy_lr_goto_state_ (state_type yystate, int yysym)
   {
-    int yyr = yypgoto_[yysym - YYNTOKENS] + yystate;
+    int yyr = yypgoto_[yysym - yyntokens_] + yystate;
     if (0 <= yyr && yyr <= yylast_ && yycheck_[yyr] == yystate)
       return yytable_[yyr];
     else
-      return yydefgoto_[yysym - YYNTOKENS];
+      return yydefgoto_[yysym - yyntokens_];
   }
 
   bool
@@ -558,7 +600,6 @@ namespace yy {
   `-----------------------------------------------*/
   yynewstate:
     YYCDEBUG << "Entering state " << int (yystack_[0].state) << '\n';
-    YY_STACK_PRINT ();
 
     // Accept?
     if (yystack_[0].state == yyfinal_)
@@ -579,7 +620,7 @@ namespace yy {
     // Read a lookahead token.
     if (yyla.empty ())
       {
-        YYCDEBUG << "Reading a token\n";
+        YYCDEBUG << "Reading a token: ";
 #if YY_EXCEPTIONS
         try
 #endif // YY_EXCEPTIONS
@@ -598,22 +639,12 @@ namespace yy {
       }
     YY_SYMBOL_PRINT ("Next token is", yyla);
 
-    if (yyla.kind () == symbol_kind::S_YYerror)
-    {
-      // The scanner already issued an error message, process directly
-      // to error recovery.  But do not keep the error token as
-      // lookahead, it is too special and may lead us to an endless
-      // loop in error recovery. */
-      yyla.kind_ = symbol_kind::S_YYUNDEF;
-      goto yyerrlab1;
-    }
-
     /* If the proper action on seeing token YYLA.TYPE is to reduce or
        to detect an error, take that action.  */
-    yyn += yyla.kind ();
-    if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.kind ())
+    yyn += yyla.type_get ();
+    if (yyn < 0 || yylast_ < yyn || yycheck_[yyn] != yyla.type_get ())
       {
-        if (!yy_lac_establish_ (yyla.kind ()))
+        if (!yy_lac_establish_ (yyla.type_get ()))
            goto yyerrlab;
         goto yydefault;
       }
@@ -624,7 +655,7 @@ namespace yy {
       {
         if (yy_table_value_is_error_ (yyn))
           goto yyerrlab;
-        if (!yy_lac_establish_ (yyla.kind ()))
+        if (!yy_lac_establish_ (yyla.type_get ()))
            goto yyerrlab;
 
         yyn = -yyn;
@@ -664,39 +695,39 @@ namespace yy {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_dest: // dest
+      case 43: // dest
         yylhs.value.emplace< Dest > ();
         break;
 
-      case symbol_kind::S_term: // term
+      case 51: // term
         yylhs.value.emplace< Operand > ();
         break;
 
-      case symbol_kind::S_value: // value
-      case symbol_kind::S_quadruple: // quadruple
-      case symbol_kind::S_if_statement: // if_statement
-      case symbol_kind::S_goto: // goto
-      case symbol_kind::S_assignment: // assignment
-      case symbol_kind::S_var_declaration: // var_declaration
+      case 44: // value
+      case 45: // quadruple
+      case 46: // if_statement
+      case 47: // goto
+      case 48: // assignment
+      case 49: // var_declaration
         yylhs.value.emplace< Quad > ();
         break;
 
-      case symbol_kind::S_CHAR: // "char"
+      case 38: // "char"
         yylhs.value.emplace< char > ();
         break;
 
-      case symbol_kind::S_FLOAT: // "float"
+      case 40: // "float"
         yylhs.value.emplace< double > ();
         break;
 
-      case symbol_kind::S_INT: // "int"
+      case 39: // "int"
         yylhs.value.emplace< int > ();
         break;
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-      case symbol_kind::S_STRING: // "string"
-      case symbol_kind::S_BOOL: // "bool"
-      case symbol_kind::S_label: // label
+      case 35: // "identifier"
+      case 36: // "string"
+      case 37: // "bool"
+      case 50: // label
         yylhs.value.emplace< std::string > ();
         break;
 
@@ -720,288 +751,288 @@ namespace yy {
         {
           switch (yyn)
             {
-  case 4: // stmt: label mb_newline
-#line 93 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 4:
+#line 95 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                            { drv.labels.emplace(yystack_[1].value.as < std::string > (), drv.quadruples.size()); }
-#line 727 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 758 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 5: // stmt: quadruple newlines
-#line 94 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 5:
+#line 96 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                            { drv.quadruples.push_back(yystack_[1].value.as < Quad > ()); }
-#line 733 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 764 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 11: // quadruple: assignment
-#line 100 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 11:
+#line 102 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 739 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 770 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 12: // quadruple: if_statement
-#line 101 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 12:
+#line 103 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 745 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 776 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 13: // quadruple: goto
-#line 102 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 13:
+#line 104 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 751 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 782 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 14: // quadruple: "halt"
-#line 103 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 14:
+#line 105 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Halt); }
-#line 757 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 788 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 15: // quadruple: "nop"
-#line 104 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 15:
+#line 106 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Nop); }
-#line 763 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 794 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 16: // quadruple: "return" term
-#line 105 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 16:
+#line 107 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Return); }
-#line 769 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 17: // quadruple: "print_to_console" term
-#line 106 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                        { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Print); }
-#line 775 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 18: // quadruple: "call" "identifier" "," "int"
-#line 107 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                        { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), std::to_string(yystack_[0].value.as < int > ()), Quad::Type::Call); }
-#line 781 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 19: // quadruple: var_declaration
-#line 108 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 787 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 20: // quadruple: "putparam" term
-#line 109 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                        { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Putparam); }
-#line 793 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 21: // quadruple: "getparam" "identifier"
-#line 110 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                        { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Getparam);
-                                          yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var);  }
 #line 800 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 22: // var_declaration: label "." "identifier" term
-#line 115 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 17:
+#line 108 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                        { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Print); }
+#line 806 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 18:
+#line 109 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                        { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), std::to_string(yystack_[0].value.as < int > ()), Quad::Type::Call); }
+#line 812 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 19:
+#line 110 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+    { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
+#line 818 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 20:
+#line 111 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                        { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Putparam); }
+#line 824 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 21:
+#line 112 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                        { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Getparam);
+                                          yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var);  }
+#line 831 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 22:
+#line 117 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                     {
                                   yylhs.value.as < Quad > () = Quad(yystack_[1].value.as < std::string > (), yystack_[0].value.as < Operand > (), Quad::Type::VarDeclaration);
                                   yylhs.value.as < Quad > ().dest = Dest(yystack_[3].value.as < std::string > (), {}, Dest::Type::Var);
                               }
-#line 809 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 840 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 23: // var_declaration: label "." "block" "int" "," "identifier" "," term
-#line 119 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 23:
+#line 121 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                                                            {
                                   yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), yystack_[0].value.as < Operand > (), Quad::Type::ArrayDeclaration);
                                   yylhs.value.as < Quad > ().dest = Dest(yystack_[7].value.as < std::string > (), std::to_string(yystack_[4].value.as < int > ()), Dest::Type::Var);
                               }
-#line 818 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 849 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 24: // assignment: dest "=" value
-#line 124 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 24:
+#line 126 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                            { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 824 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 855 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 25: // if_statement: "if" term "goto" "identifier"
-#line 127 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 25:
+#line 129 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), {}, Quad::Type::IfTrue);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel); }
-#line 831 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 862 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 26: // if_statement: "iffalse" term "goto" "identifier"
-#line 129 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 26:
+#line 131 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), {}, Quad::Type::IfFalse);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
-#line 838 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 27: // goto: "goto" "identifier"
-#line 133 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
-                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
-#line 845 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 28: // dest: "identifier"
-#line 137 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
-#line 851 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 29: // dest: "*" "identifier"
-#line 138 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
-#line 857 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 30: // dest: "identifier" "[" term "]"
-#line 139 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < Operand > (), Dest::Type::ArraySet); }
-#line 863 "../src/utilities/parser/compiled_parser/parser.cpp"
-    break;
-
-  case 31: // label: "identifier" ":"
-#line 142 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                     { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
 #line 869 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 32: // value: term
-#line 146 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 27:
+#line 135 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
+                                yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::JumpLabel);}
+#line 876 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 28:
+#line 139 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Var); }
+#line 882 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 29:
+#line 140 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), {}, Dest::Type::Deref); }
+#line 888 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 30:
+#line 141 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                                { yylhs.value.as < Dest > () = Dest(yystack_[3].value.as < std::string > (), yystack_[1].value.as < Operand > (), Dest::Type::ArraySet); }
+#line 894 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 31:
+#line 144 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                     { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
+#line 900 "../src/utilities/parser/compiled_parser/parser.cpp"
+    break;
+
+  case 32:
+#line 148 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Assign); }
-#line 875 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 906 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 33: // value: "*" term
-#line 147 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 33:
+#line 149 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Deref); }
-#line 881 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 912 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 34: // value: "-" term
-#line 148 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 34:
+#line 150 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::UMinus); }
-#line 887 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 918 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 35: // value: "&" term
-#line 149 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 35:
+#line 151 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Ref); }
-#line 893 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 924 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 36: // value: term "[" term "]"
-#line 150 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 36:
+#line 152 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < Operand > (), yystack_[1].value.as < Operand > (), Quad::Type::ArrayGet); }
-#line 899 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 930 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 37: // value: term "+" term
-#line 151 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 37:
+#line 153 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Add); }
-#line 905 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 936 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 38: // value: term "-" term
-#line 152 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 38:
+#line 154 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Sub); }
-#line 911 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 942 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 39: // value: term "*" term
-#line 153 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 39:
+#line 155 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Mult); }
-#line 917 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 948 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 40: // value: term "/" term
-#line 154 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 40:
+#line 156 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Div); }
-#line 923 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 954 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 41: // value: term "<" term
-#line 155 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 41:
+#line 157 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Lt); }
-#line 929 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 960 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 42: // value: term "<=" term
-#line 156 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 42:
+#line 158 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Lte); }
-#line 935 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 966 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 43: // value: term ">" term
-#line 157 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 43:
+#line 159 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Gt); }
-#line 941 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 972 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 44: // value: term ">=" term
-#line 158 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 44:
+#line 160 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Gte); }
-#line 947 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 978 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 45: // value: term "==" term
-#line 159 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 45:
+#line 161 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Eq); }
-#line 953 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 984 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 46: // value: term "!=" term
-#line 160 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 46:
+#line 162 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Neq); }
-#line 959 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 990 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 47: // value: "call" "identifier" "," "int"
-#line 161 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 47:
+#line 163 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < std::string > (), std::to_string(yystack_[0].value.as < int > ()), Quad::Type::Call); }
-#line 965 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 996 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 48: // term: "identifier"
-#line 165 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 48:
+#line 167 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::Var); }
-#line 971 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1002 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 49: // term: "string"
-#line 166 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 49:
+#line 168 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::LString); }
-#line 977 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1008 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 50: // term: "char"
-#line 167 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 50:
+#line 169 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(std::string(1, yystack_[0].value.as < char > ()), Operand::Type::LChar); }
-#line 983 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1014 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 51: // term: "int"
-#line 168 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 51:
+#line 170 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(std::to_string(yystack_[0].value.as < int > ()), Operand::Type::LInt); }
-#line 989 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1020 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 52: // term: "float"
-#line 169 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 52:
+#line 171 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(std::to_string(yystack_[0].value.as < double > ()), Operand::Type::LDouble); }
-#line 995 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1026 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 53: // term: "bool"
-#line 170 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 53:
+#line 172 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::LBool); }
-#line 1001 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1032 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
 
-#line 1005 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1036 "../src/utilities/parser/compiled_parser/parser.cpp"
 
             default:
               break;
@@ -1018,6 +1049,7 @@ namespace yy {
       YY_SYMBOL_PRINT ("-> $$ =", yylhs);
       yypop_ (yylen);
       yylen = 0;
+      YY_STACK_PRINT ();
 
       // Shift the result of the reduction.
       yypush_ (YY_NULLPTR, YY_MOVE (yylhs));
@@ -1033,9 +1065,7 @@ namespace yy {
     if (!yyerrstatus_)
       {
         ++yynerrs_;
-        context yyctx (*this, yyla);
-        std::string msg = yysyntax_error_ (yyctx);
-        error (yyla.location, YY_MOVE (msg));
+        error (yyla.location, yysyntax_error_ (yystack_[0].state, yyla));
       }
 
 
@@ -1046,7 +1076,7 @@ namespace yy {
            error, discard it.  */
 
         // Return failure if at end of input.
-        if (yyla.kind () == symbol_kind::S_YYEOF)
+        if (yyla.type_get () == yyeof_)
           YYABORT;
         else if (!yyla.empty ())
           {
@@ -1072,7 +1102,6 @@ namespace yy {
        this YYERROR.  */
     yypop_ (yylen);
     yylen = 0;
-    YY_STACK_PRINT ();
     goto yyerrlab1;
 
 
@@ -1081,33 +1110,31 @@ namespace yy {
   `-------------------------------------------------------------*/
   yyerrlab1:
     yyerrstatus_ = 3;   // Each real token shifted decrements this.
-    // Pop stack until we find a state that shifts the error token.
-    for (;;)
-      {
-        yyn = yypact_[+yystack_[0].state];
-        if (!yy_pact_value_is_default_ (yyn))
-          {
-            yyn += symbol_kind::S_YYerror;
-            if (0 <= yyn && yyn <= yylast_
-                && yycheck_[yyn] == symbol_kind::S_YYerror)
-              {
-                yyn = yytable_[yyn];
-                if (0 < yyn)
-                  break;
-              }
-          }
-
-        // Pop the current state because it cannot handle the error token.
-        if (yystack_.size () == 1)
-          YYABORT;
-
-        yyerror_range[1].location = yystack_[0].location;
-        yy_destroy_ ("Error: popping", yystack_[0]);
-        yypop_ ();
-        YY_STACK_PRINT ();
-      }
     {
       stack_symbol_type error_token;
+      for (;;)
+        {
+          yyn = yypact_[+yystack_[0].state];
+          if (!yy_pact_value_is_default_ (yyn))
+            {
+              yyn += yy_error_token_;
+              if (0 <= yyn && yyn <= yylast_ && yycheck_[yyn] == yy_error_token_)
+                {
+                  yyn = yytable_[yyn];
+                  if (0 < yyn)
+                    break;
+                }
+            }
+
+          // Pop the current state because it cannot handle the error token.
+          if (yystack_.size () == 1)
+            YYABORT;
+
+          yyerror_range[1].location = yystack_[0].location;
+          yy_destroy_ ("Error: popping", yystack_[0]);
+          yypop_ ();
+          YY_STACK_PRINT ();
+        }
 
       yyerror_range[2].location = yyla.location;
       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
@@ -1146,7 +1173,6 @@ namespace yy {
     /* Do not reclaim the symbols of the rule whose action triggered
        this YYABORT or YYACCEPT.  */
     yypop_ (yylen);
-    YY_STACK_PRINT ();
     while (1 < yystack_.size ())
       {
         yy_destroy_ ("Cleanup: popping", yystack_[0]);
@@ -1180,74 +1206,15 @@ namespace yy {
     error (yyexc.location, yyexc.what ());
   }
 
-  const char *
-  parser::symbol_name (symbol_kind_type yysymbol)
-  {
-    static const char *const yy_sname[] =
-    {
-    "end of file", "error", "invalid token", "if", "iffalse", "goto",
-  "halt", "call", "putparam", "getparam", "nop", "return", "print",
-  "newline", "block", "=", "+", "-", "*", "/", "&", "<", "<=", ">", ">=",
-  "==", "!=", "(", ")", "[", "]", ";", ":", ",", ".", "identifier",
-  "string", "bool", "char", "int", "float", "print_to_console", "$accept",
-  "dest", "value", "quadruple", "if_statement", "goto", "assignment",
-  "var_declaration", "label", "term", "stmts", "stmt", "mb_newline",
-  "newlines", YY_NULLPTR
-    };
-    return yy_sname[yysymbol];
-  }
-
-
-
-  // parser::context.
-  parser::context::context (const parser& yyparser, const symbol_type& yyla)
-    : yyparser_ (yyparser)
-    , yyla_ (yyla)
-  {}
-
-  int
-  parser::context::expected_tokens (symbol_kind_type yyarg[], int yyargn) const
-  {
-    // Actual number of expected tokens
-    int yycount = 0;
-
-#if YYDEBUG
-    // Execute LAC once. We don't care if it is successful, we
-    // only do it for the sake of debugging output.
-    if (!yyparser_.yy_lac_established_)
-      yyparser_.yy_lac_check_ (yyla_.kind ());
-#endif
-
-    for (int yyx = 0; yyx < YYNTOKENS; ++yyx)
-      {
-        symbol_kind_type yysym = YY_CAST (symbol_kind_type, yyx);
-        if (yysym != symbol_kind::S_YYerror
-            && yysym != symbol_kind::S_YYUNDEF
-            && yyparser_.yy_lac_check_ (yysym))
-          {
-            if (!yyarg)
-              ++yycount;
-            else if (yycount == yyargn)
-              return 0;
-            else
-              yyarg[yycount++] = yysym;
-          }
-      }
-    if (yyarg && yycount == 0 && 0 < yyargn)
-      yyarg[0] = symbol_kind::S_YYEMPTY;
-    return yycount;
-  }
-
-
   bool
-  parser::yy_lac_check_ (symbol_kind_type yytoken) const
+  parser::yy_lac_check_ (int yytoken) const
   {
     // Logically, the yylac_stack's lifetime is confined to this function.
     // Clear it, to get rid of potential left-overs from previous call.
     yylac_stack_.clear ();
     // Reduce until we encounter a shift and thereby accept the token.
 #if YYDEBUG
-    YYCDEBUG << "LAC: checking lookahead " << symbol_name (yytoken) << ':';
+    YYCDEBUG << "LAC: checking lookahead " << yytname_[yytoken] << ':';
 #endif
     std::ptrdiff_t lac_top = 0;
     while (true)
@@ -1311,14 +1278,14 @@ namespace yy {
                      : yylac_stack_.back ());
         // Push the resulting state of the reduction.
         state_type state = yy_lr_goto_state_ (top_state, yyr1_[yyrule]);
-        YYCDEBUG << " G" << int (state);
+        YYCDEBUG << " G" << state;
         yylac_stack_.push_back (state);
       }
   }
 
   // Establish the initial context if no initial context currently exists.
   bool
-  parser::yy_lac_establish_ (symbol_kind_type yytoken)
+  parser::yy_lac_establish_ (int yytoken)
   {
     /* Establish the initial context for the current lookahead if no initial
        context is currently established.
@@ -1347,7 +1314,7 @@ namespace yy {
       {
 #if YYDEBUG
         YYCDEBUG << "LAC: initial context established for "
-                 << symbol_name (yytoken) << '\n';
+                 << yytname_[yytoken] << '\n';
 #endif
         yy_lac_established_ = true;
         return yy_lac_check_ (yytoken);
@@ -1378,10 +1345,18 @@ namespace yy {
       }
   }
 
-  int
-  parser::yy_syntax_error_arguments_ (const context& yyctx,
-                                                 symbol_kind_type yyarg[], int yyargn) const
+  // Generate an error message.
+  std::string
+  parser::yysyntax_error_ (state_type yystate, const symbol_type& yyla) const
   {
+    // Number of reported tokens (one for the "unexpected", one per
+    // "expected").
+    std::ptrdiff_t yycount = 0;
+    // Its maximum.
+    enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
+    // Arguments of yyformat.
+    char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
+
     /* There are many possibilities here to consider:
        - If this state is a consistent state with a default action, then
          the only way this function was invoked is if the default action
@@ -1404,26 +1379,35 @@ namespace yy {
          initial context during error recovery, leaving behind the
          current lookahead.
     */
-
-    if (!yyctx.lookahead ().empty ())
+    if (!yyla.empty ())
       {
-        if (yyarg)
-          yyarg[0] = yyctx.token ();
-        int yyn = yyctx.expected_tokens (yyarg ? yyarg + 1 : yyarg, yyargn - 1);
-        return yyn + 1;
-      }
-    return 0;
-  }
+        symbol_number_type yytoken = yyla.type_get ();
+        yyarg[yycount++] = yytname_[yytoken];
 
-  // Generate an error message.
-  std::string
-  parser::yysyntax_error_ (const context& yyctx) const
-  {
-    // Its maximum.
-    enum { YYARGS_MAX = 5 };
-    // Arguments of yyformat.
-    symbol_kind_type yyarg[YYARGS_MAX];
-    int yycount = yy_syntax_error_arguments_ (yyctx, yyarg, YYARGS_MAX);
+#if YYDEBUG
+        // Execute LAC once. We don't care if it is succesful, we
+        // only do it for the sake of debugging output.
+        if (!yy_lac_established_)
+          yy_lac_check_ (yytoken);
+#endif
+
+        int yyn = yypact_[+yystate];
+        if (!yy_pact_value_is_default_ (yyn))
+          {
+            for (int yyx = 0; yyx < yyntokens_; ++yyx)
+              if (yyx != yy_error_token_ && yyx != yy_undef_token_
+                  && yy_lac_check_ (yyx))
+                {
+                  if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+                    {
+                      yycount = 1;
+                      break;
+                    }
+                  else
+                    yyarg[yycount++] = yytname_[yyx];
+                }
+          }
+      }
 
     char const* yyformat = YY_NULLPTR;
     switch (yycount)
@@ -1448,7 +1432,7 @@ namespace yy {
     for (char const* yyp = yyformat; *yyp; ++yyp)
       if (yyp[0] == '%' && yyp[1] == 's' && yyi < yycount)
         {
-          yyres += symbol_name (yyarg[yyi++]);
+          yyres += yytnamerr_ (yyarg[yyi++]);
           ++yyp;
         }
       else
@@ -1576,21 +1560,38 @@ namespace yy {
 
 
 
+  // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
+  // First, the terminals, then, starting at \a yyntokens_, nonterminals.
+  const char*
+  const parser::yytname_[] =
+  {
+  "\"end of file\"", "error", "$undefined", "\"if\"", "\"iffalse\"",
+  "\"goto\"", "\"halt\"", "\"call\"", "\"putparam\"", "\"getparam\"",
+  "\"nop\"", "\"return\"", "\"print\"", "\"newline\"", "\"block\"",
+  "\"=\"", "\"+\"", "\"-\"", "\"*\"", "\"/\"", "\"&\"", "\"<\"", "\"<=\"",
+  "\">\"", "\">=\"", "\"==\"", "\"!=\"", "\"(\"", "\")\"", "\"[\"",
+  "\"]\"", "\";\"", "\":\"", "\",\"", "\".\"", "\"identifier\"",
+  "\"string\"", "\"bool\"", "\"char\"", "\"int\"", "\"float\"",
+  "\"print_to_console\"", "$accept", "dest", "value", "quadruple",
+  "if_statement", "goto", "assignment", "var_declaration", "label", "term",
+  "stmts", "stmt", "mb_newline", "newlines", YY_NULLPTR
+  };
 
 #if YYDEBUG
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    88,    88,    89,    93,    94,    96,    96,    97,    97,
-      97,   100,   101,   102,   103,   104,   105,   106,   107,   108,
-     109,   110,   115,   119,   124,   127,   129,   133,   137,   138,
-     139,   142,   146,   147,   148,   149,   150,   151,   152,   153,
-     154,   155,   156,   157,   158,   159,   160,   161,   165,   166,
-     167,   168,   169,   170
+       0,    90,    90,    91,    95,    96,    98,    98,    99,    99,
+      99,   102,   103,   104,   105,   106,   107,   108,   109,   110,
+     111,   112,   117,   121,   126,   129,   131,   135,   139,   140,
+     141,   144,   148,   149,   150,   151,   152,   153,   154,   155,
+     156,   157,   158,   159,   160,   161,   162,   163,   167,   168,
+     169,   170,   171,   172
   };
 
+  // Print the state stack on the debug stream.
   void
-  parser::yy_stack_print_ () const
+  parser::yystack_print_ ()
   {
     *yycdebug_ << "Stack now";
     for (stack_type::const_iterator
@@ -1601,8 +1602,9 @@ namespace yy {
     *yycdebug_ << '\n';
   }
 
+  // Report on the debug stream that the rule \a yyrule is going to be reduced.
   void
-  parser::yy_reduce_print_ (int yyrule) const
+  parser::yy_reduce_print_ (int yyrule)
   {
     int yylno = yyrline_[yyrule];
     int yynrhs = yyr2_[yyrule];
@@ -1618,9 +1620,9 @@ namespace yy {
 
 
 } // yy
-#line 1622 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1624 "../src/utilities/parser/compiled_parser/parser.cpp"
 
-#line 173 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 175 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
 
 void yy::parser::error(const location_type& l, const std::string& m) {

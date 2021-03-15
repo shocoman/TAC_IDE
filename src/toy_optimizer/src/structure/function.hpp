@@ -27,6 +27,7 @@ struct Function {
         update_block_ids();
     }
 
+    void update_phi_predecessors_after_clone();
     Function(const Function &f) {
         for (auto &b : f.basic_blocks) {
             if (b->type != BasicBlock::Type::Normal)
@@ -44,6 +45,7 @@ struct Function {
         add_missing_jumps();
         add_entry_and_exit_block();
         update_block_ids();
+        update_phi_predecessors_after_clone();
     }
 
     void print_to_console() const;
@@ -66,6 +68,14 @@ struct Function {
 
     BasicBlock *get_entry_block() const;
     BasicBlock *get_exit_block() const;
+
+    Function& operator=(const Function &f) {
+        Function copy_f(f);
+        this->function_name = copy_f.function_name;
+        this->id_to_block = copy_f.id_to_block;
+        this->basic_blocks = std::move(copy_f.basic_blocks);
+        return *this;
+    }
 };
 
 #endif // TAC_PARSER_FUNCTION_HPP

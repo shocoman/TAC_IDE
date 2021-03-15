@@ -36,6 +36,7 @@ void ImagePanel::updateImage(const wxImage &image) {
     m_bitmap_image = wxBitmap(m_original_image);
     m_x = GetParent()->GetSize().x/2 - m_bitmap_image.GetWidth()/2;
     m_y = GetParent()->GetSize().y/2 - m_bitmap_image.GetHeight()/2;
+    m_scale = 0.5;
     Refresh();
 }
 

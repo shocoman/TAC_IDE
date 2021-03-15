@@ -79,7 +79,7 @@ empty_line ^{blank}*\n
         }
 
 
-<<EOF>> return yy::parser::make_YYEOF(loc);
+<<EOF>> return yy::parser::make_EOF(loc);
 %%
 
 yy::parser::symbol_type make_NUMBER(const std::string& s, const yy::parser::location_type& loc, bool is_int) {

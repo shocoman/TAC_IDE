@@ -57,7 +57,7 @@ class Git:
 
 
 def clean_checkout(repo, branch):
-    repo.clean('-func', '-d')
+    repo.clean('-f', '-d')
     repo.reset('--hard')
     repo.checkout(branch)
 
@@ -101,11 +101,11 @@ def rewrite(filename):
         buffer.data = ''
         yield buffer
         return
-    with open(filename) as func:
-        buffer.data = func.read()
+    with open(filename) as f:
+        buffer.data = f.read()
     yield buffer
-    with open(filename, 'w') as func:
-        func.write(buffer.data)
+    with open(filename, 'w') as f:
+        f.write(buffer.data)
 
 
 fmt_repo_url = 'git@github.com:fmtlib/fmt'

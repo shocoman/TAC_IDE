@@ -1,5 +1,5 @@
 %skeleton "lalr1.cc"
-%require "3.7.1"
+%require "3.5.1"
 %defines
 
 %define api.token.raw
@@ -17,7 +17,7 @@
 %locations
 
 %define parse.trace
-%define parse.error detailed
+%define parse.error verbose
 %define parse.lac full
 
 %code {
@@ -26,6 +26,8 @@
 
 %define api.token.prefix {TOK_}
 %token
+    EOF 0 "end of file"
+
     IFTRUE   "if"
     IFFALSE  "iffalse"
     GOTO     "goto"
@@ -94,7 +96,7 @@ stmt:
 |   quadruple newlines     { drv.quadruples.push_back($quadruple); }
 ;
 mb_newline: %empty | "newline";
-newlines: YYEOF | "newline" | newlines "newline";
+newlines: "end of file" | "newline" | newlines "newline";
 
 quadruple:
     assignment

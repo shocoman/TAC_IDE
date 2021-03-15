@@ -183,7 +183,9 @@ struct UseDefGraph {
         std::string filename = "graphs/reach_defs.png";
         dot_writer.set_title("Reaching definitions");
         dot_writer.render_to_file(filename);
+#ifdef DISPLAY_GRAPHS
         system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
+#endif
     }
 };
 

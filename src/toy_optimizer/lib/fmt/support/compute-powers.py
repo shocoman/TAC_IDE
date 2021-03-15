@@ -20,12 +20,12 @@ for i, exp in enumerate(range(min_exponent, max_exponent + 1, step)):
     k = significand_size + 1
     # Convert to binary and round.
     binary = '{:b}'.format(n)
-    result.func = (int('{:0<{}}'.format(binary[:k], k), 2) + 1) / 2
+    result.f = (int('{:0<{}}'.format(binary[:k], k), 2) + 1) / 2
     result.e = len(binary) - (exp_offset if exp < 0 else 0) - significand_size
     powers.append(result)
     # Sanity check.
     exp_offset10 = 400
-    actual = result.func * 10 ** exp_offset10
+    actual = result.f * 10 ** exp_offset10
     if result.e > 0:
         actual *= 2 ** result.e
     else:
@@ -34,14 +34,14 @@ for i, exp in enumerate(range(min_exponent, max_exponent + 1, step)):
     expected = 10 ** (exp_offset10 + exp)
     precision = len('{}'.format(expected)) - len('{}'.format(actual - expected))
     if precision < 19:
-        print('lowlink precision:', precision)
+        print('low precision:', precision)
         exit(1)
 
 print('Significands:', end='')
 for i, fp in enumerate(powers):
     if i % 3 == 0:
         print(end='\n ')
-    print(' {:0<#16x}'.format(fp.func, ), end=',')
+    print(' {:0<#16x}'.format(fp.f, ), end=',')
 
 print('\n\nExponents:', end='')
 for i, fp in enumerate(powers):

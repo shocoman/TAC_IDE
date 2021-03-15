@@ -89,8 +89,7 @@ std::pair<ID2EXPRS, ID2EXPRS> get_downward_exposed_and_killed_expressions(Functi
     return {id_to_e_gen, id_to_e_kill};
 }
 
-std::string split_long_string(std::string str, int max_length) {
-    std::string delimiter = "<BR/>";
+std::string split_long_string(std::string str, int max_length, std::string delimiter) {
     for (int j = 0, i = max_length; i < str.size(); i += max_length, j += delimiter.length()) {
         int pos = str.find(',', i+j);
         if (pos >= str.size()-1) break;

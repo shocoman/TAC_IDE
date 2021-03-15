@@ -23,7 +23,8 @@ add_subdirectory(lib/fmt)
 
 ### Creating exe and linking ###
 add_executable(toy_optimizer main.cpp ${SOURCE_FILES})
-target_include_directories(toy_optimizer PUBLIC src)
+target_include_directories(toy_optimizer PUBLIC src lib)
+target_compile_definitions(toy_optimizer PRIVATE DISPLAY_GRAPHS)
 
 
 ### Graphviz ###
