@@ -10,14 +10,16 @@
 #include "data_flow_analyses/data_flow_framework.hpp"
 #include "data_flow_analyses/expressions_analyses/earliest_expressions.hpp"
 #include "data_flow_analyses/print_graph.hpp"
+#include "data_flow_analyses/reaching_definitions.hpp"
 #include "data_flow_analyses/ssa_graph.hpp"
+#include "data_flow_analyses/live_variable_analysis.hpp"
 #include "data_flow_analyses/use_def_graph.hpp"
 #include "optimizations/copy_propagation.hpp"
 #include "optimizations/lazy_code_motion.hpp"
 #include "optimizations/operator_strength_reduction.hpp"
 #include "optimizations/sparse_conditional_constant_propagation.hpp"
-#include "optimizations/useless_code_elimination.hpp"
 #include "optimizations/ssa.hpp"
+#include "optimizations/useless_code_elimination.hpp"
 #include "structure/program.hpp"
 #include "utilities/parser/driver/driver.hpp"
 
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    //    setenv("DISPLAY", "172.17.19.225:0", true);
+    setenv("DISPLAY", "192.168.185.81:0", true);
     ParseDriver drv;
 
     //    drv.parse_from_file("../_TestCode/myfile");
@@ -60,15 +62,20 @@ int main(int argc, char *argv[]) {
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
 
-    convert_to_ssa(f);
-    auto f_copy = f;
+    //    convert_to_ssa(f);
+    //    auto f_copy = f;
 
-    useless_code_elimination(f);
-    convert_from_ssa(f_copy);
+    auto f_ssa = ConvertToSSADriver(f).f;
+    auto f_dessa = ConvertFromSSADriver(f_ssa).f;
 
-    f.print_cfg();
-    f_copy.print_cfg("cfg_copy.png");
+    f.print_cfg("Before.png");
+    f_ssa.print_cfg("SSA.png");
+    f_dessa.print_cfg("After_SSA.png");
 
+
+    //    convert_from_ssa(f_copy);
+
+    //    UseDefGraph use_def_graph(f);
 
     //    SSAConvertationDriver ssa_convertation_driver(f);
     //    ssa_convertation_driver.convert_to_ssa();

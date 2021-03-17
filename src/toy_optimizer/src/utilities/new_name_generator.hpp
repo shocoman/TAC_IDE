@@ -10,19 +10,18 @@
 class NewNameGenerator {
     Function &f;
     std::unordered_set<std::string> used_names;
+    std::unordered_set<std::string> generated_names;
     int name_counter;
 
   public:
     NewNameGenerator() = delete;
-    NewNameGenerator(Function &_f) : f(_f), name_counter(0) {
-        update_used_names();
-    }
+    NewNameGenerator(Function &_f) : f(_f), name_counter(0) { update_used_names(); }
 
     void update_used_names() {
         for (auto &b : f.basic_blocks) {
             for (auto &q : b->quads) {
                 auto rhs = q.get_rhs(false);
-                used_names.insert( rhs.begin(), rhs.end() );
+                used_names.insert(rhs.begin(), rhs.end());
                 if (q.dest.has_value())
                     used_names.insert(q.dest->name);
             }
@@ -36,9 +35,11 @@ class NewNameGenerator {
             ++name_counter;
         } while (used_names.count(new_name) > 0);
         used_names.insert(new_name);
+        generated_names.insert(new_name);
         return new_name;
     }
 
+    std::unordered_set<std::string> &get_generated_names() { return generated_names; }
 };
 
 #endif // TAC_PARSER_SRC_TAC_WORKER_UTILITIES_NEW_NAME_GENERATOR_HPP

@@ -3,12 +3,12 @@ project(toy_optimizer CXX)
 set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_BUILD_TYPE RELEASE)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O1")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O1")
 #set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
 
 ### My Program ###
-set(SOURCE_FILES src/utilities/graph_writer/graph_writer.cpp src/structure/basic_block.cpp src/structure/function.cpp src/utilities/quad_preparation.cpp src/optimizations/ssa.cpp src/optimizations/ssa.hpp src/optimizations/value_numbering.cpp src/optimizations/useless_code_elimination.cpp src/optimizations/sparse_simple_constant_propagation.cpp src/data_flow_analyses/data_flow_analyses.cpp src/data_flow_analyses/dominators.cpp src/data_flow_analyses/expressions_analyses/utilities.cpp src/data_flow_analyses/expressions_analyses/earliest_expressions.cpp src/data_flow_analyses/expressions_analyses/earliest_expressions.hpp src/data_flow_analyses/data_flow_framework.hpp src/optimizations/lazy_code_motion.cpp src/optimizations/lazy_code_motion.hpp src/optimizations/sparse_conditional_constant_propagation.cpp src/optimizations/sparse_conditional_constant_propagation.hpp src/optimizations/operator_strength_reduction.cpp src/optimizations/operator_strength_reduction.hpp src/optimizations/copy_propagation.cpp src/optimizations/copy_propagation.hpp src/data_flow_analyses/ssa_graph.cpp src/data_flow_analyses/ssa_graph.hpp src/data_flow_analyses/print_graph.cpp src/data_flow_analyses/print_graph.hpp src/data_flow_analyses/use_def_graph.cpp src/data_flow_analyses/use_def_graph.hpp src/utilities/new_name_generator.cpp src/utilities/new_name_generator.hpp src/structure/program.cpp src/structure/program.hpp)
+set(SOURCE_FILES src/data_flow_analyses/reaching_definitions.hpp src/utilities/graph_writer/graph_writer.cpp src/structure/basic_block.cpp src/structure/function.cpp src/utilities/quad_preparation.cpp src/optimizations/ssa.cpp src/optimizations/ssa.hpp src/optimizations/value_numbering.cpp src/optimizations/useless_code_elimination.cpp src/optimizations/sparse_simple_constant_propagation.cpp src/data_flow_analyses/data_flow_analyses.cpp src/data_flow_analyses/dominators.cpp src/data_flow_analyses/expressions_analyses/utilities.cpp src/data_flow_analyses/expressions_analyses/earliest_expressions.cpp src/data_flow_analyses/expressions_analyses/earliest_expressions.hpp src/data_flow_analyses/data_flow_framework.hpp src/optimizations/lazy_code_motion.cpp src/optimizations/lazy_code_motion.hpp src/optimizations/sparse_conditional_constant_propagation.cpp src/optimizations/sparse_conditional_constant_propagation.hpp src/optimizations/operator_strength_reduction.cpp src/optimizations/operator_strength_reduction.hpp src/optimizations/copy_propagation.cpp src/optimizations/copy_propagation.hpp src/data_flow_analyses/ssa_graph.cpp src/data_flow_analyses/ssa_graph.hpp src/data_flow_analyses/print_graph.cpp src/data_flow_analyses/print_graph.hpp src/data_flow_analyses/use_def_graph.cpp src/data_flow_analyses/use_def_graph.hpp src/utilities/new_name_generator.cpp src/utilities/new_name_generator.hpp src/structure/program.cpp src/structure/program.hpp src/data_flow_analyses/reaching_definitions.hpp src/data_flow_analyses/live_variable_analysis.hpp)
 
 # Source paths for export
 get_directory_property(hasParent PARENT_DIRECTORY)
@@ -18,7 +18,7 @@ endif ()
 
 
 ### {fmt}: Library for text formatting ###
-add_subdirectory(lib/fmt)
+add_subdirectory(lib/fmt EXCLUDE_FROM_ALL)
 
 
 ### Creating exe and linking ###
