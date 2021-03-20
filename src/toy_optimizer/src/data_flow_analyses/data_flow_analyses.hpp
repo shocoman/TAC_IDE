@@ -20,10 +20,9 @@
 using ID2Defs = std::map<int, std::set<std::string>>;
 
 void liveness_analyses_on_block_level(const BasicBlocks &nodes);
-std::pair<ID2Defs, ID2Defs> live_variable_analyses(Function &function);
 
 std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &f);
-std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f);
+std::pair<ID2EXPRS, ID2EXPRS> get_anticipable_expressions(Function &f);
 
 template <template <typename...> typename Map, template <typename> typename Set, typename SetType,
           typename F>

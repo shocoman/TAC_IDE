@@ -3,6 +3,7 @@
 //
 
 #include "print_graph.hpp"
+#include "live_variable_analysis.hpp"
 
 std::vector<char> print_dominator_tree(Function &f) {
     auto id_to_idom = get_immediate_dominators(f);
@@ -105,13 +106,13 @@ std::vector<char> print_available_expressions(Function &f) {
 }
 
 std::vector<char> print_anticipable_expressions(Function &f) {
-    auto [AntIn, AntOut] = anticipable_expressions(f);
+    auto [AntIn, AntOut] = get_anticipable_expressions(f);
     return print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable expressions", print_expression);
 }
 
 std::vector<char> print_live_variable(Function &f) {
-    auto [IN, OUT] = live_variable_analyses(f);
-    return print_analysis_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v; });
+    LiveVariableAnalysisDriver live_variable_analysis(f);
+    return live_variable_analysis.print_live_variable_analysis();
 }
 
 std::vector<char> print_depth_first_search_tree(Function &f) {
@@ -217,12 +218,14 @@ std::vector<char> print_ue_de_and_killed_expressions(Function &f) {
 
 
 void print_lazy_code_motion_graphs(Function &f) {
-    auto [AntIn, AntOut] = anticipable_expressions(f);
-    auto [AvailIn, AvailOut] = available_expressions_lazy_code_motion(f);
-    auto earliest_exprs = earliest_expressions(AntIn, AvailIn);
-    auto latest_exprs = latest_expressions(f);
-    auto [PostIn, PostOut] = postponable_expressions(f);
-    auto [UsedIn, UsedOut] = used_expressions(f);
+    LazyCodeMotionDriver lcm(f);
+
+    auto &[AntIn, AntOut] = lcm.ir.anticipable_expressions;
+    auto &[AvailIn, AvailOut] = lcm.ir.available_expressions;
+    auto &earliest_exprs = lcm.ir.earliest_expressions;
+    auto &latest_exprs = lcm.ir.latest_expressions;
+    auto &[PostIn, PostOut] = lcm.ir.postponable_expressions;
+    auto &[UsedIn, UsedOut] = lcm.ir.used_expressions;
 
     print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable Expressions (1)", print_expression);
     print_analysis_result_on_graph(f, AvailIn, AvailOut, "Available Expressions (lcm) (2)", print_expression);

@@ -249,6 +249,7 @@ void ConvertFromSSADriver::insert_copies(BasicBlock *b) {
     // pop each pushed name
     ir.stacks = stack_copy;
 }
+
 void ConvertFromSSADriver::convert_from_ssa() {
     insert_copies(f.get_entry_block());
 

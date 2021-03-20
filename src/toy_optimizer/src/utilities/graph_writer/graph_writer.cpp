@@ -4,6 +4,18 @@
 
 #include "graph_writer.hpp"
 
+std::string make_row(const std::string& text, std::unordered_map<std::string, std::string> attribs) {
+    if (text.empty())
+        return "";
+    std::string row = "<TR><TD";
+    if (attribs.count("ALIGN") == 0)
+        row += " ALIGN='LEFT'";
+    for (auto &[attrib, value] : attribs)
+        row += fmt::format(" {}=\"{}\"", attrib, value);
+    row += fmt::format("><FONT>{}</FONT></TD></TR>", text);
+    return row;
+}
+
 std::string escape_string(const std::string &s) {
     std::string buffer;
     buffer.reserve(s.length() * 1.1);
@@ -104,8 +116,10 @@ std::vector<char> GraphWriter::render_to_file(const std::string &filename) {
     for (auto &[node1, node2, attributes] : edges) {
         auto &n1 = ag_nodes.at(node1);
         auto &n2 = ag_nodes.at(node2);
-        auto edge_name = attributes.count("label") > 0 ? attributes.at("label") : "edge";
-        Agedge_t *e = agedge(g, n1, n2, (char *)edge_name.c_str(), 1);
+
+        static int edge_id = 0;
+        auto edge_unique_id = fmt::format("edge_{}", edge_id++);
+        Agedge_t *e = agedge(g, n1, n2, (char *)edge_unique_id.c_str(), 4);
 
         //        if (auto a = get_attribute(node1, "true_branch"); a.has_value()) {
         //            std::string &true_branch_name = a.value();
@@ -130,9 +144,8 @@ std::vector<char> GraphWriter::render_to_file(const std::string &filename) {
     agattr(g, AGNODE, (char *)"shape", (char *)"none");
     agattr(g, AGEDGE, (char *)"fontname", (char *)font_name);
 
-    if (!legend_marks.empty()) {
+    if (!legend_marks.empty())
         add_legend_subgraph(g);
-    }
 
     // print graph as png image to a file
     gvLayout(gvc, g, "dot");
@@ -145,7 +158,7 @@ std::vector<char> GraphWriter::render_to_file(const std::string &filename) {
     unsigned int buffer_length = 0;
     char *buffer;
     gvRenderData(gvc, g, "png", &buffer, &buffer_length);
-    std::vector<char> image_data(buffer, buffer+buffer_length);
+    std::vector<char> image_data(buffer, buffer + buffer_length);
     gvFreeRenderData(buffer);
 
     gvFreeLayout(gvc, g);

@@ -10,9 +10,9 @@
 #include <gvc.h>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 
 class GraphWriter {
     using AttributeMap = std::unordered_map<std::string, std::string>;
@@ -42,6 +42,7 @@ class GraphWriter {
     std::vector<std::vector<std::string>> legend_marks;
 };
 
+std::string make_row(const std::string& text, std::unordered_map<std::string, std::string> attribs);
 std::string escape_string(const std::string &s);
 
 #endif // TAC_PARSER_GRAPH_WRITER_HPP

@@ -7,7 +7,7 @@
 std::map<std::pair<int, int>, std::set<Expression>> earliest_expressions(Function &f) {
     // Earliest(i, j) = AntIn(j) ∩ !AvailOut(i) ∩ (ExprKill(i) ∪ !AntOut(i))
     auto all_expressions = get_all_expressions(f);
-    auto [ant_in, ant_out] = anticipable_expressions(f);
+    auto [ant_in, ant_out] = get_anticipable_expressions(f);
     auto [avail_in, avail_out] = available_expressions(f);
     auto [ue_exprs, killed_exprs] = get_upward_exposed_and_killed_expressions(f);
 

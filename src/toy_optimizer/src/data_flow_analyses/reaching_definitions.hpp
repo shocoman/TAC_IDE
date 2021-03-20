@@ -23,6 +23,8 @@ struct ReachingDefinitionsDriver {
         Location location;
         std::string name;
 
+        static std::string format(const Use &use) { return fmt::format("{}{}", use.name, use.location); }
+
         bool operator<(const Use &r) const {
             return std::tie(location, name) < std::tie(r.location, r.name);
         }

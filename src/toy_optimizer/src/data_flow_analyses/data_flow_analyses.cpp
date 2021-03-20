@@ -44,6 +44,7 @@ void liveness_analyses_on_block_level(const BasicBlocks &nodes) {
                 block_liveness_nametable[r] = LivenessState{true, i};
         }
 
+        // Print result
         for (int i = 0; i < n->quads.size(); ++i) {
             std::cout << n->quads[i].fmt() << ";\t";
             auto &l = block_liveness_data[i];
@@ -57,50 +58,6 @@ void liveness_analyses_on_block_level(const BasicBlocks &nodes) {
     }
 }
 
-std::pair<ID2Defs, ID2Defs> live_variable_analyses(Function &f) {
-    // backwards data-flow analysis
-
-    // calculate upward-exposed uses and var definitions
-    using DefinitionsSet = std::unordered_set<std::string>;
-    std::unordered_map<int, DefinitionsSet> id_to_ue_uses, id_to_defs;
-    for (const auto &b : f.basic_blocks) {
-        DefinitionsSet ue_uses_in_block, defs_in_block;
-
-        for (const auto &q : b->quads) {
-            for (auto &r : q.get_rhs(false))
-                if (defs_in_block.count(r) == 0)
-                    ue_uses_in_block.insert(r);
-
-            if (q.is_assignment())
-                defs_in_block.insert(q.dest->name);
-        }
-
-        id_to_ue_uses[b->id] = ue_uses_in_block;
-        id_to_defs[b->id] = defs_in_block;
-    }
-
-    auto [IN, OUT] = data_flow_framework<std::string>(f, Flow::Backwards, Meet::Union, {},
-                                                      [&](auto &IN, auto &OUT, int id) {
-                                                          auto X = OUT.at(id);
-                                                          for (auto &def : id_to_defs.at(id))
-                                                              X.erase(def);
-                                                          for (auto &use : id_to_ue_uses.at(id))
-                                                              X.insert(use);
-                                                          return X;
-                                                      });
-
-    //    print_analysis_result_on_graph(
-    //        f, id_to_ue_uses, id_to_defs, "Variable definitions and upward-exposed uses",
-    //        [](auto &v) { return v; }, "UE Uses", "Definitions");
-    //    print_analysis_result_on_graph(f, IN, OUT, "Live variable analyses", [](auto &v) { return v;
-    //    });
-
-    auto &uninitialized_vars = OUT.at(f.get_entry_block()->id);
-    if (!uninitialized_vars.empty())
-        fmt::print("Possibly uninitialized variables: {}\n", uninitialized_vars);
-
-    return std::pair{IN, OUT};
-}
 
 
 std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &f) {
@@ -121,7 +78,7 @@ std::pair<ID2EXPRS, ID2EXPRS> available_expressions(Function &f) {
     return {IN, OUT};
 }
 
-std::pair<ID2EXPRS, ID2EXPRS> anticipable_expressions(Function &f) {
+std::pair<ID2EXPRS, ID2EXPRS> get_anticipable_expressions(Function &f) {
     auto all_expressions = get_all_expressions(f);
 
     auto [id_to_ue_exprs, id_to_killed_exprs] = get_upward_exposed_and_killed_expressions(f);

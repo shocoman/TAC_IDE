@@ -43,9 +43,7 @@ std::vector<char> Function::print_cfg(std::string filename,
         // print edges
         for (auto &s : n->successors) {
             std::unordered_map<std::string, std::string> attributes = {
-                {"label", s->lbl_name.value_or("")},
-                //                    {"color", "brown"},
-                //                    {"style", "dashed"},
+                {"label", s->lbl_name.value_or("")}, // {"color", "brown"}, {"style", "dashed"},
             };
 
             dot_writer.add_edge(node_name, s->get_name(), attributes);
@@ -57,7 +55,7 @@ std::vector<char> Function::print_cfg(std::string filename,
     //                               {"Cross edge", "cyan", "dotted"}};
 
     filename = "graphs/" + filename;
-    dot_writer.set_title(title);
+    dot_writer.set_title(title.empty() ? filename : title);
     std::vector<char> image_data = dot_writer.render_to_file(filename);
 
 #ifdef DISPLAY_GRAPHS
@@ -264,13 +262,17 @@ void Function::update_phi_predecessors_after_clone() {
     for (auto &b : basic_blocks)
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
-            for (auto &op : phi.ops) {
+
+            for (int op_i = phi.ops.size()-1; op_i >= 0 ; --op_i) {
+                auto &op = phi.ops[op_i];
                 int pred_id = op.phi_predecessor->id;
                 op.phi_predecessor = nullptr;
                 for (auto &pred : b->predecessors)
                     if (pred->id == pred_id)
                         op.phi_predecessor = pred;
-                assert(op.phi_predecessor != nullptr && "Can't find right phi predecessor!");
+                // remove phi ops without connected block
+                if (op.phi_predecessor == nullptr)
+                    phi.ops.erase(phi.ops.begin() + op_i);
             }
         }
 }
