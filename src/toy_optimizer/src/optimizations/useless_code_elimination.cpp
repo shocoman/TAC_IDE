@@ -3,16 +3,16 @@
 //
 
 #include "useless_code_elimination.hpp"
-
-void remove_noncritical_operations(Function &f) {
-    // compute reverse dominance frontier
+void UselessCodeEliminationDriver::compute_reverse_dominance_frontier() {
     f.reverse_graph();
-    auto id_to_ipostdom = get_immediate_dominators(f);
-    auto reverse_df = get_dominance_frontier(f, id_to_ipostdom);
+    ir.id_to_ipostdom = get_immediate_dominators(f);
+    ir.reverse_df = get_dominance_frontier(f, ir.id_to_ipostdom);
     f.reverse_graph();
+}
 
-    auto use_def_graph = UseDefGraph(f);
-    std::set<UseDefGraph::Location> critical_operations;
+void UselessCodeEliminationDriver::remove_noncritical_operations() {
+    compute_reverse_dominance_frontier();
+    ir.use_def_graph.emplace(f);
 
     // mark critical quads/operations
     std::vector<UseDefGraph::Location> work_list;
@@ -23,10 +23,10 @@ void remove_noncritical_operations(Function &f) {
 
             // every unconditional jump is critical
             if (q.type == Quad::Type::Goto)
-                critical_operations.insert(location);
+                ir.critical_operations.insert(location);
 
             if (Quad::is_critical(q.type)) {
-                critical_operations.insert(location);
+                ir.critical_operations.insert(location);
                 work_list.push_back(location);
             }
         }
@@ -35,32 +35,31 @@ void remove_noncritical_operations(Function &f) {
     while (!work_list.empty()) {
         auto [block_id, quad_i] = work_list.back();
         work_list.pop_back();
-        auto &q = f.get_quad(block_id, quad_i);
+        auto &q = f.get_quad({block_id, quad_i});
 
         // mark quad's operands as critical
         for (auto &op : q.get_rhs(false)) {
             auto use = UseDefGraph::Use{{block_id, quad_i}, op};
-            auto &definitions = use_def_graph.use_to_definitions.at(use);
+            auto &definitions = ir.use_def_graph->use_to_definitions.at(use);
             for (auto &def : definitions)
-                if (critical_operations.insert(def.location).second)
+                if (ir.critical_operations.insert(def.location).second)
                     work_list.push_back(def.location);
         }
 
-        for (auto &b_id : reverse_df.at(block_id)) {
+        for (auto &b_id : ir.reverse_df.at(block_id)) {
             auto &b = f.id_to_block.at(b_id);
             if (b->quads.empty())
                 continue;
 
             UseDefGraph::Location jump_position{b_id, b->quads.size() - 1};
-            if (critical_operations.insert(jump_position).second)
+            if (ir.critical_operations.insert(jump_position).second)
                 work_list.push_back(jump_position);
         }
     }
 
     // id of blocks that contain at least one marked instruction
-    std::set<int> marked_blocks;
-    for (auto [block, quad] : critical_operations)
-        marked_blocks.insert(block);
+    for (auto [block, quad] : ir.critical_operations)
+        ir.marked_blocks.insert(block);
 
     // Sweep Pass (remove non critical quads/operations)
     for (const auto &b : f.basic_blocks) {
@@ -68,19 +67,20 @@ void remove_noncritical_operations(Function &f) {
             auto &q = b->quads[q_index];
 
             UseDefGraph::Location location{b->id, q_index};
-            bool op_is_not_critical = critical_operations.find(location) == critical_operations.end();
+            bool op_is_not_critical = ir.critical_operations.count(location) == 0;
             bool quad_is_self_copy = q.type == Quad::Type::Assign && q.dest->name == q.ops[0].value;
             if (op_is_not_critical || quad_is_self_copy) {
                 if (q.is_conditional_jump()) {
                     // replace quad with jump to closest "marked" postdominator
                     int post_dom_id = b->id;
                     do {
-                        post_dom_id = id_to_ipostdom.at(post_dom_id);
-                    } while (marked_blocks.count(post_dom_id) == 0);
+                        post_dom_id = ir.id_to_ipostdom.at(post_dom_id);
+                    } while (ir.marked_blocks.count(post_dom_id) == 0);
 
                     auto closest_post_dominator = f.id_to_block.at(post_dom_id);
                     q.type = Quad::Type::Goto;
-                    q.dest = Dest(closest_post_dominator->lbl_name.value(), {}, Dest::Type::JumpLabel);
+                    q.dest =
+                            Dest(closest_post_dominator->lbl_name.value(), {}, Dest::Type::JumpLabel);
                     b->remove_successors();
                     b->add_successor(closest_post_dominator);
                 } else if (q.type != Quad::Type::Goto) {
@@ -93,7 +93,7 @@ void remove_noncritical_operations(Function &f) {
     }
 }
 
-void remove_unreachable_blocks(Function &f) {
+void UselessCodeEliminationDriver::remove_unreachable_blocks() {
     // Mark reachable blocks
     auto root = f.get_entry_block();
     std::unordered_set<int> reachable_ids;
@@ -116,7 +116,7 @@ void remove_unreachable_blocks(Function &f) {
     }
 }
 
-void merge_basic_blocks(Function &f) {
+void UselessCodeEliminationDriver::merge_basic_blocks() {
     // temporary remove entry and exit block (hack)
     auto RemoveBlock = [&](auto b_type) {
         auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
@@ -171,14 +171,9 @@ void merge_basic_blocks(Function &f) {
                     changed = true;
                 }
 
-                // combine two blocks into one (merge 'b' into 'succ')
+                    // combine two blocks into one (merge 'b' into 'succ')
                 else if (succ->predecessors.size() == 1) {
                     // update predecessors' jump operations
-//                    for (auto &pred : b->predecessors) {
-//                        auto jump_target = pred->get_jumped_to_successor();
-//                        if (jump_target != nullptr && jump_target->id == b->id)
-//                            pred->quads.back().dest->name = succ->lbl_name.value();
-//                    }
                     succ->lbl_name = b->lbl_name;
                     // remove last jump
                     if (b->quads.back().type == Quad::Type::Goto)
@@ -197,9 +192,9 @@ void merge_basic_blocks(Function &f) {
                     changed = true;
                 }
 
-                // hoist a branch
-                // if successor is empty and ends with conditional branch
-                // copy branch from it
+                    // hoist a branch
+                    // if successor is empty and ends with conditional branch
+                    // copy branch from it
                 else if (succ->quads.size() == 1 && succ->quads.back().is_conditional_jump()) {
                     b->quads.back() = succ->quads.back();
                     b->remove_successors();
@@ -237,10 +232,12 @@ void merge_basic_blocks(Function &f) {
     f.add_entry_and_exit_block();
 }
 
-void useless_code_elimination(Function &function) {
-    remove_noncritical_operations(function);
-    remove_unreachable_blocks(function);
-    merge_basic_blocks(function);
+Function &UselessCodeEliminationDriver::run() {
+    remove_noncritical_operations();
+    remove_unreachable_blocks();
+    merge_basic_blocks();
 
-    function.update_block_ids();
+    f.update_block_ids();
+
+    return f;
 }

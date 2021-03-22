@@ -47,11 +47,15 @@ struct ReachingDefinitionsDriver {
 
     ReachingDefinitionsDriver(Function &f_) : f(f_) {}
 
+    PairOfDefinitionsSetMaps &get_results() {
+        return reaching_definitions;
+    }
+
     PairOfDefinitionsSetMaps &run() {
         collect_definitions();
         calculate_gen_kill_sets();
         calculate_reaching_definitions();
-        return reaching_definitions;
+        return get_results();
     }
 
     void collect_definitions() {

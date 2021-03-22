@@ -235,8 +235,8 @@ void Function::update_block_ids() {
     }
 }
 
-Quad &Function::get_quad(int block_id, int quad_i) const {
-    return id_to_block.at(block_id)->quads.at(quad_i);
+Quad &Function::get_quad(const std::pair<int, int> &loc) const {
+    return id_to_block.at(loc.first)->quads.at(loc.second);
 }
 
 void Function::print_as_code() const {

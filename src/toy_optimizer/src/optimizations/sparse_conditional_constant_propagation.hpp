@@ -234,7 +234,7 @@ struct SparseConditionalConstantPropagation {
 
     void evaluate_phi(SSAEdge edge) {
         auto [s, d] = edge;
-        auto &phi = f.get_quad(d.first, d.second);
+        auto &phi = f.get_quad(d);
         evaluate_phi_operands(d, phi);
         evaluate_phi_result(d, phi);
     }

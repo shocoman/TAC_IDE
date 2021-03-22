@@ -20,6 +20,7 @@ struct UseDefGraph {
     using Use = ReachingDefinitionsDriver::Use;
     using Definition = ReachingDefinitionsDriver::Definition;
     using DefinitionsSet = std::set<Definition>;
+    using UsesSet = std::set<Use>;
 
     struct IntermediateResults {
         std::optional<ReachingDefinitionsDriver> reaching_definitions;
@@ -27,6 +28,7 @@ struct UseDefGraph {
 
     Function &f;
     std::map<Use, DefinitionsSet> use_to_definitions;
+    std::map<Definition, UsesSet> definition_to_uses;
 
     UseDefGraph(Function &f_) : f(f_) { update_graph(); }
 
@@ -38,7 +40,7 @@ struct UseDefGraph {
     }
 
     void compute_use_def_chains() {
-        auto &[IN, OUT] = ir.reaching_definitions->reaching_definitions;
+        auto &[IN, OUT] = ir.reaching_definitions->get_results();
         for (auto &b : f.basic_blocks) {
             auto in_definitions = IN[b->id];
             std::map<std::string, DefinitionsSet> name_to_defs;
@@ -53,18 +55,24 @@ struct UseDefGraph {
                     use_to_definitions[use] = name_to_defs.at(op_name);
                 }
 
-                if (q.is_assignment())
-                    name_to_defs[q.dest->name] = {
-                        ir.reaching_definitions->ir.location_to_definition.at({b->id, quad_i})};
+                if (q.is_assignment()) {
+                    auto &def = ir.reaching_definitions->ir.location_to_definition.at({b->id, quad_i});
+                    name_to_defs[q.dest->name] = {def};
+                }
             }
         }
+
+        // gather reverse chains
+        for (auto &[use, defs] : use_to_definitions)
+            for (auto &def : defs)
+                definition_to_uses[def].insert(use);
     }
 
     std::vector<char> print_use_def_chains() {
         GraphWriter dot_writer;
         for (const auto &[use, definitions] : use_to_definitions) {
 
-            auto &use_q = f.get_quad(use.location.first, use.location.second);
+            auto &use_q = f.get_quad(use.location);
 
             auto [u_b, u_q] = use.location;
             auto loc_str = fmt::format("({}, {})", f.id_to_block.at(u_b)->get_name(), u_q);
@@ -72,7 +80,7 @@ struct UseDefGraph {
             dot_writer.set_node_text(src_name, {});
 
             for (const auto &def : definitions) {
-                auto &def_q = f.get_quad(def.location.first, def.location.second);
+                auto &def_q = f.get_quad(def.location);
 
                 auto [d_b, d_q] = def.location;
                 loc_str = fmt::format("({}, {})", f.id_to_block.at(d_b)->get_name(), d_q);

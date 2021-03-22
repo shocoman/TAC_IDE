@@ -32,10 +32,10 @@ int main(int argc, char *argv[]) {
     //    drv.parse_from_file("../_TestCode/reach_def_test.txt");
     //    drv.parse_from_file("../_TestCode/lazy_code_motion.txt");
     //    drv.parse_from_file("../_TestCode/anticipable_expressions.txt");
-    //    drv.parse_from_file("../_TestCode/anticipable_expressions2.txt");
+        drv.parse_from_file("../_TestCode/anticipable_expressions2.txt");
     //    drv.parse_from_file("../_TestCode/available_expressions3.txt");
     //    drv.parse_from_file("../_TestCode/FactorialProgram.txt");
-    drv.parse_from_file("../_TestCode/ssa_test.txt");
+    //    drv.parse_from_file("../_TestCode/ssa_test.txt");
     //    drv.parse_from_file("../_TestCode/sccp_test.txt");
     //    drv.parse_from_file("../_TestCode/sccp2.txt");
     //    drv.parse_from_file("../_TestCode/strength_reduction.txt");
@@ -50,18 +50,10 @@ int main(int argc, char *argv[]) {
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
 
-    convert_to_ssa(f);
-
     f.print_cfg("before.png");
-
-    run_sparse_conditional_constant_propagation(f);
-    sparse_conditional_constant_propagation(f);
-
-    auto f_copy = f;
-
+    run_lazy_code_motion(f);
     f.print_cfg("after.png");
 
     std::getchar();
-
     return 0;
 }
