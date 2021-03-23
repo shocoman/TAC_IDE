@@ -81,7 +81,7 @@ struct SparseConditionalConstantPropagation {
                             : Value{.type = Value::Type::Top};
                 }
 
-                for (const auto &op_name : q.get_rhs(false)) {
+                for (const auto &op_name : q.get_rhs_names(false)) {
                     ir.use_def_graph[op_name].used_at.push_back(place);
                     ir.values[{op_name, place}] = Value{.type = Value::Type::Top};
                 }
@@ -139,7 +139,7 @@ struct SparseConditionalConstantPropagation {
         // for each value y used by the expression in m
         //   let (x,y) be the SSA edge that supplies y (x - definition place, y - use place)
         //   Value(y) ← Value(x)
-        for (auto &y : q.get_rhs(false)) {
+        for (auto &y : q.get_rhs_names(false)) {
             ir.values[{y, place}] = ir.values.at({y, ir.use_def_graph.at(y).defined_at});
         }
 
@@ -383,7 +383,7 @@ struct SparseConditionalConstantPropagation {
                     BasicBlock *left_jump_target = *pred->successors.begin();
                     if (auto &jump_target = left_jump_target->lbl_name; jump_target.has_value()) {
                         q = Quad({}, {}, Quad::Type::Goto);
-                        q.dest = Dest(jump_target.value(), {}, Dest::Type::JumpLabel);
+                        q.dest = Dest(jump_target.value(), Dest::Type::JumpLabel);
                     } else
                         pred->quads.pop_back();
                 }

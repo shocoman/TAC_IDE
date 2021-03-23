@@ -7,12 +7,13 @@ fact_loop:
     $t0 = $t0 - 1
     iftrue $t0 goto fact_loop
     return $t1
+
 main:
     num: .long 0
     res: .long 0
     repeat: .word 0
     just_array: .block 4, word, 'H'
-
+    just_array[ff] = FF
 begin:
     putparam "Enter a number:"
     call swrite, 1
@@ -27,5 +28,5 @@ begin:
     putparam "Repeat? 1 - Yes, 0 - No"
     call swrite, 1
 
-    repeat = call iread, 0
-    iftrue repeat goto begin
+   repeat = call iread, 0
+   if repeat goto begin

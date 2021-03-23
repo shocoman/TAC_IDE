@@ -50,7 +50,7 @@ struct UseDefGraph {
             for (int quad_i = 0; quad_i < b->quads.size(); ++quad_i) {
                 auto &q = b->quads[quad_i];
 
-                for (auto &op_name : q.get_rhs(false)) {
+                for (auto &op_name : q.get_rhs_names(false)) {
                     auto use = Use{{b->id, quad_i}, op_name};
                     use_to_definitions[use] = name_to_defs.at(op_name);
                 }

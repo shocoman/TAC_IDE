@@ -35,6 +35,7 @@ struct CopyPropagationDriver {
         AssignmentsMap id_to_gen, id_to_kill;
         AssignmentsMapPair live_assignments;
         std::vector<std::tuple<std::string, std::string, Location>> replace_history;
+        std::vector<Assignment> can_be_replaced;
     } ir;
 
     Function f;
@@ -208,11 +209,10 @@ struct CopyPropagationDriver {
         }
     }
 
-    void run_real_propagation() {
+    void run_real_copy_propagation() {
         UseDefGraph use_def_graph(f);
         auto &reach_def = use_def_graph.ir.reaching_definitions;
 
-        std::vector<Assignment> can_be_replaced;
         for (auto &assignment : ir.all_assignments) {
             bool can_replace = true;
 
@@ -253,18 +253,12 @@ struct CopyPropagationDriver {
                 can_replace = false;
 
             if (can_replace)
-                can_be_replaced.push_back(assignment);
-        }
-
-        fmt::print("Can be replaced\n");
-        for (auto &a : can_be_replaced) {
-            fmt::print("\t{}({},{})\n", fmt::format("{}={}", a.lhs, a.rhs),
-                       f.id_to_block.at(a.location.first)->get_name(), a.location.second);
+                ir.can_be_replaced.push_back(assignment);
         }
 
         // replace assignments
         std::set<Assignment> assignments_to_remove;
-        for (auto &a : can_be_replaced) {
+        for (auto &a : ir.can_be_replaced) {
             auto &def = reach_def->ir.location_to_definition.at(a.location);
             if (use_def_graph.definition_to_uses.count(def) > 0) {
                 auto &uses = use_def_graph.definition_to_uses.at(def);
@@ -274,16 +268,19 @@ struct CopyPropagationDriver {
 
                     auto &ass_q = f.get_quad(a.location);
                     auto &q = f.get_quad(use.location);
-                    for (auto &op : q.ops)
-                        op.value = ass_q.get_op(0)->get_string();
+                    for (auto &op : q.ops) {
+                        auto replace = ass_q.get_op(0)->get_string();
+                        ir.replace_history.emplace_back(op.value, replace, use.location);
+                        op.value = replace;
+                    }
                 }
             }
         }
 
-        // sort assignments in backwards order and remove
-        std::sort(can_be_replaced.begin(), can_be_replaced.end(),
+        // sort assignments in backward order and remove
+        std::sort(ir.can_be_replaced.begin(), ir.can_be_replaced.end(),
                   [](auto &a, auto &b) { return b < a; });
-        for (auto &a : can_be_replaced) {
+        for (auto &a : ir.can_be_replaced) {
             auto &[block_id, quad_i] = a.location;
             auto &quads = f.id_to_block.at(block_id)->quads;
             quads.erase(quads.begin() + quad_i);

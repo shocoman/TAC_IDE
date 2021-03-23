@@ -138,7 +138,7 @@ void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
 
         // generate and/or save value number for every operand
         std::vector<int> operand_values;
-        for (auto &op : q.get_rhs()) {
+        for (auto &op : q.get_rhs_names()) {
             if (!t.get_value_number_by_name(op).has_value()) {
                 t.set_value_number_for_name(op, t.current_number);
                 t.set_name_for_value(t.current_number, op);

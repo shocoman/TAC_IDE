@@ -37,7 +37,7 @@ struct SSAGraph {
                 if (!q.is_jump() && q.dest.has_value())
                     use_info[q.dest->name].defined_at = pos;
 
-                for (const auto &op_name : q.get_rhs(include_constants))
+                for (const auto &op_name : q.get_rhs_names(include_constants))
                     use_info[op_name].used_at.push_back(pos);
             }
         }
@@ -58,7 +58,7 @@ struct SSAGraph {
                 auto &q = function.id_to_block.at(b_id)->quads.at(q_id);
                 dot_writer.set_node_text(node_name, {escape_string(q.fmt(true))});
 
-                for (auto &s : q.get_rhs(include_constants))
+                for (auto &s : q.get_rhs_names(include_constants))
                     dot_writer.add_edge(node_name, s);
             }
         }

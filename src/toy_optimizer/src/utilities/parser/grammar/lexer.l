@@ -17,9 +17,9 @@
 %}
 
 
-id  [a-zA-Z$_][a-zA-Z_.0-9]*
-int [0-9]+
-float {int}\.{int}?
+id  [a-zA-Z$_][a-zA-Z_0-9]*
+int [+-]?[0-9]+
+float [+-]?[0-9]+\.[0-9]+?
 string \"([^\\\"]|\\.)*\"
 char '([^'\\\n]|\\.)'
 bool true|false

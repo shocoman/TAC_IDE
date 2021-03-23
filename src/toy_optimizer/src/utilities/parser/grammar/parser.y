@@ -74,7 +74,7 @@
 
 
 %nterm <Dest> dest
-%nterm <Quad> value quadruple if_statement goto assignment var_declaration
+%nterm <Quad> value quadruple if_statement goto assignment array_assignment var_declaration
 %nterm <std::string> label
 %nterm <Operand> term
 
@@ -110,35 +110,43 @@ quadruple:
 |   var_declaration
 |   "putparam" term                     { $$ = Quad($term, {}, Quad::Type::Putparam); };
 |   "getparam" "identifier"[id]         { $$ = Quad({}, {}, Quad::Type::Getparam);
-                                          $$.dest = Dest($id, {}, Dest::Type::Var);  };
+                                          $$.dest = Dest($id, Dest::Type::Var);  };
 ;
 
 var_declaration:
     label "." "identifier"[id] term {
                                   $$ = Quad($id, $term, Quad::Type::VarDeclaration);
-                                  $$.dest = Dest($label, {}, Dest::Type::Var);
+                                  $$.dest = Dest($label, Dest::Type::Var);
                               };
 |   label "." "block" "int"[size] "," "identifier"[type] "," term[initval] {
                                   $$ = Quad($type, $initval, Quad::Type::ArrayDeclaration);
-                                  $$.dest = Dest($label, std::to_string($size), Dest::Type::Var);
+                                  $$.ops.insert($$.ops.begin(), Operand(std::to_string($size)));
+                                  $$.dest = Dest($label, Dest::Type::Var);
                               };
 
-assignment: dest "=" value { $value.dest = $dest; $$ = $value; };
+assignment:
+    dest "=" value { $value.dest = $dest; $$ = $value; };
+|   array_assignment
+;
+
+array_assignment: "identifier" "[" term[i] "]" "=" term[rhs]   { $$ = Quad($i, $rhs, Quad::Type::ArraySet);
+                                                                   $$.dest = Dest($1, Dest::Type::Var); };
+
 
 if_statement:
     "if" term "goto" "identifier"[id]        { $$ = Quad($term, {}, Quad::Type::IfTrue);
-                                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel); }
+                                                $$.dest = Dest($id, Dest::Type::JumpLabel); }
 |   "iffalse" term "goto" "identifier"[id]   { $$ = Quad($term, {}, Quad::Type::IfFalse);
-                                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel);}
+                                                $$.dest = Dest($id, Dest::Type::JumpLabel);}
 ;
 
 goto: "goto" "identifier"[id]   { $$ = Quad({}, {}, Quad::Type::Goto);
-                                $$.dest = Dest($id, {}, Dest::Type::JumpLabel);};
+                                $$.dest = Dest($id, Dest::Type::JumpLabel);};
 
 dest:
-    "identifier"                { $$ = Dest($1, {}, Dest::Type::Var); }
-|   "*" "identifier"            { $$ = Dest($2, {}, Dest::Type::Deref); }
-|   "identifier" "[" term "]"   { $$ = Dest($1, $term, Dest::Type::ArraySet); }
+    "identifier"                { $$ = Dest($1, Dest::Type::Var); }
+|   "*" "identifier"            { $$ = Dest($2, Dest::Type::Deref); }
+;
 
 label:
     "identifier" ":" { $$ = $1; }

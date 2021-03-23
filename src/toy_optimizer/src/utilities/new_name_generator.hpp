@@ -20,7 +20,7 @@ class NewNameGenerator {
     void update_used_names() {
         for (auto &b : f.basic_blocks) {
             for (auto &q : b->quads) {
-                auto rhs = q.get_rhs(false);
+                auto rhs = q.get_rhs_names(false);
                 used_names.insert(rhs.begin(), rhs.end());
                 if (q.dest.has_value())
                     used_names.insert(q.dest->name);

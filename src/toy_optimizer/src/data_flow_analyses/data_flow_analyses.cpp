@@ -24,7 +24,7 @@ void liveness_analyses_on_block_level(const BasicBlocks &nodes) {
             std::map<std::string, LivenessState> current_nametable;
             auto &q = n->quads[i];
             auto lhs = q.get_lhs();
-            auto rhs = q.get_rhs();
+            auto rhs = q.get_rhs_names();
 
             // Step 1. attach info about x,y,z to i
             if (lhs.has_value())

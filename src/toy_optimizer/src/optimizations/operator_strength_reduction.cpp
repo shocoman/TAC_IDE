@@ -13,7 +13,7 @@ void OSRDriver::fill_in_use_def_graph() {
             if (!q.is_jump() && q.dest.has_value())
                 ir.use_def_graph[q.dest->name].defined_at = place;
 
-            for (const auto &op_name : q.get_rhs(true))
+            for (const auto &op_name : q.get_rhs_names(true))
                 ir.use_def_graph[op_name]; // insert dummy value if doesnt exist
         }
     }
@@ -53,7 +53,7 @@ void OSRDriver::DFS(const std::string &name) {
     stack.push_back(name);
 
     auto q = f.get_quad(n.defined_at);
-    for (auto &op_name : q.get_rhs(true)) {
+    for (auto &op_name : q.get_rhs_names(true)) {
         auto &o = ir.use_def_graph.at(op_name);
         if (!o.visited) {
             DFS(op_name);
@@ -137,7 +137,7 @@ bool OSRDriver::IsSCCValidIV(const std::vector<std::string> &SCC, std::string he
             q.type != Quad::Type::Assign) {
             return false;
         } else {
-            for (auto &op : q.get_rhs(true)) {
+            for (auto &op : q.get_rhs_names(true)) {
                 if (std::find(SCC.begin(), SCC.end(), op) == SCC.end() && !IsRegionConst(op, header))
                     return false;
             }
@@ -164,7 +164,7 @@ void OSRDriver::PrintSSAGraph() {
             auto &q = f.get_quad(val.defined_at);
             dot_writer.set_node_text(node_name, {escape_string(q.fmt(true))});
 
-            for (auto &s : q.get_rhs(true))
+            for (auto &s : q.get_rhs_names(true))
                 dot_writer.add_edge(node_name, s);
         }
     }
@@ -213,7 +213,7 @@ std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_v
         // make copy of induction variable operation ???
         auto &iv_def = ir.use_def_graph.at(induction_var.value);
         auto quad_copy = f.get_quad(iv_def.defined_at);
-        quad_copy.dest = Dest(new_name, {}, Dest::Type::Var);
+        quad_copy.dest = Dest(new_name, Dest::Type::Var);
 
         // insert it into the block after induction variable ???
         auto &block = f.id_to_block.at(iv_def.defined_at.first);
@@ -260,8 +260,8 @@ std::string OSRDriver::Apply(const std::string &node_name, Operand &op1, Operand
         } else {
             std::string new_name = ir.new_name_generator->make_new_name();
             ir.operations_lookup_table[key] = new_name;
-            auto q = Quad(op1, op2, f.get_quad(ir.use_def_graph.at(node_name).defined_at).type);
-            q.dest = Dest(new_name, {}, Dest::Type::Var);
+            auto q_type = f.get_quad(ir.use_def_graph.at(node_name).defined_at).type;
+            auto q = Quad(op1, op2, q_type, Dest(new_name, Dest::Type::Var));
 
             auto [op1_block, op1_quad] = ir.use_def_graph.at(op1.value).defined_at;
             auto [op2_block, op2_quad] = ir.use_def_graph.at(op2.value).defined_at;

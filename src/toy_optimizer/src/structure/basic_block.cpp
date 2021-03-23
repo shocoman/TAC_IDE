@@ -92,7 +92,7 @@ Quad &BasicBlock::get_phi_function(std::string name) {
 
 void BasicBlock::add_phi_function(std::string phi_name, const std::vector<std::string> &ops) {
     Quad phi({}, {}, Quad::Type::PhiNode);
-    phi.dest = Dest(std::move(phi_name), {}, Dest::Type::Var);
+    phi.dest = Dest(std::move(phi_name), Dest::Type::Var);
     std::vector<Operand> operands;
     for (auto &n : ops)
         operands.emplace_back(n);

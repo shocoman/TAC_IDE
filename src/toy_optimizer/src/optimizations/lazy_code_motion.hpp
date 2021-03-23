@@ -38,6 +38,8 @@ struct LazyCodeMotionDriver {
     std::pair<ID2EXPRS, ID2EXPRS> get_available_expressions_lazy_code_motion();
     std::pair<ID2EXPRS, ID2EXPRS> get_postponable_expressions();
     std::pair<ID2EXPRS, ID2EXPRS> get_used_expressions();
+
+    void print_lazy_code_motion_graphs();
 };
 
 static void run_lazy_code_motion(Function &f) {

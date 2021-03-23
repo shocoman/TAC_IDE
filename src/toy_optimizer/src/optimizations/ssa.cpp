@@ -22,7 +22,7 @@ void ConvertToSSADriver::find_global_names() {
     for (auto &b : f.basic_blocks) {
         std::set<std::string> var_kill;
         for (const auto &q : b->quads) {
-            for (auto &op : q.get_rhs(false))
+            for (auto &op : q.get_rhs_names(false))
                 global_names.insert(op);
             if (auto lhs = q.get_lhs(); lhs.has_value()) {
                 var_kill.insert(lhs.value());
@@ -196,7 +196,7 @@ void ConvertFromSSADriver::schedule_copies(BasicBlock *b) {
                 // insert copy from 'dest' to new temp 't' at phi-node defining 'dest'
                 auto copy_op = Quad(Operand(dest), {}, Quad::Type::Assign);
                 auto new_t = ir.new_name_generator->make_new_name();
-                copy_op.dest = Dest(new_t, {}, Dest::Type::Var);
+                copy_op.dest = Dest(new_t, Dest::Type::Var);
                 for (auto &block : f.basic_blocks)
                     for (int i = 0; i < block->phi_functions; ++i)
                         if (block->quads[i].type == Quad::Type::PhiNode &&
@@ -207,7 +207,7 @@ void ConvertFromSSADriver::schedule_copies(BasicBlock *b) {
             }
 
             auto copy_op = Quad(Operand(map.at(src)), {}, Quad::Type::Assign);
-            copy_op.dest = Dest(dest, {}, Dest::Type::Var);
+            copy_op.dest = Dest(dest, Dest::Type::Var);
             b->append_quad(copy_op);
             map[src] = dest;
 
@@ -222,7 +222,7 @@ void ConvertFromSSADriver::schedule_copies(BasicBlock *b) {
 
             auto copy_op = Quad(Operand(dest), {}, Quad::Type::Assign);
             auto new_t = ir.new_name_generator->make_new_name();
-            copy_op.dest = Dest(new_t, {}, Dest::Type::Var);
+            copy_op.dest = Dest(new_t, Dest::Type::Var);
             b->append_quad(copy_op);
             map[dest] = new_t;
             worklist.emplace(src, dest);

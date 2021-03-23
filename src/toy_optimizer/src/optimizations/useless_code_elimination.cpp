@@ -38,7 +38,7 @@ void UselessCodeEliminationDriver::remove_noncritical_operations() {
         auto &q = f.get_quad({block_id, quad_i});
 
         // mark quad's operands as critical
-        for (auto &op : q.get_rhs(false)) {
+        for (auto &op : q.get_rhs_names(false)) {
             auto use = UseDefGraph::Use{{block_id, quad_i}, op};
             auto &definitions = ir.use_def_graph->use_to_definitions.at(use);
             for (auto &def : definitions)
@@ -79,8 +79,7 @@ void UselessCodeEliminationDriver::remove_noncritical_operations() {
 
                     auto closest_post_dominator = f.id_to_block.at(post_dom_id);
                     q.type = Quad::Type::Goto;
-                    q.dest =
-                            Dest(closest_post_dominator->lbl_name.value(), {}, Dest::Type::JumpLabel);
+                    q.dest = Dest(closest_post_dominator->lbl_name.value(), Dest::Type::JumpLabel);
                     b->remove_successors();
                     b->add_successor(closest_post_dominator);
                 } else if (q.type != Quad::Type::Goto) {
@@ -171,7 +170,7 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
                     changed = true;
                 }
 
-                    // combine two blocks into one (merge 'b' into 'succ')
+                // combine two blocks into one (merge 'b' into 'succ')
                 else if (succ->predecessors.size() == 1) {
                     // update predecessors' jump operations
                     succ->lbl_name = b->lbl_name;
@@ -192,9 +191,9 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
                     changed = true;
                 }
 
-                    // hoist a branch
-                    // if successor is empty and ends with conditional branch
-                    // copy branch from it
+                // hoist a branch
+                // if successor is empty and ends with conditional branch
+                // copy branch from it
                 else if (succ->quads.size() == 1 && succ->quads.back().is_conditional_jump()) {
                     b->quads.back() = succ->quads.back();
                     b->remove_successors();

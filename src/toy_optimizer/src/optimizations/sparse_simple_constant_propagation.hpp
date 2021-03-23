@@ -106,7 +106,7 @@ struct SparseSimpleConstantPropagationDriver {
                 if (!q.is_jump() && q.dest.has_value())
                     ir.use_def_graph[q.dest->name].defined_at = location;
 
-                for (auto &op_name : q.get_rhs(false))
+                for (auto &op_name : q.get_rhs_names(false))
                     ir.use_def_graph[op_name].used_at.push_back(location);
             }
         }

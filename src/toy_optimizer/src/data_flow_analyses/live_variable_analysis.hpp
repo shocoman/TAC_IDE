@@ -32,7 +32,7 @@ struct LiveVariableAnalysisDriver {
             DefinitionsSet ue_uses_in_block, defs_in_block;
 
             for (const auto &q : b->quads) {
-                for (auto &r : q.get_rhs(false))
+                for (auto &r : q.get_rhs_names(false))
                     if (defs_in_block.count(r) == 0)
                         ue_uses_in_block.insert(r);
 

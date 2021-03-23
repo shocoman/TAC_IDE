@@ -97,7 +97,7 @@ void Function::add_missing_jumps() {
             continue;
         auto &last_q = b->quads.back();
         if (last_q.type != Quad::Type::Return && !last_q.is_jump() && !b->successors.empty()) {
-            Dest dest((*b->successors.begin())->lbl_name.value(), {}, Dest::Type::JumpLabel);
+            Dest dest((*b->successors.begin())->lbl_name.value(), Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
             b->quads.push_back(jump);
         }
@@ -129,10 +129,9 @@ void Function::add_entry_and_exit_block() {
         // if there are no such blocks, get a block with a greatest reverse post order number
         if (final_blocks.empty()) {
             auto id_to_rpo = get_reverse_post_ordering();
-            auto last_block_it =
-                std::max_element(id_to_rpo.begin(), id_to_rpo.end(),
-                                 [&](auto &p1, auto &p2) { return p1.second < p2.second; });
-            final_blocks.push_back(id_to_block.at(last_block_it->first));
+            auto block = std::max_element(basic_blocks.begin(), basic_blocks.end(),
+                             [&](auto &b1, auto &b2) { return id_to_rpo.at(b1->id) < id_to_rpo.at(b2->id); });
+            final_blocks.push_back(block->get());
         }
 
         auto exit_block = std::make_unique<BasicBlock>();
@@ -158,20 +157,14 @@ std::unordered_map<int, int> Function::get_reverse_post_ordering() const {
         }
     };
 
-    for (auto &b : basic_blocks) {
-        if (b->predecessors.empty())
-            postorder_traversal(b.get());
-    }
+    postorder_traversal(get_entry_block());
 
-    for (auto &b : basic_blocks) {
+    // visit yet unvisited blocks
+    for (auto &b : basic_blocks)
         postorder_traversal(b.get());
-    }
 
-    for (auto &b : basic_blocks) {
-        block_id_to_rpo[b->id] = counter - 1 - block_id_to_rpo.at(b->id);
-        //        b->node_name = b->get_name() + "; RPO: " +
-        //        std::to_string(block_id_to_rpo.at(b->id));
-    }
+    for (auto &b : basic_blocks)
+        block_id_to_rpo[b->id] = (counter - 1) - block_id_to_rpo.at(b->id);
 
     return block_id_to_rpo;
 }
@@ -263,7 +256,7 @@ void Function::update_phi_predecessors_after_clone() {
         for (int i = 0; i < b->phi_functions; ++i) {
             auto &phi = b->quads[i];
 
-            for (int op_i = phi.ops.size()-1; op_i >= 0 ; --op_i) {
+            for (int op_i = phi.ops.size() - 1; op_i >= 0; --op_i) {
                 auto &op = phi.ops[op_i];
                 int pred_id = op.phi_predecessor->id;
                 op.phi_predecessor = nullptr;

@@ -24,6 +24,5 @@ std::vector<char> print_anticipable_expressions(Function &f);
 std::vector<char> print_available_expressions(Function &f);
 std::vector<char> print_ue_de_and_killed_expressions(Function &f);
 std::vector<char> print_live_variable(Function &f);
-void print_lazy_code_motion_graphs(Function &f);
 
 #endif // TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_DATA_FLOW_ANALYSES_PRINT_GRAPH_HPP

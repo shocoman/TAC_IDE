@@ -1,24 +1,81 @@
+// Common Subexpression Elimination
+//B1:
+//    if 0 goto B2
+//B1:
+//    a = b + c
+//    goto B3
+//B2:
+//    //b = 7
+//    d = b + c
+//    goto B3
+//B3:
+//    e = b + c
 
+
+// Loop-invariant code motion
+//B0:
+//    goto B1
+//B1:
+//    a = b + c
+//    if 0 goto B1
+//B2:
+//    return 0
+
+// partial-redundancy elimination
+//B1:
+//    if 0 goto B3
+//B2:
+//    a = b + c
+//    goto B4
+//B3:
+//    goto B4
+//B4:
+//    d = b + c
+
+// one-block lcm
 B1:
-    r1 = 2 + 4
-    r2 = r1
-    r3 = 2 + 5
-    r4 = r3
-
-    r17 = 17
-    r18 = 18
-    r19 = 19
-
-    r5 = r2 > r4
-    if r5 goto B3
+    if 0 goto B5
 B2:
-    r20 = r17 * r18
-    r21 = r19 + r20
-    r8 = r21
-    r6 = r2 + 1
-    r2 = r6
-
-    r7 = r2 > r4
-    if r7 goto B2
+    c = 2
+    goto B3
 B3:
+    goto B4
+B4:
+    goto B7
+B5:
+    a = b + c
+    goto B6
+B6:
+    goto B7
+B7:
+    d = b + c
+B8:
+    if 0 goto B11
+B9:
+    e = b + c
+B10:
+    if 0 goto B9
+B11:
     return 0
+
+
+//B1:
+//    a = 1
+//    b = 2
+//B2:
+//    c = a + b
+//    d = c - a
+//B3:
+//    d = b + d
+//    if 0 goto B5
+//B4:
+//    d = a + b
+//    e = e + 1
+//    goto B3
+//B5:
+//    b = a + b
+//    e = c - a
+//    if 0 goto B2
+//B6:
+//    a = b * d
+//    b = a - d

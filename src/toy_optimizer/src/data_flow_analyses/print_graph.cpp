@@ -217,21 +217,3 @@ std::vector<char> print_ue_de_and_killed_expressions(Function &f) {
 }
 
 
-void print_lazy_code_motion_graphs(Function &f) {
-    LazyCodeMotionDriver lcm(f);
-
-    auto &[AntIn, AntOut] = lcm.ir.anticipable_expressions;
-    auto &[AvailIn, AvailOut] = lcm.ir.available_expressions;
-    auto &earliest_exprs = lcm.ir.earliest_expressions;
-    auto &latest_exprs = lcm.ir.latest_expressions;
-    auto &[PostIn, PostOut] = lcm.ir.postponable_expressions;
-    auto &[UsedIn, UsedOut] = lcm.ir.used_expressions;
-
-    print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable Expressions (1)", print_expression);
-    print_analysis_result_on_graph(f, AvailIn, AvailOut, "Available Expressions (lcm) (2)", print_expression);
-    print_analysis_result_on_graph(f, earliest_exprs, {}, "Earliest Expressions (3)", print_expression);
-    print_analysis_result_on_graph(f, PostIn, PostOut, "Postponable Expressions (4)", print_expression);
-    print_analysis_result_on_graph(f, latest_exprs, {}, "Latest Expressions (5)", print_expression);
-    print_analysis_result_on_graph(f, UsedIn, UsedOut, "Used Expressions (6)", print_expression);
-    print_ue_de_and_killed_expressions(f);
-}

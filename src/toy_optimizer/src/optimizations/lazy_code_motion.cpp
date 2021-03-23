@@ -4,18 +4,6 @@
 
 #include "lazy_code_motion.hpp"
 
-std::pair<ID2EXPRS, ID2EXPRS> LazyCodeMotionDriver::get_used_expressions() {
-    return data_flow_framework<Expression>(f, Flow::Backwards, Meet::Union, {},
-                                           [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
-                                               auto X = OUT.at(id);
-                                               for (auto &expr : ir.id_to_ue_exprs.at(id))
-                                                   X.insert(expr);
-                                               for (auto &expr : ir.latest_expressions.at(id))
-                                                   X.erase(expr);
-                                               return X;
-                                           });
-}
-
 void LazyCodeMotionDriver::run_lazy_code_motion() {
     // uniquely name every expression
     NewNameGenerator new_name_generator(f);
@@ -59,7 +47,7 @@ void LazyCodeMotionDriver::run_lazy_code_motion() {
             if (for_expr_placement.count(expr) > 0) {
                 auto &[lhs, type, rhs] = expr;
                 auto new_quad = Quad(lhs, rhs, type);
-                new_quad.dest = Dest(expr_to_name.at(expr), {}, Dest::Type::Var);
+                new_quad.dest = Dest(expr_to_name.at(expr), Dest::Type::Var);
                 // if block doesn't contain it already
                 if (std::find(b->quads.begin(), b->quads.end(), new_quad) == b->quads.end())
                     b->quads.insert(b->quads.begin() + b->phi_functions, new_quad);
@@ -72,21 +60,22 @@ void LazyCodeMotionDriver::run_lazy_code_motion() {
 }
 
 std::pair<ID2EXPRS, ID2EXPRS> LazyCodeMotionDriver::get_available_expressions_lazy_code_motion() {
-    return data_flow_framework<Expression>(
-        f, Flow::Forwards, Meet::Intersection, ir.all_expressions,
-        [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
-            auto X = IN.at(id);
-            for (auto &expr : ir.anticipable_expressions.first.at(id))
-                X.insert(expr);
-            for (auto &expr : ir.id_to_killed_exprs.at(id))
-                X.erase(expr);
-            return X;
-        });
+    return data_flow_framework<Expression>(f, Flow::Forwards, Meet::Intersection, ir.all_expressions,
+                                           [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
+                                               auto X = IN.at(id);
+                                               for (auto &expr : ir.anticipable_expressions.first.at(id))
+                                                   X.insert(expr);
+                                               for (auto &expr : ir.id_to_killed_exprs.at(id))
+                                                   X.erase(expr);
+                                               return X;
+                                           });
 }
 
 ID2EXPRS LazyCodeMotionDriver::get_earliest_expressions() {
-    auto X = ir.anticipable_expressions.first;
-    for (auto &[id, exprs] : ir.available_expressions.first) {
+    auto &ant_in = ir.anticipable_expressions.first;
+    auto &avail_in = ir.available_expressions.first;
+    auto X = ant_in;
+    for (auto &[id, exprs] : avail_in) {
         auto &x = X.at(id);
         for (auto &e : exprs)
             x.erase(e);
@@ -107,14 +96,14 @@ std::pair<ID2EXPRS, ID2EXPRS> LazyCodeMotionDriver::get_postponable_expressions(
 }
 
 ID2EXPRS LazyCodeMotionDriver::get_latest_expressions() {
+    auto &post_in = ir.postponable_expressions.first;
     ID2EXPRS latest_expressions;
     for (auto &b : f.basic_blocks) {
         std::vector<std::set<Expression>> successors_exprs;
-        std::transform(b->successors.begin(), b->successors.end(),
-                       std::back_inserter(successors_exprs), [&](auto s) {
-                return union_of_sets(
-                    std::vector{ir.earliest_expressions.at(s->id),
-                                ir.postponable_expressions.first.at(s->id)});
+        std::transform(
+            b->successors.begin(), b->successors.end(), std::back_inserter(successors_exprs),
+            [&](auto s) {
+                return union_of_sets(std::vector{ir.earliest_expressions.at(s->id), post_in.at(s->id)});
             });
 
         auto complementary = ir.all_expressions;
@@ -122,20 +111,30 @@ ID2EXPRS LazyCodeMotionDriver::get_latest_expressions() {
             complementary.erase(e);
 
         latest_expressions[b->id] = intersection_of_sets(
-            std::vector{union_of_sets(std::vector{ir.earliest_expressions[b->id],
-                                                  ir.postponable_expressions.first[b->id]}),
+            std::vector{union_of_sets(std::vector{ir.earliest_expressions[b->id], post_in[b->id]}),
                         union_of_sets(std::vector{ir.id_to_ue_exprs.at(b->id), complementary})});
     }
 
     return latest_expressions;
 }
 
+std::pair<ID2EXPRS, ID2EXPRS> LazyCodeMotionDriver::get_used_expressions() {
+    return data_flow_framework<Expression>(f, Flow::Backwards, Meet::Union, {},
+                                           [&](ID2EXPRS &IN, ID2EXPRS &OUT, int id) {
+                                               auto X = OUT.at(id);
+                                               for (auto &expr : ir.id_to_ue_exprs.at(id))
+                                                   X.insert(expr);
+                                               for (auto &expr : ir.latest_expressions.at(id))
+                                                   X.erase(expr);
+                                               return X;
+                                           });
+}
+
 void LazyCodeMotionDriver::preprocess() {
     ir.all_expressions = get_all_expressions(f);
 
     // from "ir.all_expressions"
-    std::tie(ir.id_to_ue_exprs, ir.id_to_killed_exprs) =
-        get_upward_exposed_and_killed_expressions(f);
+    std::tie(ir.id_to_ue_exprs, ir.id_to_killed_exprs) = get_upward_exposed_and_killed_expressions(f);
 
     // from "ir.all_expressions", "ir.id_to_ue_exprs" and "ir.id_to_killed_exprs"
     ir.anticipable_expressions = get_anticipable_expressions(f);
@@ -154,4 +153,25 @@ void LazyCodeMotionDriver::preprocess() {
 
     // from "ir.latest_expressions" and "ir.id_to_ue_exprs"
     ir.used_expressions = get_used_expressions();
+}
+
+void LazyCodeMotionDriver::print_lazy_code_motion_graphs() {
+    auto &[AntIn, AntOut] = ir.anticipable_expressions;
+    auto &[AvailIn, AvailOut] = ir.available_expressions;
+    auto &earliest_exprs = ir.earliest_expressions;
+    auto &latest_exprs = ir.latest_expressions;
+    auto &[PostIn, PostOut] = ir.postponable_expressions;
+    auto &[UsedIn, UsedOut] = ir.used_expressions;
+
+    print_analysis_result_on_graph(f, AntIn, AntOut, "Anticipable Expressions (1)", print_expression);
+    print_analysis_result_on_graph(f, AvailIn, AvailOut, "Available Expressions (lcm) (2)",
+                                   print_expression);
+    print_analysis_result_on_graph(f, earliest_exprs, {}, "Earliest Expressions (3)", print_expression,
+                                   "Earliest");
+    print_analysis_result_on_graph(f, PostIn, PostOut, "Postponable Expressions (4)", print_expression);
+    print_analysis_result_on_graph(f, latest_exprs, {}, "Latest Expressions (5)", print_expression,
+                                   "Latest");
+    print_analysis_result_on_graph(f, UsedIn, UsedOut, "Used Expressions (6)", print_expression);
+    print_analysis_result_on_graph(f, ir.id_to_ue_exprs, ir.id_to_killed_exprs,
+                                   "UE and Killed Expressions", print_expression, "UE", "Kill");
 }

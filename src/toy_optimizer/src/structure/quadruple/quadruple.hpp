@@ -29,6 +29,7 @@ struct Quad {
         Deref,
         Ref,
         ArrayGet,
+        ArraySet,
         IfTrue,
         IfFalse,
         Goto,
@@ -66,14 +67,11 @@ struct Quad {
             ops.erase(ops.begin() + i);
     }
 
-    std::vector<std::string> get_rhs(bool include_constants = true) const {
+    std::vector<std::string> get_rhs_names(bool include_constants = true) const {
         if (type == Type::Call) // don't count function call args (you don't need them)
             return {};
 
         std::vector<std::string> rhs_vars;
-        if (dest && dest->type == Dest::Type::ArraySet)
-            rhs_vars.push_back(dest->index->value);
-
         for (auto &op : ops)
             if (op.is_var() || (include_constants && op.is_constant()))
                 rhs_vars.push_back(op.get_string());
@@ -86,7 +84,7 @@ struct Quad {
     }
 
     std::vector<std::string> get_used_vars() const {
-        auto used_vars = get_rhs(false);
+        auto used_vars = get_rhs_names(false);
         if (auto l = get_lhs(); l.has_value())
             used_vars.push_back(l.value());
         return used_vars;
@@ -185,6 +183,8 @@ struct Quad {
             break;
         case Type::ArrayGet:
             return command + get_op(0)->get_string() + "[" + get_op(1)->get_string() + "]";
+        case Type::ArraySet:
+            return fmt::format("{}[{}] = {}", destination.value(), get_op(0)->value, get_op(1)->value);
         case Type::IfTrue:
             return "if " + get_op(0)->get_string() + " goto " + destination.value();
         case Type::IfFalse:
@@ -208,8 +208,8 @@ struct Quad {
         case Type::VarDeclaration:
             return destination.value() + ": ." + get_op(0)->get_string() + " " + get_op(1)->get_string();
         case Type::ArrayDeclaration:
-            return destination.value() + ": .block " + dest->index->value + ", " +
-                   get_op(0)->get_string() + ", " + get_op(1)->get_string();
+            return fmt::format("{}: .block {}, {}, {}", destination.value(), get_op(0)->get_string(),
+                               get_op(1)->get_string(), get_op(2)->get_string());
         case Type::PhiNode:
             std::vector<std::string> operators;
             for (auto &o : ops)
@@ -227,8 +227,7 @@ struct Quad {
     friend std::ostream &operator<<(std::ostream &os, const Quad &quad) { return os << quad.fmt(); }
     bool operator==(const Quad &rhs) const {
         return ops == rhs.ops && type == rhs.type &&
-               (!dest.has_value() || dest->type == rhs.dest->type && dest->name == rhs.dest->name &&
-                                         dest->index == rhs.dest->index);
+               (!dest.has_value() || dest->type == rhs.dest->type && dest->name == rhs.dest->name);
     }
     bool operator!=(const Quad &rhs) const { return !(rhs == *this); }
 };
