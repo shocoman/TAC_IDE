@@ -62,10 +62,23 @@ struct UseDefGraph {
             }
         }
 
-        // gather reverse chains
+        // gather reverse chains - defuse
         for (auto &[use, defs] : use_to_definitions)
             for (auto &def : defs)
                 definition_to_uses[def].insert(use);
+    }
+
+
+    void print_to_console_def_use_chains() {
+        for (auto &[def, uses] : definition_to_uses) {
+            auto &[d_id, d_quad] = def.location;
+            fmt::print("{}({},{}): ", def.name, f.id_to_block.at(d_id)->get_name(), d_quad);
+            for (auto &use : uses) {
+                auto &[u_id, u_quad] = use.location;
+                fmt::print("{}({},{}), ", use.name, f.id_to_block.at(u_id)->get_name(), u_quad);
+            }
+            fmt::print("\n");
+        }
     }
 
     std::vector<char> print_use_def_chains() {
