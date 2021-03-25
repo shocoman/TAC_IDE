@@ -45,7 +45,7 @@ struct ReachingDefinitionsDriver {
     Function &f;
     PairOfDefinitionsSetMaps reaching_definitions;
 
-    ReachingDefinitionsDriver(Function &f_) : f(f_) {}
+    ReachingDefinitionsDriver(Function &f_) : f(f_) { run(); }
 
     PairOfDefinitionsSetMaps &get_results() {
         return reaching_definitions;

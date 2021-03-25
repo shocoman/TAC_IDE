@@ -52,7 +52,7 @@ struct UseDefGraph {
 
                 for (auto &op_name : q.get_rhs_names(false)) {
                     auto use = Use{{b->id, quad_i}, op_name};
-                    use_to_definitions[use] = name_to_defs.at(op_name);
+                    use_to_definitions[use] = name_to_defs[op_name];
                 }
 
                 if (q.is_assignment()) {
@@ -81,7 +81,7 @@ struct UseDefGraph {
         }
     }
 
-    std::vector<char> print_use_def_chains() {
+    std::vector<char> print_use_def_chains_graph() {
         GraphWriter dot_writer;
         for (const auto &[use, definitions] : use_to_definitions) {
 

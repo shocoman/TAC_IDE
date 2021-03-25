@@ -18,6 +18,8 @@ struct Quad {
         Sub,
         Mult,
         Div,
+        And,
+        Or,
         UMinus,
         Lt,
         Lte,
@@ -68,13 +70,11 @@ struct Quad {
     }
 
     std::vector<std::string> get_rhs_names(bool include_constants = true) const {
-        if (type == Type::Call) // don't count function call args (you don't need them)
-            return {};
-
         std::vector<std::string> rhs_vars;
-        for (auto &op : ops)
+        for (auto &op : ops) {
             if (op.is_var() || (include_constants && op.is_constant()))
                 rhs_vars.push_back(op.get_string());
+        }
 
         return rhs_vars;
     }
@@ -99,32 +99,35 @@ struct Quad {
     bool is_conditional_jump() const { return type == Type::IfTrue || type == Type::IfFalse; }
 
     bool is_assignment() const {
-        return !(is_jump() || type == Type::Return || type == Type::Nop || type == Type::Halt ||
-                 type == Type::Putparam || (type == Type::Call && !dest.has_value()));
+        return not(type == Type::Return || type == Type::Nop || type == Type::Halt ||
+                   type == Type::Putparam || type == Type::Getparam || type == Type::ArraySet ||
+                   is_jump() || (type == Type::Call && !dest.has_value()));
     }
 
     bool is_binary() const {
         auto binaries = {
-            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt,
-            Type::Lte, Type::Gt,  Type::Gte,  Type::Eq,  Type::Neq,
+            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::And, Type::Or,
+            Type::Lt,  Type::Lte, Type::Gt,   Type::Gte, Type::Eq,  Type::Neq,
         };
         return std::any_of(binaries.begin(), binaries.end(),
                            [this](auto expr_type) { return this->type == expr_type; });
     }
 
     static bool is_commutative(Type t) {
-        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq || t == Type::Neq;
+        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq ||
+               t == Type::Neq || t == Type::And || t == Type::Or;
     }
 
     static bool is_critical(Type t) {
-        return t == Type::Print || t == Type::Return || t == Type::Putparam || t == Type::Call;
+        auto critical = {Type::Print,          Type::Return,           Type::Putparam, Type::Call,
+                         Type::VarDeclaration, Type::ArrayDeclaration, Type::ArraySet};
+        return std::any_of(critical.begin(), critical.end(),
+                           [t](auto expr_type) { return t == expr_type; });
     }
 
     static bool is_foldable(Type t) {
-        auto foldables = {
-            Type::Add, Type::Sub, Type::Mult, Type::Div, Type::Lt,     Type::Lte,
-            Type::Gt,  Type::Gte, Type::Eq,   Type::Neq, Type::UMinus,
-        };
+        auto foldables = {Type::Add, Type::Sub, Type::Mult, Type::Div,    Type::Lt,  Type::Lte, Type::Gt,
+                          Type::Gte, Type::Eq,  Type::Neq,  Type::UMinus, Type::And, Type::Or};
         return std::any_of(foldables.begin(), foldables.end(),
                            [t](auto expr_type) { return t == expr_type; });
     }
@@ -150,6 +153,12 @@ struct Quad {
             break;
         case Type::Div:
             op = "/";
+            break;
+        case Type::Or:
+            op = "||";
+            break;
+        case Type::And:
+            op = "&&";
             break;
         case Type::UMinus:
             unary_op = "-";
@@ -198,7 +207,7 @@ struct Quad {
         case Type::Putparam:
             return "putparam " + get_op(0)->get_string();
         case Type::Getparam:
-            return "getparam " + dest->name;
+            return "getparam " + get_op(0)->get_string();
         case Type::Nop:
             return "nop";
         case Type::Return:

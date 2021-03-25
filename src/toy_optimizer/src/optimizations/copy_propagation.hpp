@@ -288,4 +288,11 @@ struct CopyPropagationDriver {
     }
 };
 
+
+static void run_copy_propagation(Function &f) {
+    CopyPropagationDriver copy_propagation_driver(f);
+    copy_propagation_driver.run_real_copy_propagation();
+    f = copy_propagation_driver.f;
+}
+
 #endif // TAC_PARSER_SRC_TAC_WORKER_OPTIMIZATIONS_COPY_PROPAGATION_HPP

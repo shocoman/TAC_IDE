@@ -117,19 +117,19 @@ void UselessCodeEliminationDriver::remove_unreachable_blocks() {
 
 void UselessCodeEliminationDriver::merge_basic_blocks() {
     // temporary remove entry and exit block (hack)
-    auto RemoveBlock = [&](auto b_type) {
-        auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
-                                  [b_type](auto &b) { return b->type == b_type; });
-        if (block != f.basic_blocks.end()) {
-            f.id_to_block.erase(block->get()->id);
-            block->get()->remove_successors();
-            block->get()->remove_predecessors();
-            f.basic_blocks.erase(block);
-        }
-    };
-
-    RemoveBlock(BasicBlock::Type::Entry);
-    RemoveBlock(BasicBlock::Type::Exit);
+    //    auto RemoveBlock = [&](auto b_type) {
+    //        auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
+    //                                  [b_type](auto &b) { return b->type == b_type; });
+    //        if (block != f.basic_blocks.end()) {
+    //            f.id_to_block.erase(block->get()->id);
+    //            block->get()->remove_successors();
+    //            block->get()->remove_predecessors();
+    //            f.basic_blocks.erase(block);
+    //        }
+    //    };
+    //
+    //    RemoveBlock(BasicBlock::Type::Entry);
+    //    RemoveBlock(BasicBlock::Type::Exit);
 
     // Clean Pass (merge blocks, etc)
     bool changed = true;
@@ -138,10 +138,12 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
 
         // walk through blocks in post order
         for (auto &[postorder, id] : postorder_to_id) {
-            if (f.id_to_block.count(id) == 0 || f.id_to_block.at(id)->quads.empty())
+            if (f.id_to_block.count(id) == 0)
                 continue;
 
             auto &b = f.id_to_block.at(id);
+            if (b->quads.empty() || b->type != BasicBlock::Type::Normal)
+                continue;
 
             // replace branch with jump
             if (b->successors.size() == 1 && b->quads.back().is_conditional_jump()) {
@@ -153,8 +155,12 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
             if (b->successors.size() == 1) {
                 auto succ = *b->successors.begin();
 
+                // skip entry and exit blocks
+                if (succ->type != BasicBlock::Type::Normal) {
+
+                }
                 // remove empty block (has only 1 successor with goto)
-                if (b->quads.size() == 1 && b->quads.back().is_jump()) {
+                else if (b->quads.size() == 1 && b->quads.back().is_jump()) {
                     for (auto &pred : b->predecessors) {
                         // replace successor to the predecessors
                         pred->successors.erase(b);
@@ -237,6 +243,5 @@ Function &UselessCodeEliminationDriver::run() {
     merge_basic_blocks();
 
     f.update_block_ids();
-
     return f;
 }

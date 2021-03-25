@@ -48,6 +48,8 @@ empty_line ^{blank}*\n
 "*"     return yy::parser::make_MULT(loc);
 "/"     return yy::parser::make_DIV(loc);
 "&"     return yy::parser::make_REF(loc);
+"&&"     return yy::parser::make_AND(loc);
+"||"     return yy::parser::make_OR(loc);
 
 "<"     return yy::parser::make_CMP_LT(loc);
 "<="    return yy::parser::make_CMP_LTE(loc);

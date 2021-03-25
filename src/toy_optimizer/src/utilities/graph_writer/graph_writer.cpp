@@ -27,6 +27,12 @@ std::string escape_string(const std::string &s) {
         case '>':
             buffer.append("&gt;");
             break;
+        case '"':
+            buffer.append("&#34;");
+            break;
+        case '\'':
+            buffer.append("&#39;");
+            break;
         default:
             buffer.push_back(ch);
             break;

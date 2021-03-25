@@ -61,12 +61,12 @@ struct ConvertFromSSADriver {
 };
 
 
-static void convert_to_ssa(Function &f) {
+static void run_convert_to_ssa(Function &f) {
     ConvertToSSADriver convert_to_ssa_driver(f);
     f = convert_to_ssa_driver.f;
 }
 
-static void convert_from_ssa(Function &f) {
+static void run_convert_from_ssa(Function &f) {
     ConvertFromSSADriver convert_from_ssa_driver(f);
     f = convert_from_ssa_driver.f;
 }

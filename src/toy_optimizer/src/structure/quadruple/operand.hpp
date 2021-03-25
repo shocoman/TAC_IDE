@@ -70,6 +70,8 @@ struct Operand {
 
     bool is_var() const { return type == Type::Var; }
 
+    bool is_none() const { return type == Type::None; }
+
     bool is_constant() const { return !(is_var() || type == Type::None); }
 
     bool is_int() const { return type == Type::LInt; }

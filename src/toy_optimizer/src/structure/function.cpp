@@ -169,12 +169,26 @@ std::unordered_map<int, int> Function::get_reverse_post_ordering() const {
     return block_id_to_rpo;
 }
 
-std::unordered_map<int, int> Function::get_post_ordering() {
-    reverse_graph();
-    std::unordered_map<int, int> id_to_post_order = get_reverse_post_ordering();
-    reverse_graph();
+std::unordered_map<int, int> Function::get_post_ordering() const {
+    // rpo on reversed graph
+    std::unordered_map<int, int> block_id_to_po;
+    int counter = 0;
 
-    return id_to_post_order;
+    std::function<void(BasicBlock *)> postorder_traversal = [&](BasicBlock *b) {
+        if (block_id_to_po.insert({b->id, 0}).second) {
+            for (auto &s : b->predecessors)
+                postorder_traversal(s);
+            block_id_to_po[b->id] = counter++;
+        }
+    };
+    postorder_traversal(get_exit_block());
+
+    // visit yet unvisited blocks
+    for (auto &b : basic_blocks)
+        postorder_traversal(b.get());
+    for (auto &b : basic_blocks)
+        block_id_to_po[b->id] = (counter - 1) - block_id_to_po.at(b->id);
+    return block_id_to_po;
 }
 
 void Function::reverse_graph() {

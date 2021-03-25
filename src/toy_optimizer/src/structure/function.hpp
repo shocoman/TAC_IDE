@@ -63,7 +63,7 @@ struct Function {
     void add_missing_jumps();
     void remove_blocks_without_predecessors();
 
-    std::unordered_map<int, int> get_post_ordering();
+    std::unordered_map<int, int> get_post_ordering() const;
     std::unordered_map<int, int> get_reverse_post_ordering() const;
     Quad &get_quad(const std::pair<int, int> &loc) const;
 

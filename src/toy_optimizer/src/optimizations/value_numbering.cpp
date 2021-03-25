@@ -34,6 +34,12 @@ void constant_folding(Quad &n) {
         case Quad::Type::Div:
             res = l / r;
             break;
+        case Quad::Type::And:
+            res = l && r;
+            break;
+        case Quad::Type::Or:
+            res = l || r;
+            break;
         default: {
             // relational operations
             bool res = false;

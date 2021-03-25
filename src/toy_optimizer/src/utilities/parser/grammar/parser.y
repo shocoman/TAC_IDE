@@ -47,6 +47,8 @@
     MULT    "*"
     DIV     "/"
     REF     "&"
+    AND     "&&"
+    OR      "||"
 
     CMP_LT  "<"
     CMP_LTE "<="
@@ -106,21 +108,24 @@ quadruple:
 |   "nop"                               { $$ = Quad({}, {}, Quad::Type::Nop); };
 |   "return" term                       { $$ = Quad($term, {}, Quad::Type::Return); };
 |   "print_to_console"  term            { $$ = Quad($term, {}, Quad::Type::Print); };
-|   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
+|   "call"  "identifier"[id] "," "int"  {
+         $$ = Quad(Operand($id, Operand::Type::None), Operand(std::to_string($4), Operand::Type::None), Quad::Type::Call);
+       };
 |   var_declaration
 |   "putparam" term                     { $$ = Quad($term, {}, Quad::Type::Putparam); };
-|   "getparam" "identifier"[id]         { $$ = Quad({}, {}, Quad::Type::Getparam);
-                                          $$.dest = Dest($id, Dest::Type::Var);  };
+|   "getparam" "identifier"[id]         { $$ = Quad($id, {}, Quad::Type::Getparam); };
 ;
 
 var_declaration:
-    label "." "identifier"[id] term {
-                                  $$ = Quad($id, $term, Quad::Type::VarDeclaration);
+    label "." "identifier"[id] term
+                              {
+                                  $$ = Quad(Operand($id, Operand::Type::None), $term, Quad::Type::VarDeclaration);
                                   $$.dest = Dest($label, Dest::Type::Var);
                               };
-|   label "." "block" "int"[size] "," "identifier"[type] "," term[initval] {
-                                  $$ = Quad($type, $initval, Quad::Type::ArrayDeclaration);
-                                  $$.ops.insert($$.ops.begin(), Operand(std::to_string($size)));
+|   label "." "block" "int"[size] "," "identifier"[type] "," term[initval]
+                              {
+                                  $$ = Quad(Operand($type, Operand::Type::None), $initval, Quad::Type::ArrayDeclaration);
+                                  $$.ops.push_back(Operand(std::to_string($size), Operand::Type::None));
                                   $$.dest = Dest($label, Dest::Type::Var);
                               };
 
@@ -161,6 +166,8 @@ value:
 |   term "+"  term          { $$ = Quad($1, $3, Quad::Type::Add); }
 |   term "-"  term          { $$ = Quad($1, $3, Quad::Type::Sub); }
 |   term "*"  term          { $$ = Quad($1, $3, Quad::Type::Mult); }
+|   term "&&"  term         { $$ = Quad($1, $3, Quad::Type::And); }
+|   term "||"  term         { $$ = Quad($1, $3, Quad::Type::Or); }
 |   term "/"  term          { $$ = Quad($1, $3, Quad::Type::Div); }
 |   term "<"  term          { $$ = Quad($1, $3, Quad::Type::Lt); }
 |   term "<="  term         { $$ = Quad($1, $3, Quad::Type::Lte); }
@@ -168,7 +175,9 @@ value:
 |   term ">="  term         { $$ = Quad($1, $3, Quad::Type::Gte); }
 |   term "==" term          { $$ = Quad($1, $3, Quad::Type::Eq); }
 |   term "!=" term          { $$ = Quad($1, $3, Quad::Type::Neq); }
-|   "call"  "identifier"[id] "," "int"  { $$ = Quad($id, std::to_string($4), Quad::Type::Call); };
+|   "call"  "identifier"[id] "," "int"  {
+        $$ = Quad(Operand($id, Operand::Type::None), Operand(std::to_string($4), Operand::Type::None), Quad::Type::Call);
+       };
 ;
 
 term:

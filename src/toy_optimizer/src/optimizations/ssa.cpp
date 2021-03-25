@@ -16,18 +16,19 @@ Function &ConvertToSSADriver::run() {
 }
 
 void ConvertToSSADriver::find_global_names() {
-    auto &var_to_block = ir.var_to_block;
-    auto &global_names = ir.global_names,
-        &all_names = ir.all_names;
     for (auto &b : f.basic_blocks) {
-        std::set<std::string> var_kill;
         for (const auto &q : b->quads) {
+            // ignore arrays
+            if (q.type == Quad::Type::ArrayDeclaration || q.type == Quad::Type::ArraySet)
+                continue;
+
             for (auto &op : q.get_rhs_names(false))
-                global_names.insert(op);
-            if (auto lhs = q.get_lhs(); lhs.has_value()) {
-                var_kill.insert(lhs.value());
-                var_to_block[lhs.value()].insert(b.get());
-                all_names.insert(lhs.value());
+                ir.global_names.insert(op);
+
+            auto lhs = q.get_lhs();
+            if (lhs.has_value()) {
+                ir.var_to_block[lhs.value()].insert(b.get());
+                ir.all_names.insert(lhs.value());
             }
         }
     }
@@ -70,11 +71,10 @@ void ConvertToSSADriver::place_phi_functions() {
 }
 
 void ConvertToSSADriver::rename_variables() {
-    auto &function = f;
     auto &global_names = ir.all_names;
 
     char delim = '_';
-    ID2IDOM id_to_idom = get_immediate_dominators(function);
+    ID2IDOM id_to_idom = get_immediate_dominators(f);
 
     std::map<std::string, int> name_to_counter;
     std::map<std::string, std::vector<int>> name_to_stack;
@@ -92,7 +92,7 @@ void ConvertToSSADriver::rename_variables() {
 
     std::function<void(int)> RenameVars = [&](int block_id) {
         std::vector<std::string> pushed_names;
-        auto block = function.id_to_block.at(block_id);
+        auto block = f.id_to_block.at(block_id);
 
         // rename phi functions
         for (int i = 0; i < block->phi_functions; ++i) {
@@ -121,7 +121,7 @@ void ConvertToSSADriver::rename_variables() {
             for (int i = 0; i < s->phi_functions; ++i) {
                 auto &phi = s->quads[i];
                 auto name = phi.dest->name;
-                auto name_without_suffix = name.substr(0, name.find_first_of(delim, 0));
+                auto name_without_suffix = name.substr(0, name.find_last_of(delim));
 
                 auto stack = name_to_stack.find(name_without_suffix);
                 std::string next_name =
@@ -143,7 +143,7 @@ void ConvertToSSADriver::rename_variables() {
             name_to_stack.at(n).pop_back();
     };
 
-    RenameVars(function.get_entry_block()->id);
+    RenameVars(f.get_entry_block()->id);
 }
 
 Function &ConvertFromSSADriver::run() {

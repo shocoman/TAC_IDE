@@ -48,9 +48,19 @@ int main(int argc, char *argv[]) {
     //    drv.parse_from_file("../_TestCode/ssa_lost_copy_problem.txt");
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
-    auto &f = functions[1];
+    auto &f = functions[0];
 
+//    run_useless_code_elimination(f);
+//    ConvertToSSADriver convert_to_ssa_driver(f);
+
+    run_convert_to_ssa(f);
     f.print_cfg("before.png");
+
+    run_convert_from_ssa(f);
+    run_copy_propagation(f);
+    run_useless_code_elimination(f);
+
+    f.print_cfg("after.png");
 
     std::getchar();
     return 0;
