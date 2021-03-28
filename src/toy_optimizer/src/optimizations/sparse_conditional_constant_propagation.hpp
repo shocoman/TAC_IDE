@@ -46,6 +46,7 @@ struct SparseConditionalConstantPropagation {
         std::unordered_set<int> useless_blocks;
         std::set<Place> changed_places;
         std::set<CFGEdge> executed_edges;
+        Function f_before_block_removal;
 
         std::vector<CFGEdge> CFGWorkList;
         std::vector<SSAEdge> SSAWorkList;
@@ -59,10 +60,13 @@ struct SparseConditionalConstantPropagation {
         init_worklist();
         propagate();
 
-        print_result_info();
+//        print_result_info();
         rewrite_program();
         collect_useless_blocks();
+
         print_sccp_result_graph();
+        ir.f_before_block_removal = f;
+
         remove_useless_blocks();
     }
 
@@ -421,7 +425,7 @@ struct SparseConditionalConstantPropagation {
         dot_writer.legend_marks = {{"Executed edge", "red", "solid"},
                                    {"Ignored edge", "black", "dashed"}};
 
-        for (const auto &n : f.basic_blocks) {
+        for (const auto &n : ir.f_before_block_removal.basic_blocks) {
             auto node_name = n->get_name();
 
             dot_writer.set_attribute(node_name, "subscript", fmt::format("id={}", n->id));

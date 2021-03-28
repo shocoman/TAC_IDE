@@ -13,8 +13,8 @@ class ToyOptimizationDescriptionWindow : public OptimizationShowDialog {
 
   public:
     ToyOptimizationDescriptionWindow(wxWindow *parent);
-    void SetHtmlTagParserCallback(std::function<void(const wxHtmlTag &, wxHtmlWinParser *)> func) {
-        m_htmlWin2->myfunc = std::move(func);
+    void SetHtmlTagParserCallback(std::function<wxWindow *(const wxHtmlTag &, wxWindow *)> func) {
+        m_htmlWin2->html_callback = std::move(func);
     }
     void LoadHTMLFile(wxString path) {
         m_htmlWin2->LoadFile(path);

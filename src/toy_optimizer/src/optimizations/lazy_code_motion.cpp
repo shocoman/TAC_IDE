@@ -4,7 +4,7 @@
 
 #include "lazy_code_motion.hpp"
 
-void LazyCodeMotionDriver::run_lazy_code_motion() {
+void LazyCodeMotionDriver::run() {
     // uniquely name every expression
     NewNameGenerator new_name_generator(f);
     std::map<Expression, std::string> expr_to_name;

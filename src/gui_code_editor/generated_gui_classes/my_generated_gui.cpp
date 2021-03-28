@@ -17,7 +17,7 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 
 	wxStaticBoxSizer* sbSizer1;
-	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Control Flow Graph")), wxVERTICAL );
+	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Граф потока управления") ), wxVERTICAL );
 
 	m_graph_panel = new ImagePanel( sbSizer1->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	sbSizer1->Add( m_graph_panel, 3, wxALL|wxEXPAND, 5 );
@@ -25,33 +25,49 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 
 	bSizer2->Add( sbSizer1, 5, wxEXPAND, 1 );
 
-	wxStaticBoxSizer* sbSizer2;
-	sbSizer2 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Optimizations") ), wxVERTICAL );
+	wxBoxSizer* bSizer51;
+	bSizer51 = new wxBoxSizer( wxVERTICAL );
 
-	optimizationChoosePanel = new wxPanel( sbSizer2->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer5;
-	bSizer5 = new wxBoxSizer( wxVERTICAL );
+	wxStaticBoxSizer* sbSizer4;
+	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Анализ") ), wxVERTICAL );
 
-	m_convert_to_ssa_btn = new wxButton( optimizationChoosePanel, wxID_ANY, wxT("Перевести в SSA форму"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( m_convert_to_ssa_btn, 0, wxALL|wxEXPAND, 5 );
-
-	m_convert_from_ssa_btn = new wxButton( optimizationChoosePanel, wxID_ANY, wxT("Вывести из SSA формы"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( m_convert_from_ssa_btn, 0, wxALL|wxEXPAND, 5 );
-
-	m_display_dfs_tree_btn = new wxButton( optimizationChoosePanel, wxID_ANY, wxT("Показать остовное дерево"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( m_display_dfs_tree_btn, 0, wxALL|wxEXPAND, 5 );
-
-	m_etc_btn = new wxButton( optimizationChoosePanel, wxID_ANY, wxT("..."), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( m_etc_btn, 0, wxALL|wxEXPAND, 5 );
+	m_scrolledWindow2 = new wxScrolledWindow( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow2->SetScrollRate( 5, 5 );
+	m_analysis_sizer = new wxBoxSizer( wxVERTICAL );
 
 
-	optimizationChoosePanel->SetSizer( bSizer5 );
-	optimizationChoosePanel->Layout();
-	bSizer5->Fit( optimizationChoosePanel );
-	sbSizer2->Add( optimizationChoosePanel, 1, wxEXPAND|wxALL, 5 );
+	m_scrolledWindow2->SetSizer( m_analysis_sizer );
+	m_scrolledWindow2->Layout();
+	m_analysis_sizer->Fit( m_scrolledWindow2 );
+	sbSizer4->Add( m_scrolledWindow2, 1, wxEXPAND | wxALL, 5 );
 
 
-	bSizer2->Add( sbSizer2, 1, wxEXPAND, 5 );
+	bSizer51->Add( sbSizer4, 1, wxEXPAND, 5 );
+
+	wxStaticBoxSizer* sbSizer5;
+	sbSizer5 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Оптимизация") ), wxVERTICAL );
+
+	m_scrolledWindow1 = new wxScrolledWindow( sbSizer5->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	m_scrolledWindow1->SetScrollRate( 5, 5 );
+	m_optimization_sizer = new wxBoxSizer( wxVERTICAL );
+
+
+	m_scrolledWindow1->SetSizer( m_optimization_sizer );
+	m_scrolledWindow1->Layout();
+	m_optimization_sizer->Fit( m_scrolledWindow1 );
+	sbSizer5->Add( m_scrolledWindow1, 1, wxEXPAND | wxALL, 5 );
+
+
+	bSizer51->Add( sbSizer5, 1, wxEXPAND, 5 );
+
+	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer51->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
+
+	m_back_to_code_btn = new wxButton( this, wxID_ANY, wxT("Вернуться к коду"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer51->Add( m_back_to_code_btn, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer2->Add( bSizer51, 2, wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer2 );

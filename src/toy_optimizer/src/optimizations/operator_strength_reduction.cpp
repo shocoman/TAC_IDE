@@ -4,7 +4,7 @@
 
 #include "operator_strength_reduction.hpp"
 
-void OSRDriver::fill_in_use_def_graph() {
+void OperatorStrengthReductionDriver::fill_in_use_def_graph() {
     for (auto &b : f.basic_blocks) {
         for (int q_index = 0; q_index < b->quads.size(); ++q_index) {
             auto &q = b->quads[q_index];
@@ -19,7 +19,7 @@ void OSRDriver::fill_in_use_def_graph() {
     }
 }
 
-void OSRDriver::run_osr() {
+void OperatorStrengthReductionDriver::run() {
     // visit every unvisited node in ssa graph
 
     std::vector<std::pair<std::string, VariableInfo>> ssa_nodes;
@@ -34,7 +34,7 @@ void OSRDriver::run_osr() {
             DFS(name);
 }
 
-void OSRDriver::DFS(const std::string &name) {
+void OperatorStrengthReductionDriver::DFS(const std::string &name) {
     // Tarjan algorithm for finding strongly connected components in graph
     static std::vector<std::string> stack;
     static int next_num = 0;
@@ -79,7 +79,7 @@ void OSRDriver::DFS(const std::string &name) {
     }
 }
 
-void OSRDriver::ProcessSCC(const std::vector<std::string> &SCC) {
+void OperatorStrengthReductionDriver::ProcessSCC(const std::vector<std::string> &SCC) {
     if (SCC.size() == 1) {
         std::string n = SCC.front();
         if (IsCandidateOperation(n, ir.use_def_graph.at(n).header.empty() ? n : ir.use_def_graph.at(n).header))
@@ -90,7 +90,7 @@ void OSRDriver::ProcessSCC(const std::vector<std::string> &SCC) {
         ClassifyIV(SCC);
 }
 
-void OSRDriver::ClassifyIV(const std::vector<std::string> &SCC) {
+void OperatorStrengthReductionDriver::ClassifyIV(const std::vector<std::string> &SCC) {
     // choose node with lowest rpo number as a header
     std::string header = *std::min_element(SCC.begin(), SCC.end(), [&](auto &n1, auto &n2) {
         return ir.use_def_graph.at(n1).num < ir.use_def_graph.at(n2).num;
@@ -109,7 +109,7 @@ void OSRDriver::ClassifyIV(const std::vector<std::string> &SCC) {
     }
 }
 
-bool OSRDriver::IsCandidateOperation(const std::string &node_name, std::string header) {
+bool OperatorStrengthReductionDriver::IsCandidateOperation(const std::string &node_name, std::string header) {
     auto &q = f.get_quad(ir.use_def_graph.at(node_name).defined_at);
     if (q.type == Quad::Type::Add || q.type == Quad::Type::Sub || q.type == Quad::Type::Mult) {
         return q.ops[0].is_var() && IsRegionConst(q.ops[1].value, header) ||
@@ -118,7 +118,7 @@ bool OSRDriver::IsCandidateOperation(const std::string &node_name, std::string h
     return false;
 }
 
-bool OSRDriver::IsRegionConst(std::string &name, std::string &header) {
+bool OperatorStrengthReductionDriver::IsRegionConst(std::string &name, std::string &header) {
     // literally constant
     if (ir.use_def_graph.at(name).defined_at.first == -1)
         return true;
@@ -130,7 +130,7 @@ bool OSRDriver::IsRegionConst(std::string &name, std::string &header) {
            ir.id_to_doms.at(iv_def_block).count(constant_def_block) > 0;
 };
 
-bool OSRDriver::IsSCCValidIV(const std::vector<std::string> &SCC, std::string header) {
+bool OperatorStrengthReductionDriver::IsSCCValidIV(const std::vector<std::string> &SCC, std::string header) {
     for (auto &node_name : SCC) {
         auto &q = f.get_quad(ir.use_def_graph.at(node_name).defined_at);
         if (q.type != Quad::Type::PhiNode && q.type != Quad::Type::Add && q.type != Quad::Type::Sub &&
@@ -147,7 +147,7 @@ bool OSRDriver::IsSCCValidIV(const std::vector<std::string> &SCC, std::string he
     return true;
 }
 
-void OSRDriver::PrintSSAGraph() {
+std::vector<char> OperatorStrengthReductionDriver::PrintSSAGraph() {
     GraphWriter dot_writer;
     std::unordered_set<std::string> visited;
     // print edges
@@ -171,13 +171,14 @@ void OSRDriver::PrintSSAGraph() {
 
     std::string filename = "graphs/ssa_graph.png";
     dot_writer.set_title("SSA Graph");
-    dot_writer.render_to_file(filename);
+    std::vector<char> image_data = dot_writer.render_to_file(filename);
 #ifdef DISPLAY_GRAPHS
     system(("sxiv -g 1000x1000+20+20 " + filename + " &").c_str());
 #endif
+    return image_data;
 }
 
-void OSRDriver::Replace(const std::string &node_name) {
+void OperatorStrengthReductionDriver::Replace(const std::string &node_name) {
     auto &q = f.get_quad(ir.use_def_graph.at(node_name).defined_at);
 
     auto &o1 = ir.use_def_graph.at(q.ops[0].value);
@@ -202,7 +203,7 @@ void OSRDriver::Replace(const std::string &node_name) {
     ir.use_def_graph.at(node_name).header = ir.use_def_graph.at(induction_var.value).header;
 }
 
-std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_var, Operand &reg_const) {
+std::string OperatorStrengthReductionDriver::Reduce(const std::string &node_name, Operand &induction_var, Operand &reg_const) {
     auto op_type = f.get_quad(ir.use_def_graph.at(node_name).defined_at).type;
 
     auto key = std::tuple{node_name, induction_var.value, reg_const.value};
@@ -247,7 +248,7 @@ std::string OSRDriver::Reduce(const std::string &node_name, Operand &induction_v
     return ir.operations_lookup_table.at(key);
 }
 
-std::string OSRDriver::Apply(const std::string &node_name, Operand &op1, Operand &op2) {
+std::string OperatorStrengthReductionDriver::Apply(const std::string &node_name, Operand &op1, Operand &op2) {
     auto key = std::tuple{node_name, op1.value, op2.value};
     if (ir.operations_lookup_table.count(key) == 0) {
         auto &o1 = ir.use_def_graph.at(op1.value);

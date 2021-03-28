@@ -13,7 +13,7 @@
 class MyHTMLWindow : public wxHtmlWindow {
   public:
 
-    std::function<void(const wxHtmlTag &, wxHtmlWinParser *)> myfunc;
+    std::function<wxWindow *(const wxHtmlTag &, wxWindow *)> html_callback;
     MyHTMLWindow(wxWindow *parent,
                  wxWindowID id = wxID_ANY,
                  const wxPoint &pos = wxDefaultPosition,

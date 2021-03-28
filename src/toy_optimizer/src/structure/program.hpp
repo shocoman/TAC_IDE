@@ -37,6 +37,15 @@ struct Program {
                 return &f;
         return nullptr;
     }
+
+    std::string get_as_code() const {
+        std::string code;
+        for (auto &f : functions) {
+            code += f.get_as_code();
+            code += '\n';
+        }
+        return code;
+    }
 };
 
 #endif // TAC_PARSER_SRC_TAC_WORKER_STRUCTURE_PROGRAM_HPP

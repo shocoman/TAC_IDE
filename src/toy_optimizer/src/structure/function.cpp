@@ -246,7 +246,7 @@ Quad &Function::get_quad(const std::pair<int, int> &loc) const {
     return id_to_block.at(loc.first)->quads.at(loc.second);
 }
 
-void Function::print_as_code() const {
+std::string Function::get_as_code() const {
     std::string code;
     bool has_function_name = false;
     for (auto &b : basic_blocks) {
@@ -262,7 +262,8 @@ void Function::print_as_code() const {
     if (!has_function_name)
         code.insert(0, fmt::format("\n{}: // Function name", function_name));
 
-    fmt::print("{}\n", code);
+//    fmt::print("{}\n", code);
+    return code;
 }
 
 void Function::update_phi_predecessors_after_clone() {

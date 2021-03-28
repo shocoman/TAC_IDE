@@ -43,7 +43,6 @@ void ImagePanel::OnSize(wxSizeEvent &event) {
 
 void ImagePanel::mouseMoved(wxMouseEvent &event) {
     auto [x, y] = event.GetPosition();
-    mouse_pos = {x, y};
 
     auto [prev_x, prev_y] = m_prev_mouse_pos;
     int delta_x = x - prev_x, delta_y = y - prev_y;
@@ -73,33 +72,24 @@ void ImagePanel::mouseWheelMoved(wxMouseEvent &event) {
 void ImagePanel::OnPaint(wxPaintEvent &evt) {
     wxPaintDC dc(this);
 
-//    if (m_should_update) {
-//        m_should_update = false;
-//
-//        wxSize new_size = m_original_image.GetSize();
-//        new_size = {int(double(new_size.x) * m_zoom), int((double)new_size.y * m_zoom)};
-//
-//        m_transformed_image = m_original_image.Scale(new_size.x, new_size.y,
-//                                                     wxImageResizeQuality::wxIMAGE_QUALITY_BILINEAR);
-//        m_bitmap_image = wxBitmap(m_transformed_image);
-//    }
-
     dc.SetBrush(*wxWHITE_BRUSH);
     dc.SetPen(*wxWHITE_PEN);
     dc.DrawRectangle(GetClientSize());
 
-
-
     if (m_bitmap_image.IsOk()) {
         dc.SetUserScale(m_zoom, m_zoom);
-        dc.DrawBitmap(m_bitmap_image, m_offset_x / m_zoom, m_offset_y / m_zoom, true);
 
-        dc.SetUserScale(1., 1.);
+        double x = m_offset_x / m_zoom, y = m_offset_y / m_zoom;
+        dc.DrawBitmap(m_bitmap_image, x, y, true);
+
         dc.SetPen(*wxBLACK_PEN);
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
+        dc.DrawRectangle({(int)x, (int)y}, m_bitmap_image.GetSize());
+
+        dc.SetUserScale(1., 1.);
         dc.DrawRoundedRectangle({0, 0}, dc.GetSize(), 5);
     } else {
-        dc.DrawText("Bitmap not OK", 10, 10);
+        dc.DrawText("Bitmap is not OK", 10, 10);
     }
 }
 

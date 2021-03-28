@@ -12,11 +12,10 @@
 #include "windows/image_viewer/image_panel.hpp"
 #include "windows/image_viewer/graph_view.h"
 #include "toy_optimizer/src/structure/program.hpp"
-#include "toy_optimizer/src/optimizations/ssa.hpp"
+#include "toy_optimizer/src/all_headers.hpp"
 #include "utilities/image_loading.hpp"
 
 class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
-    wxString m_program_code;
     Program program;
     Function &chosen_function;
 
@@ -26,7 +25,21 @@ class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
     ToyOptimizationChooseWindow(wxWindow *parent, wxString code);
 
     void UpdateGraphImage();
-    void ConvertToSSA(wxCommandEvent &event);
+
+    void ConvertToSSATutorial(wxCommandEvent &event);
+    void ConvertFromSSATutorial(wxCommandEvent &event);
+    void SSCPTutorial(wxCommandEvent &event);
+    void SCCPTutorial(wxCommandEvent &event);
+    void UselessCodeEliminationTutorial(wxCommandEvent &event);
+    void OperatorStrengthReductionTutorial(wxCommandEvent &event);
+    void CopyPropagationTutorial(wxCommandEvent &event);
+    void LazyCodeMotionTutorial(wxCommandEvent &event);
+
+    void LiveVariableAnalysisTutorial(wxCommandEvent &event);
+    void ReachingDefinitionsTutorial(wxCommandEvent &event);
+    void UseDefGraphTutorial(wxCommandEvent &event);
+    void DepthFirstTreeTutorial(wxCommandEvent &event);
+
 };
 
 #endif   // TAC_SIMULATOR_TEST_GUI_CODE_EDITOR_WINDOWS_OPTIMIZATIONWINDOW_STANDARD_TOYOPTIMIZATIONWINDOW_HPP

@@ -31,7 +31,7 @@ struct LazyCodeMotionDriver {
     LazyCodeMotionDriver(Function &f_) : f(f_) { preprocess(); }
 
     void preprocess();
-    void run_lazy_code_motion();
+    void run();
 
     ID2EXPRS get_earliest_expressions();
     ID2EXPRS get_latest_expressions();
@@ -44,7 +44,7 @@ struct LazyCodeMotionDriver {
 
 static void run_lazy_code_motion(Function &f) {
     LazyCodeMotionDriver lazy_code_motion_driver(f);
-    lazy_code_motion_driver.run_lazy_code_motion();
+    lazy_code_motion_driver.run();
     f = lazy_code_motion_driver.f;
 }
 

@@ -9,7 +9,9 @@
 TAG_HANDLER_BEGIN(MY_CUSTOM_TAG, "ABYSS")
   TAG_HANDLER_PROC(tag) {
         MyHTMLWindow *win = wxDynamicCast(m_WParser->GetWindowInterface()->GetHTMLWindow(), MyHTMLWindow);
-        win->myfunc(tag, m_WParser);
+        wxWindow *html_element = win->html_callback(tag, win);
+        if (html_element != nullptr)
+            m_WParser->GetContainer()->InsertCell(new wxHtmlWidgetCell(html_element, 0));
         return false;
     }
 TAG_HANDLER_END(MYBIND)

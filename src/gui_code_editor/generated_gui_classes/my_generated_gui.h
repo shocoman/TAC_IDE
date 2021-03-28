@@ -19,6 +19,8 @@
 #include <wx/string.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
+#include <wx/scrolwin.h>
+#include <wx/statline.h>
 #include <wx/button.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
@@ -38,15 +40,16 @@ class OptimizationChooseDialog : public wxDialog
 
 	protected:
 		ImagePanel* m_graph_panel;
-		wxPanel* optimizationChoosePanel;
-		wxButton* m_convert_to_ssa_btn;
-		wxButton* m_convert_from_ssa_btn;
-		wxButton* m_display_dfs_tree_btn;
-		wxButton* m_etc_btn;
+		wxScrolledWindow* m_scrolledWindow2;
+		wxBoxSizer* m_analysis_sizer;
+		wxScrolledWindow* m_scrolledWindow1;
+		wxBoxSizer* m_optimization_sizer;
+		wxStaticLine* m_staticline1;
+		wxButton* m_back_to_code_btn;
 
 	public:
 
-		OptimizationChooseDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Optimization Choose Window"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 800,760 ), long style = wxDEFAULT_DIALOG_STYLE );
+		OptimizationChooseDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Optimization Choose Window"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 975,760 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~OptimizationChooseDialog();
 
 };
