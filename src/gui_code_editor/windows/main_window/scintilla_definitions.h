@@ -1,30 +1,19 @@
-
 #ifndef DEFINITIONS_H_INCLUDED
 #define DEFINITIONS_H_INCLUDED
 
-//! headers
 #include <string>
 #include <vector>
+#include <wx/stc/stc.h>
 
-//! wxWidgets/contrib headers
-#include "wx/stc/stc.h" // styled text control
-
-//! application headers
-
-//--------------------------------------------------------------
-// standard IDs
-//--------------------------------------------------------------
 enum {
     // menu IDs
     idMenuQuit = 1000,
-    idMenuAbout,
     myID_PROPERTIES = wxID_HIGHEST,
     myID_EDIT_FIRST,
     myID_FINDNEXT,
     myID_REPLACE,
     myID_REPLACENEXT,
     myID_GOTO,
-    myID_PAGEACTIVE,
     myID_DISPLAYEOL,
     myID_INDENTGUIDE,
     myID_LINENUMBER,
@@ -46,7 +35,6 @@ enum {
     myID_LLVMIR_DIALECT,
     myID_SYMBOL_TABLE,
     myID_TARGET_PLATFORM,
-    myID_TAC_DIALECT,
     myID_SIMULATOR_RUN,
     myID_OPTIMIZATION_WINDOW,
     myID_PRINT_CFG_WINDOW,
@@ -57,16 +45,7 @@ enum {
     myID_EDU_RESET,
     myID_OPTIONS,
     myID_NOTEBOOK,
-    myID_SPLITTER_MAIN,
-    myID_SPLIT_CODE,
     myID_EDITOR,
-    myID_ASM_WINDOW,
-    myID_LOG,
-    // other IDs
-    myID_STATUSBAR,
-
-    // dialog find IDs
-    myID_DLG_FIND_TEXT,
 };
 
 //--------------------------------------------------------------
@@ -106,6 +85,7 @@ enum GeneralStyleTypes {
     mySTC_TYPE_PREPROCESSOR = 27,
     mySTC_TYPE_SCRIPT = 28,
     mySTC_TYPE_ERROR = 29,
+    mySTC_TYPE_UNDEFINED = 30,
     STYLE_TYPES_COUNT = 32,
 };
 
@@ -120,15 +100,9 @@ enum StyleBitsTypes {
 
 //----------------------------------------------------------------------------
 //! general folding types
-#define mySTC_FOLD_COMMENT 1
-#define mySTC_FOLD_BB 2
+enum FoldingType { mySTC_FOLD_COMMENT = 1, mySTC_FOLD_BB = 2 };
 
 //----------------------------------------------------------------------------
-//! flags
-#define mySTC_FLAG_WRAPMODE 16
-
-//----------------------------------------------------------------------------
-// CommonInfo
 
 struct CommonInfo {
     // editor functionality prefs
@@ -159,7 +133,6 @@ const CommonInfo g_CommonPrefs = {.syntaxEnable = true,
                                   .whiteSpaceEnable = false};
 
 //----------------------------------------------------------------------------
-// LanguageInfo
 
 struct LanguageInfo {
     const char *name;
@@ -172,80 +145,37 @@ struct LanguageInfo {
     int folds;
 };
 
-static const LanguageInfo g_LanguagePrefs[] = {
-    // ThreeAC
-    {"ThreeAC",
-     "*.3ac",
-     wxSTC_LEX_CONTAINER,
-     {{mySTC_TYPE_DEFAULT, NULL},
-      {mySTC_TYPE_WORD1, NULL}, // KEYWORDS
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {mySTC_TYPE_COMMENT, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {mySTC_TYPE_CHARACTER, NULL},
-      {mySTC_TYPE_CHARACTER_EOL, NULL},
-      {mySTC_TYPE_STRING, NULL},
-      {mySTC_TYPE_STRING_EOL, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {mySTC_TYPE_OPERATOR, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {mySTC_TYPE_IDENTIFIER, NULL},
-      {mySTC_TYPE_LABEL, NULL},
-      {mySTC_TYPE_NUMBER, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {mySTC_TYPE_ERROR, NULL}, // KEYWORDS ERROR
-      {-1, NULL},
-      {-1, NULL}},
-     mySTC_FOLD_COMMENT | mySTC_FOLD_BB},
-    // * (any)
+static const LanguageInfo g_language_preferences[] = {
+    // Language: ThreeAC
+    {.name = "ThreeAC",
+     .filepattern = "*.3ac",
+     .lexer = wxSTC_LEX_CONTAINER,
+     .styles = {{mySTC_TYPE_DEFAULT, nullptr},         {mySTC_TYPE_WORD1, nullptr}, // KEYWORDS
+                {mySTC_TYPE_WORD2, nullptr},           {mySTC_TYPE_WORD3, nullptr},
+                {mySTC_TYPE_WORD4, nullptr},           {mySTC_TYPE_WORD5, nullptr},
+                {mySTC_TYPE_WORD6, nullptr},           {mySTC_TYPE_COMMENT, nullptr},
+                {mySTC_TYPE_COMMENT_DOC, nullptr},     {mySTC_TYPE_COMMENT_LINE, nullptr},
+                {mySTC_TYPE_COMMENT_SPECIAL, nullptr}, {mySTC_TYPE_CHARACTER, nullptr},
+                {mySTC_TYPE_CHARACTER_EOL, nullptr},   {mySTC_TYPE_STRING, nullptr},
+                {mySTC_TYPE_STRING_EOL, nullptr},      {mySTC_TYPE_DELIMITER, nullptr},
+                {mySTC_TYPE_PUNCTUATION, nullptr},     {mySTC_TYPE_OPERATOR, nullptr},
+                {mySTC_TYPE_BRACE, nullptr},           {mySTC_TYPE_COMMAND, nullptr},
+                {mySTC_TYPE_IDENTIFIER, nullptr},      {mySTC_TYPE_LABEL, nullptr},
+                {mySTC_TYPE_NUMBER, nullptr},          {mySTC_TYPE_PARAMETER, nullptr},
+                {mySTC_TYPE_REGEX, nullptr},           {mySTC_TYPE_UUID, nullptr},
+                {mySTC_TYPE_VALUE, nullptr},           {mySTC_TYPE_PREPROCESSOR, nullptr},
+                {mySTC_TYPE_SCRIPT, nullptr},          {mySTC_TYPE_ERROR, nullptr}, // KEYWORDS ERROR
+                {mySTC_TYPE_UNDEFINED, nullptr},       {-1, nullptr}},
+     .folds = mySTC_FOLD_COMMENT | mySTC_FOLD_BB},
+    //--------------------------
+    // Language: * (any)
     {wxTRANSLATE(DEFAULT_LANGUAGE),
      "*.*",
      wxSTC_LEX_PROPERTIES,
-     {{mySTC_TYPE_DEFAULT, NULL},
-      {mySTC_TYPE_DEFAULT, NULL},
-      {mySTC_TYPE_DEFAULT, NULL},
-      {mySTC_TYPE_DEFAULT, NULL},
-      {mySTC_TYPE_DEFAULT, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL},
-      {-1, NULL}},
+     {{0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
+      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
+      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
+      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}},
      0},
 };
 
@@ -256,17 +186,12 @@ static const std::vector<wxString> g_tacKeywords = {wxT("goto"),  wxT("ifTrue"),
 //----------------------------------------------------------------------------
 // StyleInfo
 struct StyleInfo {
-    const wxChar *name;
-    const wxChar *foreground;
-    const wxChar *background;
-    const wxChar *fontname;
-    int fontsize;
-    int fontstyle;
-    int lettercase;
+    const wxChar *name, *foreground, *background, *fontname;
+    int fontsize, fontstyle, lettercase;
 };
 
-const StyleInfo g_StylePrefs[] = {
-    {wxT("Default"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                    // mySTC_TYPE_DEFAULT
+const StyleInfo g_style_preferences[] = {
+    {wxT("Default"), wxT("BLACK"), wxT("WHITE"), wxT(""), 10, 0, 0},                     // mySTC_TYPE_DEFAULT
     {wxT("Keyword1"), wxT("BLUE"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_BOLD, 0},      // mySTC_TYPE_WORD1
     {wxT("Keyword2"), wxT("MIDNIGHT BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},            // mySTC_TYPE_WORD2
     {wxT("Keyword3"), wxT("CORNFLOWER BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},          // mySTC_TYPE_WORD3

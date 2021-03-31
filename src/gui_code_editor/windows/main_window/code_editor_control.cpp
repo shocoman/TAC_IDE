@@ -26,16 +26,16 @@
 // The (uniform) style used for the annotations.
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
-static int edu_page_max = 1;
+static int g_edu_page_max = 1;
 
 // Lesson content structure
-struct Lesson {
+struct EducationalLesson {
     wxString lesson_header;
     std::vector<wxString> code;
     std::map<int, wxString> text;
 };
 
-const std::vector<Lesson> l = {
+const std::vector<EducationalLesson> l = {
     {wxT("Трансляция инструкции if-else"),
      {wxT("a = 3\n"), wxT("b = 0\n"), wxT("$t0 = a < 5\n"), wxT("expression = $t0\n"), wxT("$t1 = expression\n"),
       wxT("ifFalse $t1 goto $L1\n"), wxT("b = 1\n"), wxT("goto $L2\n"), wxT("$L1: b = 2\n"), wxT("$L2: halt")},
@@ -96,12 +96,6 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
     EVT_MENU(myID_READONLY, EditorCtrl::OnSetReadOnly)
     EVT_MENU(myID_WRAPMODEON, EditorCtrl::OnWrapmodeOn)
     EVT_MENU(myID_BB, EditorCtrl::OnBBToggle)
-    // EVT_MENU (myID_CHARSETANSI,        EditorCtrl::OnUseCharset)
-    // EVT_MENU (myID_CHARSETMAC,         EditorCtrl::OnUseCharset)
-    // extra
-    // EVT_MENU (myID_CONVERTCR,          EditorCtrl::OnConvertEOL)
-    // EVT_MENU (myID_CONVERTCRLF,        EditorCtrl::OnConvertEOL)
-    // EVT_MENU (myID_CONVERTLF,          EditorCtrl::OnConvertEOL)
     // stc
     EVT_STC_MARGINCLICK(wxID_ANY, EditorCtrl::OnMarginClick)
     EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded) EVT_STC_KEY(wxID_ANY, EditorCtrl::OnKey)
@@ -116,7 +110,7 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
 wxEND_EVENT_TABLE()
 
 EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style)
-    : wxStyledTextCtrl(parent, id, pos, size, style), bbLeader() {
+    : wxStyledTextCtrl(parent, id, pos, size, style) {
     m_filename = wxEmptyString;
 
     m_LineNrID = 0;
@@ -124,7 +118,7 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     m_FoldingID = 2;
 
     // initialize language
-    m_language = nullptr;
+    m_selected_language = nullptr;
 
     // Use all the bits in the style byte as styles, not indicators.
     SetStyleBits(8);
@@ -144,7 +138,7 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(wxT("DARK GREY")));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, *wxWHITE);
     StyleSetForeground(wxSTC_STYLE_INDENTGUIDE, wxColour(wxT("DARK GREY")));
-    InitializePrefs(DEFAULT_LANGUAGE);
+    InitializePreferences(DEFAULT_LANGUAGE);
 
     // set visibility
     SetVisiblePolicy(wxSTC_VISIBLE_STRICT | wxSTC_VISIBLE_SLOP, 1);
@@ -159,9 +153,9 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("WHITE"));
     MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
-    MarkerDefine(1, wxSTC_MARK_CHARACTER + 66, wxT("BLACK"), wxColour(238, 238, 238));
-    MarkerDefine(2, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(238, 238, 238));
-    MarkerDefine(3, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(220, 220, 238));
+    MarkerDefine((int)MarkerType::BasicBlockMark, wxSTC_MARK_CHARACTER + (int)'B', wxT("BLACK"), wxNullColour);
+    MarkerDefine((int)MarkerType::BrightLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxNullColour);
+    MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(229, 229, 238));
 
     // annotations
     AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
@@ -174,17 +168,17 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     CmdKeyClear(wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
     SetLayoutCache(wxSTC_CACHE_PAGE);
 
-    InitializePrefs(wxT("ThreeAC"));
+    InitializePreferences(wxT("ThreeAC"));
 
     // show line numbers by default
     SetMarginWidth(m_LineNrID, m_LineNrMargin);
 
     // show base blocks mode
-    showBB = true;
+    m_show_basic_block_marks = true;
 
     // educational mode
-    eduMode = false;
-    pageNr = 0;
+    m_education_mode = false;
+    m_page_number = 0;
 
     // increase default font size
     SetZoom(4);
@@ -299,40 +293,37 @@ void EditorCtrl::OnWrapmodeOn(wxCommandEvent &WXUNUSED(event)) {
 
 //! show base blocks
 void EditorCtrl::OnBBToggle(wxCommandEvent &event) {
-    showBB = !showBB;
-    if (showBB) {
-        DoStyling(0, GetTextLength());
-    } else
-        DrawBBs();
+    m_show_basic_block_marks = !m_show_basic_block_marks;
+    UpdateCodeHighlighting(0, GetTextLength());
 }
 
 //! educational mode
 void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
-    if (!eduMode) {
-        eduMode = true;
-        edu_page_max = l.size() - 1;
-        pageNr = 0;
-        ShowEduPage(pageNr);
+    if (!m_education_mode) {
+        m_education_mode = true;
+        g_edu_page_max = l.size() - 1;
+        m_page_number = 0;
+        ShowEduPage(m_page_number);
     } else
-        eduMode = false;
+        m_education_mode = false;
 }
 
 void EditorCtrl::OnEduHome(wxCommandEvent &event) {
-    pageNr = 0;
-    ShowEduPage(pageNr);
+    m_page_number = 0;
+    ShowEduPage(m_page_number);
 }
 
 void EditorCtrl::OnEduPrev(wxCommandEvent &event) {
-    if (pageNr > 0)
-        ShowEduPage(--pageNr);
+    if (m_page_number > 0)
+        ShowEduPage(--m_page_number);
 }
 
 void EditorCtrl::OnEduNext(wxCommandEvent &event) {
-    if (pageNr < edu_page_max)
-        ShowEduPage(++pageNr);
+    if (m_page_number < g_edu_page_max)
+        ShowEduPage(++m_page_number);
 }
 
-void EditorCtrl::OnEduReset(wxCommandEvent &event) { ShowEduPage(pageNr); }
+void EditorCtrl::OnEduReset(wxCommandEvent &event) { ShowEduPage(m_page_number); }
 
 void EditorCtrl::ShowEduPage(int pageNr) {
     Clear();
@@ -379,15 +370,14 @@ void EditorCtrl::OnStyleNeeded(wxStyledTextEvent &event) {
     int startPos = GetEndStyled() == 0 ? GetEndStyled() : GetEndStyled() - 1;
     int endPos = event.GetPosition();
 
-    DoStyling(startPos, endPos);
+    UpdateCodeHighlighting(startPos, endPos);
 }
 
-void EditorCtrl::DoStyling(int startPos, int endPos) {
+void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
 
-    enum class TokenType { Other, Space, Commentary, Number, Identifier, Goto, Label, String, Eof };
-
+    enum class TokenType { Other, Space, Commentary, Number, Identifier, Goto, Label, String, Char, Eof };
     auto GetIdentifier = [&](int start_pos, int length) { return GetTextRange(start_pos, start_pos + length); };
-    auto ScanNextToken = [&](int pos) -> std::pair<TokenType, int> {
+    auto ReadNextToken = [&](int pos) -> std::pair<TokenType, int> {
         auto IsValidIdentifierChar = [](auto &c, bool first) -> bool {
             return wxIsalpha(c) || c == wxT('_') || c == wxT('$') || (wxIsdigit(c) || c == wxT('.')) && not first;
         };
@@ -398,14 +388,15 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
         if (c == wxT(' ') || c == wxT('\t') || c == wxT('\r') || c == wxT('\n')) {
             // Whitespaces
             return {TokenType::Space, 1};
-        } else if (c == wxT('"')) {
-            // String
+        } else if (c == wxT('"') || c == wxT('\'')) {
+            // String or Char
+            wxChar end_quotes = c;
             int end_pos = pos + 1;
-            while (end_pos < GetTextLength() && GetCharAt(end_pos) != wxT('"') && GetCharAt(end_pos) != wxT('\n'))
+            while (end_pos < GetTextLength() && GetCharAt(end_pos) != end_quotes && GetCharAt(end_pos) != wxT('\n'))
                 ++end_pos;
             if (end_pos < GetTextLength() && GetCharAt(end_pos) != wxT('\n'))
                 ++end_pos;
-            return {TokenType::String, end_pos - pos};
+            return {end_quotes == wxT('"') ? TokenType::String : TokenType::Char, end_pos - pos};
         } else if (pos + 1 < GetTextLength() && c == wxT('/') && GetCharAt(pos + 1) == wxT('/')) {
             // Commentary
             int end_pos = pos;
@@ -451,15 +442,14 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
         }
     };
 
-    int curr_pos = 0;
     StartStyling(0, 31);
+    std::unordered_set<int> basic_block_leaders;
 
-    std::unordered_set<int> bb_leader_lines = { LineFromPosition(0) };
-
+    int curr_pos = 0;
     while (curr_pos < GetTextLength()) {
         int chosen_style = mySTC_TYPE_DEFAULT;
 
-        auto [token_type, len] = ScanNextToken(curr_pos);
+        auto [token_type, len] = ReadNextToken(curr_pos);
 
         wxString output = fmt::format("{:2}; ", len);
         switch (token_type) {
@@ -482,7 +472,8 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
         }
         case TokenType::Identifier: {
             output += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
-            if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), GetIdentifier(curr_pos, len)) != g_tacKeywords.end()) {
+            if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), GetIdentifier(curr_pos, len)) !=
+                g_tacKeywords.end()) {
                 chosen_style = mySTC_TYPE_WORD1;
             }
             break;
@@ -493,16 +484,13 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
 
             // mark next non-empty line
             int last_line = LineFromPosition(GetTextLength());
-            int line = LineFromPosition(curr_pos) + 1;
-            fmt::print("Goto: Next Line: {}\n", line);
+            int line = LineFromPosition(curr_pos);
             while (true) {
-                fmt::print("{} of {}\n", line, last_line);
                 ++line;
                 if (line > last_line)
                     break;
                 if (GetLineLength(line) != 0) {
-                    fmt::print("Taken line: {}\n", line);
-                    bb_leader_lines.insert(line-1);
+                    basic_block_leaders.insert(line);
                     break;
                 }
             }
@@ -513,196 +501,52 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
             int length = len;
             do {
                 j += length;
-                std::tie(token_type, length) = ScanNextToken(j);
+                std::tie(token_type, length) = ReadNextToken(j);
             } while (token_type == TokenType::Space);
 
             if (token_type == TokenType::Eof || GetIdentifier(j, length) != wxT('.')) {
                 // label
                 chosen_style = mySTC_TYPE_WORD1;
                 output += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
-                bb_leader_lines.insert(LineFromPosition(curr_pos));
+                basic_block_leaders.insert(LineFromPosition(curr_pos));
             } else {
                 // var declaration
             }
             break;
         }
-        case TokenType::String:
+        case TokenType::String: {
             output += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
             chosen_style = mySTC_TYPE_STRING;
             break;
+        }
         default:
             break;
         }
-
         // fmt::print("{}", output);
 
         curr_pos += len;
         SetStyling(len, chosen_style);
     }
 
-    fmt::print("Leaders: {}\n", bb_leader_lines);
-
-    return;
-
-    static int called_times = 0;
-    fmt::print("Called: {}; {}, {}\n", ++called_times, startPos, endPos);
-
-    enum State { STATE_UNKNOWN, STATE_IDENTIFIER, STATE_NUMBER, STATE_STRING };
-
-    int sl, el;
-    if (!showBB) {
-        sl = LineFromPosition(startPos);
-        el = LineFromPosition(endPos);
-    } else {
-        sl = LineFromPosition(0);
-        el = LineFromPosition(GetTextLength());
-    }
-
-    startPos = PositionFromLine(sl);
-    // Start styling
-    StartStyling(startPos, 31);
-
-    // base block related vars
-    bool wasGoto = false;
-    bool gotoFound = false;
-    bool labelFound = false;
-
-    for (int line = sl; line <= el; line++) {
-        startPos = PositionFromLine(line);
-        endPos = startPos + LineLength(line);
-
-        int length = 0;
-        int state = STATE_UNKNOWN;
-
-        while (startPos < endPos) {
-            wxChar c = GetCharAt(startPos);
-
-        REPROCESS:
-            switch (state) {
-            case STATE_UNKNOWN:
-                if (c == '"') {
-                    // Start of "string"
-                    SetStyling(1, mySTC_TYPE_STRING);
-                    state = STATE_STRING;
-                } else if (std::isdigit(c)) {
-                    state = STATE_NUMBER;
-                    goto REPROCESS;
-                } else if (std::isalpha(c) || c == '_' || c == '$') {
-                    state = STATE_IDENTIFIER;
-                    goto REPROCESS;
-                } else if (c == '/' && GetCharAt(startPos + 1) == '/') {
-                    SetStyling(endPos - startPos, mySTC_TYPE_COMMENT);
-                    startPos = endPos;
-                } else {
-                    // Everything else
-                    SetStyling(1, mySTC_TYPE_DEFAULT);
-                }
-                break;
-
-            case STATE_STRING:
-                if (c == '"') {
-                    length++;
-                    SetStyling(length, mySTC_TYPE_STRING);
-                    length = 0;
-                    state = STATE_UNKNOWN;
-                } else {
-                    length++;
-                }
-                break;
-
-            case STATE_NUMBER:
-                if (std::isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' || c == '.') {
-                    length++;
-                } else {
-                    SetStyling(length, mySTC_TYPE_NUMBER);
-                    length = 0;
-                    state = STATE_UNKNOWN;
-                    goto REPROCESS;
-                }
-                break;
-
-            case STATE_IDENTIFIER:
-                if (std::isalnum(c) || ((c == '_' || c == '$') && length == 0)) {
-                    length++;
-                } else {
-                    int style = mySTC_TYPE_IDENTIFIER;
-                    wxString identifier = GetTextRange(startPos - length, startPos);
-                    if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), identifier) != g_tacKeywords.end()) {
-                        style = mySTC_TYPE_WORD1;
-                        if (identifier == wxT("goto"))
-                            gotoFound = true;
-                        if (identifier == wxT("uminus"))
-                            style = mySTC_TYPE_DEFAULT;
-                    }
-
-                    int tmp = startPos;
-                    int next_non_space_char = 0;
-                    do {
-                        next_non_space_char = GetCharAt(++tmp);
-                    } while (std::isspace(next_non_space_char));
-                    if (style == mySTC_TYPE_IDENTIFIER && c == ':' && next_non_space_char != '.') {
-                        length++;
-                        SetStyling(length, mySTC_TYPE_LABEL);
-                        labelFound = true;
-                        length = 0;
-                        state = STATE_UNKNOWN;
-                    } else {
-                        SetStyling(length, style);
-                        length = 0;
-                        state = STATE_UNKNOWN;
-                        goto REPROCESS;
-                    }
-                }
-                break;
-            }
-            startPos++;
-        }
-        // bb leader store
-        if (labelFound || wasGoto) {
-            if (std::find(bbLeader.begin(), bbLeader.end(), line) == bbLeader.end())
-                bbLeader.push_back(line);
-            labelFound = false;
-            wasGoto = false;
-        } else {
-            auto idx = std::find(bbLeader.begin(), bbLeader.end(), line);
-            if (idx != bbLeader.end())
-                bbLeader.erase(idx);
-        }
-        // next line - bb leader
-        if (gotoFound) {
-            wasGoto = true;
-            gotoFound = false;
-        }
-        if (line == 0 && std::find(bbLeader.begin(), bbLeader.end(), line) == bbLeader.end())
-            bbLeader.push_back(line);
-    }
-    // sort bb leader array
-    std::sort(bbLeader.begin(), bbLeader.end());
-    DrawBBs();
+    UpdateLineMarkers(basic_block_leaders);
 }
 
 //----------------------------------------------------------------------------
 // private functions
-void EditorCtrl::DrawBBs() {
-    MarkerDeleteAll(1);
-    MarkerDeleteAll(2);
-    MarkerDeleteAll(3);
-    if (bbLeader.empty())
-        return;
+void EditorCtrl::UpdateLineMarkers(const std::unordered_set<int> &basic_block_leaders) {
+    MarkerDeleteAll((int)MarkerType::BasicBlockMark);
+    MarkerDeleteAll((int)MarkerType::BrightLineBackground);
+    MarkerDeleteAll((int)MarkerType::DarkLineBackground);
 
-    if (showBB) {
+    if (m_show_basic_block_marks && not basic_block_leaders.empty()) {
         bool bbStyleSwitch = false;
-        for (int Nr = 0, bbLeaderIdx = 0; Nr < GetLineCount(); Nr++) {
-            if (Nr == bbLeader[bbLeaderIdx]) {
-                MarkerAdd(Nr, 1);
-                if (bbLeaderIdx < bbLeader.size())
-                    bbLeaderIdx++;
+        for (int n_line = 0; n_line < GetLineCount(); n_line++) {
+            if (basic_block_leaders.count(n_line) > 0) {
+                MarkerAdd(n_line, (int)MarkerType::BasicBlockMark);
                 bbStyleSwitch = !bbStyleSwitch;
             }
-            if (bbStyleSwitch)
-                MarkerAdd(Nr, 2);
-            else
-                MarkerAdd(Nr, 3);
+            MarkerAdd(n_line,
+                      bbStyleSwitch ? (int)MarkerType::BrightLineBackground : (int)MarkerType::DarkLineBackground);
         }
     }
 }
@@ -749,8 +593,8 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
 
     // determine language from file patterns
     int languageNr;
-    for (languageNr = 0; languageNr < WXSIZEOF(g_LanguagePrefs); languageNr++) {
-        curInfo = &g_LanguagePrefs[languageNr];
+    for (languageNr = 0; languageNr < WXSIZEOF(g_language_preferences); languageNr++) {
+        curInfo = &g_language_preferences[languageNr];
         wxString filepattern = curInfo->filepattern;
         filepattern.Lower();
         while (!filepattern.empty()) {
@@ -765,27 +609,23 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
     return wxEmptyString;
 }
 
-bool EditorCtrl::InitializePrefs(const wxString &name) {
-    // initialize styles
+bool EditorCtrl::InitializePreferences(const wxString &name) {
     StyleClearAll();
-    const LanguageInfo *curInfo = NULL;
 
     // determine language
-    bool found = false;
-    int languageNr;
-    for (languageNr = 0; languageNr < WXSIZEOF(g_LanguagePrefs); languageNr++) {
-        curInfo = &g_LanguagePrefs[languageNr];
-        if (curInfo->name == name) {
-            found = true;
+    const LanguageInfo *curr_lang_info = nullptr;
+    for (int n_language = 0; n_language < WXSIZEOF(g_language_preferences); ++n_language) {
+        if (g_language_preferences[n_language].name == name) {
+            curr_lang_info = &g_language_preferences[n_language];
             break;
         }
     }
-    if (!found)
+    if (curr_lang_info == nullptr)
         return false;
 
     // set lexer and language
-    SetLexer(curInfo->lexer);
-    m_language = curInfo;
+    SetLexer(curr_lang_info->lexer);
+    m_selected_language = curr_lang_info;
 
     // set margin for line numbers
     SetMarginType(m_LineNrID, wxSTC_MARGIN_NUMBER);
@@ -811,24 +651,22 @@ bool EditorCtrl::InitializePrefs(const wxString &name) {
     // initialize settings
     if (g_CommonPrefs.syntaxEnable) {
         int keywordnr = 0;
-        for (int Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
-            if (curInfo->styles[Nr].type == -1)
+        for (int i = 0; i < STYLE_TYPES_COUNT; i++) {
+            if (curr_lang_info->styles[i].type == -1)
                 continue;
-            const StyleInfo &curType = g_StylePrefs[curInfo->styles[Nr].type];
-            wxFont font(curType.fontsize, wxMODERN, wxNORMAL, wxNORMAL, false, curType.fontname);
-            StyleSetFont(Nr, font);
-            if (curType.foreground) {
-                StyleSetForeground(Nr, wxColour(curType.foreground));
-            }
-            if (curType.background) {
-                StyleSetBackground(Nr, wxColour(curType.background));
-            }
-            StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
-            StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
-            StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERLINE) > 0);
-            StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
-            StyleSetCase(Nr, curType.lettercase);
-            const char *pwords = curInfo->styles[Nr].words;
+            const StyleInfo &current_style = g_style_preferences[curr_lang_info->styles[i].type];
+            wxFont font(current_style.fontsize, wxMODERN, wxNORMAL, wxNORMAL, false, current_style.fontname);
+            StyleSetFont(i, font);
+            if (current_style.foreground)
+                StyleSetForeground(i, wxColour(current_style.foreground));
+            if (current_style.background)
+                StyleSetBackground(i, wxColour(current_style.background));
+            StyleSetBold(i, (current_style.fontstyle & mySTC_STYLE_BOLD) > 0);
+            StyleSetItalic(i, (current_style.fontstyle & mySTC_STYLE_ITALIC) > 0);
+            StyleSetUnderline(i, (current_style.fontstyle & mySTC_STYLE_UNDERLINE) > 0);
+            StyleSetVisible(i, (current_style.fontstyle & mySTC_STYLE_HIDDEN) == 0);
+            StyleSetCase(i, current_style.lettercase);
+            const char *pwords = curr_lang_info->styles[i].words;
             if (pwords) {
                 SetKeyWords(keywordnr, pwords);
                 keywordnr += 1;
@@ -902,7 +740,7 @@ bool EditorCtrl::LoadFile(const wxString &filename) {
 
     // determine lexer language
     wxFileName fname(m_filename);
-    InitializePrefs(DeterminePrefs(fname.GetFullName()));
+    InitializePreferences(DeterminePrefs(fname.GetFullName()));
 
     ConvertEOLs(wxSTC_EOL_LF);
     SetEOLMode(wxSTC_EOL_LF);
@@ -977,7 +815,7 @@ EditorCtrlProperties::EditorCtrlProperties(EditorCtrl *editor, long style)
     wxGridSizer *textinfo = new wxGridSizer(4, 0, 2);
     textinfo->Add(new wxStaticText(this, wxID_ANY, _("Language"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
-    textinfo->Add(new wxStaticText(this, wxID_ANY, editor->m_language->name), 0,
+    textinfo->Add(new wxStaticText(this, wxID_ANY, editor->m_selected_language->name), 0,
                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
     textinfo->Add(new wxStaticText(this, wxID_ANY, _("Lexer-ID: "), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);

@@ -81,11 +81,11 @@ class EditorCtrl : public wxStyledTextCtrl {
 
     //! language/lexer
     void OnStyleNeeded(wxStyledTextEvent &event);
-    void DoStyling(int startPos, int endPos);
+    void UpdateCodeHighlighting(int startPos, int endPos);
     wxString DeterminePrefs(const wxString &filename);
-    bool InitializePrefs(const wxString &filename);
+    bool InitializePreferences(const wxString &filename);
     bool UserSettings(const wxString &filename);
-    LanguageInfo const *GetLanguageInfo() { return m_language; };
+    LanguageInfo const *GetLanguageInfo() { return m_selected_language; };
 
     //! educational mode
     void OnEduToggle(wxCommandEvent &event);
@@ -98,14 +98,14 @@ class EditorCtrl : public wxStyledTextCtrl {
     void AnnotationClear();
     void ShowEduPage(int pageNr);
     //! basic blocks
-    void DrawBBs();
+    void UpdateLineMarkers(const std::unordered_set<int> &basic_block_leaders);
 
   private:
     // file
     wxString m_filename;
 
     // language properties
-    const LanguageInfo *m_language;
+    const LanguageInfo *m_selected_language;
 
     // margin variables
     int m_LineNrID;
@@ -114,13 +114,18 @@ class EditorCtrl : public wxStyledTextCtrl {
     int m_FoldingMargin;
     int m_DividerID;
 
+    enum class MarkerType {
+        BasicBlockMark,
+        BrightLineBackground,
+        DarkLineBackground,
+    };
+
     // show basic blocks mode
-    bool showBB;
-    std::vector<int> bbLeader;
+    bool m_show_basic_block_marks;
 
     // educational mode
-    bool eduMode;
-    int pageNr;
+    bool m_education_mode;
+    int m_page_number;
 
     wxDECLARE_EVENT_TABLE();
 };
