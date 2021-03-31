@@ -13,7 +13,7 @@
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/wx.h"
-#include <wx/stc/stc.h>   // styled text control
+#include <wx/stc/stc.h> // styled text control
 
 //! application headers
 //#include "../include/Definitions.h" // definitions
@@ -37,9 +37,8 @@ struct Lesson {
 
 const std::vector<Lesson> l = {
     {wxT("Трансляция инструкции if-else"),
-     {wxT("a = 3\n"), wxT("b = 0\n"), wxT("$t0 = a < 5\n"), wxT("expression = $t0\n"),
-      wxT("$t1 = expression\n"), wxT("ifFalse $t1 goto $L1\n"), wxT("b = 1\n"), wxT("goto $L2\n"),
-      wxT("$L1: b = 2\n"), wxT("$L2: halt")},
+     {wxT("a = 3\n"), wxT("b = 0\n"), wxT("$t0 = a < 5\n"), wxT("expression = $t0\n"), wxT("$t1 = expression\n"),
+      wxT("ifFalse $t1 goto $L1\n"), wxT("b = 1\n"), wxT("goto $L2\n"), wxT("$L1: b = 2\n"), wxT("$L2: halt")},
      {{1, wxT("Схема трансляции для оператора if позволяет избежать дублирования некоторых переходов."
               "\nДля компактности мы ввели действия непосредственно в продукцию"
               "\n(на практике могут потребоваться дополнительные нетерминалы и продукции)."
@@ -105,8 +104,7 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
     // EVT_MENU (myID_CONVERTLF,          EditorCtrl::OnConvertEOL)
     // stc
     EVT_STC_MARGINCLICK(wxID_ANY, EditorCtrl::OnMarginClick)
-    EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded)
-    EVT_STC_KEY(wxID_ANY, EditorCtrl::OnKey)
+    EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded) EVT_STC_KEY(wxID_ANY, EditorCtrl::OnKey)
     EVT_KEY_DOWN(EditorCtrl::OnKeyDown)
     EVT_STC_STYLENEEDED(wxID_ANY, EditorCtrl::OnStyleNeeded)
     // educational mode events
@@ -169,10 +167,11 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
 
     // miscellaneous
+    // width of margin for line number indicator
     m_LineNrMargin = TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_999"));
 
     m_FoldingMargin = 16;
-    CmdKeyClear(wxSTC_KEY_TAB, 0);   // this is done by the menu accelerator key
+    CmdKeyClear(wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
     SetLayoutCache(wxSTC_CACHE_PAGE);
 
     InitializePrefs(wxT("ThreeAC"));
@@ -187,6 +186,8 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     eduMode = false;
     pageNr = 0;
 
+    // increase default font size
+    SetZoom(4);
 }
 
 EditorCtrl::~EditorCtrl() {}
@@ -196,53 +197,62 @@ EditorCtrl::~EditorCtrl() {}
 void EditorCtrl::OnSize(wxSizeEvent &event) {
     int x = GetClientSize().x + (g_CommonPrefs.lineNumberEnable ? m_LineNrMargin : 0) +
             (g_CommonPrefs.foldEnable ? m_FoldingMargin : 0);
-    if (x > 0) SetScrollWidth(x);
+    if (x > 0)
+        SetScrollWidth(x);
     event.Skip();
 }
 
 // edit event handlers
 void EditorCtrl::OnEditRedo(wxCommandEvent &WXUNUSED(event)) {
-    if (!CanRedo()) return;
+    if (!CanRedo())
+        return;
     Redo();
 }
 
 void EditorCtrl::OnEditUndo(wxCommandEvent &WXUNUSED(event)) {
-    if (!CanUndo()) return;
+    if (!CanUndo())
+        return;
     Undo();
 }
 
 void EditorCtrl::OnEditClear(wxCommandEvent &WXUNUSED(event)) {
-    if (GetReadOnly()) return;
+    if (GetReadOnly())
+        return;
     Clear();
 }
 
 void EditorCtrl::OnKey(wxStyledTextEvent &WXUNUSED(event)) { wxMessageBox("OnKey"); }
 
 void EditorCtrl::OnKeyDown(wxKeyEvent &event) {
-    if (CallTipActive()) CallTipCancel();
+    if (CallTipActive())
+        CallTipCancel();
     if (event.GetKeyCode() == WXK_SPACE && event.ControlDown() && event.ShiftDown()) {
         int pos = GetCurrentPos();
         CallTipSetBackground(*wxYELLOW);
         CallTipShow(pos, "This is a CallTip with multiple lines.\n"
                          "It is meant to be a context sensitive popup helper for the user.");
-        return;
+    } else if (event.GetKeyCode() == WXK_TAB && !event.ShiftDown()) {
+        Tab();
+    } else if (event.GetKeyCode() == WXK_TAB && event.ShiftDown()) {
+        BackTab();
+    } else {
+        event.Skip();
     }
-    event.Skip();
 }
 
 void EditorCtrl::OnEditCut(wxCommandEvent &WXUNUSED(event)) {
-    if (GetReadOnly() || (GetSelectionEnd() - GetSelectionStart() <= 0)) return;
-    Cut();
+    if (!GetReadOnly() && (GetSelectionEnd() - GetSelectionStart() > 0))
+        Cut();
 }
 
 void EditorCtrl::OnEditCopy(wxCommandEvent &WXUNUSED(event)) {
-    if (GetSelectionEnd() - GetSelectionStart() <= 0) return;
-    Copy();
+    if (GetSelectionEnd() - GetSelectionStart() > 0)
+        Copy();
 }
 
 void EditorCtrl::OnEditPaste(wxCommandEvent &WXUNUSED(event)) {
-    if (!CanPaste()) return;
-    Paste();
+    if (CanPaste())
+        Paste();
 }
 
 void EditorCtrl::OnFind(wxCommandEvent &WXUNUSED(event)) {}
@@ -252,18 +262,7 @@ void EditorCtrl::OnFindNext(wxCommandEvent &WXUNUSED(event)) {}
 void EditorCtrl::OnReplace(wxCommandEvent &WXUNUSED(event)) {}
 
 void EditorCtrl::OnReplaceNext(wxCommandEvent &WXUNUSED(event)) {}
-/*
-void EditorCtrl::OnBraceMatch (wxCommandEvent &WXUNUSED(event)) {
-    int min = GetCurrentPos ();
-    int max = BraceMatch (min);
-    if (max > (min+1)) {
-        BraceHighlight (min+1, max);
-        SetSelection (min+1, max);
-    }else{
-        BraceBadLight (min);
-    }
-}
-*/
+
 void EditorCtrl::OnGoto(wxCommandEvent &WXUNUSED(event)) {}
 
 void EditorCtrl::OnEditSelectAll(wxCommandEvent &WXUNUSED(event)) { SetSelection(0, GetTextLength()); }
@@ -273,16 +272,10 @@ void EditorCtrl::OnEditSelectLine(wxCommandEvent &WXUNUSED(event)) {
     int lineEnd = PositionFromLine(GetCurrentLine() + 1);
     SetSelection(lineStart, lineEnd);
 }
-/*
-void EditorCtrl::OnHilightLang (wxCommandEvent &event) {
-    InitializePrefs (g_LanguagePrefs [event.GetId() - myID_HILIGHTFIRST].name);
-}
-*/
+
 void EditorCtrl::OnDisplayEOL(wxCommandEvent &WXUNUSED(event)) { SetViewEOL(!GetViewEOL()); }
 
-void EditorCtrl::OnIndentGuide(wxCommandEvent &WXUNUSED(event)) {
-    SetIndentationGuides(!GetIndentationGuides());
-}
+void EditorCtrl::OnIndentGuide(wxCommandEvent &WXUNUSED(event)) { SetIndentationGuides(!GetIndentationGuides()); }
 
 void EditorCtrl::OnLineNumber(wxCommandEvent &WXUNUSED(event)) {
     SetMarginWidth(m_LineNrID, GetMarginWidth(m_LineNrID) == 0 ? m_LineNrMargin : 0);
@@ -295,12 +288,7 @@ void EditorCtrl::OnLongLineOn(wxCommandEvent &WXUNUSED(event)) {
 void EditorCtrl::OnWhiteSpace(wxCommandEvent &WXUNUSED(event)) {
     SetViewWhiteSpace(GetViewWhiteSpace() == 0 ? wxSTC_WS_VISIBLEALWAYS : wxSTC_WS_INVISIBLE);
 }
-/*
-void EditorCtrl::OnFoldToggle(wxCommandEvent &WXUNUSED(event))
-{
-    ToggleFold (GetFoldParent(GetCurrentLine()));
-}
-*/
+
 void EditorCtrl::OnSetOverType(wxCommandEvent &WXUNUSED(event)) { SetOvertype(!GetOvertype()); }
 
 void EditorCtrl::OnSetReadOnly(wxCommandEvent &WXUNUSED(event)) { SetReadOnly(!GetReadOnly()); }
@@ -308,51 +296,13 @@ void EditorCtrl::OnSetReadOnly(wxCommandEvent &WXUNUSED(event)) { SetReadOnly(!G
 void EditorCtrl::OnWrapmodeOn(wxCommandEvent &WXUNUSED(event)) {
     SetWrapMode(GetWrapMode() == 0 ? wxSTC_WRAP_WORD : wxSTC_WRAP_NONE);
 }
-/*
-void EditorCtrl::OnUseCharset (wxCommandEvent &event) {
-    int Nr;
-    int charset = GetCodePage();
-    switch (event.GetId()) {
-        case myID_CHARSETANSI: {charset = wxSTC_CHARSET_ANSI; break;}
-        case myID_CHARSETMAC: {charset = wxSTC_CHARSET_ANSI; break;}
-    }
-    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
-        StyleSetCharacterSet (Nr, charset);
-    }
-    SetCodePage (charset);
-}
 
-void EditorCtrl::OnChangeCase (wxCommandEvent &event) {
-    switch (event.GetId()) {
-        case myID_CHANGELOWER: {
-            CmdKeyExecute (wxSTC_CMD_LOWERCASE);
-            break;
-        }
-        case myID_CHANGEUPPER: {
-            CmdKeyExecute (wxSTC_CMD_UPPERCASE);
-            break;
-        }
-    }
-}
-*/
-/*
-void EditorCtrl::OnConvertEOL (wxCommandEvent &event) {
-    int eolMode = GetEOLMode();
-    switch (event.GetId()) {
-        case myID_CONVERTCR: { eolMode = wxSTC_EOL_CR; break;}
-        case myID_CONVERTCRLF: { eolMode = wxSTC_EOL_CRLF; break;}
-        case myID_CONVERTLF: { eolMode = wxSTC_EOL_LF; break;}
-    }
-    ConvertEOLs (eolMode);
-    SetEOLMode (eolMode);
-}
-*/
 //! show base blocks
 void EditorCtrl::OnBBToggle(wxCommandEvent &event) {
     showBB = !showBB;
-    if (showBB)
+    if (showBB) {
         DoStyling(0, GetTextLength());
-    else
+    } else
         DrawBBs();
 }
 
@@ -373,11 +323,13 @@ void EditorCtrl::OnEduHome(wxCommandEvent &event) {
 }
 
 void EditorCtrl::OnEduPrev(wxCommandEvent &event) {
-    if (pageNr > 0) ShowEduPage(--pageNr);
+    if (pageNr > 0)
+        ShowEduPage(--pageNr);
 }
 
 void EditorCtrl::OnEduNext(wxCommandEvent &event) {
-    if (pageNr < edu_page_max) ShowEduPage(++pageNr);
+    if (pageNr < edu_page_max)
+        ShowEduPage(++pageNr);
 }
 
 void EditorCtrl::OnEduReset(wxCommandEvent &event) { ShowEduPage(pageNr); }
@@ -401,7 +353,9 @@ void EditorCtrl::OnMarginClick(wxStyledTextEvent &event) {
     if (event.GetMargin() == 2) {
         int lineClick = LineFromPosition(event.GetPosition());
         int levelClick = GetFoldLevel(lineClick);
-        if ((levelClick & wxSTC_FOLDLEVELHEADERFLAG) > 0) { ToggleFold(lineClick); }
+        if ((levelClick & wxSTC_FOLDLEVELHEADERFLAG) > 0) {
+            ToggleFold(lineClick);
+        }
     }
 }
 
@@ -411,8 +365,11 @@ void EditorCtrl::OnCharAdded(wxStyledTextEvent &event) {
     // Change this if support for mac files with \r is needed
     if (chr == '\n') {
         int lineInd = 0;
-        if (currentLine > 0) { lineInd = GetLineIndentation(currentLine - 1); }
-        if (lineInd == 0) return;
+        if (currentLine > 0) {
+            lineInd = GetLineIndentation(currentLine - 1);
+        }
+        if (lineInd == 0)
+            return;
         SetLineIndentation(currentLine, lineInd);
         GotoPos(PositionFromLine(currentLine) + lineInd);
     }
@@ -427,10 +384,170 @@ void EditorCtrl::OnStyleNeeded(wxStyledTextEvent &event) {
 
 void EditorCtrl::DoStyling(int startPos, int endPos) {
 
-    const int STATE_UNKNOWN = 0;
-    const int STATE_IDENTIFIER = 1;
-    const int STATE_NUMBER = 2;
-    const int STATE_STRING = 3;
+    enum class TokenType { Other, Space, Commentary, Number, Identifier, Goto, Label, String, Eof };
+
+    auto GetIdentifier = [&](int start_pos, int length) { return GetTextRange(start_pos, start_pos + length); };
+    auto ScanNextToken = [&](int pos) -> std::pair<TokenType, int> {
+        auto IsValidIdentifierChar = [](auto &c, bool first) -> bool {
+            return wxIsalpha(c) || c == wxT('_') || c == wxT('$') || (wxIsdigit(c) || c == wxT('.')) && not first;
+        };
+        if (pos == GetTextLength())
+            return {TokenType::Eof, 0};
+
+        wxChar c = GetCharAt(pos);
+        if (c == wxT(' ') || c == wxT('\t') || c == wxT('\r') || c == wxT('\n')) {
+            // Whitespaces
+            return {TokenType::Space, 1};
+        } else if (c == wxT('"')) {
+            // String
+            int end_pos = pos + 1;
+            while (end_pos < GetTextLength() && GetCharAt(end_pos) != wxT('"') && GetCharAt(end_pos) != wxT('\n'))
+                ++end_pos;
+            if (end_pos < GetTextLength() && GetCharAt(end_pos) != wxT('\n'))
+                ++end_pos;
+            return {TokenType::String, end_pos - pos};
+        } else if (pos + 1 < GetTextLength() && c == wxT('/') && GetCharAt(pos + 1) == wxT('/')) {
+            // Commentary
+            int end_pos = pos;
+            while (GetCharAt(end_pos) != wxT('\n') && end_pos < GetTextLength())
+                ++end_pos;
+            if (end_pos != GetTextLength())
+                ++end_pos;
+            return {TokenType::Commentary, end_pos - pos};
+        } else if (wxIsdigit(c)) {
+            // Number
+            int end_pos = pos;
+            bool has_dot = false;
+
+            do {
+                if (c == wxT('.'))
+                    has_dot = true;
+                ++end_pos;
+                c = GetCharAt(end_pos);
+            } while ((wxIsdigit(c) || c == wxT('.') && not has_dot) && end_pos < GetTextLength());
+
+            return {TokenType::Number, end_pos - pos};
+        } else if (IsValidIdentifierChar(c, true)) {
+            // Identifier, goto or label
+            int end_pos = pos;
+            do {
+                if (end_pos + 1 == GetTextLength()) {
+                    end_pos += 1;
+                    break;
+                }
+                ++end_pos;
+                c = GetCharAt(end_pos);
+            } while (IsValidIdentifierChar(c, false));
+
+            int len = end_pos - pos;
+            if (GetIdentifier(pos, len).CmpNoCase(wxT("goto")) == 0)
+                return {TokenType::Goto, len};
+            else if (c == wxT(':'))
+                return {TokenType::Label, len + 1};
+            else
+                return {TokenType::Identifier, len};
+        } else {
+            return {TokenType::Other, 1};
+        }
+    };
+
+    int curr_pos = 0;
+    StartStyling(0, 31);
+
+    std::unordered_set<int> bb_leader_lines = { LineFromPosition(0) };
+
+    while (curr_pos < GetTextLength()) {
+        int chosen_style = mySTC_TYPE_DEFAULT;
+
+        auto [token_type, len] = ScanNextToken(curr_pos);
+
+        wxString output = fmt::format("{:2}; ", len);
+        switch (token_type) {
+        case TokenType::Other: {
+            output += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len));
+            break;
+        }
+        case TokenType::Space: {
+            output += fmt::format("Space\n");
+            break;
+        }
+        case TokenType::Commentary: {
+            output += fmt::format("Commentary\n");
+            chosen_style = mySTC_TYPE_COMMENT;
+            break;
+        }
+        case TokenType::Number: {
+            output += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len));
+            break;
+        }
+        case TokenType::Identifier: {
+            output += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
+            if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), GetIdentifier(curr_pos, len)) != g_tacKeywords.end()) {
+                chosen_style = mySTC_TYPE_WORD1;
+            }
+            break;
+        }
+        case TokenType::Goto: {
+            output += fmt::format("Goto\n");
+            chosen_style = mySTC_TYPE_WORD1;
+
+            // mark next non-empty line
+            int last_line = LineFromPosition(GetTextLength());
+            int line = LineFromPosition(curr_pos) + 1;
+            fmt::print("Goto: Next Line: {}\n", line);
+            while (true) {
+                fmt::print("{} of {}\n", line, last_line);
+                ++line;
+                if (line > last_line)
+                    break;
+                if (GetLineLength(line) != 0) {
+                    fmt::print("Taken line: {}\n", line);
+                    bb_leader_lines.insert(line-1);
+                    break;
+                }
+            }
+            break;
+        }
+        case TokenType::Label: {
+            int j = curr_pos;
+            int length = len;
+            do {
+                j += length;
+                std::tie(token_type, length) = ScanNextToken(j);
+            } while (token_type == TokenType::Space);
+
+            if (token_type == TokenType::Eof || GetIdentifier(j, length) != wxT('.')) {
+                // label
+                chosen_style = mySTC_TYPE_WORD1;
+                output += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
+                bb_leader_lines.insert(LineFromPosition(curr_pos));
+            } else {
+                // var declaration
+            }
+            break;
+        }
+        case TokenType::String:
+            output += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
+            chosen_style = mySTC_TYPE_STRING;
+            break;
+        default:
+            break;
+        }
+
+        // fmt::print("{}", output);
+
+        curr_pos += len;
+        SetStyling(len, chosen_style);
+    }
+
+    fmt::print("Leaders: {}\n", bb_leader_lines);
+
+    return;
+
+    static int called_times = 0;
+    fmt::print("Called: {}; {}, {}\n", ++called_times, startPos, endPos);
+
+    enum State { STATE_UNKNOWN, STATE_IDENTIFIER, STATE_NUMBER, STATE_STRING };
 
     int sl, el;
     if (!showBB) {
@@ -462,89 +579,94 @@ void EditorCtrl::DoStyling(int startPos, int endPos) {
 
         REPROCESS:
             switch (state) {
-                case STATE_UNKNOWN:
-                    if (c == '"') {
-                        // Start of "string"
-                        SetStyling(1, mySTC_TYPE_STRING);
-                        state = STATE_STRING;
-                    } else if (std::isdigit(c)) {
-                        state = STATE_NUMBER;
-                        goto REPROCESS;
-                    } else if (std::isalpha(c) || c == '_' || c == '$') {
-                        state = STATE_IDENTIFIER;
-                        goto REPROCESS;
-                    } else {
-                        // Everything else
-                        SetStyling(1, mySTC_TYPE_DEFAULT);
-                    }
-                    break;
+            case STATE_UNKNOWN:
+                if (c == '"') {
+                    // Start of "string"
+                    SetStyling(1, mySTC_TYPE_STRING);
+                    state = STATE_STRING;
+                } else if (std::isdigit(c)) {
+                    state = STATE_NUMBER;
+                    goto REPROCESS;
+                } else if (std::isalpha(c) || c == '_' || c == '$') {
+                    state = STATE_IDENTIFIER;
+                    goto REPROCESS;
+                } else if (c == '/' && GetCharAt(startPos + 1) == '/') {
+                    SetStyling(endPos - startPos, mySTC_TYPE_COMMENT);
+                    startPos = endPos;
+                } else {
+                    // Everything else
+                    SetStyling(1, mySTC_TYPE_DEFAULT);
+                }
+                break;
 
-                case STATE_STRING:
-                    if (c == '"') {
+            case STATE_STRING:
+                if (c == '"') {
+                    length++;
+                    SetStyling(length, mySTC_TYPE_STRING);
+                    length = 0;
+                    state = STATE_UNKNOWN;
+                } else {
+                    length++;
+                }
+                break;
+
+            case STATE_NUMBER:
+                if (std::isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' || c == '.') {
+                    length++;
+                } else {
+                    SetStyling(length, mySTC_TYPE_NUMBER);
+                    length = 0;
+                    state = STATE_UNKNOWN;
+                    goto REPROCESS;
+                }
+                break;
+
+            case STATE_IDENTIFIER:
+                if (std::isalnum(c) || ((c == '_' || c == '$') && length == 0)) {
+                    length++;
+                } else {
+                    int style = mySTC_TYPE_IDENTIFIER;
+                    wxString identifier = GetTextRange(startPos - length, startPos);
+                    if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), identifier) != g_tacKeywords.end()) {
+                        style = mySTC_TYPE_WORD1;
+                        if (identifier == wxT("goto"))
+                            gotoFound = true;
+                        if (identifier == wxT("uminus"))
+                            style = mySTC_TYPE_DEFAULT;
+                    }
+
+                    int tmp = startPos;
+                    int next_non_space_char = 0;
+                    do {
+                        next_non_space_char = GetCharAt(++tmp);
+                    } while (std::isspace(next_non_space_char));
+                    if (style == mySTC_TYPE_IDENTIFIER && c == ':' && next_non_space_char != '.') {
                         length++;
-                        SetStyling(length, mySTC_TYPE_STRING);
+                        SetStyling(length, mySTC_TYPE_LABEL);
+                        labelFound = true;
                         length = 0;
                         state = STATE_UNKNOWN;
                     } else {
-                        length++;
-                    }
-                    break;
-
-                case STATE_NUMBER:
-                    if (std::isdigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' ||
-                        c == '.') {
-                        length++;
-                    } else {
-                        SetStyling(length, mySTC_TYPE_NUMBER);
+                        SetStyling(length, style);
                         length = 0;
                         state = STATE_UNKNOWN;
                         goto REPROCESS;
                     }
-                    break;
-
-                case STATE_IDENTIFIER:
-                    if (std::isalnum(c) || ((c == '_' || c == '$') && length == 0)) {
-                        length++;
-                    } else {
-                        int style = mySTC_TYPE_IDENTIFIER;
-                        wxString identifier = GetTextRange(startPos - length, startPos);
-                        if (std::find(tacKeywords.begin(), tacKeywords.end(), identifier) !=
-                            tacKeywords.end()) {
-                            style = mySTC_TYPE_WORD1;
-                            if (identifier == wxT("goto")) gotoFound = true;
-                            if (identifier == wxT("uminus")) style = mySTC_TYPE_DEFAULT;
-                        }
-
-                        int tmp = startPos;
-                        int next_non_space_char = 0;
-                        do {
-                            next_non_space_char = GetCharAt(++tmp);
-                        } while (std::isspace(next_non_space_char));
-                        if (style == mySTC_TYPE_IDENTIFIER && c == ':' && next_non_space_char != '.') {
-                            length++;
-                            SetStyling(length, mySTC_TYPE_LABEL);
-                            labelFound = true;
-                            length = 0;
-                            state = STATE_UNKNOWN;
-                        } else {
-                            SetStyling(length, style);
-                            length = 0;
-                            state = STATE_UNKNOWN;
-                            goto REPROCESS;
-                        }
-                    }
-                    break;
+                }
+                break;
             }
             startPos++;
         }
         // bb leader store
         if (labelFound || wasGoto) {
-            if (std::find(bbLeader.begin(), bbLeader.end(), line) == bbLeader.end()) bbLeader.push_back(line);
+            if (std::find(bbLeader.begin(), bbLeader.end(), line) == bbLeader.end())
+                bbLeader.push_back(line);
             labelFound = false;
             wasGoto = false;
         } else {
             auto idx = std::find(bbLeader.begin(), bbLeader.end(), line);
-            if (idx != bbLeader.end()) bbLeader.erase(idx);
+            if (idx != bbLeader.end())
+                bbLeader.erase(idx);
         }
         // next line - bb leader
         if (gotoFound) {
@@ -565,14 +687,16 @@ void EditorCtrl::DrawBBs() {
     MarkerDeleteAll(1);
     MarkerDeleteAll(2);
     MarkerDeleteAll(3);
-    if (bbLeader.empty()) return;
+    if (bbLeader.empty())
+        return;
 
     if (showBB) {
         bool bbStyleSwitch = false;
         for (int Nr = 0, bbLeaderIdx = 0; Nr < GetLineCount(); Nr++) {
             if (Nr == bbLeader[bbLeaderIdx]) {
                 MarkerAdd(Nr, 1);
-                if (bbLeaderIdx < bbLeader.size()) bbLeaderIdx++;
+                if (bbLeaderIdx < bbLeader.size())
+                    bbLeaderIdx++;
                 bbStyleSwitch = !bbStyleSwitch;
             }
             if (bbStyleSwitch)
@@ -585,7 +709,8 @@ void EditorCtrl::DrawBBs() {
 
 void EditorCtrl::AnnotationAdd(int line, wxString ann) {
     ann = AnnotationGetText(line) + ann;
-    if (ann.empty()) return;
+    if (ann.empty())
+        return;
 
     AnnotationSetText(line, ann);
     AnnotationSetStyle(line, ANNOTATION_STYLE);
@@ -611,7 +736,8 @@ void EditorCtrl::AnnotationAdd(int line, wxString ann) {
 
     const int widthAnn = TextWidth(ANNOTATION_STYLE, ann + wxString(indent, ' '));
 
-    if (widthAnn > width) SetScrollWidth(widthAnn);
+    if (widthAnn > width)
+        SetScrollWidth(widthAnn);
 }
 
 void EditorCtrl::AnnotationRemove(int line) { AnnotationSetText(line, wxString()); }
@@ -619,11 +745,11 @@ void EditorCtrl::AnnotationRemove(int line) { AnnotationSetText(line, wxString()
 void EditorCtrl::AnnotationClear() { AnnotationClearAll(); }
 
 wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
-    LanguageInfo const *curInfo;
+    const LanguageInfo *curInfo;
 
-    // determine language from filepatterns
+    // determine language from file patterns
     int languageNr;
-    for (languageNr = 0; languageNr < g_LanguagePrefsSize; languageNr++) {
+    for (languageNr = 0; languageNr < WXSIZEOF(g_LanguagePrefs); languageNr++) {
         curInfo = &g_LanguagePrefs[languageNr];
         wxString filepattern = curInfo->filepattern;
         filepattern.Lower();
@@ -642,19 +768,20 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
 bool EditorCtrl::InitializePrefs(const wxString &name) {
     // initialize styles
     StyleClearAll();
-    LanguageInfo const *curInfo = NULL;
+    const LanguageInfo *curInfo = NULL;
 
     // determine language
     bool found = false;
     int languageNr;
-    for (languageNr = 0; languageNr < g_LanguagePrefsSize; languageNr++) {
+    for (languageNr = 0; languageNr < WXSIZEOF(g_LanguagePrefs); languageNr++) {
         curInfo = &g_LanguagePrefs[languageNr];
         if (curInfo->name == name) {
             found = true;
             break;
         }
     }
-    if (!found) return false;
+    if (!found)
+        return false;
 
     // set lexer and language
     SetLexer(curInfo->lexer);
@@ -664,7 +791,7 @@ bool EditorCtrl::InitializePrefs(const wxString &name) {
     SetMarginType(m_LineNrID, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(wxT("DARK GREY")));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, *wxWHITE);
-    SetMarginWidth(m_LineNrID, 0);   // start out not visible
+    SetMarginWidth(m_LineNrID, 0); // start out not visible
 
     // annotations style
     StyleSetBackground(ANNOTATION_STYLE, wxColour(220, 244, 220));
@@ -672,8 +799,7 @@ bool EditorCtrl::InitializePrefs(const wxString &name) {
     StyleSetSizeFractional(ANNOTATION_STYLE, (StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
 
     // default fonts for all styles!
-    int Nr;
-    for (Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
+    for (int Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
         wxFont font(10, wxMODERN, wxNORMAL, wxNORMAL);
         StyleSetFont(Nr, font);
     }
@@ -685,16 +811,21 @@ bool EditorCtrl::InitializePrefs(const wxString &name) {
     // initialize settings
     if (g_CommonPrefs.syntaxEnable) {
         int keywordnr = 0;
-        for (Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
-            if (curInfo->styles[Nr].type == -1) continue;
+        for (int Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++) {
+            if (curInfo->styles[Nr].type == -1)
+                continue;
             const StyleInfo &curType = g_StylePrefs[curInfo->styles[Nr].type];
             wxFont font(curType.fontsize, wxMODERN, wxNORMAL, wxNORMAL, false, curType.fontname);
             StyleSetFont(Nr, font);
-            if (curType.foreground) { StyleSetForeground(Nr, wxColour(curType.foreground)); }
-            if (curType.background) { StyleSetBackground(Nr, wxColour(curType.background)); }
+            if (curType.foreground) {
+                StyleSetForeground(Nr, wxColour(curType.foreground));
+            }
+            if (curType.background) {
+                StyleSetBackground(Nr, wxColour(curType.background));
+            }
             StyleSetBold(Nr, (curType.fontstyle & mySTC_STYLE_BOLD) > 0);
             StyleSetItalic(Nr, (curType.fontstyle & mySTC_STYLE_ITALIC) > 0);
-            StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERL) > 0);
+            StyleSetUnderline(Nr, (curType.fontstyle & mySTC_STYLE_UNDERLINE) > 0);
             StyleSetVisible(Nr, (curType.fontstyle & mySTC_STYLE_HIDDEN) == 0);
             StyleSetCase(Nr, curType.lettercase);
             const char *pwords = curInfo->styles[Nr].words;
@@ -716,20 +847,15 @@ bool EditorCtrl::InitializePrefs(const wxString &name) {
     StyleSetBackground(m_FoldingID, wxColour(238, 238, 238));
     SetMarginWidth(m_FoldingID, 16);
     SetMarginSensitive(m_FoldingID, false);
-    /*
-    if (g_CommonPrefs.foldEnable)
-    {
-        SetMarginWidth(m_FoldingID, curInfo->folds != 0? m_FoldingMargin: 0);
-        SetMarginSensitive(m_FoldingID, curInfo->folds != 0);
-        SetProperty(wxT("fold"), curInfo->folds != 0? wxT("1"): wxT("0"));
-        SetProperty(wxT("fold.comment"),
-                    (curInfo->folds & mySTC_FOLD_COMMENT) > 0? wxT("1"): wxT("0"));
-        SetProperty(wxT("fold.bb"),
-                    (curInfo->folds & mySTC_FOLD_BB) > 0? wxT("1"): wxT("0"));
-    }
-    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED |
-                wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
-    */
+
+    //    if (g_CommonPrefs.foldEnable) {
+    //        SetMarginWidth(m_FoldingID, curInfo->folds != 0 ? m_FoldingMargin : 0);
+    //        SetMarginSensitive(m_FoldingID, curInfo->folds != 0);
+    //        SetProperty(wxT("fold"), curInfo->folds != 0 ? wxT("1") : wxT("0"));
+    //        SetProperty(wxT("fold.comment"), (curInfo->folds & mySTC_FOLD_COMMENT) > 0 ? wxT("1") : wxT("0"));
+    //        SetProperty(wxT("fold.bb"), (curInfo->folds & mySTC_FOLD_BB) > 0 ? wxT("1") : wxT("0"));
+    //    }
+    //    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
     // set spaces and indention
     SetTabWidth(4);
@@ -756,7 +882,8 @@ bool EditorCtrl::LoadFile() {
     if (!m_filename) {
         wxFileDialog dlg(this, wxT("Open file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"),
                          wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
-        if (dlg.ShowModal() != wxID_OK) return false;
+        if (dlg.ShowModal() != wxID_OK)
+            return false;
         m_filename = dlg.GetPath();
     }
 
@@ -767,28 +894,33 @@ bool EditorCtrl::LoadFile() {
 bool EditorCtrl::LoadFile(const wxString &filename) {
 
     // load file in EditorCtrl and clear undo
-    if (!filename.empty()) m_filename = filename;
+    if (!filename.empty())
+        m_filename = filename;
 
     wxStyledTextCtrl::LoadFile(m_filename);
-
     EmptyUndoBuffer();
 
     // determine lexer language
     wxFileName fname(m_filename);
     InitializePrefs(DeterminePrefs(fname.GetFullName()));
 
+    ConvertEOLs(wxSTC_EOL_LF);
+    SetEOLMode(wxSTC_EOL_LF);
+
     return true;
 }
 
 bool EditorCtrl::SaveFile() {
     // return if no change
-    if (!Modified()) return true;
+    if (!Modified())
+        return true;
 
     // get filname
     if (!m_filename) {
         wxFileDialog dlg(this, wxT("Save file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"),
                          wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-        if (dlg.ShowModal() != wxID_OK) return false;
+        if (dlg.ShowModal() != wxID_OK)
+            return false;
         m_filename = dlg.GetPath();
     }
 
@@ -797,9 +929,9 @@ bool EditorCtrl::SaveFile() {
 }
 
 bool EditorCtrl::SaveFile(const wxString &filename, bool check_modified) {
-
     // return if no change
-    if (!Modified() && check_modified) return true;
+    if (!Modified() && check_modified)
+        return true;
 
     //     // save EditorCtrl in file and clear undo
     //     if (!filename.empty()) m_filename = filename;
@@ -818,7 +950,6 @@ bool EditorCtrl::SaveFile(const wxString &filename, bool check_modified) {
 }
 
 bool EditorCtrl::Modified() {
-
     // return modified state
     return (GetModify() && !GetReadOnly());
 }
@@ -838,82 +969,64 @@ EditorCtrlProperties::EditorCtrlProperties(EditorCtrl *editor, long style)
     // fullname
     wxBoxSizer *fullname = new wxBoxSizer(wxHORIZONTAL);
     fullname->Add(10, 0);
-    fullname->Add(
-        new wxStaticText(this, wxID_ANY, _("Full filename"), wxDefaultPosition, wxSize(80, wxDefaultCoord)),
-        0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-    fullname->Add(new wxStaticText(this, wxID_ANY, editor->GetFilename()), 0,
-                  wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+    fullname->Add(new wxStaticText(this, wxID_ANY, _("Full filename"), wxDefaultPosition, wxSize(80, wxDefaultCoord)),
+                  0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+    fullname->Add(new wxStaticText(this, wxID_ANY, editor->GetFilename()), 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
 
     // text info
     wxGridSizer *textinfo = new wxGridSizer(4, 0, 2);
-    textinfo->Add(
-        new wxStaticText(this, wxID_ANY, _("Language"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    textinfo->Add(new wxStaticText(this, wxID_ANY, _("Language"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                  wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     textinfo->Add(new wxStaticText(this, wxID_ANY, editor->m_language->name), 0,
                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
-    textinfo->Add(
-        new wxStaticText(this, wxID_ANY, _("Lexer-ID: "), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    textinfo->Add(new wxStaticText(this, wxID_ANY, _("Lexer-ID: "), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                  wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     text = wxString::Format(wxT("%d"), editor->GetLexer());
-    textinfo->Add(new wxStaticText(this, wxID_ANY, text), 0,
-                  wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    textinfo->Add(new wxStaticText(this, wxID_ANY, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
     wxString EOLtype = wxEmptyString;
     switch (editor->GetEOLMode()) {
-        case wxSTC_EOL_CR: {
-            EOLtype = wxT("CR (Unix)");
-            break;
-        }
-        case wxSTC_EOL_CRLF: {
-            EOLtype = wxT("CRLF (Windows)");
-            break;
-        }
-        case wxSTC_EOL_LF: {
-            EOLtype = wxT("CR (Macintosh)");
-            break;
-        }
+    case wxSTC_EOL_LF:
+        EOLtype = wxT("LF (Unix)");
+        break;
+
+    case wxSTC_EOL_CRLF:
+        EOLtype = wxT("CRLF (Windows)");
+        break;
+
+    case wxSTC_EOL_CR:
+        EOLtype = wxT("CR (Macintosh)");
+        break;
     }
-    textinfo->Add(
-        new wxStaticText(this, wxID_ANY, _("Line endings"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
-    textinfo->Add(new wxStaticText(this, wxID_ANY, EOLtype), 0,
-                  wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    textinfo->Add(new wxStaticText(this, wxID_ANY, _("Line endings"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                  wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    textinfo->Add(new wxStaticText(this, wxID_ANY, EOLtype), 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
 
     // text info box
-    wxStaticBoxSizer *textinfos =
-        new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Informations")), wxVERTICAL);
+    wxStaticBoxSizer *textinfos = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Informations")), wxVERTICAL);
     textinfos->Add(textinfo, 0, wxEXPAND);
     textinfos->Add(0, 6);
 
     // statistic
     wxGridSizer *statistic = new wxGridSizer(4, 0, 2);
-    statistic->Add(
-        new wxStaticText(this, wxID_ANY, _("Total lines"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, _("Total lines"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     text = wxString::Format(wxT("%d"), editor->GetLineCount());
-    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0,
-                   wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
-    statistic->Add(
-        new wxStaticText(this, wxID_ANY, _("Total chars"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, _("Total chars"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     text = wxString::Format(wxT("%d"), editor->GetTextLength());
-    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0,
-                   wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
-    statistic->Add(
-        new wxStaticText(this, wxID_ANY, _("Current line"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, _("Current line"), wxDefaultPosition, wxSize(80, wxDefaultCoord)),
+                   0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     text = wxString::Format(wxT("%d"), editor->GetCurrentLine());
-    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0,
-                   wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
-    statistic->Add(
-        new wxStaticText(this, wxID_ANY, _("Current pos"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
-        wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, _("Current pos"), wxDefaultPosition, wxSize(80, wxDefaultCoord)), 0,
+                   wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
     text = wxString::Format(wxT("%d"), editor->GetCurrentPos());
-    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0,
-                   wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+    statistic->Add(new wxStaticText(this, wxID_ANY, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
 
     // char/line statistics
-    wxStaticBoxSizer *statistics =
-        new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Statistics")), wxVERTICAL);
+    wxStaticBoxSizer *statistics = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Statistics")), wxVERTICAL);
     statistics->Add(statistic, 0, wxEXPAND);
     statistics->Add(0, 6);
 

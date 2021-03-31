@@ -10,9 +10,10 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, wxStr
 
     UpdateGraphImage();
 
+
     m_back_to_code_btn->Bind(wxEVT_BUTTON, [&](auto &evt) {
         output_code = program.get_as_code();
-        Close();
+        EndModal(wxID_OK);
     });
 
     auto AddButton = [&](wxString btn_name, std::function<void(wxCommandEvent &)> f, bool is_optim) {

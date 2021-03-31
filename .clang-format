@@ -57,7 +57,7 @@ BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
-ColumnLimit:     105
+ColumnLimit:     120
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
@@ -97,8 +97,8 @@ InsertTrailingCommas: None
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: true
-MacroBlockBegin: ''
-MacroBlockEnd:   ''
+MacroBlockBegin: '^wxBEGIN_EVENT_TABLE'
+MacroBlockEnd:   'wxEND_EVENT_TABLE$'
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBinPackProtocolList: Auto
@@ -141,6 +141,11 @@ SpaceBeforeSquareBrackets: false
 BitFieldColonSpacing: Both
 Standard:        Latest
 StatementMacros:
+  - EVT_MENU
+  - EVT_STC_STYLENEEDED
+  - EVT_STC_KEY
+  - EVT_KEY_DOWN
+  - EVT_STC_STYLENEEDED
   - Q_UNUSED
   - QT_REQUIRE_VERSION
 TabWidth:        4
@@ -151,3 +156,4 @@ WhitespaceSensitiveMacros:
   - PP_STRINGIZE
   - BOOST_PP_STRINGIZE
 ...
+

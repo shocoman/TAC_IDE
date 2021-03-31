@@ -38,7 +38,6 @@ target_include_directories(BisonParser PUBLIC src/toy_optimizer/src/utilities/pa
 ### GUI (main program) ########################################
 set(EDITOR_SOURCES src/gui_code_editor/the_app.cpp
         src/gui_code_editor/windows/main_window/main_window.cpp
-        src/gui_code_editor/windows/main_window/scintilla_definitions.cpp
         src/gui_code_editor/windows/main_window/code_editor_control.cpp
         src/gui_code_editor/windows/optimization_window/llvm_ir/optimization_select.cpp
         src/gui_code_editor/windows/function_selection_window/function_chooser.cpp

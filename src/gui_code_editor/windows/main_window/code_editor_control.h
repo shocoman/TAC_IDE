@@ -9,6 +9,8 @@
 //! application headers
 #include "scintilla_definitions.h"
 #include <wx/dialog.h>
+#include <fmt/ranges.h>
+#include <unordered_set>
 
 class EditorCtrlProperties;
 

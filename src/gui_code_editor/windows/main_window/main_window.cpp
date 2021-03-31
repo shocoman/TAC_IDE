@@ -520,6 +520,7 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
         if (optimization_dialog->ShowModal() == wxID_OK) {
             m_editor->SetText(optimization_dialog->output_code);
         }
+
     }
 }
 

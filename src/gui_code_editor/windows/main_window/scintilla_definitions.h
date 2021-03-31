@@ -3,20 +3,18 @@
 #define DEFINITIONS_H_INCLUDED
 
 //! headers
-#include <vector>
 #include <string>
-
+#include <vector>
 
 //! wxWidgets/contrib headers
-#include "wx/stc/stc.h"  // styled text control
+#include "wx/stc/stc.h" // styled text control
 
 //! application headers
 
 //--------------------------------------------------------------
 // standard IDs
 //--------------------------------------------------------------
-enum
-{
+enum {
     // menu IDs
     idMenuQuit = 1000,
     idMenuAbout,
@@ -77,60 +75,48 @@ enum
 
 #define DEFAULT_LANGUAGE "<default>"
 
-#define PAGE_COMMON _("Common")
-#define PAGE_LANGUAGES _("Languages")
-#define PAGE_STYLE_TYPES _("Style types")
-
-#define STYLE_TYPES_COUNT 32
-
-//! general style types
-#define mySTC_TYPE_DEFAULT 0
-
-#define mySTC_TYPE_WORD1 1
-#define mySTC_TYPE_WORD2 2
-#define mySTC_TYPE_WORD3 3
-#define mySTC_TYPE_WORD4 4
-#define mySTC_TYPE_WORD5 5
-#define mySTC_TYPE_WORD6 6
-
-#define mySTC_TYPE_COMMENT 7
-#define mySTC_TYPE_COMMENT_DOC 8
-#define mySTC_TYPE_COMMENT_LINE 9
-#define mySTC_TYPE_COMMENT_SPECIAL 10
-
-#define mySTC_TYPE_CHARACTER 11
-#define mySTC_TYPE_CHARACTER_EOL 12
-#define mySTC_TYPE_STRING 13
-#define mySTC_TYPE_STRING_EOL 14
-
-#define mySTC_TYPE_DELIMITER 15
-
-#define mySTC_TYPE_PUNCTUATION 16
-
-#define mySTC_TYPE_OPERATOR 17
-
-#define mySTC_TYPE_BRACE 18
-
-#define mySTC_TYPE_COMMAND 19
-#define mySTC_TYPE_IDENTIFIER 20
-#define mySTC_TYPE_LABEL 21
-#define mySTC_TYPE_NUMBER 22
-#define mySTC_TYPE_PARAMETER 23
-#define mySTC_TYPE_REGEX 24
-#define mySTC_TYPE_UUID 25
-#define mySTC_TYPE_VALUE 26
-
-#define mySTC_TYPE_PREPROCESSOR 27
-#define mySTC_TYPE_SCRIPT 28
-
-#define mySTC_TYPE_ERROR 29
+enum GeneralStyleTypes {
+    mySTC_TYPE_DEFAULT = 0,
+    mySTC_TYPE_WORD1 = 1,
+    mySTC_TYPE_WORD2 = 2,
+    mySTC_TYPE_WORD3 = 3,
+    mySTC_TYPE_WORD4 = 4,
+    mySTC_TYPE_WORD5 = 5,
+    mySTC_TYPE_WORD6 = 6,
+    mySTC_TYPE_COMMENT = 7,
+    mySTC_TYPE_COMMENT_DOC = 8,
+    mySTC_TYPE_COMMENT_LINE = 9,
+    mySTC_TYPE_COMMENT_SPECIAL = 10,
+    mySTC_TYPE_CHARACTER = 11,
+    mySTC_TYPE_CHARACTER_EOL = 12,
+    mySTC_TYPE_STRING = 13,
+    mySTC_TYPE_STRING_EOL = 14,
+    mySTC_TYPE_DELIMITER = 15,
+    mySTC_TYPE_PUNCTUATION = 16,
+    mySTC_TYPE_OPERATOR = 17,
+    mySTC_TYPE_BRACE = 18,
+    mySTC_TYPE_COMMAND = 19,
+    mySTC_TYPE_IDENTIFIER = 20,
+    mySTC_TYPE_LABEL = 21,
+    mySTC_TYPE_NUMBER = 22,
+    mySTC_TYPE_PARAMETER = 23,
+    mySTC_TYPE_REGEX = 24,
+    mySTC_TYPE_UUID = 25,
+    mySTC_TYPE_VALUE = 26,
+    mySTC_TYPE_PREPROCESSOR = 27,
+    mySTC_TYPE_SCRIPT = 28,
+    mySTC_TYPE_ERROR = 29,
+    STYLE_TYPES_COUNT = 32,
+};
 
 //----------------------------------------------------------------------------
 //! style bits types
-#define mySTC_STYLE_BOLD 1
-#define mySTC_STYLE_ITALIC 2
-#define mySTC_STYLE_UNDERL 4
-#define mySTC_STYLE_HIDDEN 8
+enum StyleBitsTypes {
+    mySTC_STYLE_BOLD = 1,
+    mySTC_STYLE_ITALIC = 2,
+    mySTC_STYLE_UNDERLINE = 4,
+    mySTC_STYLE_HIDDEN = 8,
+};
 
 //----------------------------------------------------------------------------
 //! general folding types
@@ -159,7 +145,18 @@ struct CommonInfo {
     bool longLineOnEnable;
     bool whiteSpaceEnable;
 };
-extern const CommonInfo g_CommonPrefs;
+
+const CommonInfo g_CommonPrefs = {.syntaxEnable = true,
+                                  .foldEnable = true,
+                                  .indentEnable = true,
+                                  .readOnlyInitial = false,
+                                  .overTypeInitial = false,
+                                  .wrapModeInitial = false,
+                                  .displayEOLEnable = false,
+                                  .indentGuideEnable = true,
+                                  .lineNumberEnable = false,
+                                  .longLineOnEnable = false,
+                                  .whiteSpaceEnable = false};
 
 //----------------------------------------------------------------------------
 // LanguageInfo
@@ -171,17 +168,90 @@ struct LanguageInfo {
     struct {
         int type;
         const char *words;
-    } styles [STYLE_TYPES_COUNT];
+    } styles[STYLE_TYPES_COUNT];
     int folds;
 };
 
-extern const LanguageInfo g_LanguagePrefs[];
-extern const int g_LanguagePrefsSize;
+static const LanguageInfo g_LanguagePrefs[] = {
+    // ThreeAC
+    {"ThreeAC",
+     "*.3ac",
+     wxSTC_LEX_CONTAINER,
+     {{mySTC_TYPE_DEFAULT, NULL},
+      {mySTC_TYPE_WORD1, NULL}, // KEYWORDS
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {mySTC_TYPE_COMMENT, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {mySTC_TYPE_CHARACTER, NULL},
+      {mySTC_TYPE_CHARACTER_EOL, NULL},
+      {mySTC_TYPE_STRING, NULL},
+      {mySTC_TYPE_STRING_EOL, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {mySTC_TYPE_OPERATOR, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {mySTC_TYPE_IDENTIFIER, NULL},
+      {mySTC_TYPE_LABEL, NULL},
+      {mySTC_TYPE_NUMBER, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {mySTC_TYPE_ERROR, NULL}, // KEYWORDS ERROR
+      {-1, NULL},
+      {-1, NULL}},
+     mySTC_FOLD_COMMENT | mySTC_FOLD_BB},
+    // * (any)
+    {wxTRANSLATE(DEFAULT_LANGUAGE),
+     "*.*",
+     wxSTC_LEX_PROPERTIES,
+     {{mySTC_TYPE_DEFAULT, NULL},
+      {mySTC_TYPE_DEFAULT, NULL},
+      {mySTC_TYPE_DEFAULT, NULL},
+      {mySTC_TYPE_DEFAULT, NULL},
+      {mySTC_TYPE_DEFAULT, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL},
+      {-1, NULL}},
+     0},
+};
 
-
-//----------------------------------------------------------------------------
-// Keywords for container-based tac language lexer
-extern const std::vector<wxString> tacKeywords;
+static const std::vector<wxString> g_tacKeywords = {wxT("goto"),  wxT("ifTrue"), wxT("ifFalse"),
+                                                    wxT("param"), wxT("call"),   wxT("return"),
+                                                    wxT("halt"),  wxT("if"),     wxT("uminus")};
 
 //----------------------------------------------------------------------------
 // StyleInfo
@@ -195,7 +265,38 @@ struct StyleInfo {
     int lettercase;
 };
 
-extern const StyleInfo g_StylePrefs[];
-extern const int g_StylePrefsSize;
+const StyleInfo g_StylePrefs[] = {
+    {wxT("Default"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                    // mySTC_TYPE_DEFAULT
+    {wxT("Keyword1"), wxT("BLUE"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_BOLD, 0},      // mySTC_TYPE_WORD1
+    {wxT("Keyword2"), wxT("MIDNIGHT BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},            // mySTC_TYPE_WORD2
+    {wxT("Keyword3"), wxT("CORNFLOWER BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},          // mySTC_TYPE_WORD3
+    {wxT("Keyword4"), wxT("CYAN"), wxT("WHITE"), wxT(""), 10, 0, 0},                     // mySTC_TYPE_WORD4
+    {wxT("Keyword5"), wxT("DARK GREY"), wxT("WHITE"), wxT(""), 10, 0, 0},                // mySTC_TYPE_WORD5
+    {wxT("Keyword6"), wxT("GREY"), wxT("WHITE"), wxT(""), 10, 0, 0},                     // mySTC_TYPE_WORD6
+    {wxT("Comment"), wxT("FOREST GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},              // mySTC_TYPE_COMMENT
+    {wxT("Comment (Doc)"), wxT("FOREST GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},        // mySTC_TYPE_COMMENT_DOC
+    {wxT("Comment line"), wxT("FOREST GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},         // mySTC_TYPE_COMMENT_LINE
+    {wxT("Special comment"), wxT("GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},             // mySTC_TYPE_COMMENT_SPECIAL
+    {wxT("Character"), wxT("KHAKI"), wxT("WHITE"), wxT(""), 10, 0, 0},                   // mySTC_TYPE_CHARACTER
+    {wxT("Character (EOL)"), wxT("KHAKI"), wxT("WHITE"), wxT(""), 10, 0, 0},             // mySTC_TYPE_CHARACTER_EOL
+    {wxT("String"), wxT("BROWN"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_STRING
+    {wxT("String (EOL)"), wxT("BROWN"), wxT("WHITE"), wxT(""), 10, 0, 0},                // mySTC_TYPE_STRING_EOL
+    {wxT("Delimiter"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_DELIMITER
+    {wxT("Punctuation"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                // mySTC_TYPE_PUNCTUATION
+    {wxT("Operator"), wxT("BLACK"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_BOLD, 0},     // mySTC_TYPE_OPERATOR
+    {wxT("Label"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_BRACE
+    {wxT("Command"), wxT("BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_COMMAND
+    {wxT("Identifier"), wxT("BLACK"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_IDENTIFIER
+    {wxT("Label"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_LABEL
+    {wxT("Number"), wxT("SIENNA"), wxT("WHITE"), wxT(""), 10, 0, 0},                     // mySTC_TYPE_NUMBER
+    {wxT("Parameter"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_ITALIC, 0}, // mySTC_TYPE_PARAMETER
+    {wxT("Regular expression"), wxT("ORCHID"), wxT("WHITE"), wxT(""), 10, 0, 0},         // mySTC_TYPE_REGEX
+    {wxT("UUID"), wxT("ORCHID"), wxT("WHITE"), wxT(""), 10, 0, 0},                       // mySTC_TYPE_UUID
+    {wxT("Value"), wxT("ORCHID"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_ITALIC, 0},     // mySTC_TYPE_VALUE
+    {wxT("Preprocessor"), wxT("GREY"), wxT("WHITE"), wxT(""), 10, 0, 0},                 // mySTC_TYPE_PREPROCESSOR
+    {wxT("Script"), wxT("DARK GREY"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_SCRIPT
+    {wxT("Error"), wxT("RED"), wxT("WHITE"), wxT(""), 10, 0, 0},                         // mySTC_TYPE_ERROR
+    {wxT("Undefined"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0}                   // mySTC_TYPE_UNDEFINED
+};
 
 #endif // DEFINITIONS_H_INCLUDED

@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     //            res = 1;
     // endregion
 
-    setenv("DISPLAY", "192.168.205.225:0", true);
+    setenv("DISPLAY", "192.168.117.49:0", true);
     ParseDriver drv;
 
     //    drv.parse_from_file("../_TestCode/myfile");
@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
+    f.print_cfg();
 
 //    run_useless_code_elimination(f);
 //    ConvertToSSADriver convert_to_ssa_driver(f);
