@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "-O1")
 
 
-#add_subdirectory(src/tac_simulator) # include tac simulator
-#add_subdirectory(src/toy_optimizer/lib/fmt)
 add_subdirectory(src/toy_optimizer)
 list(TRANSFORM TOY_OPTIMIZER_SOURCE_FILES PREPEND "src/toy_optimizer/")
 

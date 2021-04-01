@@ -1,27 +1,14 @@
-
-//--------------------------------------------------------------
-// headers
-//--------------------------------------------------------------
-
-//! headers
 #include <algorithm>
 #include <map>
 #include <vector>
 
-//! wxWidgets headers
 #include "wx/dialog.h"
 #include "wx/file.h"
 #include "wx/filename.h"
 #include "wx/wx.h"
-#include <wx/stc/stc.h> // styled text control
+#include <wx/stc/stc.h>
 
-//! application headers
-//#include "../include/Definitions.h" // definitions
-#include "code_editor_control.h" // edit module
-
-//--------------------------------------------------------------
-// declarations
-//--------------------------------------------------------------
+#include "code_editor_control.h"
 
 // The (uniform) style used for the annotations.
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
@@ -155,13 +142,13 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine((int)MarkerType::BasicBlockMark, wxSTC_MARK_CHARACTER + (int)'B', wxT("BLACK"), wxNullColour);
     MarkerDefine((int)MarkerType::BrightLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxNullColour);
-    MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(229, 229, 238));
+    MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(233, 233, 238));
 
     // annotations
     AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
 
     // miscellaneous
-    // width of margin for line number indicator
+    // width of margin for line number marker
     m_LineNrMargin = TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_999"));
 
     m_FoldingMargin = 16;
@@ -169,9 +156,6 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     SetLayoutCache(wxSTC_CACHE_PAGE);
 
     InitializePreferences(wxT("ThreeAC"));
-
-    // show line numbers by default
-    SetMarginWidth(m_LineNrID, m_LineNrMargin);
 
     // show base blocks mode
     m_show_basic_block_marks = true;
@@ -198,39 +182,36 @@ void EditorCtrl::OnSize(wxSizeEvent &event) {
 
 // edit event handlers
 void EditorCtrl::OnEditRedo(wxCommandEvent &WXUNUSED(event)) {
-    if (!CanRedo())
-        return;
-    Redo();
+    if (CanRedo())
+        Redo();
 }
 
 void EditorCtrl::OnEditUndo(wxCommandEvent &WXUNUSED(event)) {
-    if (!CanUndo())
-        return;
-    Undo();
+    if (CanUndo())
+        Undo();
 }
 
 void EditorCtrl::OnEditClear(wxCommandEvent &WXUNUSED(event)) {
-    if (GetReadOnly())
-        return;
-    Clear();
+    if (!GetReadOnly())
+        Clear();
 }
 
 void EditorCtrl::OnKey(wxStyledTextEvent &WXUNUSED(event)) { wxMessageBox("OnKey"); }
 
-void EditorCtrl::OnKeyDown(wxKeyEvent &event) {
+void EditorCtrl::OnKeyDown(wxKeyEvent &evt) {
     if (CallTipActive())
         CallTipCancel();
-    if (event.GetKeyCode() == WXK_SPACE && event.ControlDown() && event.ShiftDown()) {
+    if (evt.GetKeyCode() == WXK_SPACE && evt.ControlDown() && evt.ShiftDown()) {
         int pos = GetCurrentPos();
         CallTipSetBackground(*wxYELLOW);
         CallTipShow(pos, "This is a CallTip with multiple lines.\n"
                          "It is meant to be a context sensitive popup helper for the user.");
-    } else if (event.GetKeyCode() == WXK_TAB && !event.ShiftDown()) {
+    } else if (evt.GetKeyCode() == WXK_TAB && !evt.ShiftDown()) {
         Tab();
-    } else if (event.GetKeyCode() == WXK_TAB && event.ShiftDown()) {
+    } else if (evt.GetKeyCode() == WXK_TAB && evt.ShiftDown()) {
         BackTab();
     } else {
-        event.Skip();
+        evt.Skip();
     }
 }
 
@@ -367,14 +348,12 @@ void EditorCtrl::OnCharAdded(wxStyledTextEvent &event) {
 }
 
 void EditorCtrl::OnStyleNeeded(wxStyledTextEvent &event) {
-    int startPos = GetEndStyled() == 0 ? GetEndStyled() : GetEndStyled() - 1;
-    int endPos = event.GetPosition();
-
-    UpdateCodeHighlighting(startPos, endPos);
+    int start_pos = std::max(0, GetEndStyled() - 1);
+    int end_pos = event.GetPosition();
+    UpdateCodeHighlighting(start_pos, end_pos);
 }
 
 void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
-
     enum class TokenType { Other, Space, Commentary, Number, Identifier, Goto, Label, String, Char, Eof };
     auto GetIdentifier = [&](int start_pos, int length) { return GetTextRange(start_pos, start_pos + length); };
     auto ReadNextToken = [&](int pos) -> std::pair<TokenType, int> {
@@ -468,12 +447,13 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
         }
         case TokenType::Number: {
             output += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len));
+            chosen_style = mySTC_TYPE_NUMBER;
             break;
         }
         case TokenType::Identifier: {
             output += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
-            if (std::find(g_tacKeywords.begin(), g_tacKeywords.end(), GetIdentifier(curr_pos, len)) !=
-                g_tacKeywords.end()) {
+            if (std::find(g_tac_keywords.begin(), g_tac_keywords.end(), GetIdentifier(curr_pos, len)) !=
+                g_tac_keywords.end()) {
                 chosen_style = mySTC_TYPE_WORD1;
             }
             break;
@@ -517,6 +497,11 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
         case TokenType::String: {
             output += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
             chosen_style = mySTC_TYPE_STRING;
+            break;
+        }
+        case TokenType::Char: {
+            output += fmt::format("Char: '{}'\n", GetIdentifier(curr_pos, len));
+            chosen_style = mySTC_TYPE_CHARACTER;
             break;
         }
         default:
@@ -589,7 +574,7 @@ void EditorCtrl::AnnotationRemove(int line) { AnnotationSetText(line, wxString()
 void EditorCtrl::AnnotationClear() { AnnotationClearAll(); }
 
 wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
-    const LanguageInfo *curInfo;
+    const LanguageInfo *curInfo = nullptr;
 
     // determine language from file patterns
     int languageNr;
@@ -606,7 +591,12 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
             filepattern = filepattern.AfterFirst(';');
         }
     }
-    return wxEmptyString;
+    // take last by default
+    if (curInfo != nullptr) {
+        return curInfo->name;
+    } else {
+        return wxEmptyString;
+    }
 }
 
 bool EditorCtrl::InitializePreferences(const wxString &name) {
@@ -631,7 +621,7 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     SetMarginType(m_LineNrID, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(wxT("DARK GREY")));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, *wxWHITE);
-    SetMarginWidth(m_LineNrID, 0); // start out not visible
+    SetMarginWidth(m_LineNrID, m_LineNrMargin);
 
     // annotations style
     StyleSetBackground(ANNOTATION_STYLE, wxColour(220, 244, 220));
@@ -711,6 +701,7 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     SetOvertype(g_CommonPrefs.overTypeInitial);
     SetReadOnly(g_CommonPrefs.readOnlyInitial);
     SetWrapMode(g_CommonPrefs.wrapModeInitial ? wxSTC_WRAP_WORD : wxSTC_WRAP_NONE);
+
 
     return true;
 }

@@ -48,11 +48,7 @@ enum {
     myID_EDITOR,
 };
 
-//--------------------------------------------------------------
-// declarations
-//--------------------------------------------------------------
-
-#define DEFAULT_LANGUAGE "<default>"
+#define DEFAULT_LANGUAGE "ThreeAC"
 
 enum GeneralStyleTypes {
     mySTC_TYPE_DEFAULT = 0,
@@ -166,22 +162,11 @@ static const LanguageInfo g_language_preferences[] = {
                 {mySTC_TYPE_VALUE, nullptr},           {mySTC_TYPE_PREPROCESSOR, nullptr},
                 {mySTC_TYPE_SCRIPT, nullptr},          {mySTC_TYPE_ERROR, nullptr}, // KEYWORDS ERROR
                 {mySTC_TYPE_UNDEFINED, nullptr},       {-1, nullptr}},
-     .folds = mySTC_FOLD_COMMENT | mySTC_FOLD_BB},
-    //--------------------------
-    // Language: * (any)
-    {wxTRANSLATE(DEFAULT_LANGUAGE),
-     "*.*",
-     wxSTC_LEX_PROPERTIES,
-     {{0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
-      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
-      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr},
-      {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}, {0, nullptr}},
-     0},
-};
+     .folds = mySTC_FOLD_COMMENT | mySTC_FOLD_BB}};
 
-static const std::vector<wxString> g_tacKeywords = {wxT("goto"),  wxT("ifTrue"), wxT("ifFalse"),
-                                                    wxT("param"), wxT("call"),   wxT("return"),
-                                                    wxT("halt"),  wxT("if"),     wxT("uminus")};
+static const std::vector<wxString> g_tac_keywords = {wxT("goto"),  wxT("ifTrue"), wxT("ifFalse"),
+                                                     wxT("param"), wxT("call"),   wxT("return"),
+                                                     wxT("halt"),  wxT("if"),     wxT("uminus")};
 
 //----------------------------------------------------------------------------
 // StyleInfo

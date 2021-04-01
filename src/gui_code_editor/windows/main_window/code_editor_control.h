@@ -2,34 +2,19 @@
 #ifndef EDITOR_CTRL_H
 #define EDITOR_CTRL_H
 
-//--------------------------------------------------------------
-// headers
-//--------------------------------------------------------------
-
-//! application headers
 #include "scintilla_definitions.h"
-#include <wx/dialog.h>
 #include <fmt/ranges.h>
 #include <unordered_set>
+#include <wx/dialog.h>
 
 class EditorCtrlProperties;
 
-//--------------------------------------------------------------
-//! EditorCtrl
 class EditorCtrl : public wxStyledTextCtrl {
     friend class EditorCtrlProperties;
 
   public:
-    //! constructor
     EditorCtrl(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition,
-               const wxSize &size = wxDefaultSize,
-               long style =
-#ifndef __WXMAC__
-                   wxSUNKEN_BORDER |
-#endif
-                   wxVSCROLL);
-
-    //! destructor
+               const wxSize &size = wxDefaultSize, long style = wxSUNKEN_BORDER | wxVSCROLL);
     ~EditorCtrl();
 
     // event handlers
@@ -59,16 +44,13 @@ class EditorCtrl : public wxStyledTextCtrl {
     void OnSetOverType(wxCommandEvent &event);
     void OnSetReadOnly(wxCommandEvent &event);
     void OnWrapmodeOn(wxCommandEvent &event);
-    void OnUseCharset(wxCommandEvent &event);
     void OnBBToggle(wxCommandEvent &event);
-    //! extra
-    void OnConvertEOL(wxCommandEvent &event);
     // stc
     void OnMarginClick(wxStyledTextEvent &event);
     void OnCharAdded(wxStyledTextEvent &event);
     void OnKey(wxStyledTextEvent &event);
 
-    void OnKeyDown(wxKeyEvent &event);
+    void OnKeyDown(wxKeyEvent& evt);
 
     //! load/save file
     bool LoadFile();
@@ -84,8 +66,7 @@ class EditorCtrl : public wxStyledTextCtrl {
     void UpdateCodeHighlighting(int startPos, int endPos);
     wxString DeterminePrefs(const wxString &filename);
     bool InitializePreferences(const wxString &filename);
-    bool UserSettings(const wxString &filename);
-    LanguageInfo const *GetLanguageInfo() { return m_selected_language; };
+    const LanguageInfo *GetLanguageInfo() { return m_selected_language; };
 
     //! educational mode
     void OnEduToggle(wxCommandEvent &event);
@@ -109,10 +90,10 @@ class EditorCtrl : public wxStyledTextCtrl {
 
     // margin variables
     int m_LineNrID;
-    int m_LineNrMargin;
     int m_FoldingID;
-    int m_FoldingMargin;
     int m_DividerID;
+    int m_LineNrMargin;
+    int m_FoldingMargin;
 
     enum class MarkerType {
         BasicBlockMark,
