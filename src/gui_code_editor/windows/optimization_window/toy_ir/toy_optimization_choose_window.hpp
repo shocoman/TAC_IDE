@@ -16,13 +16,11 @@
 #include "utilities/image_loading.hpp"
 
 class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
-    Program program;
-    Function &chosen_function;
+    Function &m_chosen_function;
 
   public:
-    wxString output_code;
 
-    ToyOptimizationChooseWindow(wxWindow *parent, wxString code);
+    ToyOptimizationChooseWindow(wxWindow *parent, Function &chosen_function);
 
     void UpdateGraphImage();
 

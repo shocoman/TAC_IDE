@@ -4,15 +4,12 @@
 
 #include "toy_optimization_choose_window.hpp"
 
-ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, wxString code)
-    : OptimizationChooseDialog(parent), program(Program::from_program_code(code.ToStdString())),
-      chosen_function(program.functions[0]) {
+ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Function &chosen_function)
+    : OptimizationChooseDialog(parent), m_chosen_function(chosen_function) {
 
     UpdateGraphImage();
 
-
     m_back_to_code_btn->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        output_code = program.get_as_code();
         EndModal(wxID_OK);
     });
 
@@ -36,8 +33,7 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, wxStr
     AddButton(
         wxT("Useless Code Elimination"), [&](auto &evt) { UselessCodeEliminationTutorial(evt); }, true);
     AddButton(
-        wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); },
-        true);
+        wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); }, true);
     AddButton(
         wxT("Copy Propagation"), [&](auto &evt) { CopyPropagationTutorial(evt); }, true);
 
@@ -53,7 +49,7 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, wxStr
 
 void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    ConvertToSSADriver convert_driver(chosen_function);
+    ConvertToSSADriver convert_driver(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) mutable {
         wxWindow *wnd = nullptr;
@@ -105,7 +101,7 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/ToSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(convert_driver.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(convert_driver.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -113,14 +109,14 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
 }
 
 void ToyOptimizationChooseWindow::UpdateGraphImage() {
-    auto png_image_data = chosen_function.print_cfg();
+    auto png_image_data = m_chosen_function.print_cfg();
     auto graph_image = LoadImageFromData(png_image_data);
     m_graph_panel->updateImage(graph_image);
 }
 
 void ToyOptimizationChooseWindow::UseDefGraphTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    UseDefGraph use_def_graph(chosen_function);
+    UseDefGraph use_def_graph(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) mutable {
         wxWindow *wnd = nullptr;
@@ -144,14 +140,13 @@ void ToyOptimizationChooseWindow::UseDefGraphTutorial(wxCommandEvent &event) {
 void ToyOptimizationChooseWindow::ReachingDefinitionsTutorial(wxCommandEvent &event) {
 
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    ReachingDefinitionsDriver reaching_definitions(chosen_function);
+    ReachingDefinitionsDriver reaching_definitions(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) mutable {
         wxWindow *wnd = nullptr;
 
         if (tag.HasParam("REACHDEF_GRAPH")) {
-            wnd = new wxButton(parent, wxID_ANY,
-                               wxT("Показать достигающие определения для каждого блока"));
+            wnd = new wxButton(parent, wxID_ANY, wxT("Показать достигающие определения для каждого блока"));
             wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
                 auto image_data = reaching_definitions.print_reaching_definitions();
                 auto graph_viewer = new GraphView(this, LoadImageFromData(image_data));
@@ -168,7 +163,7 @@ void ToyOptimizationChooseWindow::ReachingDefinitionsTutorial(wxCommandEvent &ev
 
 void ToyOptimizationChooseWindow::LiveVariableAnalysisTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    LiveVariableAnalysisDriver live_variable_analysis(chosen_function);
+    LiveVariableAnalysisDriver live_variable_analysis(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) mutable {
         wxWindow *wnd = nullptr;
@@ -197,7 +192,7 @@ void ToyOptimizationChooseWindow::LiveVariableAnalysisTutorial(wxCommandEvent &e
 
 void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    LazyCodeMotionDriver lazy_code_motion(chosen_function);
+    LazyCodeMotionDriver lazy_code_motion(m_chosen_function);
     lazy_code_motion.run();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -217,7 +212,7 @@ void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) 
 
     window->LoadHTMLFile("../_Tutorial/LCM/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(lazy_code_motion.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(lazy_code_motion.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -226,7 +221,7 @@ void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) 
 
 void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    CopyPropagationDriver copy_propagation(chosen_function);
+    CopyPropagationDriver copy_propagation(m_chosen_function);
     copy_propagation.run_on_non_ssa();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -253,7 +248,7 @@ void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event)
 
     window->LoadHTMLFile("../_Tutorial/CopyPropagation/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(copy_propagation.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(copy_propagation.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -262,7 +257,7 @@ void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event)
 
 void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    OperatorStrengthReductionDriver operator_strength_reduction(chosen_function);
+    OperatorStrengthReductionDriver operator_strength_reduction(m_chosen_function);
     operator_strength_reduction.run();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -289,7 +284,7 @@ void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEve
 
     window->LoadHTMLFile("../_Tutorial/OSR/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(operator_strength_reduction.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(operator_strength_reduction.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -298,7 +293,7 @@ void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEve
 
 void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    UselessCodeEliminationDriver useless_code_elimination(chosen_function);
+    UselessCodeEliminationDriver useless_code_elimination(m_chosen_function);
     useless_code_elimination.run();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -317,7 +312,7 @@ void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent 
 
     window->LoadHTMLFile("../_Tutorial/UCE/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(useless_code_elimination.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(useless_code_elimination.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -326,7 +321,7 @@ void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent 
 
 void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    SparseSimpleConstantPropagationDriver sparse_simple_constant_propagation(chosen_function);
+    SparseSimpleConstantPropagationDriver sparse_simple_constant_propagation(m_chosen_function);
     sparse_simple_constant_propagation.run();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -345,7 +340,7 @@ void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/SSCP/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(sparse_simple_constant_propagation.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(sparse_simple_constant_propagation.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -354,7 +349,7 @@ void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
 
 void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    ConvertFromSSADriver convert_from_ssa(chosen_function);
+    ConvertFromSSADriver convert_from_ssa(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
         wxWindow *wnd = nullptr;
@@ -372,7 +367,7 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
 
     window->LoadHTMLFile("../_Tutorial/FromSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(convert_from_ssa.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(convert_from_ssa.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -381,7 +376,7 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
 
 void ToyOptimizationChooseWindow::SCCPTutorial(wxCommandEvent &event) {
     auto *window = new ToyOptimizationDescriptionWindow(this);
-    SparseConditionalConstantPropagation sparse_conditional_constant(chosen_function);
+    SparseConditionalConstantPropagation sparse_conditional_constant(m_chosen_function);
     sparse_conditional_constant.run();
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
@@ -407,7 +402,7 @@ void ToyOptimizationChooseWindow::SCCPTutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/SCCP/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        chosen_function.basic_blocks = std::move(sparse_conditional_constant.f.basic_blocks);
+        m_chosen_function.basic_blocks = std::move(sparse_conditional_constant.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });
@@ -423,7 +418,7 @@ void ToyOptimizationChooseWindow::DepthFirstTreeTutorial(wxCommandEvent &event) 
         if (tag.HasParam("DFS_GRAPH")) {
             wnd = new wxButton(parent, wxID_ANY, wxT("Показать остовное дерево"));
             wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
-                auto dfs_tree_data = print_depth_first_search_tree(chosen_function);
+                auto dfs_tree_data = print_depth_first_search_tree(m_chosen_function);
                 auto graph_viewer = new GraphView(this, LoadImageFromData(dfs_tree_data));
                 graph_viewer->ShowModal();
             });

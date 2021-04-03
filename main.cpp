@@ -8,7 +8,8 @@
 int main(int argc, char **argv) {
     //    simulator_main(argc, argv);
 
-    setenv("DISPLAY", "192.168.14.1:0", true);
+    if (getenv("DISPLAY") == nullptr)
+        setenv("DISPLAY", "192.168.201.161:0", true);
 
     wxApp *pApp = new TheApp();
     wxApp::SetInstance(pApp);

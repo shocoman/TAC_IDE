@@ -194,10 +194,10 @@ const StyleInfo g_style_preferences[] = {
     {wxT("Delimiter"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_DELIMITER
     {wxT("Punctuation"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                // mySTC_TYPE_PUNCTUATION
     {wxT("Operator"), wxT("BLACK"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_BOLD, 0},     // mySTC_TYPE_OPERATOR
-    {wxT("Label"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_BRACE
+    {wxT("Brace"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_BRACE
     {wxT("Command"), wxT("BLUE"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_COMMAND
     {wxT("Identifier"), wxT("BLACK"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_IDENTIFIER
-    {wxT("Label"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_LABEL
+    {wxT("Label"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_BOLD, 0},       // mySTC_TYPE_LABEL
     {wxT("Number"), wxT("SIENNA"), wxT("WHITE"), wxT(""), 10, 0, 0},                     // mySTC_TYPE_NUMBER
     {wxT("Parameter"), wxT("VIOLET"), wxT("WHITE"), wxT(""), 10, mySTC_STYLE_ITALIC, 0}, // mySTC_TYPE_PARAMETER
     {wxT("Regular expression"), wxT("ORCHID"), wxT("WHITE"), wxT(""), 10, 0, 0},         // mySTC_TYPE_REGEX

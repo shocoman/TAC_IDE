@@ -7,7 +7,7 @@
 std::vector<Function> collect_quads_into_functions(std::unordered_map<std::string, int> &labels,
                                                    std::vector<Quad> &quads) {
     const auto main_function = "main";
-    auto main_function_exists = labels.find(main_function) != labels.end();
+    bool main_function_exists = labels.find(main_function) != labels.end();
     //    assert(main_function_exists && "where is 'main' function?");
 
     std::unordered_set<std::string> function_names;

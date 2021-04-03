@@ -2,27 +2,16 @@
 #ifndef IDE3ACMAIN_H
 #define IDE3ACMAIN_H
 
-//! wxWidgets headers
-#include <wx/filename.h>
-#include <wx/notebook.h>
-#include <wx/process.h>
-#include <wx/sizer.h>
-#include <wx/splitter.h>
-#include <wx/stc/stc.h>
+#include <wx/wx.h>
 #include <wx/stdpaths.h>
-#include <wx/textctrl.h>
-#include <wx/image.h>
-#include <wx/stream.h>
-#include <wx/mstream.h>
 
-//! application headers
 #include "code_editor_control.h"
 #include "scintilla_definitions.h"
 #include "the_app.h"
 #include "windows/image_viewer/graph_view.h"
 #include "windows/optimization_window/llvm_ir/optimization_select.hpp"
 #include "windows/optimization_window/toy_ir/toy_optimization_choose_window.hpp"
-
+#include "windows/function_selection_window/function_chooser.h"
 #include "toy_optimizer/src/structure/program.hpp"
 
 //--------------------------------------------------------------

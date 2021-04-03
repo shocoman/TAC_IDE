@@ -27,7 +27,6 @@ struct Function {
         update_block_ids();
     }
 
-    void update_phi_predecessors_after_clone();
     Function(const Function &f) {
         for (auto &b : f.basic_blocks) {
             if (b->type != BasicBlock::Type::Normal)
@@ -47,6 +46,8 @@ struct Function {
         update_block_ids();
         update_phi_predecessors_after_clone();
     }
+
+    void update_phi_predecessors_after_clone();
 
     void print_to_console() const;
     std::string get_as_code() const;

@@ -45,7 +45,7 @@
 #ifndef YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
 # define YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 10 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 11 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
     #include <string>
     struct ParseDriver;
@@ -191,7 +191,7 @@ namespace yy {
 
 
   /// A Bison parser.
-  class parser
+  class  Parser 
   {
   public:
 #ifndef YYSTYPE
@@ -592,8 +592,8 @@ namespace yy {
         S_var_declaration = 52,                  // var_declaration
         S_label = 53,                            // label
         S_term = 54,                             // term
-        S_stmts = 55,                            // stmts
-        S_stmt = 56,                             // stmt
+        S_program = 55,                          // program
+        S_statement = 56,                        // statement
         S_mb_newline = 57,                       // mb_newline
         S_newlines = 58                          // newlines
       };
@@ -852,7 +852,7 @@ switch (yykind)
       /// The user-facing name of this symbol.
       std::string name () const YY_NOEXCEPT
       {
-        return parser::symbol_name (this->kind ());
+        return  Parser ::symbol_name (this->kind ());
       }
 
       /// Backward compatibility (Bison 3.6).
@@ -996,14 +996,14 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    parser (ParseDriver& drv_yyarg);
-    virtual ~parser ();
+     Parser  (ParseDriver& drv_yyarg);
+    virtual ~ Parser  ();
 
 #if 201103L <= YY_CPLUSPLUS
     /// Non copyable.
-    parser (const parser&) = delete;
+     Parser  (const  Parser &) = delete;
     /// Non copyable.
-    parser& operator= (const parser&) = delete;
+     Parser & operator= (const  Parser &) = delete;
 #endif
 
     /// Parse.  An alias for parse ().
@@ -1691,7 +1691,7 @@ switch (yykind)
     class context
     {
     public:
-      context (const parser& yyparser, const symbol_type& yyla);
+      context (const  Parser & yyparser, const symbol_type& yyla);
       const symbol_type& lookahead () const { return yyla_; }
       symbol_kind_type token () const { return yyla_.kind (); }
       const location_type& location () const { return yyla_.location; }
@@ -1702,16 +1702,16 @@ switch (yykind)
       int expected_tokens (symbol_kind_type yyarg[], int yyargn) const;
 
     private:
-      const parser& yyparser_;
+      const  Parser & yyparser_;
       const symbol_type& yyla_;
     };
 
   private:
 #if YY_CPLUSPLUS < 201103L
     /// Non copyable.
-    parser (const parser&);
+     Parser  (const  Parser &);
     /// Non copyable.
-    parser& operator= (const parser&);
+     Parser & operator= (const  Parser &);
 #endif
 
     /// Check the lookahead yytoken.
@@ -2047,15 +2047,15 @@ switch (yykind)
   };
 
   inline
-  parser::symbol_kind_type
-  parser::yytranslate_ (int t)
+   Parser ::symbol_kind_type
+   Parser ::yytranslate_ (int t)
   {
     return static_cast<symbol_kind_type> (t);
   }
 
   // basic_symbol.
   template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
+   Parser ::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
     : Base (that)
     , value ()
     , location (that.location)
@@ -2108,22 +2108,22 @@ switch (yykind)
 
 
   template <typename Base>
-  parser::symbol_kind_type
-  parser::basic_symbol<Base>::type_get () const YY_NOEXCEPT
+   Parser ::symbol_kind_type
+   Parser ::basic_symbol<Base>::type_get () const YY_NOEXCEPT
   {
     return this->kind ();
   }
 
   template <typename Base>
   bool
-  parser::basic_symbol<Base>::empty () const YY_NOEXCEPT
+   Parser ::basic_symbol<Base>::empty () const YY_NOEXCEPT
   {
     return this->kind () == symbol_kind::S_YYEMPTY;
   }
 
   template <typename Base>
   void
-  parser::basic_symbol<Base>::move (basic_symbol& s)
+   Parser ::basic_symbol<Base>::move (basic_symbol& s)
   {
     super_type::move (s);
     switch (this->kind ())
@@ -2174,13 +2174,13 @@ switch (yykind)
 
   // by_kind.
   inline
-  parser::by_kind::by_kind ()
+   Parser ::by_kind::by_kind ()
     : kind_ (symbol_kind::S_YYEMPTY)
   {}
 
 #if 201103L <= YY_CPLUSPLUS
   inline
-  parser::by_kind::by_kind (by_kind&& that)
+   Parser ::by_kind::by_kind (by_kind&& that)
     : kind_ (that.kind_)
   {
     that.clear ();
@@ -2188,40 +2188,40 @@ switch (yykind)
 #endif
 
   inline
-  parser::by_kind::by_kind (const by_kind& that)
+   Parser ::by_kind::by_kind (const by_kind& that)
     : kind_ (that.kind_)
   {}
 
   inline
-  parser::by_kind::by_kind (token_kind_type t)
+   Parser ::by_kind::by_kind (token_kind_type t)
     : kind_ (yytranslate_ (t))
   {}
 
   inline
   void
-  parser::by_kind::clear ()
+   Parser ::by_kind::clear ()
   {
     kind_ = symbol_kind::S_YYEMPTY;
   }
 
   inline
   void
-  parser::by_kind::move (by_kind& that)
+   Parser ::by_kind::move (by_kind& that)
   {
     kind_ = that.kind_;
     that.clear ();
   }
 
   inline
-  parser::symbol_kind_type
-  parser::by_kind::kind () const YY_NOEXCEPT
+   Parser ::symbol_kind_type
+   Parser ::by_kind::kind () const YY_NOEXCEPT
   {
     return kind_;
   }
 
   inline
-  parser::symbol_kind_type
-  parser::by_kind::type_get () const YY_NOEXCEPT
+   Parser ::symbol_kind_type
+   Parser ::by_kind::type_get () const YY_NOEXCEPT
   {
     return this->kind ();
   }

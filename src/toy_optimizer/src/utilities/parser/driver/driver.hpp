@@ -6,11 +6,12 @@
 #include <unordered_map>
 #include <utility>
 
-#define YY_DECL yy::parser::symbol_type yylex(ParseDriver &drv)
+#define YY_DECL yy::Parser::symbol_type yylex(ParseDriver &drv)
 YY_DECL;
 
+extern std::string g_bison_error_msg;
+
 struct ParseDriver {
-    explicit ParseDriver(bool trace_parsing = false, bool trace_scanning = false);
 
     std::string file_name;
     bool trace_parsing, trace_scanning;
@@ -18,6 +19,8 @@ struct ParseDriver {
 
     std::unordered_map<std::string, int> labels;
     std::vector<Quad> quadruples;
+
+    explicit ParseDriver(bool trace_parsing = false, bool trace_scanning = false);
 
     int parse_from_file(const std::string &f);
     int parse_from_string(const std::string &str);

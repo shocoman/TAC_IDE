@@ -3,7 +3,7 @@ project(toy_optimizer CXX)
 set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_BUILD_TYPE RELEASE)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O1")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O1")
 #set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
 

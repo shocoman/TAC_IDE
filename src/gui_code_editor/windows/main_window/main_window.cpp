@@ -25,7 +25,7 @@ wxString wxbuildinfo(wxbuildinfoformat format) {
         wxbuild << _T("-Unicode build");
 #else
         wxbuild << _T("-ANSI build");
-#endif   // wxUSE_UNICODE
+#endif // wxUSE_UNICODE
     }
 
     return wxbuild;
@@ -98,8 +98,7 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
     // create a tool bar with some frequently used buttons
     m_toolBar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL | wxTB_TEXT);
     // create a tool bar with educational mode buttons
-    m_edu_toolBar =
-        new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL | wxTB_TEXT);
+    m_edu_toolBar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL | wxTB_TEXT);
     CreateToolbar();
 
     m_vbox->Add(m_toolBar, 0, wxEXPAND);
@@ -114,10 +113,9 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
     else
         m_vbox->Hide(m_edu_toolBar);
 
-#endif   // wxUSE_TOOLBAR
+#endif // wxUSE_TOOLBAR
 
-    m_notebook =
-        new wxNotebook(this, myID_NOTEBOOK, wxDefaultPosition, wxDefaultSize, 0, _T("myID_NOTEBOOK"));
+    m_notebook = new wxNotebook(this, myID_NOTEBOOK, wxDefaultPosition, wxDefaultSize, 0, _T("myID_NOTEBOOK"));
 
     // editor window
     auto *editorPanel =
@@ -138,7 +136,7 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
 
     CreateStatusBar(2);
     SetStatusText(_("Welcome to the Three Address Code IDE!"), 0);
-    SetStatusText(wxEmptyString, 1);   // wxbuildinfo(short_f), 1);
+    SetStatusText(wxEmptyString, 1); // wxbuildinfo(short_f), 1);
 
     Centre();
 }
@@ -150,7 +148,8 @@ void MainWindowFrame::OnClose(wxCloseEvent &event) {
     wxCommandEvent evt;
     OnFileClose(evt);
     if (m_editor && m_editor->IsModified()) {
-        if (event.CanVeto()) event.Veto(true);
+        if (event.CanVeto())
+            event.Veto(true);
         return;
     }
     Destroy();
@@ -177,17 +176,20 @@ void MainWindowFrame::OnMainToolbarToggle(wxCommandEvent &WXUNUSED(event)) {
 void MainWindowFrame::OnFileNew(wxCommandEvent &event) { m_editor->SelectNone(); }
 
 void MainWindowFrame::OnFileOpen(wxCommandEvent &WXUNUSED(event)) {
-    if (!m_editor) return;
+    if (!m_editor)
+        return;
     wxFileDialog dlg(this, wxT("Open file"), wxEmptyString, wxEmptyString,
                      //                     wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"),
                      wxT("Any file (*)|*"), wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
-    if (dlg.ShowModal() != wxID_OK) return;
+    if (dlg.ShowModal() != wxID_OK)
+        return;
     wxString fname = dlg.GetPath();
     FileOpen(fname);
 }
 
 void MainWindowFrame::OnFileSave(wxCommandEvent &WXUNUSED(event)) {
-    if (!m_editor) return;
+    if (!m_editor)
+        return;
     if (!m_editor->Modified()) {
         wxMessageBox(_("There is nothing to save!"), _("Save file"), wxOK | wxICON_EXCLAMATION);
         return;
@@ -199,11 +201,12 @@ void MainWindowFrame::OnFileSave(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainWindowFrame::OnFileSaveAs(wxCommandEvent &WXUNUSED(event)) {
-    if (!m_editor) return;
+    if (!m_editor)
+        return;
     wxFileDialog dlg(this, wxT("Save file"), wxEmptyString, wxEmptyString,
-                     wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"),
-                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-    if (dlg.ShowModal() != wxID_OK) return;
+                     wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dlg.ShowModal() != wxID_OK)
+        return;
     wxString filename = dlg.GetPath();
     m_editor->SaveFile(filename, true);
     wxFileName w(filename);
@@ -212,10 +215,11 @@ void MainWindowFrame::OnFileSaveAs(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainWindowFrame::OnFileClose(wxCommandEvent &WXUNUSED(event)) {
-    if (!m_editor) return;
+    if (!m_editor)
+        return;
     if (m_editor->Modified()) {
-        if (wxMessageBox(_("Source file is not saved, save before closing?"), _("Close"),
-                         wxYES_NO | wxICON_QUESTION) == wxYES) {
+        if (wxMessageBox(_("Source file is not saved, save before closing?"), _("Close"), wxYES_NO | wxICON_QUESTION) ==
+            wxYES) {
             m_editor->SaveFile();
             if (m_editor->Modified()) {
                 wxMessageBox(_("Text could not be saved!"), _("Close abort"), wxOK | wxICON_EXCLAMATION);
@@ -233,17 +237,20 @@ void MainWindowFrame::OnFileClose(wxCommandEvent &WXUNUSED(event)) {
 
 // properties event handlers
 void MainWindowFrame::OnProperties(wxCommandEvent &WXUNUSED(event)) {
-    if (!m_editor) return;
+    if (!m_editor)
+        return;
     EditorCtrlProperties dlg(m_editor, 0);
 }
 
 // edit events
 void MainWindowFrame::OnEdit(wxCommandEvent &event) {
-    if (m_editor) m_editor->GetEventHandler()->ProcessEvent(event);
+    if (m_editor)
+        m_editor->GetEventHandler()->ProcessEvent(event);
 }
 
 void MainWindowFrame::OnModified(wxStyledTextEvent &WXUNUSED(event)) {
-    if (!m_editor->Modified()) return;
+    if (!m_editor->Modified())
+        return;
     wxFileName w(m_editor->GetFilename());
     w.Normalize();
     m_notebook->SetPageText(m_notebook->GetSelection(), wxT("*") + w.GetName());
@@ -258,7 +265,8 @@ void MainWindowFrame::OnEduToggle(wxCommandEvent &event) {
     } else
         m_vbox->Hide(m_edu_toolBar);
     m_vbox->Layout();
-    if (m_editor) m_editor->GetEventHandler()->ProcessEvent(event);
+    if (m_editor)
+        m_editor->GetEventHandler()->ProcessEvent(event);
 }
 
 void MainWindowFrame::OnEduPageChange(wxCommandEvent &event) {
@@ -383,10 +391,8 @@ void MainWindowFrame::CreateMenu() {
 
 void MainWindowFrame::CreateToolbar() {
     wxBitmap newb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_NEW")), wxART_TOOLBAR));
-    wxBitmap openb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FILE_OPEN")), wxART_TOOLBAR));
-    wxBitmap saveb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FILE_SAVE")), wxART_TOOLBAR));
+    wxBitmap openb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FILE_OPEN")), wxART_TOOLBAR));
+    wxBitmap saveb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FILE_SAVE")), wxART_TOOLBAR));
     wxBitmap undob(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_UNDO")), wxART_TOOLBAR));
     wxBitmap redob(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_REDO")), wxART_TOOLBAR));
     wxBitmap cutb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_CUT")), wxART_TOOLBAR));
@@ -395,21 +401,15 @@ void MainWindowFrame::CreateToolbar() {
     wxBitmap findb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")), wxART_TOOLBAR));
     wxBitmap replaceb(
         wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND_AND_REPLACE")), wxART_TOOLBAR));
-    wxBitmap symtableb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_REPORT_VIEW")), wxART_TOOLBAR));
-    wxBitmap targetb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_TICK_MARK")), wxART_TOOLBAR));
-    wxBitmap runb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_EXECUTABLE_FILE")), wxART_TOOLBAR));
-    wxBitmap optionsb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_LIST_VIEW")), wxART_TOOLBAR));
-    wxBitmap questionb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_TOOLBAR));
+    wxBitmap symtableb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_REPORT_VIEW")), wxART_TOOLBAR));
+    wxBitmap targetb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_TICK_MARK")), wxART_TOOLBAR));
+    wxBitmap runb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_EXECUTABLE_FILE")), wxART_TOOLBAR));
+    wxBitmap optionsb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_LIST_VIEW")), wxART_TOOLBAR));
+    wxBitmap questionb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_QUESTION")), wxART_TOOLBAR));
 
     wxBitmap homeb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_GO_HOME")), wxART_TOOLBAR));
     wxBitmap prevb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_GO_BACK")), wxART_TOOLBAR));
-    wxBitmap nextb(
-        wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_GO_FORWARD")), wxART_TOOLBAR));
+    wxBitmap nextb(wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_GO_FORWARD")), wxART_TOOLBAR));
 
     m_toolBar->AddTool(wxID_NEW, wxT("New"), newb, newb, wxITEM_NORMAL, wxT("Create new source file"));
     m_toolBar->AddTool(wxID_OPEN, wxT("Open"), openb, openb, wxITEM_NORMAL, wxT("Open source file"));
@@ -434,8 +434,7 @@ void MainWindowFrame::CreateToolbar() {
     m_toolBar->AddSeparator();
     m_toolBar->AddTool(myID_SIMULATOR_RUN, wxT("Run"), runb, runb, wxITEM_NORMAL, wxT("Run in Simulator.."));
     m_toolBar->AddSeparator();
-    m_toolBar->AddTool(myID_OPTIONS, wxT("Options"), optionsb, optionsb, wxITEM_NORMAL,
-                       wxT("Open options dialog.."));
+    m_toolBar->AddTool(myID_OPTIONS, wxT("Options"), optionsb, optionsb, wxITEM_NORMAL, wxT("Open options dialog.."));
     m_toolBar->AddSeparator();
     m_toolBar->AddTool(wxID_HELP_CONTENTS, wxT("Help"), questionb, questionb, wxITEM_NORMAL,
                        wxT("Open help Contents.."));
@@ -516,11 +515,29 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
             m_editor->SetText(m_optimization_window->output_code);
         }
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
-        auto *optimization_dialog = new ToyOptimizationChooseWindow(this, code);
-        if (optimization_dialog->ShowModal() == wxID_OK) {
-            m_editor->SetText(optimization_dialog->output_code);
+        Program program;
+        try {
+            program = Program::from_program_code(code.ToStdString());
+        } catch (yy::Parser::syntax_error &e) {
+            wxMessageBox(wxString::Format(wxT("Синтаксическая ошибка!\n'%s'"), e.what()), wxT("Произошла ошибка!"));
         }
 
+        wxArrayString func_names;
+        for (auto n : program.get_function_names())
+            func_names.push_back(n);
+
+        auto *function_chooser = new FunctionChooser(this, func_names);
+        if (func_names.size() == 1 || !func_names.empty() && function_chooser->ShowModal() == wxID_OK) {
+            auto &selected_function =
+                func_names.size() == 1
+                    ? program.functions[0]
+                    : *program.get_function_by_name(function_chooser->get_selected_function_name().ToStdString());
+
+            auto *optimization_dialog = new ToyOptimizationChooseWindow(this, selected_function);
+            if (optimization_dialog->ShowModal() == wxID_OK) {
+                m_editor->SetText(program.get_as_code());
+            }
+        }
     }
 }
 
@@ -531,20 +548,21 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
         llvm::LLVMContext context;
         llvm::SMDiagnostic err;
         auto module = parseAssemblyString(code.ToStdString(), err, context);
-        if (!module) { err.print("PROGRAM", llvm::errs()); }
+        if (!module) {
+            err.print("PROGRAM", llvm::errs());
+        }
 
         wxArrayString func_names;
         for (auto &f : module->functions()) {
-            if (!f.isDeclaration()) func_names.push_back(f.getName().str());
+            if (!f.isDeclaration())
+                func_names.push_back(f.getName().str());
         }
 
         auto *function_chooser = new FunctionChooser(this, func_names);
-        wxString function_name;
-        if (function_chooser->ShowModal() == wxID_OK) {
-            function_name = function_chooser->get_selected_function_name();
-        }
+        if (func_names.size() == 1 || function_chooser->ShowModal() == wxID_OK) {
+            wxString function_name =
+                func_names.size() == 1 ? func_names[0] : function_chooser->get_selected_function_name();
 
-        if (!function_name.empty()) {
             llvm::Function *func = module->getFunction(function_name.ToStdString());
             std::string string_stream;
             llvm::raw_string_ostream ostream(string_stream);
@@ -555,10 +573,29 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
             graph_view->ShowModal();
         }
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
-        auto program = Program::from_program_code(code.ToStdString());
-        auto png_image_data = program.functions[0].print_cfg("cfg.png");
-        auto *graph_view = GraphView::fromImageData(this, png_image_data);
-        graph_view->ShowModal();
 
+        Program program;
+        try {
+            program = Program::from_program_code(code.ToStdString());
+        } catch (yy::Parser::syntax_error &e) {
+            wxMessageBox(wxString::Format(wxT("Синтаксическая ошибка!\n'%s'"), e.what()), wxT("Произошла ошибка!"));
+        }
+
+        wxArrayString func_names;
+        for (auto n : program.get_function_names())
+            func_names.push_back(n);
+
+        auto *function_chooser = new FunctionChooser(this, func_names);
+        bool has_only_one_func = func_names.size() == 1;
+        if (has_only_one_func || !func_names.empty() && function_chooser->ShowModal() == wxID_OK) {
+            auto &selected_function =
+                has_only_one_func
+                    ? program.functions[0]
+                    : *program.get_function_by_name(function_chooser->get_selected_function_name().ToStdString());
+
+            auto png_image_data = selected_function.print_cfg("cfg.png");
+            auto *graph_view = GraphView::fromImageData(this, png_image_data);
+            graph_view->ShowModal();
+        }
     }
 }

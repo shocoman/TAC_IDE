@@ -2,6 +2,7 @@
 %require "3.5.1"
 %defines
 
+%define api.parser.class { Parser }
 %define api.token.raw
 %define api.token.constructor
 %define api.value.type variant
@@ -13,16 +14,16 @@
     #include "../../../structure/quadruple/quadruple.hpp"
 }
 
-%param { ParseDriver& drv }
-%locations
-
-%define parse.trace
-%define parse.error verbose
-%define parse.lac full
-
 %code {
     #include "../parser/driver/driver.hpp"
 }
+
+%param { ParseDriver& drv }
+
+%locations
+%define parse.trace
+%define parse.error verbose
+%define parse.lac full
 
 %define api.token.prefix {TOK_}
 %token
@@ -85,15 +86,15 @@
 %left "*" "/";
 
 // %printer { yyo << $$; } <*>;
+%start program;
 %%
-%start stmts;
 
-stmts:
+program:
     %empty
-|   stmts stmt
+|   program statement
 ;
 
-stmt:
+statement:
     label mb_newline       { drv.labels.emplace($label, drv.quadruples.size()); }
 |   quadruple newlines     { drv.quadruples.push_back($quadruple); }
 ;
@@ -191,6 +192,12 @@ term:
 
 %%
 
-void yy::parser::error(const location_type& l, const std::string& m) {
+#include <sstream>
+std::string g_bison_error_msg;
+void yy::Parser::error(const location_type& l, const std::string& m) {
     std::cerr << l << ": " << m << std::endl;
+
+    std::stringstream s;
+    s << l << ": " << m;
+    g_bison_error_msg = s.str();
 }

@@ -142,7 +142,7 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine((int)MarkerType::BasicBlockMark, wxSTC_MARK_CHARACTER + (int)'B', wxT("BLACK"), wxNullColour);
     MarkerDefine((int)MarkerType::BrightLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxNullColour);
-    MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(233, 233, 238));
+    MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(241, 241, 241));
 
     // annotations
     AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
@@ -272,7 +272,7 @@ void EditorCtrl::OnWrapmodeOn(wxCommandEvent &WXUNUSED(event)) {
     SetWrapMode(GetWrapMode() == 0 ? wxSTC_WRAP_WORD : wxSTC_WRAP_NONE);
 }
 
-//! show base blocks
+//! show basic blocks
 void EditorCtrl::OnBBToggle(wxCommandEvent &event) {
     m_show_basic_block_marks = !m_show_basic_block_marks;
     UpdateCodeHighlighting(0, GetTextLength());
@@ -280,13 +280,12 @@ void EditorCtrl::OnBBToggle(wxCommandEvent &event) {
 
 //! educational mode
 void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
-    if (!m_education_mode) {
-        m_education_mode = true;
+    m_education_mode = !m_education_mode;
+    if (m_education_mode) {
         g_edu_page_max = l.size() - 1;
         m_page_number = 0;
         ShowEduPage(m_page_number);
-    } else
-        m_education_mode = false;
+    }
 }
 
 void EditorCtrl::OnEduHome(wxCommandEvent &event) {
@@ -486,11 +485,11 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
 
             if (token_type == TokenType::Eof || GetIdentifier(j, length) != wxT('.')) {
                 // label
-                chosen_style = mySTC_TYPE_WORD1;
+                chosen_style = mySTC_TYPE_LABEL;
                 output += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
                 basic_block_leaders.insert(LineFromPosition(curr_pos));
             } else {
-                // var declaration
+                // just var declaration
             }
             break;
         }
@@ -629,9 +628,9 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     StyleSetSizeFractional(ANNOTATION_STYLE, (StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
 
     // default fonts for all styles!
-    for (int Nr = 0; Nr < wxSTC_STYLE_LASTPREDEFINED; Nr++) {
+    for (int i = 0; i < wxSTC_STYLE_LASTPREDEFINED; i++) {
         wxFont font(10, wxMODERN, wxNORMAL, wxNORMAL);
-        StyleSetFont(Nr, font);
+        StyleSetFont(i, font);
     }
 
     // set common styles
@@ -701,7 +700,6 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     SetOvertype(g_CommonPrefs.overTypeInitial);
     SetReadOnly(g_CommonPrefs.readOnlyInitial);
     SetWrapMode(g_CommonPrefs.wrapModeInitial ? wxSTC_WRAP_WORD : wxSTC_WRAP_NONE);
-
 
     return true;
 }

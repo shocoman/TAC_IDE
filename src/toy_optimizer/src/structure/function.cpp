@@ -4,10 +4,8 @@
 
 #include "function.hpp"
 
-std::vector<char> Function::print_cfg(std::string filename,
-                                      std::unordered_map<int, std::string> additional_info_above,
-                                      std::unordered_map<int, std::string> additional_info_below,
-                                      std::string title) {
+std::vector<char> Function::print_cfg(std::string filename, std::unordered_map<int, std::string> additional_info_above,
+                                      std::unordered_map<int, std::string> additional_info_below, std::string title) {
     auto id_to_rpo = get_reverse_post_ordering();
     auto id_to_po = get_post_ordering();
 
@@ -29,16 +27,14 @@ std::vector<char> Function::print_cfg(std::string filename,
         dot_writer.set_node_text(node_name, quad_lines);
 
         // attribute for correct branch display
-        if (auto branch_target = n->get_jumped_to_successor();
-            branch_target && n->successors.size() > 1) {
+        if (auto branch_target = n->get_jumped_to_successor(); branch_target && n->successors.size() > 1) {
             dot_writer.set_attribute(node_name, "true_branch", branch_target->get_name());
         }
 
         // display subscript of the block
         int rpo = id_to_rpo.at(n->id);
         int po = id_to_po.at(n->id);
-        dot_writer.set_attribute(node_name, "subscript",
-                                 fmt::format("<BR/>id={};rpo={};po={}", n->id, rpo, po));
+        dot_writer.set_attribute(node_name, "subscript", fmt::format("<BR/>id={};rpo={};po={}", n->id, rpo, po));
 
         // print edges
         for (auto &s : n->successors) {
@@ -67,8 +63,7 @@ std::vector<char> Function::print_cfg(std::string filename,
 void Function::print_to_console() const {
     for (auto &b : basic_blocks) {
         std::cout << " *** BasicBlock: " << b->node_name << "; " << b->lbl_name.value_or("NONE")
-                  << "; Successors: " << b->successors.size()
-                  << "; Predecessors: " << b->predecessors.size() << " \n"
+                  << "; Successors: " << b->successors.size() << "; Predecessors: " << b->predecessors.size() << " \n"
                   << b->fmt();
     }
 }
@@ -129,8 +124,9 @@ void Function::add_entry_and_exit_block() {
         // if there are no such blocks, get a block with a greatest reverse post order number
         if (final_blocks.empty()) {
             auto id_to_rpo = get_reverse_post_ordering();
-            auto block = std::max_element(basic_blocks.begin(), basic_blocks.end(),
-                             [&](auto &b1, auto &b2) { return id_to_rpo.at(b1->id) < id_to_rpo.at(b2->id); });
+            auto block = std::max_element(basic_blocks.begin(), basic_blocks.end(), [&](auto &b1, auto &b2) {
+                return id_to_rpo.at(b1->id) < id_to_rpo.at(b2->id);
+            });
             final_blocks.push_back(block->get());
         }
 
@@ -157,7 +153,9 @@ std::unordered_map<int, int> Function::get_reverse_post_ordering() const {
         }
     };
 
-    postorder_traversal(get_entry_block());
+    auto *entry_block = get_entry_block();
+    if (entry_block != nullptr)
+        postorder_traversal(entry_block);
 
     // visit yet unvisited blocks
     for (auto &b : basic_blocks)
@@ -181,7 +179,10 @@ std::unordered_map<int, int> Function::get_post_ordering() const {
             block_id_to_po[b->id] = counter++;
         }
     };
-    postorder_traversal(get_exit_block());
+
+    auto *exit_node = get_exit_block();
+    if (exit_node != nullptr)
+        postorder_traversal(exit_node);
 
     // visit yet unvisited blocks
     for (auto &b : basic_blocks)
@@ -217,8 +218,8 @@ BasicBlock *Function::get_exit_block() const {
 
 void Function::print_basic_block_info() const {
     for (const auto &b : basic_blocks) {
-        fmt::print("ID: {:2}; LABEL NAME: {:4}; PREDS: {:2}; SUCCS: {:2}\n", b->id,
-                   b->lbl_name.value_or("NONE"), b->predecessors.size(), b->successors.size());
+        fmt::print("ID: {:2}; LABEL NAME: {:4}; PREDS: {:2}; SUCCS: {:2}\n", b->id, b->lbl_name.value_or("NONE"),
+                   b->predecessors.size(), b->successors.size());
     }
 }
 
@@ -262,7 +263,7 @@ std::string Function::get_as_code() const {
     if (!has_function_name)
         code.insert(0, fmt::format("\n{}: // Function name", function_name));
 
-//    fmt::print("{}\n", code);
+    //    fmt::print("{}\n", code);
     return code;
 }
 
