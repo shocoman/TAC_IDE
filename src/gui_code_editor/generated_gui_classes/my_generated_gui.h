@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 3.9.0 Feb  2 2021)
+// C++ code generated with wxFormBuilder (version Oct 26 2018)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -21,10 +21,10 @@
 #include <wx/statbox.h>
 #include <wx/scrolwin.h>
 #include <wx/statline.h>
-#include <wx/button.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
+#include <wx/button.h>
 #include <wx/dialog.h>
 #include <wx/html/htmlwin.h>
 
@@ -39,6 +39,7 @@ class OptimizationChooseDialog : public wxDialog
 	private:
 
 	protected:
+		wxStaticBoxSizer* m_cfg_sizer;
 		ImagePanel* m_graph_panel;
 		wxScrolledWindow* m_scrolledWindow2;
 		wxBoxSizer* m_analysis_sizer;

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 3.9.0 Feb  2 2021)
+// C++ code generated with wxFormBuilder (version Oct 26 2018)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -16,14 +16,14 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	wxBoxSizer* bSizer2;
 	bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 
-	wxStaticBoxSizer* sbSizer1;
-	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Граф потока управления") ), wxVERTICAL );
-
-	m_graph_panel = new ImagePanel( sbSizer1->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	sbSizer1->Add( m_graph_panel, 3, wxALL|wxEXPAND, 5 );
+	m_cfg_sizer = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Граф потока управления") ), wxVERTICAL );
 
 
-	bSizer2->Add( sbSizer1, 5, wxEXPAND, 1 );
+	m_graph_panel = new ImagePanel( m_cfg_sizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_cfg_sizer->Add( m_graph_panel, 3, wxALL|wxEXPAND, 5 );
+
+
+	bSizer2->Add( m_cfg_sizer, 5, wxEXPAND, 1 );
 
 	wxBoxSizer* bSizer51;
 	bSizer51 = new wxBoxSizer( wxVERTICAL );
@@ -63,7 +63,7 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer51->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
 
-	m_back_to_code_btn = new wxButton( this, wxID_ANY, wxT("Вернуться к коду"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_back_to_code_btn = new wxButton( this, wxID_ANY, wxT("Сохранить и вернуться к коду"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer51->Add( m_back_to_code_btn, 0, wxALL|wxEXPAND, 5 );
 
 

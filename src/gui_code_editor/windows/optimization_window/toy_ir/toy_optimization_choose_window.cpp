@@ -5,49 +5,51 @@
 #include "toy_optimization_choose_window.hpp"
 
 ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Function &chosen_function)
-    : OptimizationChooseDialog(parent), m_chosen_function(chosen_function) {
+    : OptimizationChooseDialog(parent), m_chosen_function(chosen_function), m_ssa_form_is_active(false) {
 
     UpdateGraphImage();
 
     m_back_to_code_btn->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        if (m_ssa_form_is_active) {
+            wxString msg = wxT("Для возврата обратно к коду, программа должна быть выведена из SSA-формы. "
+                               "Вы уверены, что хотите продолжить?");
+            auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+            if (dialog->ShowModal() != wxID_YES)
+                return;
+        }
         EndModal(wxID_OK);
     });
 
-    auto AddButton = [&](wxString btn_name, std::function<void(wxCommandEvent &)> f, bool is_optim) {
+    auto AddButton = [&](bool is_optim, wxString btn_name, std::function<void(wxCommandEvent &)> f) {
         auto *sz = is_optim ? m_optimization_sizer : m_analysis_sizer;
         auto *btn = new wxButton(sz->GetContainingWindow(), wxID_ANY, btn_name);
         btn->Bind(wxEVT_BUTTON, f);
         sz->Add(btn, 0, wxALL | wxEXPAND, 2);
     };
 
-    AddButton(
-        wxT("Конвертировать в SSA"), [&](auto &evt) { ConvertToSSATutorial(evt); }, true);
-    AddButton(
-        wxT("Конвертировать из SSA"), [&](auto &evt) { ConvertFromSSATutorial(evt); }, true);
-    AddButton(
-        wxT("SCCP"), [&](auto &evt) { SCCPTutorial(evt); }, true);
-    AddButton(
-        wxT("SSCP"), [&](auto &evt) { SSCPTutorial(evt); }, true);
-    AddButton(
-        wxT("Lazy Code Motion"), [&](auto &evt) { LazyCodeMotionTutorial(evt); }, true);
-    AddButton(
-        wxT("Useless Code Elimination"), [&](auto &evt) { UselessCodeEliminationTutorial(evt); }, true);
-    AddButton(
-        wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); }, true);
-    AddButton(
-        wxT("Copy Propagation"), [&](auto &evt) { CopyPropagationTutorial(evt); }, true);
+    AddButton(true, wxT("Конвертировать в SSA"), [&](auto &evt) { ConvertToSSATutorial(evt); });
+    AddButton(true, wxT("Конвертировать из SSA"), [&](auto &evt) { ConvertFromSSATutorial(evt); });
+    AddButton(true, wxT("SCCP"), [&](auto &evt) { SCCPTutorial(evt); });
+    AddButton(true, wxT("SSCP"), [&](auto &evt) { SSCPTutorial(evt); });
+    AddButton(true, wxT("Lazy Code Motion"), [&](auto &evt) { LazyCodeMotionTutorial(evt); });
+    AddButton(true, wxT("Useless Code Elimination"), [&](auto &evt) { UselessCodeEliminationTutorial(evt); });
+    AddButton(true, wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); });
+    AddButton(true, wxT("Copy Propagation"), [&](auto &evt) { CopyPropagationTutorial(evt); });
 
-    AddButton(
-        wxT("DFS Tree"), [&](auto &evt) { DepthFirstTreeTutorial(evt); }, false);
-    AddButton(
-        wxT("Live Variable Analyses"), [&](auto &evt) { LiveVariableAnalysisTutorial(evt); }, false);
-    AddButton(
-        wxT("Reaching Definitions"), [&](auto &evt) { ReachingDefinitionsTutorial(evt); }, false);
-    AddButton(
-        wxT("Use Def Graph"), [&](auto &evt) { UseDefGraphTutorial(evt); }, false);
+    AddButton(false, wxT("DFS Tree"), [&](auto &evt) { DepthFirstTreeTutorial(evt); });
+    AddButton(false, wxT("Live Variable Analyses"), [&](auto &evt) { LiveVariableAnalysisTutorial(evt); });
+    AddButton(false, wxT("Reaching Definitions"), [&](auto &evt) { ReachingDefinitionsTutorial(evt); });
+    AddButton(false, wxT("Use Def Graph"), [&](auto &evt) { UseDefGraphTutorial(evt); });
 }
 
 void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
+    if (m_ssa_form_is_active) {
+        wxString msg = wxT("Код уже находится в SSA-форме. Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
     auto *window = new ToyOptimizationDescriptionWindow(this);
     ConvertToSSADriver convert_driver(m_chosen_function);
 
@@ -101,6 +103,9 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/ToSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        m_ssa_form_is_active = true;
+        m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления (SSA-форма)"));
+
         m_chosen_function.basic_blocks = std::move(convert_driver.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
@@ -256,6 +261,14 @@ void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event)
 }
 
 void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEvent &event) {
+    if (not m_ssa_form_is_active) {
+        wxString msg = wxT("Для работы данного алгоритма оптимизации код должен быть в SSA-форме. "
+                           "Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
     auto *window = new ToyOptimizationDescriptionWindow(this);
     OperatorStrengthReductionDriver operator_strength_reduction(m_chosen_function);
     operator_strength_reduction.run();
@@ -320,6 +333,14 @@ void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent 
 }
 
 void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
+    if (not m_ssa_form_is_active) {
+        wxString msg = wxT("Для работы данного алгоритма оптимизации код должен быть в SSA-форме. "
+                           "Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
     auto *window = new ToyOptimizationDescriptionWindow(this);
     SparseSimpleConstantPropagationDriver sparse_simple_constant_propagation(m_chosen_function);
     sparse_simple_constant_propagation.run();
@@ -348,6 +369,13 @@ void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
 }
 
 void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) {
+    if (not m_ssa_form_is_active) {
+        wxString msg = wxT("Код не находится в SSA-форме. Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
     auto *window = new ToyOptimizationDescriptionWindow(this);
     ConvertFromSSADriver convert_from_ssa(m_chosen_function);
 
@@ -367,6 +395,9 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
 
     window->LoadHTMLFile("../_Tutorial/FromSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        m_ssa_form_is_active = false;
+        m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления"));
+
         m_chosen_function.basic_blocks = std::move(convert_from_ssa.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
@@ -375,6 +406,14 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
 }
 
 void ToyOptimizationChooseWindow::SCCPTutorial(wxCommandEvent &event) {
+    if (not m_ssa_form_is_active) {
+        wxString msg = wxT("Для работы данного алгоритма оптимизации код должен быть в SSA-форме. "
+                           "Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
     auto *window = new ToyOptimizationDescriptionWindow(this);
     SparseConditionalConstantPropagation sparse_conditional_constant(m_chosen_function);
     sparse_conditional_constant.run();

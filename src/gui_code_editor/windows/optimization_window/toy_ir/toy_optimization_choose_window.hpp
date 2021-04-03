@@ -17,6 +17,7 @@
 
 class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
     Function &m_chosen_function;
+    bool m_ssa_form_is_active;
 
   public:
 
