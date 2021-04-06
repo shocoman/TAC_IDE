@@ -287,6 +287,7 @@ void MainWindowFrame::CreateMenu() {
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Quit\tCtrl+Q"));
 
+
     // Edit menu
     wxMenu *menuEdit = new wxMenu;
     menuEdit->Append(wxID_UNDO, _("&Undo\tCtrl+Z"));
@@ -351,6 +352,21 @@ void MainWindowFrame::CreateMenu() {
     menuProject->Append(myID_PRINT_CFG_WINDOW, _("Print CFG"));
     menuProject->AppendSeparator();
     menuProject->Append(myID_SYMBOL_TABLE, _("Edit &symbol table.."));
+    menuProject->AppendSeparator();
+
+    // Examples submenu
+    if (wxDir::Exists(wxT("../_TestCode"))) {
+        wxMenu *filesExamplesMenu = new wxMenu;
+        wxArrayString txtFiles;
+        wxDir::GetAllFiles(wxT("../_TestCode"), &txtFiles, _T("*.txt"), wxDIR_FILES);
+        for (int i = 0; i < txtFiles.size(); ++i)
+            filesExamplesMenu->Append(i, wxFileName(txtFiles[i]).GetName(), txtFiles[i]);
+        filesExamplesMenu->Bind(wxEVT_MENU, [txtFiles, this](wxCommandEvent &event) {
+            FileOpen(txtFiles[event.GetId()]);
+        });
+        menuProject->AppendSubMenu(filesExamplesMenu, wxT("Examples"));
+    }
+
 
     // Simulator menu
     wxMenu *menuSimulator = new wxMenu;

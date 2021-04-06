@@ -6,6 +6,7 @@
 #define TAC_SIMULATOR_TEST_GUI_CODE_EDITOR_WINDOWS_OPTIMIZATIONWINDOW_STANDARD_TOYOPTIMIZATIONWINDOW_HPP
 
 #include <wx/mstream.h>
+#include <wx/listctrl.h>
 
 #include "generated_gui_classes/my_generated_gui.h"
 #include "toy_optimization_description_window.hpp"
@@ -33,11 +34,13 @@ class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
     void OperatorStrengthReductionTutorial(wxCommandEvent &event);
     void CopyPropagationTutorial(wxCommandEvent &event);
     void LazyCodeMotionTutorial(wxCommandEvent &event);
+    void GlobalValueNumberingTutorial(wxCommandEvent &event);
 
     void LiveVariableAnalysisTutorial(wxCommandEvent &event);
     void ReachingDefinitionsTutorial(wxCommandEvent &event);
     void UseDefGraphTutorial(wxCommandEvent &event);
     void DepthFirstTreeTutorial(wxCommandEvent &event);
+    void DominatorsTutorial(wxCommandEvent &event);
 
 };
 

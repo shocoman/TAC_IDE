@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     // endregion
 
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "172.18.38.113:0", true);
+        setenv("DISPLAY", "192.168.201.161:0", true);
 
     ParseDriver drv;
 
@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../_TestCode/anticipable_expressions.txt")
         //    drv.parse_from_file("../_TestCode/anticipable_expressions2.txt")
         //    drv.parse_from_file("../_TestCode/available_expressions3.txt")
-        drv.parse_from_file("../_TestCode/FactorialProgram.txt")
-        //    drv.parse_from_file("../_TestCode/ssa_test.txt")
+        //    drv.parse_from_file("../_TestCode/FactorialProgram.txt")
+        drv.parse_from_file("../_TestCode/ssa_test.txt")
         //    drv.parse_from_file("../_TestCode/sccp_test.txt")
         //    drv.parse_from_file("../_TestCode/sccp2.txt")
         //    drv.parse_from_file("../_TestCode/strength_reduction.txt")
@@ -49,12 +49,19 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../_TestCode/copy_propagation2.txt")
         //    drv.parse_from_file("../_TestCode/ssa_swap_problem.txt")
         //    drv.parse_from_file("../_TestCode/ssa_lost_copy_problem.txt")
+        //        drv.parse_from_file("../_TestCode/value_numbering.txt")
         ;
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
+    run_convert_to_ssa(f);
+    print_dominator_tree(f);
 
-    f.print_cfg();
+    f.print_cfg("before.png");
+    //    superlocal_value_numbering(f);
+    //    dominator_based_value_numbering(f);
+    //    run_global_value_numbering(f);
+    //    f.print_cfg("after.png");
 
     //    run_useless_code_elimination(f);
     //    ConvertToSSADriver convert_to_ssa_driver(f);

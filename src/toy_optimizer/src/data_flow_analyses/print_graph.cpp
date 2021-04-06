@@ -7,7 +7,7 @@
 
 std::vector<char> print_dominator_tree(Function &f) {
     auto id_to_idom = get_immediate_dominators(f);
-    auto id_to_doms = get_dominance_frontier(f, id_to_idom);
+    auto id_to_df = get_dominance_frontier(f, id_to_idom);
 
     GraphWriter writer;
     for (const auto &[id1, id2] : id_to_idom) {
@@ -20,8 +20,15 @@ std::vector<char> print_dominator_tree(Function &f) {
         writer.set_node_text(name2, {});
         writer.add_edge(name1, name2);
 
-        writer.set_attribute(name1, "subscript", fmt::format("{}<BR/>df={}", id2, id_to_doms.at(id2)));
-        writer.set_attribute(name2, "subscript", fmt::format("{}<BR/>df={}", id1, id_to_doms.at(id1)));
+        // collect node names in dom frontier
+        std::vector<std::string> df1, df2;
+        for (auto &id : id_to_df.at(id2))
+            df1.push_back( f.id_to_block.at(id)->get_name() );
+        for (auto &id : id_to_df.at(id1))
+            df2.push_back( f.id_to_block.at(id)->get_name() );
+
+        writer.set_attribute(name1, "subscript", fmt::format("{}<BR/>df={}", id2, df1));
+        writer.set_attribute(name2, "subscript", fmt::format("{}<BR/>df={}", id1, df2));
     }
 
     writer.set_title("Dominator Tree and Dominance Frontier");

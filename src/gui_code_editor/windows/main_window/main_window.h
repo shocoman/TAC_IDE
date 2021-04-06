@@ -4,6 +4,7 @@
 
 #include <wx/wx.h>
 #include <wx/stdpaths.h>
+#include <wx/dir.h>
 
 #include "code_editor_control.h"
 #include "scintilla_definitions.h"

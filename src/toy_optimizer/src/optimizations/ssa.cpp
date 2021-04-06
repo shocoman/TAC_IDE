@@ -54,7 +54,7 @@ void ConvertToSSADriver::place_phi_functions() {
         std::set<int> visited_blocks;
 
         for (int i = 0; i < work_list.size(); ++i) {
-            for (auto &d : id_to_dominance_frontier.at(work_list[i]->id)) {
+            for (auto &d : id_to_dominance_frontier.at(work_list.at(i)->id)) {
                 if (not liveness.live_at_entry(d, name))
                     continue;
 
@@ -96,18 +96,18 @@ void ConvertToSSADriver::rename_variables() {
 
         // rename phi functions
         for (int i = 0; i < block->phi_functions; ++i) {
-            auto &phi = block->quads[i];
+            auto &phi = block->quads.at(i);
             pushed_names.push_back(phi.dest->name);
             phi.dest->name = MakeNewSSAName(phi.dest->name);
         }
 
         // rename other operations of form 'x = y + z'
         for (int i = block->phi_functions; i < block->quads.size(); ++i) {
-            auto &q = block->quads[i];
+            auto &q = block->quads.at(i);
             auto op1 = q.get_op(0), op2 = q.get_op(1);
 
             for (auto &op : q.ops)
-                if (op.is_var() && name_to_stack.count(op.value) > 0)
+                if (op.is_var() && name_to_stack.count(op.value) > 0 && not name_to_stack.at(op.value).empty())
                     op.value += fmt::format("{}{}", delim, name_to_stack.at(op.value).back());
 
             if (q.dest && global_names.count(q.dest->name) > 0) {
@@ -119,15 +119,14 @@ void ConvertToSSADriver::rename_variables() {
         // fill phi function parameters for each successor
         for (auto &s : block->successors) {
             for (int i = 0; i < s->phi_functions; ++i) {
-                auto &phi = s->quads[i];
+                auto &phi = s->quads.at(i);
                 auto name = phi.dest->name;
                 auto name_without_suffix = name.substr(0, name.find_last_of(delim));
 
                 auto stack = name_to_stack.find(name_without_suffix);
-                std::string next_name =
-                    (stack != name_to_stack.end() && !stack->second.empty())
-                    ? name_without_suffix + fmt::format("{}{}", delim, stack->second.back())
-                    : name;
+                std::string next_name = (stack != name_to_stack.end() && !stack->second.empty())
+                                            ? name_without_suffix + fmt::format("{}{}", delim, stack->second.back())
+                                            : name;
 
                 Operand op(next_name, Operand::Type::Var, block);
                 phi.ops.push_back(op);
@@ -145,6 +144,10 @@ void ConvertToSSADriver::rename_variables() {
 
     RenameVars(f.get_entry_block()->id);
 }
+
+// ----------------------------------------
+// Convert from SSA
+// ----------------------------------------
 
 Function &ConvertFromSSADriver::run() {
     ir.liveness.emplace(f);
@@ -164,7 +167,7 @@ void ConvertFromSSADriver::schedule_copies(BasicBlock *b) {
 
     for (auto &s : b->successors)
         for (int i = 0; i < s->phi_functions; ++i) {
-            auto &phi = s->quads[i];
+            auto &phi = s->quads.at(i);
             std::string dest = phi.dest->name;
             std::string src;
             for (auto &op : phi.ops)
@@ -199,10 +202,8 @@ void ConvertFromSSADriver::schedule_copies(BasicBlock *b) {
                 copy_op.dest = Dest(new_t, Dest::Type::Var);
                 for (auto &block : f.basic_blocks)
                     for (int i = 0; i < block->phi_functions; ++i)
-                        if (block->quads[i].type == Quad::Type::PhiNode &&
-                            block->quads[i].dest->name == dest)
-                            block->quads.insert(block->quads.begin() + block->phi_functions,
-                                                copy_op);
+                        if (block->quads[i].type == Quad::Type::PhiNode && block->quads[i].dest->name == dest)
+                            block->quads.insert(block->quads.begin() + block->phi_functions, copy_op);
                 ir.stacks[dest].push_back(new_t);
             }
 

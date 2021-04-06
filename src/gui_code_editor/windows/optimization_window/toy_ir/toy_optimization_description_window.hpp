@@ -12,13 +12,15 @@
 class ToyOptimizationDescriptionWindow : public OptimizationShowDialog {
 
   public:
-    ToyOptimizationDescriptionWindow(wxWindow *parent);
+    ToyOptimizationDescriptionWindow(wxWindow *parent) : OptimizationShowDialog(parent) {}
+
     void SetHtmlTagParserCallback(std::function<wxWindow *(const wxHtmlTag &, wxWindow *)> func) {
         m_htmlWin2->html_callback = std::move(func);
     }
-    void LoadHTMLFile(wxString path) {
-        m_htmlWin2->LoadFile(path);
-    }
+
+    void LoadHTMLFile(wxString path) { m_htmlWin2->LoadFile(path); }
+
+    wxString GetTagContent(const wxHtmlTag &tag) { return m_htmlWin2->GetParser()->GetInnerSource(tag); }
 };
 
 #endif // TAC_SIMULATOR_TEST_GUI_CODE_EDITOR_WINDOWS_OPTIMIZATIONWINDOW_TOY_TOY_OPTIMIZATION_DESCRIPTION_WINDOW_HPP

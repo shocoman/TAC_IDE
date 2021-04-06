@@ -1,8 +1,12 @@
 
 #include "the_app.h"
 #include "windows/main_window/main_window.h"
+#include <wx/wx.h>
+#include <wx/listctrl.h>
+#include <wx/dir.h>
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
+#include <wx/grid.h>
 
 bool TheApp::OnInit() {
     wxInitAllImageHandlers();
@@ -27,10 +31,10 @@ bool TheApp::OnInit() {
 //
 //    auto program = Program::from_program_code(code.ToStdString());
 //    auto &f = program.functions[0];
-//    auto graph = f.print_cfg();
+////    auto graph = f.print_cfg();
 //
-//    auto *win = new ToyOptimizationChooseWindow(nullptr, code);
-//    auto *win = GraphView::fromImageData(nullptr, graph);
+//    auto *win = new ToyOptimizationChooseWindow(nullptr, f);
+////    auto *win = GraphView::fromImageData(nullptr, graph);
 //    win->ShowModal();
 
     return true;

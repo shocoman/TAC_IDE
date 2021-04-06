@@ -3,7 +3,4 @@
 //
 
 #include "toy_optimization_description_window.hpp"
-ToyOptimizationDescriptionWindow::ToyOptimizationDescriptionWindow(wxWindow *parent)
-    : OptimizationShowDialog(parent) {
 
-}

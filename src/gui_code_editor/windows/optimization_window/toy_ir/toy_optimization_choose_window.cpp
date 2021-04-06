@@ -24,7 +24,7 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
         auto *sz = is_optim ? m_optimization_sizer : m_analysis_sizer;
         auto *btn = new wxButton(sz->GetContainingWindow(), wxID_ANY, btn_name);
         btn->Bind(wxEVT_BUTTON, f);
-        sz->Add(btn, 0, wxALL | wxEXPAND, 2);
+        sz->Add(btn, 0, wxALL | wxEXPAND, 1);
     };
 
     AddButton(true, wxT("Конвертировать в SSA"), [&](auto &evt) { ConvertToSSATutorial(evt); });
@@ -35,11 +35,13 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
     AddButton(true, wxT("Useless Code Elimination"), [&](auto &evt) { UselessCodeEliminationTutorial(evt); });
     AddButton(true, wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); });
     AddButton(true, wxT("Copy Propagation"), [&](auto &evt) { CopyPropagationTutorial(evt); });
+    AddButton(true, wxT("GVN"), [&](auto &evt) { GlobalValueNumberingTutorial(evt); });
 
     AddButton(false, wxT("DFS Tree"), [&](auto &evt) { DepthFirstTreeTutorial(evt); });
     AddButton(false, wxT("Live Variable Analyses"), [&](auto &evt) { LiveVariableAnalysisTutorial(evt); });
     AddButton(false, wxT("Reaching Definitions"), [&](auto &evt) { ReachingDefinitionsTutorial(evt); });
     AddButton(false, wxT("Use Def Graph"), [&](auto &evt) { UseDefGraphTutorial(evt); });
+    AddButton(false, wxT("Dominator Tree"), [&](auto &evt) { DominatorsTutorial(evt); });
 }
 
 void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
@@ -106,7 +108,7 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
         m_ssa_form_is_active = true;
         m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления (SSA-форма)"));
 
-        m_chosen_function.basic_blocks = std::move(convert_driver.f.basic_blocks);
+        m_chosen_function = convert_driver.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -138,6 +140,27 @@ void ToyOptimizationChooseWindow::UseDefGraphTutorial(wxCommandEvent &event) {
     });
 
     window->LoadHTMLFile("../_Tutorial/UseDefGraph/text.html");
+    window->m_accept_optimization->Hide();
+    window->ShowModal();
+}
+
+void ToyOptimizationChooseWindow::DominatorsTutorial(wxCommandEvent &event) {
+    auto *window = new ToyOptimizationDescriptionWindow(this);
+
+    window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
+        wxWindow *wnd = nullptr;
+        if (tag.HasParam("DOM_GRAPH")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = print_dominator_tree(m_chosen_function);
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        }
+        return wnd;
+    });
+
+    window->LoadHTMLFile("../_Tutorial/Dominators/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -217,7 +240,7 @@ void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) 
 
     window->LoadHTMLFile("../_Tutorial/LCM/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        m_chosen_function.basic_blocks = std::move(lazy_code_motion.f.basic_blocks);
+        m_chosen_function = lazy_code_motion.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -253,7 +276,7 @@ void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event)
 
     window->LoadHTMLFile("../_Tutorial/CopyPropagation/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        m_chosen_function.basic_blocks = std::move(copy_propagation.f.basic_blocks);
+        m_chosen_function = copy_propagation.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -297,7 +320,7 @@ void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEve
 
     window->LoadHTMLFile("../_Tutorial/OSR/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        m_chosen_function.basic_blocks = std::move(operator_strength_reduction.f.basic_blocks);
+        m_chosen_function = operator_strength_reduction.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -325,7 +348,7 @@ void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent 
 
     window->LoadHTMLFile("../_Tutorial/UCE/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        m_chosen_function.basic_blocks = std::move(useless_code_elimination.f.basic_blocks);
+        m_chosen_function = useless_code_elimination.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -361,7 +384,7 @@ void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/SSCP/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
-        m_chosen_function.basic_blocks = std::move(sparse_simple_constant_propagation.f.basic_blocks);
+        m_chosen_function = sparse_simple_constant_propagation.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -398,7 +421,7 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
         m_ssa_form_is_active = false;
         m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления"));
 
-        m_chosen_function.basic_blocks = std::move(convert_from_ssa.f.basic_blocks);
+        m_chosen_function = convert_from_ssa.f;
         UpdateGraphImage();
         window->Close();
     });
@@ -467,5 +490,67 @@ void ToyOptimizationChooseWindow::DepthFirstTreeTutorial(wxCommandEvent &event) 
 
     window->LoadHTMLFile("../_Tutorial/DFSTree/text.html");
     window->m_accept_optimization->Hide();
+    window->ShowModal();
+}
+
+void ToyOptimizationChooseWindow::GlobalValueNumberingTutorial(wxCommandEvent &event) {
+    if (not m_ssa_form_is_active) {
+        wxString msg = wxT("Для работы данного алгоритма оптимизации код должен быть в SSA-форме. "
+                           "Вы уверены, что хотите продолжить?");
+        auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+        if (dialog->ShowModal() != wxID_YES)
+            return;
+    }
+
+    auto *window = new ToyOptimizationDescriptionWindow(this);
+    GlobalValueNumberingDriver global_value_numbering(m_chosen_function);
+    global_value_numbering.run();
+
+    window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
+        wxWindow *wnd = nullptr;
+
+        if (tag.HasParam("REMOVED_QUADS")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                wxDialog *dlg = new wxDialog(nullptr, wxID_ANY, "ABC");
+                auto *l = new wxListCtrl(dlg, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
+
+                wxListItem col0, col1;
+                col0.SetId(0), col0.SetText(wxT("Блок")), col0.SetWidth(150);
+                l->InsertColumn(0, col0);
+
+                col1.SetId(1), col1.SetText(wxT("Инструкция")), col1.SetWidth(150);
+                l->InsertColumn(1, col1);
+
+                for (auto &[n1, n2] : global_value_numbering.ir.removed_quads) {
+                    long itemIndex = l->InsertItem(l->GetItemCount(), n1);
+                    l->SetItem(itemIndex, 1, n2);
+                }
+                dlg->ShowModal();
+            });
+        } else if (tag.HasParam("DOM_TREE")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = print_dominator_tree(m_chosen_function);
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        } else if (tag.HasParam("RESULT")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = global_value_numbering.f.print_cfg();
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        }
+        return wnd;
+    });
+
+    window->LoadHTMLFile("../_Tutorial/GVN/text.html");
+    window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        m_chosen_function.basic_blocks = std::move(global_value_numbering.f.basic_blocks);
+        UpdateGraphImage();
+        window->Close();
+    });
     window->ShowModal();
 }
