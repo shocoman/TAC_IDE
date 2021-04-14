@@ -26,38 +26,43 @@ int main(int argc, char *argv[]) {
     // endregion
 
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "192.168.201.161:0", true);
+        setenv("DISPLAY", "192.168.194.241:0", true);
 
     ParseDriver drv;
 
     int res =
-        //    drv.parse_from_file("../_TestCode/myfile")
-        //    drv.parse_from_file("../_TestCode/reach_def_test.txt")
-        //    drv.parse_from_file("../_TestCode/lazy_code_motion.txt")
-        //    drv.parse_from_file("../_TestCode/anticipable_expressions.txt")
-        //    drv.parse_from_file("../_TestCode/anticipable_expressions2.txt")
-        //    drv.parse_from_file("../_TestCode/available_expressions3.txt")
-        //    drv.parse_from_file("../_TestCode/FactorialProgram.txt")
-        drv.parse_from_file("../_TestCode/ssa_test.txt")
-        //    drv.parse_from_file("../_TestCode/sccp_test.txt")
-        //    drv.parse_from_file("../_TestCode/sccp2.txt")
-        //    drv.parse_from_file("../_TestCode/strength_reduction.txt")
-        //    drv.parse_from_file("../_TestCode/copy_propagation.txt")
-        //    drv.parse_from_file("../_TestCode/bob_maxcol.txt")
-        //    drv.parse_from_file("../_TestCode/live_test.txt")
-        //    drv.parse_from_file("../_TestCode/ref_test.txt")
-        //    drv.parse_from_file("../_TestCode/copy_propagation2.txt")
-        //    drv.parse_from_file("../_TestCode/ssa_swap_problem.txt")
-        //    drv.parse_from_file("../_TestCode/ssa_lost_copy_problem.txt")
-        //        drv.parse_from_file("../_TestCode/value_numbering.txt")
+        //    drv.parse_from_file("../../../_TestCode/myfile")
+        //    drv.parse_from_file("../../../_TestCode/reach_def_test.txt")
+        //    drv.parse_from_file("../../../_TestCode/lazy_code_motion.txt")
+        //    drv.parse_from_file("../../../_TestCode/anticipable_expressions.txt")
+        //    drv.parse_from_file("../../../_TestCode/anticipable_expressions2.txt")
+        //    drv.parse_from_file("../../../_TestCode/available_expressions3.txt")
+        //    drv.parse_from_file("../../../_TestCode/FactorialProgram.txt")
+        //        drv.parse_from_file("../../../_TestCode/ssa_test.txt")
+        //            drv.parse_from_file("../../../_TestCode/sccp_test.txt")
+        drv.parse_from_file("../../../_TestCode/new_sccp_test.txt")
+        //    drv.parse_from_file("../../../_TestCode/sccp2.txt")
+        //    drv.parse_from_file("../../../_TestCode/strength_reduction.txt")
+        //    drv.parse_from_file("../../../_TestCode/copy_propagation.txt")
+        //    drv.parse_from_file("../../../_TestCode/bob_maxcol.txt")
+        //    drv.parse_from_file("../../../_TestCode/live_test.txt")
+        //    drv.parse_from_file("../../../_TestCode/ref_test.txt")
+        //    drv.parse_from_file("../../../_TestCode/copy_propagation2.txt")
+        //    drv.parse_from_file("../../../_TestCode/ssa_swap_problem.txt")
+        //    drv.parse_from_file("../../../_TestCode/ssa_lost_copy_problem.txt")
+        //        drv.parse_from_file("../../../_TestCode/value_numbering.txt")
         ;
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
-    run_convert_to_ssa(f);
-    print_dominator_tree(f);
+    //    run_convert_to_ssa(f);
+    //    run_convert_from_ssa(f);
 
-    f.print_cfg("before.png");
+//    f.print_cfg("before.png");
+//    run_convert_to_ssa(f);
+//    run_convert_from_ssa(f);
+//    f.print_cfg("after.png");
+
     //    superlocal_value_numbering(f);
     //    dominator_based_value_numbering(f);
     //    run_global_value_numbering(f);

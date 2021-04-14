@@ -287,7 +287,6 @@ void MainWindowFrame::CreateMenu() {
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Quit\tCtrl+Q"));
 
-
     // Edit menu
     wxMenu *menuEdit = new wxMenu;
     menuEdit->Append(wxID_UNDO, _("&Undo\tCtrl+Z"));
@@ -361,12 +360,10 @@ void MainWindowFrame::CreateMenu() {
         wxDir::GetAllFiles(wxT("../_TestCode"), &txtFiles, _T("*.txt"), wxDIR_FILES);
         for (int i = 0; i < txtFiles.size(); ++i)
             filesExamplesMenu->Append(i, wxFileName(txtFiles[i]).GetName(), txtFiles[i]);
-        filesExamplesMenu->Bind(wxEVT_MENU, [txtFiles, this](wxCommandEvent &event) {
-            FileOpen(txtFiles[event.GetId()]);
-        });
+        filesExamplesMenu->Bind(wxEVT_MENU,
+                                [txtFiles, this](wxCommandEvent &event) { FileOpen(txtFiles[event.GetId()]); });
         menuProject->AppendSubMenu(filesExamplesMenu, wxT("Examples"));
     }
-
 
     // Simulator menu
     wxMenu *menuSimulator = new wxMenu;
@@ -550,8 +547,14 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
                     : *program.get_function_by_name(function_chooser->get_selected_function_name().ToStdString());
 
             auto *optimization_dialog = new ToyOptimizationChooseWindow(this, selected_function);
-            if (optimization_dialog->ShowModal() == wxID_OK) {
-                m_editor->SetText(program.get_as_code());
+
+            try {
+                if (optimization_dialog->ShowModal() == wxID_OK) {
+                    m_editor->SetText(program.get_as_code());
+                }
+            } catch (std::exception &e) {
+                const wxString &msg = wxString::Format(wxT("Произошла ошибка!\n'%s'"), e.what());
+                wxMessageBox(msg, wxT("Произошла ошибка!"));
             }
         }
     }
@@ -602,10 +605,9 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
             func_names.push_back(n);
 
         auto *function_chooser = new FunctionChooser(this, func_names);
-        bool has_only_one_func = func_names.size() == 1;
-        if (has_only_one_func || !func_names.empty() && function_chooser->ShowModal() == wxID_OK) {
+        if (func_names.size() == 1 || !func_names.empty() && function_chooser->ShowModal() == wxID_OK) {
             auto &selected_function =
-                has_only_one_func
+                func_names.size() == 1
                     ? program.functions[0]
                     : *program.get_function_by_name(function_chooser->get_selected_function_name().ToStdString());
 

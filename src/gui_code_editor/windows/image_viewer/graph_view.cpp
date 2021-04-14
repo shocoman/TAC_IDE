@@ -14,8 +14,8 @@ GraphView *GraphView::fromImageData(wxWindow *parent, std::vector<char> png_imag
 }
 
 GraphView::GraphView(wxWindow *parent, wxImage image)
-    : GraphView(parent, wxID_ANY, "GraphView", wxDefaultPosition, wxSize(900, 900)) {
-
+    : GraphView(parent, wxID_ANY, "GraphView", wxDefaultPosition, wxSize(900, 900),
+                wxDEFAULT_DIALOG_STYLE | wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxRESIZE_BORDER) {
     m_image_panel = new ImagePanel(this, image);
     m_main_sizer->Add(m_image_panel, 4, wxEXPAND);
 
@@ -25,8 +25,8 @@ GraphView::GraphView(wxWindow *parent, wxImage image)
     this->Layout();
 }
 
-GraphView::GraphView(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos,
-                     const wxSize &size, long style)
+GraphView::GraphView(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size,
+                     long style)
     : wxDialog(parent, id, title, pos, size, style) {
     this->SetSizeHints(size);
 

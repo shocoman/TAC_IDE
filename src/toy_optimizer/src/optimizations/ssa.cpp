@@ -46,6 +46,8 @@ void ConvertToSSADriver::place_phi_functions() {
     //    fmt::print("Dominance Frontier:\n {}\n", id_to_dominance_frontier);
 
     LiveVariableAnalysisDriver liveness(function);
+    liveness.get_uninitialized_variables(true);
+
     // place phi functions
     for (auto &name : global_names) {
         std::vector<BasicBlock *> work_list;
@@ -73,7 +75,7 @@ void ConvertToSSADriver::place_phi_functions() {
 void ConvertToSSADriver::rename_variables() {
     auto &global_names = ir.all_names;
 
-    char delim = '_';
+    char delim = '.';
     ID2IDOM id_to_idom = get_immediate_dominators(f);
 
     std::map<std::string, int> name_to_counter;
@@ -143,6 +145,19 @@ void ConvertToSSADriver::rename_variables() {
     };
 
     RenameVars(f.get_entry_block()->id);
+
+    // replace delimiter with '_'
+    for (auto &b : f.basic_blocks) {
+        for (auto &q : b->quads) {
+            if (q.type == Quad::Type::Call)
+                continue;
+
+            for (auto &op : q.ops)
+                std::replace(op.value.begin(), op.value.end(), delim, '_');
+            if (q.dest && q.dest->type != Dest::Type::JumpLabel)
+                std::replace(q.dest->name.begin(), q.dest->name.end(), delim, '_');
+        }
+    }
 }
 
 // ----------------------------------------
