@@ -117,7 +117,6 @@ void print_to_file(std::string file_name) {
 }
 
 int main(int argc, char *argv[]) {
-    // Читаем файл с кодом и конвертируем в строку
     std::string file_name = argv[argc - 1];
     std::ifstream file(file_name);
     if (!file.is_open()) {

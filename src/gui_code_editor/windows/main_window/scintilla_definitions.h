@@ -164,9 +164,9 @@ static const LanguageInfo g_language_preferences[] = {
                 {mySTC_TYPE_UNDEFINED, nullptr},       {-1, nullptr}},
      .folds = mySTC_FOLD_COMMENT | mySTC_FOLD_BB}};
 
-static const std::vector<wxString> g_tac_keywords = {wxT("goto"),  wxT("ifTrue"), wxT("ifFalse"),
-                                                     wxT("param"), wxT("call"),   wxT("return"),
-                                                     wxT("halt"),  wxT("if"),     wxT("uminus")};
+static const std::vector<wxString> g_tac_keywords = {"goto",    "iftrue", "iffalse",  "param",   "call",
+                                                     "return",  "halt",   "if",       "uminus",  "define",
+                                                     "declare", "ret",    "getparam", "putparam"};
 
 //----------------------------------------------------------------------------
 // StyleInfo
@@ -187,8 +187,8 @@ const StyleInfo g_style_preferences[] = {
     {wxT("Comment (Doc)"), wxT("FOREST GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},        // mySTC_TYPE_COMMENT_DOC
     {wxT("Comment line"), wxT("FOREST GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},         // mySTC_TYPE_COMMENT_LINE
     {wxT("Special comment"), wxT("GREEN"), wxT("WHITE"), wxT(""), 10, 0, 0},             // mySTC_TYPE_COMMENT_SPECIAL
-    {wxT("Character"), wxT("KHAKI"), wxT("WHITE"), wxT(""), 10, 0, 0},                   // mySTC_TYPE_CHARACTER
-    {wxT("Character (EOL)"), wxT("KHAKI"), wxT("WHITE"), wxT(""), 10, 0, 0},             // mySTC_TYPE_CHARACTER_EOL
+    {wxT("Character"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_CHARACTER
+    {wxT("Character (EOL)"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},            // mySTC_TYPE_CHARACTER_EOL
     {wxT("String"), wxT("BROWN"), wxT("WHITE"), wxT(""), 10, 0, 0},                      // mySTC_TYPE_STRING
     {wxT("String (EOL)"), wxT("BROWN"), wxT("WHITE"), wxT(""), 10, 0, 0},                // mySTC_TYPE_STRING_EOL
     {wxT("Delimiter"), wxT("ORANGE"), wxT("WHITE"), wxT(""), 10, 0, 0},                  // mySTC_TYPE_DELIMITER

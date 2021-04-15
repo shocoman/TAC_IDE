@@ -21,7 +21,7 @@ bool TheApp::OnInit() {
     m_frame->Layout();
     m_frame->Show(true);
 
-//    wxFileInputStream input(wxT("../_TestCode/ssa_test.txt"));
+//    wxFileInputStream input(wxT("../_Examples/ssa_test.txt"));
 //    wxTextInputStream text(input, wxT("\x09"), wxConvUTF8);
 //
 //    wxString code;

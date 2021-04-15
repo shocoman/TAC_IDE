@@ -6,6 +6,9 @@
 #include <wx/stdpaths.h>
 #include <wx/dir.h>
 
+#include <unordered_map>
+#include <map>
+
 #include "code_editor_control.h"
 #include "scintilla_definitions.h"
 #include "the_app.h"

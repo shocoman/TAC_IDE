@@ -1701,7 +1701,7 @@ GTEST_DEFINE_string_(
     "A format (currently must be \"xml\"), optionally followed "
     "by a colon and an output file name or directory. A directory "
     "is indicated by a trailing pathname separator. "
-    "Examples: \"xml:filename.xml\", \"xml::directoryname/\". "
+    "_Examples: \"xml:filename.xml\", \"xml::directoryname/\". "
     "If a directory is specified, output files will be created "
     "within that directory, with file-names based on the test "
     "executable's name and, if necessary, made unique by adding "
@@ -7954,7 +7954,7 @@ bool FilePath::IsAbsolutePath() const {
 // directory/base_name_<number>.extension if directory/base_name.extension
 // already exists. The number will be incremented until a pathname is found
 // that does not already exist.
-// Examples: 'dir/foo_test.xml' or 'dir/foo_test_1.xml'.
+// _Examples: 'dir/foo_test.xml' or 'dir/foo_test_1.xml'.
 // There could be a race condition if two or more processes are calling this
 // function at the same time -- they could both pick the same filename.
 FilePath FilePath::GenerateUniqueFileName(const FilePath& directory,

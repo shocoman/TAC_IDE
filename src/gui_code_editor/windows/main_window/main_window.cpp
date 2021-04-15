@@ -94,10 +94,8 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
     // main sizer of the application layout
     m_vbox = new wxBoxSizer(wxVERTICAL);
 
-#if wxUSE_TOOLBAR
-    // create a tool bar with some frequently used buttons
+    // ------------------------ Toolbar (Start) ------------------------
     m_toolBar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL | wxTB_TEXT);
-    // create a tool bar with educational mode buttons
     m_edu_toolBar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL | wxTB_TEXT);
     CreateToolbar();
 
@@ -112,8 +110,7 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
         m_vbox->Show(m_edu_toolBar);
     else
         m_vbox->Hide(m_edu_toolBar);
-
-#endif // wxUSE_TOOLBAR
+    // ------------------------ Toolbar (End) ------------------------
 
     m_notebook = new wxNotebook(this, myID_NOTEBOOK, wxDefaultPosition, wxDefaultSize, 0, _T("myID_NOTEBOOK"));
 
@@ -135,8 +132,8 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
     m_vbox->Layout();
 
     CreateStatusBar(2);
-    SetStatusText(_("Welcome to the Three Address Code IDE!"), 0);
-    SetStatusText(wxEmptyString, 1); // wxbuildinfo(short_f), 1);
+    SetStatusText(wxT("Welcome to the Three Address Code IDE!"), 0);
+    SetStatusText(wxT("Toy IR"), 1);
 
     Centre();
 }
@@ -161,7 +158,7 @@ void MainWindowFrame::OnExit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
 
 void MainWindowFrame::OnAbout(wxCommandEvent &event) {
     wxString msg = wxbuildinfo(long_f);
-    wxMessageBox(msg, _("Welcome to..."));
+    wxMessageBox(msg, wxT("Welcome to..."));
 }
 
 void MainWindowFrame::OnMainToolbarToggle(wxCommandEvent &WXUNUSED(event)) {
@@ -179,8 +176,8 @@ void MainWindowFrame::OnFileOpen(wxCommandEvent &WXUNUSED(event)) {
     if (!m_editor)
         return;
     wxFileDialog dlg(this, wxT("Open file"), wxEmptyString, wxEmptyString,
-                     //                     wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"),
-                     wxT("Any file (*)|*"), wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
+                     // wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"),
+                     wxALL_FILES, wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
     if (dlg.ShowModal() != wxID_OK)
         return;
     wxString fname = dlg.GetPath();
@@ -204,7 +201,9 @@ void MainWindowFrame::OnFileSaveAs(wxCommandEvent &WXUNUSED(event)) {
     if (!m_editor)
         return;
     wxFileDialog dlg(this, wxT("Save file"), wxEmptyString, wxEmptyString,
-                     wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                     // wxT("Three Address Code file(*.3ac)|*.3ac|Any file (*)|*"),
+                     wxALL_FILES, wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
     if (dlg.ShowModal() != wxID_OK)
         return;
     wxString filename = dlg.GetPath();
@@ -218,8 +217,9 @@ void MainWindowFrame::OnFileClose(wxCommandEvent &WXUNUSED(event)) {
     if (!m_editor)
         return;
     if (m_editor->Modified()) {
-        if (wxMessageBox(_("Source file is not saved, save before closing?"), _("Close"), wxYES_NO | wxICON_QUESTION) ==
-            wxYES) {
+        int msg_box =
+            wxMessageBox(_("Source file is not saved, save before closing?"), _("Close"), wxYES_NO | wxICON_QUESTION);
+        if (msg_box == wxYES) {
             m_editor->SaveFile();
             if (m_editor->Modified()) {
                 wxMessageBox(_("Text could not be saved!"), _("Close abort"), wxOK | wxICON_EXCLAMATION);
@@ -334,14 +334,14 @@ void MainWindowFrame::CreateMenu() {
 
     // Tac dialect submenu
     wxMenu *menuTacDialect = new wxMenu;
-    menuTacDialect->AppendRadioItem(myID_TOY_DIALECT, _("Toy"));
+    menuTacDialect->AppendRadioItem(myID_TOY_DIALECT, _("Toy IR"));
     menuTacDialect->AppendRadioItem(myID_LLVMIR_DIALECT, _("LLVM IR"));
-    //    menuTacDialect->Bind(wxEVT_MENU, [](wxCommandEvent & evt) {
-    //      wxMessageBox("Toy dialect selected", "Your selection", wxOK | wxICON_INFORMATION);
-    //    }, myID_TOY_DIALECT);
-    //    menuTacDialect->Bind(wxEVT_MENU, [](wxCommandEvent & evt) {
-    //      wxMessageBox("LLVM IR selected", "Your selection", wxOK | wxICON_INFORMATION);
-    //    }, myID_LLVMIR_DIALECT);
+    menuTacDialect->Bind(
+        wxEVT_MENU,
+        [&](wxCommandEvent &evt) {
+            if (evt.GetId() == myID_TOY_DIALECT) SetStatusText("Toy IR", 1);
+            else if (evt.GetId() == myID_LLVMIR_DIALECT) SetStatusText("LLVM IR", 1);
+        });
 
     // Project menu
     wxMenu *menuProject = new wxMenu;
@@ -354,15 +354,36 @@ void MainWindowFrame::CreateMenu() {
     menuProject->AppendSeparator();
 
     // Examples submenu
-    if (wxDir::Exists(wxT("../_TestCode"))) {
-        wxMenu *filesExamplesMenu = new wxMenu;
-        wxArrayString txtFiles;
-        wxDir::GetAllFiles(wxT("../_TestCode"), &txtFiles, _T("*.txt"), wxDIR_FILES);
-        for (int i = 0; i < txtFiles.size(); ++i)
-            filesExamplesMenu->Append(i, wxFileName(txtFiles[i]).GetName(), txtFiles[i]);
-        filesExamplesMenu->Bind(wxEVT_MENU,
-                                [txtFiles, this](wxCommandEvent &event) { FileOpen(txtFiles[event.GetId()]); });
-        menuProject->AppendSubMenu(filesExamplesMenu, wxT("Examples"));
+    auto examplesFolderName = "_Examples";
+    auto examplesFolderPath = wxString::Format("../%s", examplesFolderName);
+    if (wxDir::Exists(examplesFolderPath)) {
+        std::map<wxString, wxMenu *> name_to_menu;
+
+        wxArrayString filePaths;
+        wxDir::GetAllFiles(examplesFolderPath, &filePaths, wxALL_FILES_PATTERN, wxDIR_DEFAULT);
+        for (int path_i = 0; path_i < filePaths.size(); ++path_i) {
+            auto &path = filePaths[path_i];
+
+            wxFileName file_name(path);
+            auto dirs = file_name.GetDirs();
+            dirs.Remove("..");
+
+            for (int i = 0; i < dirs.size(); ++i) {
+                auto &dir = dirs[i];
+
+                if (name_to_menu.count(dir) == 0) {
+                    name_to_menu[dir] = new wxMenu;
+                    name_to_menu.at(dir)->Bind(
+                        wxEVT_MENU, [filePaths, this](wxCommandEvent &event) { FileOpen(filePaths[event.GetId()]); });
+                    if (i != 0)
+                        name_to_menu.at(dirs[i - 1])->AppendSubMenu(name_to_menu.at(dir), dir);
+                }
+            }
+
+            name_to_menu.at(dirs.Last())->Append(path_i, file_name.GetName(), file_name.GetFullPath());
+        }
+
+        menuProject->AppendSubMenu(name_to_menu.at(examplesFolderName), examplesFolderName);
     }
 
     // Simulator menu
@@ -508,15 +529,15 @@ void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
     wxFileName f(wxStandardPaths::Get().GetExecutablePath());
     wxString appPath(f.GetPath());
 
+    wxString simulator_path = "???";
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
-        wxString simulator_path = "/llvm_simulator";
-        std::string command = std::string(simulator_path + " " + program_file);
-        wxExecute(appPath + command, wxEXEC_SYNC);
+        simulator_path = "/llvm_simulator";
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
-        wxString simulator_path = "/standard_tac_simulator_exe";
-        std::string command = std::string(simulator_path + " " + program_file);
-        wxExecute(appPath + command, wxEXEC_SYNC);
+        simulator_path = "/tac_simulator_exe";
     }
+    std::string command = std::string(simulator_path + " " + program_file);
+    int ret = wxExecute(appPath + command, wxEXEC_SYNC);
+    fmt::print("Return: {}\n", ret);
 }
 
 void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {

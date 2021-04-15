@@ -8511,7 +8511,7 @@ Pointwise(const TupleMatcher& tuple_matcher, const Container& rhs) {
 // Matches an STL-style container or a native array that contains at
 // least one element matching the given value or matcher.
 //
-// Examples:
+// _Examples:
 //   ::std::set<int> page_ids;
 //   page_ids.insert(3);
 //   page_ids.insert(1);
@@ -8537,7 +8537,7 @@ inline internal::ContainsMatcher<M> Contains(M matcher) {
 // Each(m) is semantically equivalent to Not(Contains(Not(m))). Only
 // the messages are different.
 //
-// Examples:
+// _Examples:
 //   ::std::set<int> page_ids;
 //   // Each(m) matches an empty container, regardless of what m is.
 //   EXPECT_THAT(page_ids, Each(Eq(1)));

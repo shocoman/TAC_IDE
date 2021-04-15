@@ -433,6 +433,12 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
         switch (token_type) {
         case TokenType::Other: {
             output += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len));
+
+            // llvm @-identifier
+            auto [next_token_type, next_len] = ReadNextToken(curr_pos + len);
+            if (GetIdentifier(curr_pos, len) == "@" && next_token_type == TokenType::Identifier)
+                chosen_style = mySTC_TYPE_COMMENT, len += next_len;
+
             break;
         }
         case TokenType::Space: {
@@ -451,8 +457,9 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
         }
         case TokenType::Identifier: {
             output += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
-            if (std::find(g_tac_keywords.begin(), g_tac_keywords.end(), GetIdentifier(curr_pos, len)) !=
-                g_tac_keywords.end()) {
+            wxString mb_keyword = GetIdentifier(curr_pos, len);
+            mb_keyword.MakeLower();
+            if (std::find(g_tac_keywords.begin(), g_tac_keywords.end(), mb_keyword) != g_tac_keywords.end()) {
                 chosen_style = mySTC_TYPE_WORD1;
             }
             break;

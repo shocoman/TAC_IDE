@@ -3591,7 +3591,7 @@ class GTEST_API_ FilePath {
   // directory/base_name_<number>.extension if directory/base_name.extension
   // already exists. The number will be incremented until a pathname is found
   // that does not already exist.
-  // Examples: 'dir/foo_test.xml' or 'dir/foo_test_1.xml'.
+  // _Examples: 'dir/foo_test.xml' or 'dir/foo_test_1.xml'.
   // There could be a race condition if two or more processes are calling this
   // function at the same time -- they could both pick the same filename.
   static FilePath GenerateUniqueFileName(const FilePath& directory,
@@ -8519,7 +8519,7 @@ GTEST_API_ bool InDeathTestChild();
 //   4. The parent process checks the exit code and error message of
 //   the sub-process.
 //
-// Examples:
+// _Examples:
 //
 //   ASSERT_DEATH(server.SendMessage(56, "Hello"), "Invalid port number");
 //   for (int i = 0; i < 5; i++) {
@@ -15837,7 +15837,7 @@ internal::ParamGenerator<T> Range(T start, T end) {
 // Please note that ValuesIn copies the values from the containers
 // passed in and keeps them to generate tests in RUN_ALL_TESTS().
 //
-// Examples:
+// _Examples:
 //
 // This instantiates tests from test case StringTest
 // each with C-string values of "foo", "bar", and "baz":
@@ -19741,7 +19741,7 @@ AssertionResult AssertPred5Helper(const char* pred_text,
 //
 //   5. These macros evaluate their arguments exactly once.
 //
-// Examples:
+// _Examples:
 //
 //   EXPECT_NE(5, Foo());
 //   EXPECT_EQ(NULL, a_pointer);
@@ -19920,7 +19920,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 //
 //   * {ASSERT|EXPECT}_NO_FATAL_FAILURE(statement);
 //
-// Examples:
+// _Examples:
 //
 //   EXPECT_NO_FATAL_FAILURE(Process());
 //   ASSERT_NO_FATAL_FAILURE(Process()) << "Process() failed";
