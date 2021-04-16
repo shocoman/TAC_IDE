@@ -134,6 +134,13 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title)
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to the Three Address Code IDE!"), 0);
     SetStatusText(wxT("Toy IR"), 1);
+    SetIRDialect(myID_TOY_DIALECT);
+    GetStatusBar()->Bind(wxEVT_LEFT_DCLICK, [&](wxMouseEvent &event) {
+        if (m_menuBar->IsChecked(myID_TOY_DIALECT))
+            SetIRDialect(myID_LLVMIR_DIALECT);
+        else if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT))
+            SetIRDialect(myID_TOY_DIALECT);
+    });
 
     Centre();
 }
@@ -336,12 +343,7 @@ void MainWindowFrame::CreateMenu() {
     wxMenu *menuTacDialect = new wxMenu;
     menuTacDialect->AppendRadioItem(myID_TOY_DIALECT, _("Toy IR"));
     menuTacDialect->AppendRadioItem(myID_LLVMIR_DIALECT, _("LLVM IR"));
-    menuTacDialect->Bind(
-        wxEVT_MENU,
-        [&](wxCommandEvent &evt) {
-            if (evt.GetId() == myID_TOY_DIALECT) SetStatusText("Toy IR", 1);
-            else if (evt.GetId() == myID_LLVMIR_DIALECT) SetStatusText("LLVM IR", 1);
-        });
+    menuTacDialect->Bind(wxEVT_MENU, [&](wxCommandEvent &evt) { SetIRDialect(evt.GetId()); });
 
     // Project menu
     wxMenu *menuProject = new wxMenu;
@@ -526,25 +528,29 @@ void MainWindowFrame::FileOpen(wxString fname) {
 void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
     wxString program_file = "_test.txt";
     m_editor->SaveFile(program_file, false);
-    wxFileName f(wxStandardPaths::Get().GetExecutablePath());
-    wxString appPath(f.GetPath());
 
-    wxString simulator_path = "???";
+    wxString simulatorFileName = "???";
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
-        simulator_path = "/llvm_simulator";
+        simulatorFileName = "llvm_simulator";
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
-        simulator_path = "/tac_simulator_exe";
+        simulatorFileName = "tac_simulator_exe";
     }
-    std::string command = std::string(simulator_path + " " + program_file);
-    int ret = wxExecute(appPath + command, wxEXEC_SYNC);
-    fmt::print("Return: {}\n", ret);
+
+    wxFileName appPath(wxStandardPaths::Get().GetExecutablePath());
+    appPath.SetFullName(simulatorFileName);
+
+    const wxString &command = appPath.GetFullPath() + " " + program_file;
+    int ret = wxExecute(command, wxEXEC_ASYNC);
+    //    if (ret == -1)
+    //        wxMessageBox(wxString::Format(wxT("Что-то пошло не так...\nОшибка: '%s'\nКоманда: %s"),
+    //        std::strerror(errno), command));
 }
 
 void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
-    wxString code = m_editor->GetText();
+    wxString code = m_editor->GetText().ToAscii();
 
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
-        m_optimization_window = new LLVMOptimizationWindow(this, "Optimization window", code);
+        auto *m_optimization_window = new LLVMOptimizationWindow(this, "Optimization window", code);
         if (m_optimization_window->ShowModal() == wxID_OK) {
             m_editor->SetText(m_optimization_window->output_code);
         }
@@ -582,7 +588,7 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
 }
 
 void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
-    wxString code = m_editor->GetText();
+    wxString code = m_editor->GetText().ToAscii();
 
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
         llvm::LLVMContext context;
@@ -613,7 +619,6 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
             graph_view->ShowModal();
         }
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
-
         Program program;
         try {
             program = Program::from_program_code(code.ToStdString());
@@ -636,5 +641,20 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
             auto *graph_view = GraphView::fromImageData(this, png_image_data);
             graph_view->ShowModal();
         }
+    }
+}
+
+void MainWindowFrame::SetIRDialect(int id) {
+    switch (id) {
+    case myID_TOY_DIALECT:
+        m_menuBar->Check(myID_TOY_DIALECT, true);
+        SetStatusText("Toy IR", 1);
+        break;
+    case myID_LLVMIR_DIALECT:
+        m_menuBar->Check(myID_LLVMIR_DIALECT, true);
+        SetStatusText("LLVM IR", 1);
+        break;
+    default:
+        break;
     }
 }

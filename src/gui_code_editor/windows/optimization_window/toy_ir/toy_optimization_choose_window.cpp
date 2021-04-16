@@ -20,28 +20,29 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
         EndModal(wxID_OK);
     });
 
-    auto AddButton = [&](bool is_optim, wxString btn_name, std::function<void(wxCommandEvent &)> f) {
+    auto AddButton = [&](bool is_optim, wxString btn_name, void (ToyOptimizationChooseWindow::*f)(wxCommandEvent &)) {
         auto *sz = is_optim ? m_optimization_sizer : m_analysis_sizer;
         auto *btn = new wxButton(sz->GetContainingWindow(), wxID_ANY, btn_name);
-        btn->Bind(wxEVT_BUTTON, f);
+        btn->Bind(wxEVT_BUTTON, f, this);
         sz->Add(btn, 0, wxALL | wxEXPAND, 1);
     };
 
-    AddButton(true, wxT("Конвертировать в SSA"), [&](auto &evt) { ConvertToSSATutorial(evt); });
-    AddButton(true, wxT("Конвертировать из SSA"), [&](auto &evt) { ConvertFromSSATutorial(evt); });
-    AddButton(true, wxT("SCCP"), [&](auto &evt) { SCCPTutorial(evt); });
-    AddButton(true, wxT("SSCP"), [&](auto &evt) { SSCPTutorial(evt); });
-    AddButton(true, wxT("Lazy Code Motion"), [&](auto &evt) { LazyCodeMotionTutorial(evt); });
-    AddButton(true, wxT("Useless Code Elimination"), [&](auto &evt) { UselessCodeEliminationTutorial(evt); });
-    AddButton(true, wxT("Operator Strength Reduction"), [&](auto &evt) { OperatorStrengthReductionTutorial(evt); });
-    AddButton(true, wxT("Copy Propagation"), [&](auto &evt) { CopyPropagationTutorial(evt); });
-    AddButton(true, wxT("GVN"), [&](auto &evt) { GlobalValueNumberingTutorial(evt); });
+    using This = ToyOptimizationChooseWindow;
+    AddButton(true, wxT("Конвертировать в SSA"), &This::ConvertToSSATutorial);
+    AddButton(true, wxT("Конвертировать из SSA"), &This::ConvertFromSSATutorial);
+    AddButton(true, wxT("SCCP"), &This::SCCPTutorial);
+    AddButton(true, wxT("SSCP"), &This::SSCPTutorial);
+    AddButton(true, wxT("Lazy Code Motion"), &This::LazyCodeMotionTutorial);
+    AddButton(true, wxT("Useless Code Elimination"), &This::UselessCodeEliminationTutorial);
+    AddButton(true, wxT("Operator Strength Reduction"), &This::OperatorStrengthReductionTutorial);
+    AddButton(true, wxT("Copy Propagation"), &This::CopyPropagationTutorial);
+    AddButton(true, wxT("GVN"), &This::GlobalValueNumberingTutorial);
 
-    AddButton(false, wxT("DFS Tree"), [&](auto &evt) { DepthFirstTreeTutorial(evt); });
-    AddButton(false, wxT("Live Variable Analyses"), [&](auto &evt) { LiveVariableAnalysisTutorial(evt); });
-    AddButton(false, wxT("Reaching Definitions"), [&](auto &evt) { ReachingDefinitionsTutorial(evt); });
-    AddButton(false, wxT("Use Def Graph"), [&](auto &evt) { UseDefGraphTutorial(evt); });
-    AddButton(false, wxT("Dominator Tree"), [&](auto &evt) { DominatorsTutorial(evt); });
+    AddButton(false, wxT("DFS Tree"), &This::DepthFirstTreeTutorial);
+    AddButton(false, wxT("Live Variable Analyses"), &This::LiveVariableAnalysisTutorial);
+    AddButton(false, wxT("Reaching Definitions"), &This::ReachingDefinitionsTutorial);
+    AddButton(false, wxT("Use Def Graph"), &This::UseDefGraphTutorial);
+    AddButton(false, wxT("Dominator Tree"), &This::DominatorsTutorial);
 }
 
 void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {

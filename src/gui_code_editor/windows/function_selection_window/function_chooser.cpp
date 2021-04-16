@@ -32,13 +32,13 @@ FunctionChooser::FunctionChooser(wxWindow *parent, wxWindowID id, const wxString
 
     this->Centre(wxBOTH);
 
-    // Connect Events
-    m_ok_btn->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(FunctionChooser::OnOkPressed), NULL, this);
-}
-
-FunctionChooser::~FunctionChooser() {
-    // Disconnect Events
-    m_ok_btn->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(FunctionChooser::OnOkPressed), NULL, this);
+    m_ok_btn->Bind(wxEVT_BUTTON, [&](wxCommandEvent &event) {
+        if (m_chosen_function->GetSelection() < m_chosen_function->GetCount())
+            EndModal(wxID_OK);
+        else
+            EndModal(wxID_CANCEL);
+    });
 }
 
 wxString FunctionChooser::get_selected_function_name() { return m_chosen_function->GetStringSelection(); }
+

@@ -16,6 +16,7 @@ bool TheApp::OnInit() {
 
     // create application frame
     m_frame = new MainWindowFrame(nullptr, APP_NAME);
+    m_frame->FileOpen("../_Examples/Toy/new_sccp_test.txt");
 
     // open application frame
     m_frame->Layout();

@@ -7,7 +7,7 @@ fact_loop:
     $t0 = $t0 - 1
     iftrue $t0 goto fact_loop
     return $t1
-main:
+main: // ф
     num: .long 0
     res: .long 0
     repeat: .word 0

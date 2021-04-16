@@ -75,9 +75,9 @@ void run_main_function() {
 
     auto return_type = main_func->getReturnType();
     if (return_type->isIntegerTy()) {
-        std::cout << "*** RETURN VALUE: " << return_value.IntVal.getSExtValue() << std::endl;
+        std::cout << "*** Return value: '" << return_value.IntVal.getSExtValue() << "' ***" << std::endl;
     } else if (return_type->isDoubleTy()) {
-        std::cout << "*** RETURN VALUE: " << return_value.DoubleVal << std::endl;
+        std::cout << "*** Return value: '" << return_value.DoubleVal << "' ***" << std::endl;
     }
 }
 
@@ -117,10 +117,15 @@ void print_to_file(std::string file_name) {
 }
 
 int main(int argc, char *argv[]) {
-    std::string file_name = argv[argc - 1];
+    if (argc < 2) {
+        std::cout << "Missing a file path with llvm-ir code!" << std::endl;
+        return -1;
+    }
+
+    std::string file_name = argv[1];
     std::ifstream file(file_name);
     if (!file.is_open()) {
-        std::cout << "Couldn't open file '" << argv[argc - 1] << "'" << std::endl;
+        std::cout << "Couldn't open file '" << argv[1] << "'" << std::endl;
         return -1;
     }
 

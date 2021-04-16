@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     //    run_convert_to_ssa(f);
     //    run_convert_from_ssa(f);
 
-//    f.print_cfg("before.png");
+    f.print_cfg("before.png");
 //    run_convert_to_ssa(f);
 //    run_convert_from_ssa(f);
 //    f.print_cfg("after.png");

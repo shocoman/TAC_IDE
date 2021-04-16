@@ -21,12 +21,8 @@
 //--------------------------------------------------------------
 //! frame of the application APP_VENDOR-APP_NAME.
 class MainWindowFrame : public wxFrame {
-    friend class ide3acApp;
-
   public:
-    //! constructor
     MainWindowFrame(wxFrame *frame, const wxString &title);
-    //! destructor
     ~MainWindowFrame();
 
     //! event handlers
@@ -54,24 +50,18 @@ class MainWindowFrame : public wxFrame {
     void OnOptimizationWindow(wxCommandEvent &event);
     void OnDisplayCFG(wxCommandEvent &event);
 
-  private:
-    void FileOpen(wxString fname);
+    void SetIRDialect(int id);
 
-#if wxUSE_MENUS
-    //! creates the application menu bar
+    void FileOpen(wxString fname);
+  private:
+
     wxMenuBar *m_menuBar;
     void CreateMenu();
-#endif   // wxUSE_MENUS
 
-#if wxUSE_TOOLBAR
-    //! creates a tool bar with some frequently used buttons
     wxToolBar *m_toolBar;
-    //! creates a tool bar with educational mode control buttons
     wxToolBar *m_edu_toolBar;
     void CreateToolbar();
-#endif   // wxUSE_TOOLBAR
 
-    // important variables
 
     // main sizer of the application layout
     wxBoxSizer *m_vbox;
@@ -88,7 +78,6 @@ class MainWindowFrame : public wxFrame {
     wxTextCtrl *m_asm;
     // output window
     wxTextCtrl *m_log;
-    LLVMOptimizationWindow *m_optimization_window;
 
     DECLARE_EVENT_TABLE()
 };
