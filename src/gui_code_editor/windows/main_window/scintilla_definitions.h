@@ -5,8 +5,10 @@
 #include <vector>
 #include <wx/stc/stc.h>
 
+#define DEFAULT_LANGUAGE "ThreeAC"
+
+// menu IDs
 enum {
-    // menu IDs
     idMenuQuit = 1000,
     myID_PROPERTIES = wxID_HIGHEST,
     myID_EDIT_FIRST,
@@ -22,33 +24,21 @@ enum {
     myID_OVERTYPE,
     myID_READONLY,
     myID_WRAPMODEON,
-    myID_PAGEPREV,
-    myID_PAGENEXT,
     myID_BB,
     myID_SELECTLINE,
     myID_EDIT_LAST = myID_SELECTLINE,
     myID_TOOLBAR_TOGGLE,
-    myID_X86,
-    myID_ARM,
-    myID_MIPS32,
     myID_TOY_DIALECT,
     myID_LLVMIR_DIALECT,
-    myID_SYMBOL_TABLE,
     myID_TARGET_PLATFORM,
     myID_SIMULATOR_RUN,
     myID_OPTIMIZATION_WINDOW,
     myID_PRINT_CFG_WINDOW,
     myID_EDU_TOGGLE,
-    myID_EDU_HOME,
-    myID_EDU_PREV,
-    myID_EDU_NEXT,
-    myID_EDU_RESET,
     myID_OPTIONS,
     myID_NOTEBOOK,
     myID_EDITOR,
 };
-
-#define DEFAULT_LANGUAGE "ThreeAC"
 
 enum GeneralStyleTypes {
     mySTC_TYPE_DEFAULT = 0,

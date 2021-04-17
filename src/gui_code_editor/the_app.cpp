@@ -6,7 +6,6 @@
 #include <wx/dir.h>
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
-#include <wx/grid.h>
 
 bool TheApp::OnInit() {
     wxInitAllImageHandlers();
@@ -15,8 +14,10 @@ bool TheApp::OnInit() {
     SetAppName(APP_NAME);
 
     // create application frame
-    m_frame = new MainWindowFrame(nullptr, APP_NAME);
-    m_frame->FileOpen("../_Examples/Toy/new_sccp_test.txt");
+    m_frame = new MainWindowFrame(nullptr, APP_NAME, wxDefaultPosition, wxSize(960, 640),
+                                  wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE);
+//    m_frame->FileOpen("../_Examples/Toy/new_sccp_test.txt");
+    m_frame->FileOpen("../_Examples/edu_test.txt");
 
     // open application frame
     m_frame->Layout();

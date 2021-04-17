@@ -13,40 +13,6 @@
 // The (uniform) style used for the annotations.
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
 
-static int g_edu_page_max = 1;
-
-// Lesson content structure
-struct EducationalLesson {
-    wxString lesson_header;
-    std::vector<wxString> code;
-    std::map<int, wxString> text;
-};
-
-const std::vector<EducationalLesson> l = {
-    {wxT("Трансляция инструкции if-else"),
-     {wxT("a = 3\n"), wxT("b = 0\n"), wxT("$t0 = a < 5\n"), wxT("expression = $t0\n"), wxT("$t1 = expression\n"),
-      wxT("ifFalse $t1 goto $L1\n"), wxT("b = 1\n"), wxT("goto $L2\n"), wxT("$L1: b = 2\n"), wxT("$L2: halt")},
-     {{1, wxT("Схема трансляции для оператора if позволяет избежать дублирования некоторых переходов."
-              "\nДля компактности мы ввели действия непосредственно в продукцию"
-              "\n(на практике могут потребоваться дополнительные нетерминалы и продукции)."
-              "\n\tСинтаксис:"
-              "\n\tif (expression) statement1 else statement2"
-              "\n\tДействия в продукциях:"
-              "\n\tif(expression) {C1} statement1 {C2} else statement2 {C3}"
-              "\nДействиями являются:"
-              "\n\t- C1 – увеличить номер метки; образовать код для перехода к метке,"
-              "\nесли expression ложно; поместить номер метки в стек."
-              "\n\t- C2 – увеличить номер метки; образовать код для безусловного перехода к метке;"
-              "\nизвлечь из стека метку Lk; установить метку Lk в коде; поместить в стек метку,"
-              "\nприменявшуюся в безусловном переходе."
-              "\n\t- C3 – извлечь из стека метку Lj; установить метку Lj в коде."
-              "\nПри использовании данной грамматики будет создан следующий код:"
-              "\nПример:")},
-      {3, wxT("Код для вычисления expression")},
-      {6, wxT("код для statement1")},
-      {8, wxT("код для statement2")}}},
-};
-
 //--------------------------------------------------------------
 // implementation
 //--------------------------------------------------------------
@@ -85,15 +51,11 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
     EVT_MENU(myID_BB, EditorCtrl::OnBBToggle)
     // stc
     EVT_STC_MARGINCLICK(wxID_ANY, EditorCtrl::OnMarginClick)
-    EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded) EVT_STC_KEY(wxID_ANY, EditorCtrl::OnKey)
+    EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded)
     EVT_KEY_DOWN(EditorCtrl::OnKeyDown)
     EVT_STC_STYLENEEDED(wxID_ANY, EditorCtrl::OnStyleNeeded)
     // educational mode events
     EVT_MENU(myID_EDU_TOGGLE, EditorCtrl::OnEduToggle)
-    EVT_MENU(myID_EDU_HOME, EditorCtrl::OnEduHome)
-    EVT_MENU(myID_EDU_PREV, EditorCtrl::OnEduPrev)
-    EVT_MENU(myID_EDU_NEXT, EditorCtrl::OnEduNext)
-    EVT_MENU(myID_EDU_RESET, EditorCtrl::OnEduReset)
 wxEND_EVENT_TABLE()
 
 EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style)
@@ -196,8 +158,6 @@ void EditorCtrl::OnEditClear(wxCommandEvent &WXUNUSED(event)) {
         Clear();
 }
 
-void EditorCtrl::OnKey(wxStyledTextEvent &WXUNUSED(event)) { wxMessageBox("OnKey"); }
-
 void EditorCtrl::OnKeyDown(wxKeyEvent &evt) {
     if (CallTipActive())
         CallTipCancel();
@@ -278,49 +238,76 @@ void EditorCtrl::OnBBToggle(wxCommandEvent &event) {
     UpdateCodeHighlighting(0, GetTextLength());
 }
 
+wxString EditorCtrl::ConvertAnnotationsToCommentaries() {
+    wxString code;
+    for (int i = 0; i < GetLineCount(); ++i) {
+        auto line = GetLine(i);
+        code += line;
+
+        auto annotation_text = AnnotationGetText(i);
+        if (not annotation_text.IsEmpty()) {
+            if (annotation_text.Last() == '\n')
+                annotation_text.RemoveLast();
+            annotation_text.Replace("\n", "\n//");
+            code += "//" + annotation_text + "\n";
+        }
+    }
+    return code;
+}
+
+std::pair<wxString, std::vector<std::pair<int, wxString>>> EditorCtrl::ConvertCommentariesToAnnotations() {
+    wxString code;
+    std::vector<std::pair<int, wxString>> annotations;
+
+    int last_code_line = 0, line_offset = 0;
+    for (int i = 0; i < GetLineCount(); ++i) {
+        auto line = GetLine(i);
+
+        auto stripped_line = line.Strip(wxString::stripType::leading);
+        wxString rest_line;
+        bool is_comment = stripped_line.StartsWith("//", &rest_line);
+        if (is_comment) {
+            if (!annotations.empty() && annotations.back().first == last_code_line)
+                annotations.back().second += rest_line;
+            else
+                annotations.emplace_back(last_code_line - line_offset, rest_line);
+            ++line_offset;
+        } else {
+            last_code_line = i;
+            code += line;
+        }
+    }
+    return {code, annotations};
+}
+
 //! educational mode
 void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
     m_education_mode = !m_education_mode;
     if (m_education_mode) {
-        g_edu_page_max = l.size() - 1;
-        m_page_number = 0;
-        ShowEduPage(m_page_number);
+        auto [code, annotations] = ConvertCommentariesToAnnotations();
+
+        Clear();
+        DiscardEdits();
+        ClearAll();
+        AddText(code);
+        for (auto &[n_line, annotation_text] : annotations)
+            AnnotationAdd(n_line, annotation_text.Strip());
+    } else {
+        wxString code = ConvertAnnotationsToCommentaries();
+
+        Clear();
+        DiscardEdits();
+        ClearAll();
+        AddText(code);
     }
-}
-
-void EditorCtrl::OnEduHome(wxCommandEvent &event) {
-    m_page_number = 0;
-    ShowEduPage(m_page_number);
-}
-
-void EditorCtrl::OnEduPrev(wxCommandEvent &event) {
-    if (m_page_number > 0)
-        ShowEduPage(--m_page_number);
-}
-
-void EditorCtrl::OnEduNext(wxCommandEvent &event) {
-    if (m_page_number < g_edu_page_max)
-        ShowEduPage(++m_page_number);
-}
-
-void EditorCtrl::OnEduReset(wxCommandEvent &event) { ShowEduPage(m_page_number); }
-
-void EditorCtrl::ShowEduPage(int pageNr) {
-    Clear();
-    DiscardEdits();
-    ClearAll();
-
-    m_filename = l[pageNr].lesson_header;
-    for (unsigned Nr = 0; Nr < l[pageNr].code.size(); Nr++)
-        AddText(l[pageNr].code[Nr]);
-    for (auto it = l[pageNr].text.begin(); it != l[pageNr].text.end(); it++)
-        AnnotationAdd(it->first, it->second);
 
     SetSavePoint();
 }
 
+
 //! misc
 void EditorCtrl::OnMarginClick(wxStyledTextEvent &event) {
+    fmt::print("Margin click: {}\n", event.GetMargin());
     if (event.GetMargin() == 2) {
         int lineClick = LineFromPosition(event.GetPosition());
         int levelClick = GetFoldLevel(lineClick);
@@ -331,18 +318,13 @@ void EditorCtrl::OnMarginClick(wxStyledTextEvent &event) {
 }
 
 void EditorCtrl::OnCharAdded(wxStyledTextEvent &event) {
-    char chr = (char)event.GetKey();
-    int currentLine = GetCurrentLine();
-    // Change this if support for mac files with \r is needed
-    if (chr == '\n') {
-        int lineInd = 0;
+    if ((char)event.GetKey() == '\n') {
+        int currentLine = GetCurrentLine();
         if (currentLine > 0) {
-            lineInd = GetLineIndentation(currentLine - 1);
+            int lineInd = GetLineIndentation(currentLine - 1);
+            SetLineIndentation(currentLine, lineInd);
+            GotoPos(PositionFromLine(currentLine) + lineInd);
         }
-        if (lineInd == 0)
-            return;
-        SetLineIndentation(currentLine, lineInd);
-        GotoPos(PositionFromLine(currentLine) + lineInd);
     }
 }
 
@@ -550,23 +532,13 @@ void EditorCtrl::AnnotationAdd(int line, wxString ann) {
     AnnotationSetText(line, ann);
     AnnotationSetStyle(line, ANNOTATION_STYLE);
 
-    // Scintilla doesn't update the scroll width for annotations, even with
-    // scroll width tracking on, so do it manually.
+    // Scintilla doesn't update the scroll width for annotations.
     const int width = GetScrollWidth();
 
-    // NB: The following adjustments are only needed when using
-    //     wxSTC_ANNOTATION_BOXED annotations style, but we apply them always
-    //     in order to make things simpler and not have to redo the width
-    //     calculations when the annotations visibility changes. In a real
-    //     program you'd either just stick to a fixed annotations visibility or
-    //     update the width when it changes.
-
-    // Take into account the fact that the annotation is shown indented, with
-    // the same indent as the line it's attached to.
+    // annotation is shown indented, with the same indent as the line it's attached to.
     int indent = GetLineIndentation(line);
 
-    // This is just a hack to account for the width of the box, there doesn't
-    // seem to be any way to get it directly from Scintilla.
+    // add the width of the annotation box itself
     indent += 3;
 
     const int widthAnn = TextWidth(ANNOTATION_STYLE, ann + wxString(indent, ' '));
@@ -711,18 +683,12 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     return true;
 }
 
-bool EditorCtrl::LoadFile() {
-    // get filename
-    if (!m_filename) {
-        wxFileDialog dlg(this, wxT("Open file"), wxEmptyString, wxEmptyString, wxT("Any file (*)|*"),
-                         wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_CHANGE_DIR);
-        if (dlg.ShowModal() != wxID_OK)
-            return false;
-        m_filename = dlg.GetPath();
-    }
-
-    // load file
-    return LoadFile(m_filename);
+void EditorCtrl::NewFile() {
+    m_filename = "New file";
+    Clear();
+    DiscardEdits();
+    ClearAll();
+    SetSavePoint();
 }
 
 bool EditorCtrl::LoadFile(const wxString &filename) {
@@ -767,20 +733,38 @@ bool EditorCtrl::SaveFile(const wxString &filename, bool check_modified) {
     if (!Modified() && check_modified)
         return true;
 
-    //     // save EditorCtrl in file and clear undo
-    //     if (!filename.empty()) m_filename = filename;
-    //     wxFile file (m_filename, wxFile::write);
-    //     if (!file.IsOpened()) return false;
-    //     wxString buf = GetText();
-    //     bool okay = file.Write (buf);
-    //     file.Close();
-    //     if (!okay) return false;
-    //     EmptyUndoBuffer();
-    //     SetSavePoint();
+    //    // save EditorCtrl in file and clear undo
+    //    if (!filename.empty())
+    //        m_filename = filename;
+    //    wxFile file(m_filename, wxFile::write);
+    //    if (!file.IsOpened())
+    //        return false;
+    //    wxString buf = GetText();
+    //    bool okay = file.Write(buf);
+    //    file.Close();
+    //    if (!okay)
+    //        return false;
+    //    EmptyUndoBuffer();
+    //    SetSavePoint();
 
     //     return true;
 
-    return wxStyledTextCtrl::SaveFile(filename);
+    int res;
+    // convert annotations back to comments while saving the text
+    if (m_education_mode) {
+        auto evt = wxCommandEvent();
+
+        int scroll_pos = GetScrollPos(wxVERTICAL);
+        fmt::print("Scroll pos: {}\n", scroll_pos);
+        OnEduToggle(evt);
+        res = wxStyledTextCtrl::SaveFile(filename);
+        OnEduToggle(evt);
+
+        SetScrollPos(wxVERTICAL, scroll_pos);
+    } else
+        res = wxStyledTextCtrl::SaveFile(filename);
+
+    return res;
 }
 
 bool EditorCtrl::Modified() {

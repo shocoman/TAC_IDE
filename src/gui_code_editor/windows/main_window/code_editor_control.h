@@ -48,12 +48,11 @@ class EditorCtrl : public wxStyledTextCtrl {
     // stc
     void OnMarginClick(wxStyledTextEvent &event);
     void OnCharAdded(wxStyledTextEvent &event);
-    void OnKey(wxStyledTextEvent &event);
 
     void OnKeyDown(wxKeyEvent& evt);
 
     //! load/save file
-    bool LoadFile();
+    void NewFile();
     bool LoadFile(const wxString &filename);
     bool SaveFile();
     bool SaveFile(const wxString &filename, bool check_modified = true);
@@ -66,20 +65,18 @@ class EditorCtrl : public wxStyledTextCtrl {
     void UpdateCodeHighlighting(int startPos, int endPos);
     wxString DeterminePrefs(const wxString &filename);
     bool InitializePreferences(const wxString &filename);
-    const LanguageInfo *GetLanguageInfo() { return m_selected_language; };
+    auto GetLanguageInfo() -> const LanguageInfo * { return m_selected_language; };
 
     //! educational mode
     void OnEduToggle(wxCommandEvent &event);
-    void OnEduHome(wxCommandEvent &event);
-    void OnEduPrev(wxCommandEvent &event);
-    void OnEduNext(wxCommandEvent &event);
-    void OnEduReset(wxCommandEvent &event);
     void AnnotationAdd(int line, wxString ann);
     void AnnotationRemove(int line);
     void AnnotationClear();
-    void ShowEduPage(int pageNr);
     //! basic blocks
     void UpdateLineMarkers(const std::unordered_set<int> &basic_block_leaders);
+
+    wxString ConvertAnnotationsToCommentaries();
+    auto ConvertCommentariesToAnnotations() -> std::pair<wxString, std::vector<std::pair<int, wxString>>>;
 
   private:
     // file

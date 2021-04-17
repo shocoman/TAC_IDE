@@ -10,7 +10,7 @@ list(TRANSFORM TOY_OPTIMIZER_SOURCE_FILES PREPEND "src/toy_optimizer/")
 
 
 ### WxWidgets ########################################
-find_package(wxWidgets COMPONENTS REQUIRED core base stc html propgrid   #[[ gl net media ribbon xrc xml richtext aui]] )
+find_package(wxWidgets COMPONENTS REQUIRED core base stc html  aui  #[[ gl net media ribbon xrc xml richtext propgrid ]] )
 include(${wxWidgets_USE_FILE})
 
 
