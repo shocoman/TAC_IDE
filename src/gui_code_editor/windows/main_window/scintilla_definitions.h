@@ -9,7 +9,6 @@
 
 // menu IDs
 enum {
-    idMenuQuit = 1000,
     myID_PROPERTIES = wxID_HIGHEST,
     myID_EDIT_FIRST,
     myID_FINDNEXT,
@@ -30,14 +29,10 @@ enum {
     myID_TOOLBAR_TOGGLE,
     myID_TOY_DIALECT,
     myID_LLVMIR_DIALECT,
-    myID_TARGET_PLATFORM,
     myID_SIMULATOR_RUN,
     myID_OPTIMIZATION_WINDOW,
     myID_PRINT_CFG_WINDOW,
-    myID_EDU_TOGGLE,
-    myID_OPTIONS,
-    myID_NOTEBOOK,
-    myID_EDITOR,
+    myID_EDU_TOGGLE
 };
 
 enum GeneralStyleTypes {

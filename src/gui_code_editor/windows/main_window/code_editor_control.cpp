@@ -10,12 +10,8 @@
 
 #include "code_editor_control.h"
 
-// The (uniform) style used for the annotations.
+// the uniform style used for the annotations.
 const int ANNOTATION_STYLE = wxSTC_STYLE_LASTPREDEFINED + 1;
-
-//--------------------------------------------------------------
-// implementation
-//--------------------------------------------------------------
 
 //--------------------------------------------------------------
 // EditorCtrl
@@ -33,12 +29,6 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
     EVT_MENU(myID_SELECTLINE, EditorCtrl::OnEditSelectLine)
     EVT_MENU(wxID_REDO, EditorCtrl::OnEditRedo)
     EVT_MENU(wxID_UNDO, EditorCtrl::OnEditUndo)
-    // find
-    EVT_MENU(wxID_FIND, EditorCtrl::OnFind)
-    EVT_MENU(myID_FINDNEXT, EditorCtrl::OnFindNext)
-    EVT_MENU(myID_REPLACE, EditorCtrl::OnReplace)
-    EVT_MENU(myID_REPLACENEXT, EditorCtrl::OnReplaceNext)
-    EVT_MENU(myID_GOTO, EditorCtrl::OnGoto)
     // view
     EVT_MENU(myID_DISPLAYEOL, EditorCtrl::OnDisplayEOL)
     EVT_MENU(myID_INDENTGUIDE, EditorCtrl::OnIndentGuide)
@@ -49,12 +39,12 @@ wxBEGIN_EVENT_TABLE(EditorCtrl, wxStyledTextCtrl)
     EVT_MENU(myID_READONLY, EditorCtrl::OnSetReadOnly)
     EVT_MENU(myID_WRAPMODEON, EditorCtrl::OnWrapmodeOn)
     EVT_MENU(myID_BB, EditorCtrl::OnBBToggle)
-    // stc
+
     EVT_STC_MARGINCLICK(wxID_ANY, EditorCtrl::OnMarginClick)
     EVT_STC_CHARADDED(wxID_ANY, EditorCtrl::OnCharAdded)
-    EVT_KEY_DOWN(EditorCtrl::OnKeyDown)
     EVT_STC_STYLENEEDED(wxID_ANY, EditorCtrl::OnStyleNeeded)
-    // educational mode events
+    EVT_KEY_DOWN(EditorCtrl::OnKeyDown)
+
     EVT_MENU(myID_EDU_TOGGLE, EditorCtrl::OnEduToggle)
 wxEND_EVENT_TABLE()
 
@@ -95,13 +85,14 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     SetYCaretPolicy(wxSTC_CARET_EVEN | wxSTC_VISIBLE_STRICT | wxSTC_CARET_SLOP, 1);
 
     // markers
+    // wxSTC_MARK_ARROWDOWN
     MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_DOTDOTDOT, wxT("BLACK"), wxT("BLACK"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("BLACK"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_DOTDOTDOT, wxT("BLACK"), wxT("WHITE"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("WHITE"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
-    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("BLACK"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("WHITE"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("WHITE"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("BLACK"));
+    MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine((int)MarkerType::BasicBlockMark, wxSTC_MARK_CHARACTER + (int)'B', wxT("BLACK"), wxNullColour);
     MarkerDefine((int)MarkerType::BrightLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxNullColour);
     MarkerDefine((int)MarkerType::DarkLineBackground, wxSTC_MARK_CHARACTER, wxT("BLACK"), wxColour(241, 241, 241));
@@ -190,16 +181,6 @@ void EditorCtrl::OnEditPaste(wxCommandEvent &WXUNUSED(event)) {
         Paste();
 }
 
-void EditorCtrl::OnFind(wxCommandEvent &WXUNUSED(event)) {}
-
-void EditorCtrl::OnFindNext(wxCommandEvent &WXUNUSED(event)) {}
-
-void EditorCtrl::OnReplace(wxCommandEvent &WXUNUSED(event)) {}
-
-void EditorCtrl::OnReplaceNext(wxCommandEvent &WXUNUSED(event)) {}
-
-void EditorCtrl::OnGoto(wxCommandEvent &WXUNUSED(event)) {}
-
 void EditorCtrl::OnEditSelectAll(wxCommandEvent &WXUNUSED(event)) { SetSelection(0, GetTextLength()); }
 
 void EditorCtrl::OnEditSelectLine(wxCommandEvent &WXUNUSED(event)) {
@@ -280,7 +261,6 @@ std::pair<wxString, std::vector<std::pair<int, wxString>>> EditorCtrl::ConvertCo
     return {code, annotations};
 }
 
-//! educational mode
 void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
     m_education_mode = !m_education_mode;
     if (m_education_mode) {
@@ -289,6 +269,7 @@ void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
         Clear();
         DiscardEdits();
         ClearAll();
+
         AddText(code);
         for (auto &[n_line, annotation_text] : annotations)
             AnnotationAdd(n_line, annotation_text.Strip());
@@ -304,10 +285,7 @@ void EditorCtrl::OnEduToggle(wxCommandEvent &event) {
     SetSavePoint();
 }
 
-
-//! misc
 void EditorCtrl::OnMarginClick(wxStyledTextEvent &event) {
-    fmt::print("Margin click: {}\n", event.GetMargin());
     if (event.GetMargin() == 2) {
         int lineClick = LineFromPosition(event.GetPosition());
         int levelClick = GetFoldLevel(lineClick);
@@ -504,8 +482,6 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
     UpdateLineMarkers(basic_block_leaders);
 }
 
-//----------------------------------------------------------------------------
-// private functions
 void EditorCtrl::UpdateLineMarkers(const std::unordered_set<int> &basic_block_leaders) {
     MarkerDeleteAll((int)MarkerType::BasicBlockMark);
     MarkerDeleteAll((int)MarkerType::BrightLineBackground);
@@ -517,6 +493,7 @@ void EditorCtrl::UpdateLineMarkers(const std::unordered_set<int> &basic_block_le
             if (basic_block_leaders.count(n_line) > 0) {
                 MarkerAdd(n_line, (int)MarkerType::BasicBlockMark);
                 bbStyleSwitch = !bbStyleSwitch;
+                SetFoldLevel(n_line, wxSTC_FOLDLEVELHEADERFLAG);
             }
             MarkerAdd(n_line,
                       bbStyleSwitch ? (int)MarkerType::BrightLineBackground : (int)MarkerType::DarkLineBackground);
@@ -555,9 +532,8 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
     const LanguageInfo *curInfo = nullptr;
 
     // determine language from file patterns
-    int languageNr;
-    for (languageNr = 0; languageNr < WXSIZEOF(g_language_preferences); languageNr++) {
-        curInfo = &g_language_preferences[languageNr];
+    for (int n_language = 0; n_language < WXSIZEOF(g_language_preferences); ++n_language) {
+        curInfo = &g_language_preferences[n_language];
         wxString filepattern = curInfo->filepattern;
         filepattern.Lower();
         while (!filepattern.empty()) {
@@ -606,7 +582,7 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     StyleSetForeground(ANNOTATION_STYLE, *wxBLACK);
     StyleSetSizeFractional(ANNOTATION_STYLE, (StyleGetSizeFractional(wxSTC_STYLE_DEFAULT) * 4) / 5);
 
-    // default fonts for all styles!
+    // default fonts for all styles
     for (int i = 0; i < wxSTC_STYLE_LASTPREDEFINED; i++) {
         wxFont font(10, wxMODERN, wxNORMAL, wxNORMAL);
         StyleSetFont(i, font);
@@ -618,7 +594,7 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
 
     // initialize settings
     if (g_CommonPrefs.syntaxEnable) {
-        int keywordnr = 0;
+        int n_keyword = 0;
         for (int i = 0; i < STYLE_TYPES_COUNT; i++) {
             if (curr_lang_info->styles[i].type == -1)
                 continue;
@@ -636,8 +612,8 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
             StyleSetCase(i, current_style.lettercase);
             const char *pwords = curr_lang_info->styles[i].words;
             if (pwords) {
-                SetKeyWords(keywordnr, pwords);
-                keywordnr += 1;
+                SetKeyWords(n_keyword, pwords);
+                n_keyword += 1;
             }
         }
     }
@@ -654,14 +630,14 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     SetMarginWidth(m_FoldingID, 16);
     SetMarginSensitive(m_FoldingID, false);
 
-    //    if (g_CommonPrefs.foldEnable) {
-    //        SetMarginWidth(m_FoldingID, curInfo->folds != 0 ? m_FoldingMargin : 0);
-    //        SetMarginSensitive(m_FoldingID, curInfo->folds != 0);
-    //        SetProperty(wxT("fold"), curInfo->folds != 0 ? wxT("1") : wxT("0"));
-    //        SetProperty(wxT("fold.comment"), (curInfo->folds & mySTC_FOLD_COMMENT) > 0 ? wxT("1") : wxT("0"));
-    //        SetProperty(wxT("fold.bb"), (curInfo->folds & mySTC_FOLD_BB) > 0 ? wxT("1") : wxT("0"));
-    //    }
-    //    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
+    if (g_CommonPrefs.foldEnable) {
+        SetMarginWidth(m_FoldingID, curr_lang_info->folds != 0 ? m_FoldingMargin : 0);
+        SetMarginSensitive(m_FoldingID, curr_lang_info->folds != 0);
+        SetProperty("fold", curr_lang_info->folds != 0 ? "1" : "0");
+        SetProperty("fold.comment", (curr_lang_info->folds & mySTC_FOLD_COMMENT) > 0 ? "1" : "0");
+        SetProperty("fold.bb", (curr_lang_info->folds & mySTC_FOLD_BB) > 0 ? "1" : "0");
+    }
+    SetFoldFlags(wxSTC_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSTC_FOLDFLAG_LINEAFTER_CONTRACTED);
 
     // set spaces and indention
     SetTabWidth(4);
@@ -683,16 +659,7 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     return true;
 }
 
-void EditorCtrl::NewFile() {
-    m_filename = "New file";
-    Clear();
-    DiscardEdits();
-    ClearAll();
-    SetSavePoint();
-}
-
 bool EditorCtrl::LoadFile(const wxString &filename) {
-
     // load file in EditorCtrl and clear undo
     if (!filename.empty())
         m_filename = filename;
@@ -733,34 +700,13 @@ bool EditorCtrl::SaveFile(const wxString &filename, bool check_modified) {
     if (!Modified() && check_modified)
         return true;
 
-    //    // save EditorCtrl in file and clear undo
-    //    if (!filename.empty())
-    //        m_filename = filename;
-    //    wxFile file(m_filename, wxFile::write);
-    //    if (!file.IsOpened())
-    //        return false;
-    //    wxString buf = GetText();
-    //    bool okay = file.Write(buf);
-    //    file.Close();
-    //    if (!okay)
-    //        return false;
-    //    EmptyUndoBuffer();
-    //    SetSavePoint();
-
-    //     return true;
-
     int res;
     // convert annotations back to comments while saving the text
     if (m_education_mode) {
         auto evt = wxCommandEvent();
-
-        int scroll_pos = GetScrollPos(wxVERTICAL);
-        fmt::print("Scroll pos: {}\n", scroll_pos);
         OnEduToggle(evt);
         res = wxStyledTextCtrl::SaveFile(filename);
         OnEduToggle(evt);
-
-        SetScrollPos(wxVERTICAL, scroll_pos);
     } else
         res = wxStyledTextCtrl::SaveFile(filename);
 

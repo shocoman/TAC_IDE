@@ -29,7 +29,6 @@ class MainWindowFrame : public wxFrame {
     //! event handlers
     //! common
     void OnClose(wxCloseEvent &event);
-    void OnQuit(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &event);
     void OnExit(wxCommandEvent &event);
     void OnMainToolbarToggle(wxCommandEvent &event);
@@ -55,6 +54,7 @@ class MainWindowFrame : public wxFrame {
     void FileOpen(wxString fname);
 
     EditorCtrl* GetSelectedEditor();
+    EditorCtrl*AddNewEditorTab();
   private:
     wxMenuBar *m_menuBar;
     void CreateMenu();

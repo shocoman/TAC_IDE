@@ -27,12 +27,6 @@ class EditorCtrl : public wxStyledTextCtrl {
     void OnEditCut(wxCommandEvent &event);
     void OnEditCopy(wxCommandEvent &event);
     void OnEditPaste(wxCommandEvent &event);
-    // find
-    void OnFind(wxCommandEvent &event);
-    void OnFindNext(wxCommandEvent &event);
-    void OnReplace(wxCommandEvent &event);
-    void OnReplaceNext(wxCommandEvent &event);
-    void OnGoto(wxCommandEvent &event);
     void OnEditSelectAll(wxCommandEvent &event);
     void OnEditSelectLine(wxCommandEvent &event);
     //! view
@@ -52,7 +46,6 @@ class EditorCtrl : public wxStyledTextCtrl {
     void OnKeyDown(wxKeyEvent& evt);
 
     //! load/save file
-    void NewFile();
     bool LoadFile(const wxString &filename);
     bool SaveFile();
     bool SaveFile(const wxString &filename, bool check_modified = true);
