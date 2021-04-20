@@ -1,0 +1,60 @@
+main:
+    size: .word 0
+    putparam "Enter a size of array:"
+    call swrite, 1
+    size = call iread, 0
+    arr: .block size, long, 0
+    putparam "Enter an elements:"
+    call swrite, 1
+    $t1 = 0
+read:
+    $t2 = call iread, 0
+    arr[$t1] = $t2
+    $t1 = $t1+1
+    $t3 = $t1==size
+    iffalse $t3 goto read
+    //begin
+    //ЦИКЛ ДЛЯ J=0 ДО N-2 ШАГ 1                       FOR J=1 TO N-1 STEP 1
+    $t1 = 0
+cicleJ:
+    //F=0                                             F=0 
+    $t4 = 0
+    //ЦИКЛ ДЛЯ I=0 ДО N-J ШАГ 1                       FOR I=1 TO N-J STEP 1 
+    $t5 = 0
+cicleI:
+    //ЕСЛИ A[I] > A[I+1] ТО ОБМЕН A[I],A[I+1]:F=1     IF A[I]>A[I+1] THEN SWAP A[I],A[I+1]:F=1
+    $t7 = arr[$t5]
+    $t10 = $t5+1
+    $t8 = arr[$t10]
+    $t9 = $t7>$t8
+    iffalse $t9 goto next
+    arr[$t5] = $t8
+    arr[$t10] = $t7
+    $t4 = $t4+1
+next:
+    //СЛЕДУЮЩЕЕ I                                     NEXT I  
+    $t5 = $t5+1
+    $t6 = $t1+1
+    $t6 = size-$t6
+    $t3 = $t5==$t6
+    iffalse $t3 goto cicleI
+    //ЕСЛИ F=0 ТО ВЫХОД ИЗ ЦИКЛА                      IF F=0 THEN EXIT FOR
+    iffalse $t4 goto end
+    //СЛЕДУЮЩЕЕ J                                     NEXT J
+    $t1 = $t1+1
+    $t6 = size-1
+    $t3 = $t1==$t6
+    iffalse $t3 goto cicleJ
+    //end
+end:
+    putparam "Sort array:"
+    call swrite, 1
+    $t1 = 0
+write:
+    $t2 = arr[$t1]
+    putparam $t2
+    call iwrite, 1 
+    $t1 = $t1+1
+    $t3 = $t1==size
+    iffalse $t3 goto write
+

@@ -42,11 +42,12 @@
 
 
 // Unqualified %code blocks.
-#line 17 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 17 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
     #include "../parser/driver/driver.hpp"
+    #include <fmt/ranges.h>
 
-#line 50 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 51 "../src/utilities/parser/compiled_parser/parser.cpp"
 
 
 #ifndef YY_
@@ -138,7 +139,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 142 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 143 "../src/utilities/parser/compiled_parser/parser.cpp"
 
   /// Build a parser object.
    Parser :: Parser  (ParseDriver& drv_yyarg)
@@ -726,310 +727,310 @@ namespace yy {
           switch (yyn)
             {
   case 4: // statement: label mb_newline
-#line 98 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 99 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                            { drv.labels.emplace(yystack_[1].value.as < std::string > (), drv.quadruples.size()); }
-#line 732 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 733 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 5: // statement: quadruple newlines
-#line 99 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 100 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                            { drv.quadruples.push_back(yystack_[1].value.as < Quad > ()); }
-#line 738 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 739 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 11: // quadruple: assignment
-#line 105 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 106 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 744 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 745 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 12: // quadruple: if_statement
-#line 106 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 107 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 750 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 751 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 13: // quadruple: goto
-#line 107 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 108 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 756 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 757 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 14: // quadruple: "halt"
-#line 108 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 109 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Halt); }
-#line 762 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 763 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 15: // quadruple: "nop"
-#line 109 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 110 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Nop); }
-#line 768 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 769 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 16: // quadruple: "return" term
-#line 110 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 111 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Return); }
-#line 774 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 775 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 17: // quadruple: "print_to_console" term
-#line 111 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 112 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Print); }
-#line 780 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 781 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 18: // quadruple: "call" "identifier" "," "int"
-#line 112 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 113 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         {
          yylhs.value.as < Quad > () = Quad(Operand(yystack_[2].value.as < std::string > (), Operand::Type::None), Operand(std::to_string(yystack_[0].value.as < int > ()), Operand::Type::None), Quad::Type::Call);
        }
-#line 788 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 789 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 19: // quadruple: var_declaration
-#line 115 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 116 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 794 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 795 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 20: // quadruple: "putparam" term
-#line 116 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 117 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Putparam); }
-#line 800 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 801 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 21: // quadruple: "getparam" "identifier"
-#line 117 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 118 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < std::string > (), {}, Quad::Type::Getparam); }
-#line 806 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 807 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 22: // var_declaration: label "." "identifier" term
-#line 122 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 123 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                               {
                                   yylhs.value.as < Quad > () = Quad(Operand(yystack_[1].value.as < std::string > (), Operand::Type::None), yystack_[0].value.as < Operand > (), Quad::Type::VarDeclaration);
                                   yylhs.value.as < Quad > ().dest = Dest(yystack_[3].value.as < std::string > (), Dest::Type::Var);
                               }
-#line 815 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 816 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
-  case 23: // var_declaration: label "." "block" "int" "," "identifier" "," term
-#line 127 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+  case 23: // var_declaration: label "." "block" term "," "identifier" "," term
+#line 128 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                               {
-                                  yylhs.value.as < Quad > () = Quad(Operand(yystack_[2].value.as < std::string > (), Operand::Type::None), yystack_[0].value.as < Operand > (), Quad::Type::ArrayDeclaration);
-                                  yylhs.value.as < Quad > ().ops.push_back(Operand(std::to_string(yystack_[4].value.as < int > ()), Operand::Type::None));
+                                  yylhs.value.as < Quad > () = Quad(yystack_[4].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::ArrayDeclaration);
+                                  yylhs.value.as < Quad > ().ops.push_back(Operand(yystack_[2].value.as < std::string > (), Operand::Type::None));
                                   yylhs.value.as < Quad > ().dest = Dest(yystack_[7].value.as < std::string > (), Dest::Type::Var);
                               }
-#line 825 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 826 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 24: // assignment: dest "=" value
-#line 134 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 135 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                    { yystack_[0].value.as < Quad > ().dest = yystack_[2].value.as < Dest > (); yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 831 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 832 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 25: // assignment: array_assignment
-#line 135 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 136 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
     { yylhs.value.as < Quad > () = yystack_[0].value.as < Quad > (); }
-#line 837 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 838 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 26: // array_assignment: "identifier" "[" term "]" "=" term
-#line 138 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 139 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                                                { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::ArraySet);
                                                                    yylhs.value.as < Quad > ().dest = Dest(yystack_[5].value.as < std::string > (), Dest::Type::Var); }
-#line 844 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 845 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 27: // if_statement: "if" term "goto" "identifier"
-#line 143 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 144 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), {}, Quad::Type::IfTrue);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), Dest::Type::JumpLabel); }
-#line 851 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 852 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 28: // if_statement: "iffalse" term "goto" "identifier"
-#line 145 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 146 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                              { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), {}, Quad::Type::IfFalse);
                                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), Dest::Type::JumpLabel);}
-#line 858 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 859 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 29: // goto: "goto" "identifier"
-#line 149 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 150 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                 { yylhs.value.as < Quad > () = Quad({}, {}, Quad::Type::Goto);
                                 yylhs.value.as < Quad > ().dest = Dest(yystack_[0].value.as < std::string > (), Dest::Type::JumpLabel);}
-#line 865 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 866 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 30: // dest: "identifier"
-#line 153 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 154 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                 { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), Dest::Type::Var); }
-#line 871 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 872 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 31: // dest: "*" "identifier"
-#line 154 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 155 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                 { yylhs.value.as < Dest > () = Dest(yystack_[0].value.as < std::string > (), Dest::Type::Deref); }
-#line 877 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 878 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 32: // label: "identifier" ":"
-#line 158 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 159 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                      { yylhs.value.as < std::string > () = yystack_[1].value.as < std::string > (); }
-#line 883 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 884 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 33: // value: term
-#line 162 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 163 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Assign); }
-#line 889 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 890 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 34: // value: "*" term
-#line 163 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 164 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Deref); }
-#line 895 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 896 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 35: // value: "-" term
-#line 164 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 165 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::UMinus); }
-#line 901 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 902 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 36: // value: "&" term
-#line 165 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 166 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[0].value.as < Operand > (), {}, Quad::Type::Ref); }
-#line 907 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 908 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 37: // value: term "[" term "]"
-#line 166 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 167 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[3].value.as < Operand > (), yystack_[1].value.as < Operand > (), Quad::Type::ArrayGet); }
-#line 913 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 914 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 38: // value: term "+" term
-#line 167 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 168 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Add); }
-#line 919 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 920 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 39: // value: term "-" term
-#line 168 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 169 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Sub); }
-#line 925 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 926 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 40: // value: term "*" term
-#line 169 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 170 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Mult); }
-#line 931 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 932 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 41: // value: term "&&" term
-#line 170 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 171 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::And); }
-#line 937 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 938 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 42: // value: term "||" term
-#line 171 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 172 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Or); }
-#line 943 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 944 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 43: // value: term "/" term
-#line 172 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 173 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Div); }
-#line 949 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 950 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 44: // value: term "<" term
-#line 173 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 174 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Lt); }
-#line 955 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 956 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 45: // value: term "<=" term
-#line 174 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 175 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Lte); }
-#line 961 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 962 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 46: // value: term ">" term
-#line 175 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 176 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Gt); }
-#line 967 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 968 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 47: // value: term ">=" term
-#line 176 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 177 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Gte); }
-#line 973 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 974 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 48: // value: term "==" term
-#line 177 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 178 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Eq); }
-#line 979 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 980 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 49: // value: term "!=" term
-#line 178 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 179 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                             { yylhs.value.as < Quad > () = Quad(yystack_[2].value.as < Operand > (), yystack_[0].value.as < Operand > (), Quad::Type::Neq); }
-#line 985 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 986 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 50: // value: "call" "identifier" "," "int"
-#line 179 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 180 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                                         {
         yylhs.value.as < Quad > () = Quad(Operand(yystack_[2].value.as < std::string > (), Operand::Type::None), Operand(std::to_string(yystack_[0].value.as < int > ()), Operand::Type::None), Quad::Type::Call);
        }
-#line 993 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 994 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 51: // term: "identifier"
-#line 185 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 186 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::Var); }
-#line 999 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1000 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 52: // term: "string"
-#line 186 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 187 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::LString); }
-#line 1005 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1006 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 53: // term: "char"
-#line 187 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                    { yylhs.value.as < Operand > () = Operand(std::string(1, yystack_[0].value.as < char > ()), Operand::Type::LChar); }
-#line 1011 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 188 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                    { yylhs.value.as < Operand > () = Operand(fmt::format("{}", yystack_[0].value.as < char > ()), Operand::Type::LChar); }
+#line 1012 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 54: // term: "int"
-#line 188 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                    { yylhs.value.as < Operand > () = Operand(std::to_string(yystack_[0].value.as < int > ()), Operand::Type::LInt); }
-#line 1017 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 189 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                    { yylhs.value.as < Operand > () = Operand(fmt::format("{}", yystack_[0].value.as < int > ()), Operand::Type::LInt); }
+#line 1018 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 55: // term: "float"
-#line 189 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
-                    { yylhs.value.as < Operand > () = Operand(std::to_string(yystack_[0].value.as < double > ()), Operand::Type::LDouble); }
-#line 1023 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 190 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+                    { yylhs.value.as < Operand > () = Operand(fmt::format("{}", yystack_[0].value.as < double > ()), Operand::Type::LDouble); }
+#line 1024 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
   case 56: // term: "bool"
-#line 190 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 191 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
                     { yylhs.value.as < Operand > () = Operand(yystack_[0].value.as < std::string > (), Operand::Type::LBool); }
-#line 1029 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1030 "../src/utilities/parser/compiled_parser/parser.cpp"
     break;
 
 
-#line 1033 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1034 "../src/utilities/parser/compiled_parser/parser.cpp"
 
             default:
               break;
@@ -1526,12 +1527,12 @@ namespace yy {
      -32,   -32,   -12,   -32,   -32,   -32,   -32,   -32,   -32,   -32,
       24,    25,   -32,    -3,   -32,   -32,   -32,   -32,    64,   -32,
      -32,    21,   -32,   -32,    18,   -32,   -11,   -32,    -2,    -1,
-      -8,    11,     3,    64,    64,    64,   -32,    65,   -32,     1,
-      64,   -32,   -32,   -32,    29,    12,   -32,   -32,   -32,    64,
+      -8,    11,     3,    64,    64,    64,   -32,    65,   -32,    64,
+      64,   -32,   -32,   -32,    27,    12,   -32,   -32,   -32,    64,
       64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
       64,    64,    13,   -32,    64,     4,   -32,   -32,   -32,   -32,
-     -32,   -32,   -32,   -32,   -32,   -32,   -32,   -32,    22,    16,
-     -32,   -32,   -32,    20,    64,   -32
+     -32,   -32,   -32,   -32,   -32,   -32,   -32,   -32,    22,     7,
+     -32,   -32,   -32,    29,    64,   -32
   };
 
   const signed char
@@ -1571,9 +1572,9 @@ namespace yy {
       40,    33,     3,     4,     5,     6,     7,     8,     9,    10,
       11,    43,    35,    37,    46,    41,    60,    12,    52,    48,
       49,    58,    50,    63,    51,    61,    62,    57,    53,    54,
-      65,    55,    82,    64,    84,   101,    13,    85,    99,    66,
-      67,    68,    14,   103,   102,   104,    83,     0,    24,    25,
-      26,    27,    28,    29,     0,    86,    87,    88,    89,    90,
+      65,    55,    84,    64,   103,   101,    13,    85,    99,    66,
+      67,    68,    14,     0,   102,    82,    83,     0,    24,    25,
+      26,    27,    28,    29,   104,    86,    87,    88,    89,    90,
       91,    92,    93,    94,    95,    96,    97,    98,     0,     0,
      100,    69,    70,    71,    72,     0,    73,    74,    75,    76,
       77,    78,    79,    80,     0,     0,    81,     0,     0,     0,
@@ -1587,9 +1588,9 @@ namespace yy {
       14,    37,     3,     4,     5,     6,     7,     8,     9,    10,
       11,    13,    37,    37,    36,    15,    37,    18,     7,     5,
        5,    13,    35,    41,    38,    37,    37,    41,    17,    18,
-      37,    20,    41,    32,    15,    41,    37,    35,    35,    53,
-      54,    55,    43,    37,    32,    35,    60,    -1,    37,    38,
-      39,    40,    41,    42,    -1,    69,    70,    71,    72,    73,
+      37,    20,    15,    32,    37,    41,    37,    35,    35,    53,
+      54,    55,    43,    -1,    32,    59,    60,    -1,    37,    38,
+      39,    40,    41,    42,    35,    69,    70,    71,    72,    73,
       74,    75,    76,    77,    78,    79,    80,    81,    -1,    -1,
       84,    16,    17,    18,    19,    -1,    21,    22,    23,    24,
       25,    26,    27,    28,    -1,    -1,    31,    -1,    -1,    -1,
@@ -1607,7 +1608,7 @@ namespace yy {
       35,    54,     7,    17,    18,    20,    46,    54,    13,    14,
       37,    37,    37,    41,    32,    37,    54,    54,    54,    16,
       17,    18,    19,    21,    22,    23,    24,    25,    26,    27,
-      28,    31,    41,    54,    15,    35,    54,    54,    54,    54,
+      28,    31,    54,    54,    15,    35,    54,    54,    54,    54,
       54,    54,    54,    54,    54,    54,    54,    54,    54,    35,
       54,    41,    32,    37,    35,    54
   };
@@ -1660,12 +1661,12 @@ namespace yy {
   const unsigned char
    Parser ::yyrline_[] =
   {
-       0,    93,    93,    94,    98,    99,   101,   101,   102,   102,
-     102,   105,   106,   107,   108,   109,   110,   111,   112,   115,
-     116,   117,   121,   126,   134,   135,   138,   143,   145,   149,
-     153,   154,   158,   162,   163,   164,   165,   166,   167,   168,
-     169,   170,   171,   172,   173,   174,   175,   176,   177,   178,
-     179,   185,   186,   187,   188,   189,   190
+       0,    94,    94,    95,    99,   100,   102,   102,   103,   103,
+     103,   106,   107,   108,   109,   110,   111,   112,   113,   116,
+     117,   118,   122,   127,   135,   136,   139,   144,   146,   150,
+     154,   155,   159,   163,   164,   165,   166,   167,   168,   169,
+     170,   171,   172,   173,   174,   175,   176,   177,   178,   179,
+     180,   186,   187,   188,   189,   190,   191
   };
 
   void
@@ -1697,9 +1698,9 @@ namespace yy {
 
 
 } // yy
-#line 1701 "../src/utilities/parser/compiled_parser/parser.cpp"
+#line 1702 "../src/utilities/parser/compiled_parser/parser.cpp"
 
-#line 193 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 194 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
 
 #include <sstream>

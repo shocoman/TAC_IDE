@@ -11,10 +11,6 @@
 enum {
     myID_PROPERTIES = wxID_HIGHEST,
     myID_EDIT_FIRST,
-    myID_FINDNEXT,
-    myID_REPLACE,
-    myID_REPLACENEXT,
-    myID_GOTO,
     myID_DISPLAYEOL,
     myID_INDENTGUIDE,
     myID_LINENUMBER,
@@ -80,7 +76,7 @@ enum StyleBitsTypes {
 };
 
 //----------------------------------------------------------------------------
-//! general folding types
+//! general Folding types
 enum FoldingType { mySTC_FOLD_COMMENT = 1, mySTC_FOLD_BB = 2 };
 
 //----------------------------------------------------------------------------

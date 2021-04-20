@@ -3,6 +3,7 @@
     #include <climits>
     #include <cstring>
     #include <string>
+    #include <algorithm>
     #include <functional>
     #include <map>
     #include "../driver/driver.hpp"
@@ -98,7 +99,7 @@ yy::Parser::symbol_type make_NUMBER(const std::string& s, const yy::Parser::loca
     }
 }
 
-yy::Parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::Parser::location_type& loc) {
+yy::Parser::symbol_type make_IDENTIFIER(const std::string &s, const yy::Parser::location_type& loc) {
     std::map<std::string, std::function<yy::Parser::symbol_type(const yy::Parser::location_type&)>> keywords = {
             {"if", yy::Parser::make_IFTRUE },
             {"iftrue", yy::Parser::make_IFTRUE },
@@ -113,8 +114,10 @@ yy::Parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::Parser::
             {"print", yy::Parser::make_PRINT },
             {"block", yy::Parser::make_BLOCK },
     };
-
-    if (auto func = keywords.find(s); func != keywords.end()) return func->second(loc);
+    // convert string to lower case
+    auto lowercase_s = s;
+    std::transform(s.begin(), s.end(), lowercase_s.begin(), [](unsigned char c){ return std::tolower(c); });
+    if (auto func = keywords.find(lowercase_s); func != keywords.end()) return func->second(loc);
     else return yy::Parser::make_IDENTIFIER(s, loc);
 }
 

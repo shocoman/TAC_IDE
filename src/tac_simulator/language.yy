@@ -718,16 +718,9 @@ arrayelement :  ident '[' iconst ']'
 	
 ident : _ID { $$=create_node(yytext, IdentType); };
 	
-tident : _IDTEMP
-	{
-		$$=create_node(yytext, IdentType);
-	}
-	;
+tident : _IDTEMP { $$=create_node(yytext, IdentType); };
 
-iconst : _ICONST
-	{
-		$$=create_node(yytext, IntType);
-	};
+iconst : _ICONST { $$=create_node(yytext, IntType); };
 
 dconst
     : _DCONST { $$=create_node(yytext, DoubleType); }

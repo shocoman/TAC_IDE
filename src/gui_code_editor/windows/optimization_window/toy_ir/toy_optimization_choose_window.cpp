@@ -54,6 +54,7 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
     }
 
     auto *window = new ToyOptimizationDescriptionWindow(this);
+    auto uninitialized_vars = LiveVariableAnalysisDriver(m_chosen_function).get_uninitialized_variables();
     ConvertToSSADriver convert_driver(m_chosen_function);
 
     window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) mutable {
@@ -106,6 +107,16 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
 
     window->LoadHTMLFile("../_Tutorial/ToSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        if (not uninitialized_vars.empty()) {
+            wxString msg = wxString::Format(wxT("Не были инициализированы следующие переменные: '%s'. "
+                                                "Перевод в SSA-форму может привести к неработоспособной программе. "
+                                                "Вы уверены, что хотите продолжить?"),
+                                            fmt::format("{}", uninitialized_vars));
+            auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
+            if (dialog->ShowModal() != wxID_YES)
+                return;
+        }
+
         m_ssa_form_is_active = true;
         m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления (SSA-форма)"));
 

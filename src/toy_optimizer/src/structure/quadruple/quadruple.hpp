@@ -218,7 +218,7 @@ struct Quad {
             return destination.value() + ": ." + get_op(0)->get_string() + " " + get_op(1)->get_string();
         case Type::ArrayDeclaration:
             return fmt::format("{}: .block {}, {}, {}", destination.value(), get_op(0)->get_string(),
-                               get_op(1)->get_string(), get_op(2)->get_string());
+                               get_op(2)->get_string(), get_op(1)->get_string());
         case Type::PhiNode:
             std::vector<std::string> operators;
             for (auto &o : ops)

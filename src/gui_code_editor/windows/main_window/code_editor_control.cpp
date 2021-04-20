@@ -52,10 +52,6 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     : wxStyledTextCtrl(parent, id, pos, size, style) {
     m_filename = wxEmptyString;
 
-    m_LineNrID = 0;
-    m_DividerID = 1;
-    m_FoldingID = 2;
-
     // initialize language
     m_selected_language = nullptr;
 
@@ -85,7 +81,6 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     SetYCaretPolicy(wxSTC_CARET_EVEN | wxSTC_VISIBLE_STRICT | wxSTC_CARET_SLOP, 1);
 
     // markers
-    // wxSTC_MARK_ARROWDOWN
     MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_DOTDOTDOT, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_EMPTY, wxT("BLACK"), wxT("BLACK"));
     MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_ARROWDOWN, wxT("BLACK"), wxT("BLACK"));
@@ -101,21 +96,17 @@ EditorCtrl::EditorCtrl(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
     AnnotationSetVisible(wxSTC_ANNOTATION_BOXED);
 
     // miscellaneous
-    // width of margin for line number marker
-    m_LineNrMargin = TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_999"));
+    // default margin width for line number marker
+    m_line_number_margin_width = TextWidth(wxSTC_STYLE_LINENUMBER, wxT("_9"));
 
-    m_FoldingMargin = 16;
+    m_folding_margin_width = 16;
     CmdKeyClear(wxSTC_KEY_TAB, 0); // this is done by the menu accelerator key
     SetLayoutCache(wxSTC_CACHE_PAGE);
 
     InitializePreferences(wxT("ThreeAC"));
 
-    // show base blocks mode
     m_show_basic_block_marks = true;
-
-    // educational mode
     m_education_mode = false;
-    m_page_number = 0;
 
     // increase default font size
     SetZoom(4);
@@ -126,8 +117,8 @@ EditorCtrl::~EditorCtrl() {}
 //----------------------------------------------------------------------------
 // common event handlers
 void EditorCtrl::OnSize(wxSizeEvent &event) {
-    int x = GetClientSize().x + (g_CommonPrefs.lineNumberEnable ? m_LineNrMargin : 0) +
-            (g_CommonPrefs.foldEnable ? m_FoldingMargin : 0);
+    int x = GetClientSize().x + (g_CommonPrefs.lineNumberEnable ? m_line_number_margin_width : 0) +
+            (g_CommonPrefs.foldEnable ? m_folding_margin_width : 0);
     if (x > 0)
         SetScrollWidth(x);
     event.Skip();
@@ -194,7 +185,7 @@ void EditorCtrl::OnDisplayEOL(wxCommandEvent &WXUNUSED(event)) { SetViewEOL(!Get
 void EditorCtrl::OnIndentGuide(wxCommandEvent &WXUNUSED(event)) { SetIndentationGuides(!GetIndentationGuides()); }
 
 void EditorCtrl::OnLineNumber(wxCommandEvent &WXUNUSED(event)) {
-    SetMarginWidth(m_LineNrID, GetMarginWidth(m_LineNrID) == 0 ? m_LineNrMargin : 0);
+    SetMarginWidth((int)MarginID::LineNumber, GetMarginWidth((int)MarginID::LineNumber) == 0 ? m_line_number_margin_width : 0);
 }
 
 void EditorCtrl::OnLongLineOn(wxCommandEvent &WXUNUSED(event)) {
@@ -307,9 +298,14 @@ void EditorCtrl::OnCharAdded(wxStyledTextEvent &event) {
 }
 
 void EditorCtrl::OnStyleNeeded(wxStyledTextEvent &event) {
+    // update code highlighting and basic block indicators
     int start_pos = std::max(0, GetEndStyled() - 1);
     int end_pos = event.GetPosition();
     UpdateCodeHighlighting(start_pos, end_pos);
+
+    // update line number indicator
+    m_line_number_margin_width = TextWidth(wxSTC_STYLE_LINENUMBER, wxString::Format("_%d", GetLineCount()));
+    SetMarginWidth((int)MarginID::LineNumber, m_line_number_margin_width);
 }
 
 void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
@@ -389,10 +385,10 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
 
         auto [token_type, len] = ReadNextToken(curr_pos);
 
-        wxString output = fmt::format("{:2}; ", len);
+        wxString debug = fmt::format("{:2}; ", len);
         switch (token_type) {
         case TokenType::Other: {
-            output += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len));
 
             // llvm @-identifier
             auto [next_token_type, next_len] = ReadNextToken(curr_pos + len);
@@ -402,21 +398,21 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             break;
         }
         case TokenType::Space: {
-            output += fmt::format("Space\n");
+            debug += fmt::format("Space\n");
             break;
         }
         case TokenType::Commentary: {
-            output += fmt::format("Commentary\n");
+            debug += fmt::format("Commentary\n");
             chosen_style = mySTC_TYPE_COMMENT;
             break;
         }
         case TokenType::Number: {
-            output += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len));
             chosen_style = mySTC_TYPE_NUMBER;
             break;
         }
         case TokenType::Identifier: {
-            output += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
             wxString mb_keyword = GetIdentifier(curr_pos, len);
             mb_keyword.MakeLower();
             if (std::find(g_tac_keywords.begin(), g_tac_keywords.end(), mb_keyword) != g_tac_keywords.end()) {
@@ -425,18 +421,20 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             break;
         }
         case TokenType::Goto: {
-            output += fmt::format("Goto\n");
+            debug += fmt::format("Goto\n");
             chosen_style = mySTC_TYPE_WORD1;
 
-            // mark next non-empty line
-            int last_line = LineFromPosition(GetTextLength());
-            int line = LineFromPosition(curr_pos);
+            // mark next non-empty n_line
+            int n_last_line = LineFromPosition(GetTextLength());
+            int n_line = LineFromPosition(curr_pos);
             while (true) {
-                ++line;
-                if (line > last_line)
+                ++n_line;
+                if (n_line > n_last_line)
                     break;
-                if (GetLineLength(line) != 0) {
-                    basic_block_leaders.insert(line);
+
+                auto line = GetLineText(n_line).Strip(wxString::stripType::both);
+                if (not line.IsEmpty() && not line.StartsWith("//")) {
+                    basic_block_leaders.insert(n_line);
                     break;
                 }
             }
@@ -453,27 +451,27 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             if (token_type == TokenType::Eof || GetIdentifier(j, length) != wxT('.')) {
                 // label
                 chosen_style = mySTC_TYPE_LABEL;
-                output += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
+                debug += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
                 basic_block_leaders.insert(LineFromPosition(curr_pos));
             } else {
-                // just var declaration
+                // just a var declaration
             }
             break;
         }
         case TokenType::String: {
-            output += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
             chosen_style = mySTC_TYPE_STRING;
             break;
         }
         case TokenType::Char: {
-            output += fmt::format("Char: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Char: '{}'\n", GetIdentifier(curr_pos, len));
             chosen_style = mySTC_TYPE_CHARACTER;
             break;
         }
         default:
             break;
         }
-        // fmt::print("{}", output);
+        // fmt::print("{}", debug);
 
         curr_pos += len;
         SetStyling(len, chosen_style);
@@ -526,8 +524,6 @@ void EditorCtrl::AnnotationAdd(int line, wxString ann) {
 
 void EditorCtrl::AnnotationRemove(int line) { AnnotationSetText(line, wxString()); }
 
-void EditorCtrl::AnnotationClear() { AnnotationClearAll(); }
-
 wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
     const LanguageInfo *curInfo = nullptr;
 
@@ -545,7 +541,7 @@ wxString EditorCtrl::DeterminePrefs(const wxString &filename) {
             filepattern = filepattern.AfterFirst(';');
         }
     }
-    // take last by default
+    // take last one by default
     if (curInfo != nullptr) {
         return curInfo->name;
     } else {
@@ -572,10 +568,10 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     m_selected_language = curr_lang_info;
 
     // set margin for line numbers
-    SetMarginType(m_LineNrID, wxSTC_MARGIN_NUMBER);
+    SetMarginType((int)MarginID::LineNumber, wxSTC_MARGIN_NUMBER);
     StyleSetForeground(wxSTC_STYLE_LINENUMBER, wxColour(wxT("DARK GREY")));
     StyleSetBackground(wxSTC_STYLE_LINENUMBER, *wxWHITE);
-    SetMarginWidth(m_LineNrID, m_LineNrMargin);
+    SetMarginWidth((int)MarginID::LineNumber, m_line_number_margin_width);
 
     // annotations style
     StyleSetBackground(ANNOTATION_STYLE, wxColour(220, 244, 220));
@@ -619,20 +615,20 @@ bool EditorCtrl::InitializePreferences(const wxString &name) {
     }
 
     // set margin as unused
-    SetMarginType(m_DividerID, wxSTC_MARGIN_SYMBOL);
-    SetMarginWidth(m_DividerID, 0);
-    SetMarginSensitive(m_DividerID, false);
+    SetMarginType((int)MarginID::Divider, wxSTC_MARGIN_SYMBOL);
+    SetMarginWidth((int)MarginID::Divider, 0);
+    SetMarginSensitive((int)MarginID::Divider, false);
 
     // bb highlighting
-    SetMarginType(m_FoldingID, wxSTC_MARGIN_TEXT);
-    SetMarginMask(m_FoldingID, wxSTC_MASK_FOLDERS | 0x3);
-    StyleSetBackground(m_FoldingID, wxColour(238, 238, 238));
-    SetMarginWidth(m_FoldingID, 16);
-    SetMarginSensitive(m_FoldingID, false);
+    SetMarginType((int)MarginID::Folding, wxSTC_MARGIN_TEXT);
+    SetMarginMask((int)MarginID::Folding, wxSTC_MASK_FOLDERS | 0x3);
+    StyleSetBackground((int)MarginID::Folding, wxColour(238, 238, 238));
+    SetMarginWidth((int)MarginID::Folding, 16);
+    SetMarginSensitive((int)MarginID::Folding, false);
 
     if (g_CommonPrefs.foldEnable) {
-        SetMarginWidth(m_FoldingID, curr_lang_info->folds != 0 ? m_FoldingMargin : 0);
-        SetMarginSensitive(m_FoldingID, curr_lang_info->folds != 0);
+        SetMarginWidth((int)MarginID::Folding, curr_lang_info->folds != 0 ? m_folding_margin_width : 0);
+        SetMarginSensitive((int)MarginID::Folding, curr_lang_info->folds != 0);
         SetProperty("fold", curr_lang_info->folds != 0 ? "1" : "0");
         SetProperty("fold.comment", (curr_lang_info->folds & mySTC_FOLD_COMMENT) > 0 ? "1" : "0");
         SetProperty("fold.bb", (curr_lang_info->folds & mySTC_FOLD_BB) > 0 ? "1" : "0");
@@ -752,11 +748,9 @@ EditorCtrlProperties::EditorCtrlProperties(EditorCtrl *editor, long style)
     case wxSTC_EOL_LF:
         EOLtype = wxT("LF (Unix)");
         break;
-
     case wxSTC_EOL_CRLF:
         EOLtype = wxT("CRLF (Windows)");
         break;
-
     case wxSTC_EOL_CR:
         EOLtype = wxT("CR (Macintosh)");
         break;

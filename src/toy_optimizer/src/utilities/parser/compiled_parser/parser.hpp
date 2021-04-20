@@ -45,7 +45,7 @@
 #ifndef YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
 # define YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 11 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 11 "/media/victor/264C09FD4C09C90F/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
     #include <string>
     struct ParseDriver;

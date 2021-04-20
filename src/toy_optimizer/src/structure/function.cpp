@@ -81,7 +81,11 @@ void Function::connect_blocks() {
                 return e->lbl_name.has_value() && e->lbl_name.value() == jump_target;
             });
 
-            b->add_successor(block->get());
+            if (block->get() != nullptr)
+                b->add_successor(block->get());
+            else
+                fmt::print("Error! Block with label '{}' doesn't exist! (Instruction: '{}':'{}')\n", jump_target,
+                           b->get_name(), b->quads.back().fmt());
         }
     }
 }

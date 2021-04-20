@@ -16,6 +16,7 @@
 
 %code {
     #include "../parser/driver/driver.hpp"
+    #include <fmt/ranges.h>
 }
 
 %param { ParseDriver& drv }
@@ -123,10 +124,10 @@ var_declaration:
                                   $$ = Quad(Operand($id, Operand::Type::None), $term, Quad::Type::VarDeclaration);
                                   $$.dest = Dest($label, Dest::Type::Var);
                               };
-|   label "." "block" "int"[size] "," "identifier"[type] "," term[initval]
+|   label "." "block" term[size] "," "identifier"[type] "," term[initval]
                               {
-                                  $$ = Quad(Operand($type, Operand::Type::None), $initval, Quad::Type::ArrayDeclaration);
-                                  $$.ops.push_back(Operand(std::to_string($size), Operand::Type::None));
+                                  $$ = Quad($size, $initval, Quad::Type::ArrayDeclaration);
+                                  $$.ops.push_back(Operand($type, Operand::Type::None));
                                   $$.dest = Dest($label, Dest::Type::Var);
                               };
 
@@ -184,9 +185,9 @@ value:
 term:
     "identifier"    { $$ = Operand($1, Operand::Type::Var); }
 |   "string"        { $$ = Operand($1, Operand::Type::LString); }
-|   "char"          { $$ = Operand(std::string(1, $1), Operand::Type::LChar); }
-|   "int"           { $$ = Operand(std::to_string($1), Operand::Type::LInt); }
-|   "float"         { $$ = Operand(std::to_string($1), Operand::Type::LDouble); }
+|   "char"          { $$ = Operand(fmt::format("{}", $1), Operand::Type::LChar); }
+|   "int"           { $$ = Operand(fmt::format("{}", $1), Operand::Type::LInt); }
+|   "float"         { $$ = Operand(fmt::format("{}", $1), Operand::Type::LDouble); }
 |   "bool"          { $$ = Operand($1, Operand::Type::LBool); }
 ;
 

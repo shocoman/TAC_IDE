@@ -40,7 +40,7 @@ EVT_MENU(wxID_NEW, MainWindowFrame::OnFileNew)
 EVT_MENU(wxID_OPEN, MainWindowFrame::OnFileOpen)
 EVT_MENU(wxID_SAVE, MainWindowFrame::OnFileSave)
 EVT_MENU(wxID_SAVEAS, MainWindowFrame::OnFileSaveAs)
-EVT_MENU(wxID_CLOSE, MainWindowFrame::OnFileClose)
+
 EVT_MENU(myID_PROPERTIES, MainWindowFrame::OnProperties)
 EVT_MENU(wxID_EXIT, MainWindowFrame::OnExit)
 // Menu items with standard IDs forwarded to the editor.
@@ -63,6 +63,7 @@ EVT_MENU(myID_EDU_TOGGLE, MainWindowFrame::OnEduToggle)
 EVT_MENU(wxID_ABOUT, MainWindowFrame::OnAbout)
 // editor
 EVT_STC_MODIFIED(wxID_ANY, MainWindowFrame::OnModified)
+EVT_STC_UPDATEUI(wxID_ANY, MainWindowFrame::OnEditorUpdateUI)
 END_EVENT_TABLE()
 
 MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title, const wxPoint &pos, const wxSize &size,
@@ -92,9 +93,9 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title, const wx
     SetSizer(m_vbox);
     m_vbox->Layout();
 
+    // status bar displays currently selected IR and cursor position
     CreateStatusBar(2);
-    SetStatusText(wxT("Welcome to the Three Address Code IDE!"), 0);
-    SetStatusText(wxT("Toy IR"), 1);
+    SetStatusText(wxT("Toy IR"), 0);
     SetIRDialect(myID_TOY_DIALECT);
     GetStatusBar()->Bind(wxEVT_LEFT_DCLICK, [&](wxMouseEvent &event) {
         if (m_menuBar->IsChecked(myID_TOY_DIALECT))
@@ -104,14 +105,17 @@ MainWindowFrame::MainWindowFrame(wxFrame *frame, const wxString &title, const wx
     });
 
     Centre();
+
+    m_notebook->Bind(wxEVT_AUINOTEBOOK_PAGE_CLOSE, [&](auto &e) { CloseTab(false); });
 }
-
-
 
 // common event handlers
 void MainWindowFrame::OnClose(wxCloseEvent &event) {
-    wxCommandEvent evt;
-    OnFileClose(evt);
+    for (int i = m_notebook->GetPageCount() - 1; i >= 0; --i) {
+        m_notebook->SetSelection(i);
+        CloseTab(true);
+    }
+
     if (GetSelectedEditor() && GetSelectedEditor()->IsModified()) {
         if (event.CanVeto())
             event.Veto(true);
@@ -122,8 +126,8 @@ void MainWindowFrame::OnClose(wxCloseEvent &event) {
 void MainWindowFrame::OnExit(wxCommandEvent &WXUNUSED(event)) { Close(true); }
 
 void MainWindowFrame::OnAbout(wxCommandEvent &event) {
-    wxString msg = wxbuildinfo(long_f);
-    wxMessageBox(msg, wxT("Welcome to..."));
+    wxString msg = wxString::Format("Build info: %s\nFile path: %s", wxbuildinfo(long_f), GetSelectedEditor()->GetFilename());
+    wxMessageBox(msg);
 }
 
 void MainWindowFrame::OnMainToolbarToggle(wxCommandEvent &WXUNUSED(event)) {
@@ -132,9 +136,7 @@ void MainWindowFrame::OnMainToolbarToggle(wxCommandEvent &WXUNUSED(event)) {
 }
 
 // file event handlers
-void MainWindowFrame::OnFileNew(wxCommandEvent &event) {
-    AddNewEditorTab();
-}
+void MainWindowFrame::OnFileNew(wxCommandEvent &event) { AddNewEditorTab(); }
 
 void MainWindowFrame::OnFileOpen(wxCommandEvent &WXUNUSED(event)) {
     if (!GetSelectedEditor())
@@ -149,14 +151,14 @@ void MainWindowFrame::OnFileOpen(wxCommandEvent &WXUNUSED(event)) {
 }
 
 void MainWindowFrame::OnFileSave(wxCommandEvent &WXUNUSED(event)) {
-    if (!GetSelectedEditor())
+    EditorCtrl *editor = GetSelectedEditor();
+    if (!editor)
         return;
-    if (!GetSelectedEditor()->Modified()) {
-        wxMessageBox(_("There is nothing to save!"), _("Save file"), wxOK | wxICON_EXCLAMATION);
-        return;
+    if (editor->Modified()) {
+        editor->SaveFile();
     }
-    GetSelectedEditor()->SaveFile();
-    wxFileName w(GetSelectedEditor()->GetFilename());
+
+    wxFileName w(editor->GetFilename());
     w.Normalize();
     m_notebook->SetPageText(m_notebook->GetSelection(), w.GetName());
 }
@@ -177,7 +179,7 @@ void MainWindowFrame::OnFileSaveAs(wxCommandEvent &WXUNUSED(event)) {
     m_notebook->SetPageText(m_notebook->GetSelection(), w.GetName());
 }
 
-void MainWindowFrame::OnFileClose(wxCommandEvent &WXUNUSED(event)) {
+void MainWindowFrame::CloseTab(bool remove_tab) {
     auto *editor = GetSelectedEditor();
     if (!editor)
         return;
@@ -192,12 +194,8 @@ void MainWindowFrame::OnFileClose(wxCommandEvent &WXUNUSED(event)) {
             }
         }
     }
-    editor->SetFilename(wxEmptyString);
-    editor->Clear();
-    editor->DiscardEdits();
-    editor->ClearAll();
-    editor->SetSavePoint();
-    m_notebook->SetPageText(m_notebook->GetSelection(), NONAME + wxString() << nonameFileCounter++);
+    if (remove_tab)
+        m_notebook->DeletePage(m_notebook->GetSelection());
 }
 
 // properties event handlers
@@ -214,16 +212,16 @@ void MainWindowFrame::OnEdit(wxCommandEvent &event) {
 }
 
 void MainWindowFrame::OnModified(wxStyledTextEvent &WXUNUSED(event)) {
-    if (!GetSelectedEditor()->Modified())
-        return;
-    wxFileName w(GetSelectedEditor()->GetFilename());
-    w.Normalize();
-    m_notebook->SetPageText(m_notebook->GetSelection(), wxT("*") + w.GetName());
+    if (GetSelectedEditor()->Modified()) {
+        wxFileName w(GetSelectedEditor()->GetFilename());
+        w.Normalize();
+        m_notebook->SetPageText(m_notebook->GetSelection(), "*" + w.GetName());
+    }
 }
 
 // entity event
 void MainWindowFrame::OnEduToggle(wxCommandEvent &event) {
-    if (not GetSelectedEditor())
+    if (!GetSelectedEditor())
         return;
 
     m_vbox->Layout();
@@ -238,9 +236,8 @@ void MainWindowFrame::CreateMenu() {
     menuFile->Append(wxID_OPEN, _("&Open ..\tCtrl+O"));
     menuFile->Append(wxID_SAVE, _("&Save\tCtrl+S"));
     menuFile->Append(wxID_SAVEAS, _("Save &as ..\tCtrl+Shift+S"));
-    menuFile->Append(wxID_CLOSE, _("&Close\tCtrl+W"));
     menuFile->AppendSeparator();
-    menuFile->Append(myID_PROPERTIES, _("Proper&ties ..\tCtrl+I"));
+    menuFile->Append(myID_PROPERTIES, _("Proper&ties .."));
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT, _("&Quit\tCtrl+Q"));
 
@@ -253,18 +250,6 @@ void MainWindowFrame::CreateMenu() {
     menuEdit->Append(wxID_COPY, _("&Copy\tCtrl+C"));
     menuEdit->Append(wxID_PASTE, _("&Paste\tCtrl+V"));
     menuEdit->Append(wxID_CLEAR, _("&Delete\tDel"));
-    menuEdit->AppendSeparator();
-    menuEdit->Append(wxID_FIND, _("&Find\tCtrl+F"));
-    menuEdit->Enable(wxID_FIND, false);
-    menuEdit->Append(myID_FINDNEXT, _("Find &next\tF3"));
-    menuEdit->Enable(myID_FINDNEXT, false);
-    menuEdit->Append(myID_REPLACE, _("&Replace\tCtrl+H"));
-    menuEdit->Enable(myID_REPLACE, false);
-    menuEdit->Append(myID_REPLACENEXT, _("Replace &again\tShift+F4"));
-    menuEdit->Enable(myID_REPLACENEXT, false);
-    menuEdit->AppendSeparator();
-    menuEdit->Append(myID_GOTO, _("&Goto\tCtrl+G"));
-    menuEdit->Enable(myID_GOTO, false);
     menuEdit->AppendSeparator();
     menuEdit->Append(wxID_SELECTALL, _("&Select all\tCtrl+A"));
     menuEdit->Append(myID_SELECTLINE, _("Select &line\tCtrl+L"));
@@ -292,8 +277,6 @@ void MainWindowFrame::CreateMenu() {
     // Project menu
     wxMenu *menuProject = new wxMenu;
     menuProject->AppendSubMenu(menuTacDialect, _("TAC dialect"));
-    menuProject->Append(myID_OPTIMIZATION_WINDOW, _("Optimization"));
-    menuProject->Append(myID_PRINT_CFG_WINDOW, _("Print CFG"));
 
     // Examples submenu
     auto examplesFolderName = "_Examples";
@@ -325,20 +308,21 @@ void MainWindowFrame::CreateMenu() {
             name_to_menu.at(dirs.Last())->Append(path_i, file_name.GetName(), file_name.GetFullPath());
         }
 
-        menuProject->AppendSubMenu(name_to_menu.at(examplesFolderName), examplesFolderName);
+        menuProject->AppendSeparator();
+        menuProject->AppendSubMenu(name_to_menu.at(examplesFolderName), "Examples");
     }
-
-    // Simulator menu
-    wxMenu *menuSimulator = new wxMenu;
-    menuSimulator->Append(myID_SIMULATOR_RUN, _("&Run in simulator.."));
 
     // Tools menu
     wxMenu *menuTools = new wxMenu;
-    menuTools->AppendCheckItem(myID_EDU_TOGGLE, _("&Toggle educational mode\tCtrl+E"));
+    menuTools->AppendCheckItem(myID_EDU_TOGGLE, _("&Toggle education mode (convert comments to annotations)\tCtrl+E"));
+    menuTools->AppendSeparator();
+    menuTools->Append(myID_OPTIMIZATION_WINDOW, _("Open Optimization Dialog\tCtrl+I"));
+    menuTools->Append(myID_PRINT_CFG_WINDOW, _("Print CF&G\tCtrl+G"));
+    menuTools->AppendSeparator();
+    menuTools->Append(myID_SIMULATOR_RUN, _("&Run in simulator..\tCtrl+R"));
 
     // Help menu
     wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_HELP_CONTENTS, _("Help &Contents"));
     menuHelp->Append(wxID_ABOUT, _("&About ..\tCtrl+T"));
 
     // construct menu
@@ -346,7 +330,6 @@ void MainWindowFrame::CreateMenu() {
     m_menuBar->Append(menuEdit, _("&Edit"));
     m_menuBar->Append(menuView, _("&View"));
     m_menuBar->Append(menuProject, _("&Project"));
-    m_menuBar->Append(menuSimulator, _("&Simulator"));
     m_menuBar->Append(menuTools, _("&Tools"));
     m_menuBar->Append(menuHelp, _("&Help"));
     SetMenuBar(m_menuBar);
@@ -415,8 +398,9 @@ void MainWindowFrame::FileOpen(wxString fname) {
     wxFileName w(fname);
     w.Normalize();
     fname = w.GetFullPath();
-    GetSelectedEditor()->LoadFile(fname);
-    GetSelectedEditor()->SelectNone();
+    auto *new_editor = AddNewEditorTab();
+    new_editor->LoadFile(fname);
+    new_editor->SelectNone();
     m_notebook->SetPageText(m_notebook->GetSelection(), w.GetName());
 }
 
@@ -447,7 +431,8 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
         auto *m_optimization_window = new LLVMOptimizationWindow(this, "Optimization window", code);
         if (m_optimization_window->ShowModal() == wxID_OK) {
-            GetSelectedEditor()->SetText(m_optimization_window->output_code);
+            auto *new_editor = AddNewEditorTab();
+            new_editor->SetText(m_optimization_window->output_code);
         }
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
         Program program;
@@ -472,7 +457,8 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
 
             try {
                 if (optimization_dialog->ShowModal() == wxID_OK) {
-                    GetSelectedEditor()->SetText(program.get_as_code());
+                    auto *new_editor = AddNewEditorTab();
+                    new_editor->SetText(program.get_as_code());
                 }
             } catch (std::exception &e) {
                 const wxString &msg = wxString::Format(wxT("Произошла ошибка!\n'%s'"), e.what());
@@ -490,7 +476,12 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
         llvm::SMDiagnostic err;
         auto module = parseAssemblyString(code.ToStdString(), err, context);
         if (!module) {
-            err.print("PROGRAM", llvm::errs());
+            std::string error_text;
+            llvm::raw_string_ostream error_stream(error_text);
+            err.print("Program", llvm::errs());
+            err.print(GetSelectedEditor()->GetFilename() + "\n", error_stream);
+            wxMessageBox(error_text, wxT("Произошла ошибка!"), wxCENTER | wxOK | wxICON_ERROR);
+            return;
         }
 
         wxArrayString func_names;
@@ -518,7 +509,8 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
         try {
             program = Program::from_program_code(code.ToStdString());
         } catch (yy::Parser::syntax_error &e) {
-            wxMessageBox(wxString::Format(wxT("Синтаксическая ошибка!\n'%s'"), e.what()), wxT("Произошла ошибка!"));
+            wxMessageBox(wxString::Format(wxT("Синтаксическая ошибка!\n'%s'"), e.what()), wxT("Произошла ошибка!"),
+                         wxCENTER | wxOK | wxICON_ERROR);
         }
 
         wxArrayString func_names;
@@ -543,11 +535,11 @@ void MainWindowFrame::SetIRDialect(int id) {
     switch (id) {
     case myID_TOY_DIALECT:
         m_menuBar->Check(myID_TOY_DIALECT, true);
-        SetStatusText("Toy IR", 1);
+        SetStatusText("Toy IR", 0);
         break;
     case myID_LLVMIR_DIALECT:
         m_menuBar->Check(myID_LLVMIR_DIALECT, true);
-        SetStatusText("LLVM IR", 1);
+        SetStatusText("LLVM IR", 0);
         break;
     default:
         break;
@@ -555,6 +547,7 @@ void MainWindowFrame::SetIRDialect(int id) {
 }
 
 EditorCtrl *MainWindowFrame::GetSelectedEditor() { return wxDynamicCast(m_notebook->GetCurrentPage(), EditorCtrl); }
+
 EditorCtrl *MainWindowFrame::AddNewEditorTab() {
     auto *editor = new EditorCtrl(m_notebook);
     auto name = wxString::Format(wxT("%s%i"), NONAME, nonameFileCounter);
@@ -562,4 +555,12 @@ EditorCtrl *MainWindowFrame::AddNewEditorTab() {
     editor->SetFilename(name);
     nonameFileCounter += 1;
     return editor;
+}
+
+void MainWindowFrame::OnEditorUpdateUI(wxStyledTextEvent &event) {
+    // update cursor position in status bar
+    auto *editor = GetSelectedEditor();
+    auto line = editor->GetCurrentLine();
+    auto pos = editor->GetCurrentPos() - editor->PositionFromLine(line);
+    SetStatusText(wxString::Format("%d:%d", line + 1, pos + 1), 1);
 }

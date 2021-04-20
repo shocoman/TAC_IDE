@@ -27,7 +27,7 @@ GraphView::GraphView(wxWindow *parent, wxImage image)
 
 GraphView::GraphView(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size,
                      long style)
-    : wxDialog(parent, id, title, pos, size, style) {
+    : wxFrame(parent, id, title, pos, size, style) {
     this->SetSizeHints(size);
 
     m_main_sizer = new wxBoxSizer(wxVERTICAL);

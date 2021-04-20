@@ -12,6 +12,7 @@ define i32 @main()  {
   store i32 0, i32* %1, align 4
   %2 = alloca i32, align 4
   store i32 3, i32* %2, align 4
+  ;<ASD>:
   %3 = call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i32* %2)
   %4 = load i32, i32* %2, align 4
   %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.1, i32 0, i32 0), i32 %4)

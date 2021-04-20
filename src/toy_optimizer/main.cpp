@@ -11,6 +11,8 @@
 #include "structure/program.hpp"
 #include "utilities/parser/driver/driver.hpp"
 
+
+
 int main(int argc, char *argv[]) {
 
     // region CmdArg parse
@@ -40,7 +42,7 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/FactorialProgram.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/sccp_test.txt")
-              drv.parse_from_file("../../../_Examples/Toy/new_sccp_test.txt")
+//              drv.parse_from_file("../../../_Examples/Toy/new_sccp_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/sccp2.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/strength_reduction.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/copy_propagation.txt")
@@ -51,6 +53,8 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_swap_problem.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_lost_copy_problem.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/value_numbering.txt")
+//            drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
+            drv.parse_from_file("../../../_Examples/edu_test.txt")
         ;
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);

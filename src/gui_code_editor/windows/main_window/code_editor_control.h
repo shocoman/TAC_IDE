@@ -43,7 +43,7 @@ class EditorCtrl : public wxStyledTextCtrl {
     void OnMarginClick(wxStyledTextEvent &event);
     void OnCharAdded(wxStyledTextEvent &event);
 
-    void OnKeyDown(wxKeyEvent& evt);
+    void OnKeyDown(wxKeyEvent &evt);
 
     //! load/save file
     bool LoadFile(const wxString &filename);
@@ -64,7 +64,6 @@ class EditorCtrl : public wxStyledTextCtrl {
     void OnEduToggle(wxCommandEvent &event);
     void AnnotationAdd(int line, wxString ann);
     void AnnotationRemove(int line);
-    void AnnotationClear();
     //! basic blocks
     void UpdateLineMarkers(const std::unordered_set<int> &basic_block_leaders);
 
@@ -79,11 +78,9 @@ class EditorCtrl : public wxStyledTextCtrl {
     const LanguageInfo *m_selected_language;
 
     // margin variables
-    int m_LineNrID;
-    int m_FoldingID;
-    int m_DividerID;
-    int m_LineNrMargin;
-    int m_FoldingMargin;
+    enum class MarginID { LineNumber, Divider, Folding };
+    int m_line_number_margin_width;
+    int m_folding_margin_width;
 
     enum class MarkerType {
         BasicBlockMark,
@@ -96,7 +93,6 @@ class EditorCtrl : public wxStyledTextCtrl {
 
     // educational mode
     bool m_education_mode;
-    int m_page_number;
 
     wxDECLARE_EVENT_TABLE();
 };
@@ -107,8 +103,6 @@ class EditorCtrlProperties : public wxDialog {
   public:
     //! constructor
     EditorCtrlProperties(EditorCtrl *editor, long style = 0);
-
-  private:
 };
 
 #endif // EDITOR_CTRL_H

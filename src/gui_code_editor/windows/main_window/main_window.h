@@ -37,12 +37,13 @@ class MainWindowFrame : public wxFrame {
     void OnFileOpen(wxCommandEvent &event);
     void OnFileSave(wxCommandEvent &event);
     void OnFileSaveAs(wxCommandEvent &event);
-    void OnFileClose(wxCommandEvent &event);
     //! properties
     void OnProperties(wxCommandEvent &event);
     //! edit events
     void OnEdit(wxCommandEvent &event);
     void OnModified(wxStyledTextEvent &event);
+    void OnEditorUpdateUI(wxStyledTextEvent &event);
+
     //! entity
     void OnEduToggle(wxCommandEvent &event);
     void OnSimulatorRun(wxCommandEvent &event);
@@ -50,8 +51,8 @@ class MainWindowFrame : public wxFrame {
     void OnDisplayCFG(wxCommandEvent &event);
 
     void SetIRDialect(int id);
-
     void FileOpen(wxString fname);
+    void CloseTab(bool remove_tab);
 
     EditorCtrl* GetSelectedEditor();
     EditorCtrl*AddNewEditorTab();

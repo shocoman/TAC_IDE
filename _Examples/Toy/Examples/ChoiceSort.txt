@@ -1,0 +1,50 @@
+main:
+    size: .word 0
+    putparam "Enter a size of array:"
+    call swrite, 1
+    size = call iread, 0
+    arr: .block size, double, 0
+    putparam "Enter an elements(double):"
+    call swrite, 1
+    $t1 = 0
+read:
+    $t2 = call fread, 0
+    arr[$t1] = $t2
+    $t1 = $t1+1
+    $t3 = $t1==size
+    iffalse $t3 goto read
+    //begin
+    $t1 = 0     //i=0
+cicleI:
+    $t6 = $t1   //min = i;
+    $t4 = $t1+1 //j = i + 1
+cicleJ:
+    $t7 = arr[$t4]
+    $t8 = arr[$t6]
+    $t9 = $t7<$t8
+    iffalse $t9 goto nochangemin//if (list[j] < list[min])
+    $t6 = $t4//min = j;
+nochangemin:
+    $t4 = $t4+1
+    $t5 = $t4==size//j from i+1 to size
+    iffalse $t5 goto cicleJ
+    $t10 = arr[$t1]//int dummy = list[i];
+    $t11 = arr[$t6]
+    arr[$t1] = $t11//list[i] = list[min];
+    arr[$t6] = $t10//list[min] = dummy;
+    $t1 = $t1+1
+    $t2 = size-1//i to size-1
+    $t3 = $t1==$t2
+    iffalse $t3 goto cicleI
+    //end
+    putparam "Sort array:"
+    call swrite, 1
+    $t1 = 0
+write:
+    $t2 = arr[$t1]
+    putparam $t2
+    call fwrite, 1 
+    $t1 = $t1+1
+    $t3 = $t1==size
+    iffalse $t3 goto write
+
