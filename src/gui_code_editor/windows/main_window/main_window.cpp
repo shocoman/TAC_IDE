@@ -154,7 +154,8 @@ void MainWindowFrame::OnFileSave(wxCommandEvent &WXUNUSED(event)) {
     EditorCtrl *editor = GetSelectedEditor();
     if (!editor)
         return;
-    if (editor->Modified()) {
+//    if (editor->Modified())
+    {
         editor->SaveFile();
     }
 
@@ -173,7 +174,7 @@ void MainWindowFrame::OnFileSaveAs(wxCommandEvent &WXUNUSED(event)) {
     if (dlg.ShowModal() != wxID_OK)
         return;
     wxString filename = dlg.GetPath();
-    GetSelectedEditor()->SaveFile(filename, true);
+    GetSelectedEditor()->SaveFile(filename, false);
     wxFileName w(filename);
     w.Normalize();
     m_notebook->SetPageText(m_notebook->GetSelection(), w.GetName());
@@ -419,6 +420,7 @@ void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
     appPath.SetFullName(simulatorFileName);
 
     const wxString &command = appPath.GetFullPath() + " " + program_file;
+    fmt::print("CMD: {}\n", command);
     int ret = wxExecute(command, wxEXEC_ASYNC);
     //    if (ret == -1)
     //        wxMessageBox(wxString::Format(wxT("Что-то пошло не так...\nОшибка: '%s'\nКоманда: %s"),

@@ -1,30 +1,38 @@
 <!DOCTYPE html>
 
 <html lang="ru">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>TO SSA</title>
 </head>
+
 <body>
-
-<p> В этом тексте описывается конвертация промежуточного представления программы в SSA форму. </p>
-    Для примера продемонстрируем промежуточные шаги:
-
+    <h3>Конвертировние в SSA-форму</h3>
+    <p> Данный алгоритм выполняет конвертацию промежуточного представления программы в SSA форму.
+        Намного более подробно о работе алгоритма можно узнать в книге "Engineering a Compiler. 2nd Edition".</p>
+    <p>Во время рабоы алгоритма были получены следующие промежуточные результаты:</p>
     <ul>
-        <li>Граф программы до конвертации: <br/>
-            <ABYSS CFG_BEFORE_CONVERT /> </li>
-        <li>Список глобальных имен: <br/>
-            <ABYSS LIST_OF_GLOBAL_NAMES /> </li>
-        <li>В "минимальной" SSA форме, Ф-узлы ставятся на фронте доминаторов: <br/>
-            <ABYSS DOMINATOR_FRONTIER /> </li>
-        <li>В "Pruned" SSA форме, Ф-узлы не ставятся для неживых переменных: <br/>
-            <ABYSS LIVE_ANALYSIS /> </li>
-        <li>Граф программы после вставки Ф-узлов, но до переименования: <br/>
-            <ABYSS CFG_BEFORE_RENAME /> </li>
-        <li>Граф программы после конвертации: <br/>
-            <ABYSS CFG_AFTER_CONVERT /> </li>
+        <li>Граф программы до конвертации: <br />
+            <ABYSS CFG_BEFORE_CONVERT />
+        </li>
+        <li>Список глобальных имен, для которых будут вставляться Ф-узлы: <br>
+            <ABYSS LIST_OF_GLOBAL_NAMES />
+        </li>
+        <li>В "минимальной" SSA форме, Ф-узлы ставятся на фронте доминаторов: <br>
+            <ABYSS DOMINATOR_FRONTIER />
+        </li>
+        <li>В "Pruned" SSA форме, Ф-узлы не ставятся для неактивных переменных: <br>
+            <ABYSS LIVE_ANALYSIS />
+        </li>
+        <li>Граф программы после вставки Ф-узлов, но до переименования: <br>
+            <ABYSS CFG_BEFORE_RENAME />
+        </li>
+        <li>Граф программы после переименования переменных и окончательной конвертации: <br>
+            <ABYSS CFG_AFTER_CONVERT />
+        </li>
     </ul>
 
 
 </body>
+
 </html>

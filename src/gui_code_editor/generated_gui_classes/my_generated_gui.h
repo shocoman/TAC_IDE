@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Oct 26 2018)
+// C++ code generated with wxFormBuilder (version 3.9.0 Feb  2 2021)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -21,10 +21,10 @@
 #include <wx/statbox.h>
 #include <wx/scrolwin.h>
 #include <wx/statline.h>
+#include <wx/button.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
-#include <wx/button.h>
 #include <wx/dialog.h>
 #include <wx/html/htmlwin.h>
 
@@ -50,7 +50,7 @@ class OptimizationChooseDialog : public wxDialog
 
 	public:
 
-		OptimizationChooseDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Optimization Choose Window"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 975,760 ), long style = wxDEFAULT_DIALOG_STYLE );
+		OptimizationChooseDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Optimization Choose Window"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1000,760 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~OptimizationChooseDialog();
 
 };
@@ -68,7 +68,7 @@ class OptimizationShowDialog : public wxDialog
 	public:
 		wxButton* m_accept_optimization;
 
-		OptimizationShowDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Окно демонстрации оптимизации"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 640,480 ), long style = wxDEFAULT_DIALOG_STYLE );
+		OptimizationShowDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Окно демонстрации оптимизации"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 640,740 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~OptimizationShowDialog();
 
 };

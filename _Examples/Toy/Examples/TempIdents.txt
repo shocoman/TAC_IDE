@@ -32,4 +32,4 @@ main:
     putparam $t19
     $t20 = call tolong, 1
     putparam $t20
-    call swrite, 1
+    call iwrite, 1

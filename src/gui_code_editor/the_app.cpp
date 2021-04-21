@@ -23,13 +23,11 @@ bool TheApp::OnInit() {
     m_frame->Layout();
     m_frame->Show(true);
 
-//    wxFileInputStream input(wxT("../_Examples/ssa_test.txt"));
+//    wxFileInputStream input(wxT("../_Examples/Toy/ssa_test.txt"));
 //    wxTextInputStream text(input, wxT("\x09"), wxConvUTF8);
-//
 //    wxString code;
-//    while (input.IsOk() && !input.Eof()) {
+//    while (input.IsOk() && !input.Eof())
 //        code << text.ReadLine() + "\n";
-//    }
 //
 //    auto program = Program::from_program_code(code.ToStdString());
 //    auto &f = program.functions[0];

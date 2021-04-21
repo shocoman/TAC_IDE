@@ -29,7 +29,7 @@ floatE [0-9]+(\.|,)[0-9]+("e"|"E")(\+|-)[0-9]+
 [0-9]+(\.|,)[0-9]+ { return _DCONST;}
 "'"{char}"'" { return _CCONST;}
 
-"iftrue" { return _IFTRUE;}
+"if"|"iftrue" { return _IFTRUE;}
 "iffalse" { return _IFFALSE;}
 "goto" { return _GOTO;}
 "putparam" { return _PUTPARAM;}

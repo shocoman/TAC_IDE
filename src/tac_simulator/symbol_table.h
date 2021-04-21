@@ -11,12 +11,20 @@ enum SymbolDataType {
     StringSymbolType    // StringType
 };
 
+//struct SymbolValue {
+//    uint8_t char_value = 0;
+//    uint16_t word_value = 0;
+//    int32_t long_value = 0;
+//    double double_value = 0;
+//    char *string_value = nullptr;
+//};
+
 union SymbolValue {
     uint8_t char_value;
     uint16_t word_value;
-    int32_t long_value;
+    int32_t long_value ;
     double double_value;
-    char *string_value;
+    char *string_value = nullptr;
 };
 
 struct Symbol {

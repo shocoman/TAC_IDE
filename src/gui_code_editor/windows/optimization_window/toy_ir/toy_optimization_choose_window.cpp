@@ -30,15 +30,15 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
     using This = ToyOptimizationChooseWindow;
     AddButton(true, wxT("Конвертировать в SSA"), &This::ConvertToSSATutorial);
     AddButton(true, wxT("Конвертировать из SSA"), &This::ConvertFromSSATutorial);
-    AddButton(true, wxT("SCCP"), &This::SCCPTutorial);
-    AddButton(true, wxT("SSCP"), &This::SSCPTutorial);
+    AddButton(true, wxT("Sparse Simple Constant Propagation"), &This::SSCPTutorial);
+    AddButton(true, wxT("Sparse Conditional Constant Propagation"), &This::SCCPTutorial);
     AddButton(true, wxT("Lazy Code Motion"), &This::LazyCodeMotionTutorial);
     AddButton(true, wxT("Useless Code Elimination"), &This::UselessCodeEliminationTutorial);
     AddButton(true, wxT("Operator Strength Reduction"), &This::OperatorStrengthReductionTutorial);
     AddButton(true, wxT("Copy Propagation"), &This::CopyPropagationTutorial);
-    AddButton(true, wxT("GVN"), &This::GlobalValueNumberingTutorial);
+    AddButton(true, wxT("Global Value Numbering"), &This::GlobalValueNumberingTutorial);
 
-    AddButton(false, wxT("DFS Tree"), &This::DepthFirstTreeTutorial);
+    AddButton(false, wxT("Depth First Search Tree"), &This::DepthFirstTreeTutorial);
     AddButton(false, wxT("Live Variable Analyses"), &This::LiveVariableAnalysisTutorial);
     AddButton(false, wxT("Reaching Definitions"), &This::ReachingDefinitionsTutorial);
     AddButton(false, wxT("Use Def Graph"), &This::UseDefGraphTutorial);
@@ -212,7 +212,7 @@ void ToyOptimizationChooseWindow::LiveVariableAnalysisTutorial(wxCommandEvent &e
             auto uninit_vars = live_variable_analysis.get_uninitialized_variables(false);
             wxString vars = fmt::format("{}", uninit_vars);
             if (uninit_vars.empty())
-                vars = wxT("'-'");
+                vars = wxT("'Неинициализированные переменные отсутствуют'");
             wnd = new wxStaticText(parent, wxID_ANY, vars);
         } else if (tag.HasParam("LIVENESS_GRAPH")) {
             wnd = new wxButton(parent, wxID_ANY, wxT("Показать активные переменные для каждого блока"));
@@ -239,7 +239,7 @@ void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) 
         wxWindow *wnd = nullptr;
 
         if (tag.HasParam("RESULT")) {
-            wnd = new wxButton(parent, wxID_ANY, wxT("Показать граф"));
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
             wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
                 auto graph_data = lazy_code_motion.f.print_cfg();
                 auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
@@ -524,13 +524,12 @@ void ToyOptimizationChooseWindow::GlobalValueNumberingTutorial(wxCommandEvent &e
         if (tag.HasParam("REMOVED_QUADS")) {
             wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
             wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
-                wxDialog *dlg = new wxDialog(nullptr, wxID_ANY, "ABC");
+                wxDialog *dlg = new wxDialog(nullptr, wxID_ANY, "Удалённые выражения");
                 auto *l = new wxListCtrl(dlg, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
 
                 wxListItem col0, col1;
                 col0.SetId(0), col0.SetText(wxT("Блок")), col0.SetWidth(150);
                 l->InsertColumn(0, col0);
-
                 col1.SetId(1), col1.SetText(wxT("Инструкция")), col1.SetWidth(150);
                 l->InsertColumn(1, col1);
 

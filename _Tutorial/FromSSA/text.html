@@ -3,22 +3,23 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 
 <body>
 
-<h4>Конвертировние из SSA-формы</h4>
-<p>Подробную информацию о выходе из SSA-формы и о сопутствующих проблемах вы можете узнать в книге "Engineering a
-    Compiler - 2nd Edition" и в статье "Practical improvements to the construction and destruction of static single
-    assignment form, Preston Briggs, Keith D. Cooper".</p>
-<p>Обычно для выхода из SSA-формы достаточно Ф-функции заменить присваиваниями переменных в блоках предков. Но это не
-    всегда работает, посколько аргументы Ф-функций могут быть взаимозависимы. В этом случае необходимо вставлять
-    временные переменные и смотреть анализ активных переменных. Для выхода из SSA-формы вместо Ф-узлов ставятся копии
-    для узлов предков.</p>
-<ABYSS DESSA_GRAPH />
+    <h3>Конвертировние из SSA-формы</h3>
+    <p>Подробную информацию о выходе из SSA-формы и о сопутствующих проблемах вы можете узнать в книге "Engineering a
+        Compiler - 2nd Edition" и в статье "Practical improvements to the construction and destruction of static single
+        assignment form, Preston Briggs, Keith D. Cooper".</p>
+    <hr>
+    <p>Обычно для выхода из SSA-формы достаточно Ф-функции заменить присваиваниями переменных в блоках предков. Но это
+        не всегда работает, посколько аргументы Ф-функций могут быть взаимозависимы. В этом случае необходимо вставлять
+        временные переменные и смотреть анализ активных переменных. Для выхода из SSA-формы Ф-функции удаляются, 
+        а в конец каждого родительского узла вставляются копии в соответствии с аргументами удалённой Ф-функции.</p>
+    <br>
+    <ABYSS DESSA_GRAPH></ABYSS>
 
 </body>
 
 </html>
-

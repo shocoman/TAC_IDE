@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Oct 26 2018)
+// C++ code generated with wxFormBuilder (version 3.9.0 Feb  2 2021)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -17,7 +17,6 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_cfg_sizer = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Граф потока управления") ), wxVERTICAL );
-
 
 	m_graph_panel = new ImagePanel( m_cfg_sizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	m_cfg_sizer->Add( m_graph_panel, 3, wxALL|wxEXPAND, 5 );
@@ -58,7 +57,7 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	sbSizer5->Add( m_scrolledWindow1, 1, wxEXPAND | wxALL, 5 );
 
 
-	bSizer51->Add( sbSizer5, 1, wxEXPAND, 5 );
+	bSizer51->Add( sbSizer5, 2, wxEXPAND, 5 );
 
 	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer51->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
@@ -67,7 +66,7 @@ OptimizationChooseDialog::OptimizationChooseDialog( wxWindow* parent, wxWindowID
 	bSizer51->Add( m_back_to_code_btn, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer2->Add( bSizer51, 2, wxEXPAND, 5 );
+	bSizer2->Add( bSizer51, 3, wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer2 );

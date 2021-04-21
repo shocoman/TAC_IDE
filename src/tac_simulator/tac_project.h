@@ -20,7 +20,6 @@
 
 extern Node *g_tree_root;
 
-
 bool interpret_string(std::string code);
 
 #endif //TAC_SIMULATOR_TEST_TAC_PROJECT_H

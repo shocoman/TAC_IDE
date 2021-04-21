@@ -12,21 +12,21 @@ void Interpreter::next_step() {
     m_pausing_var.notify_one();
     m_state = InterpreterState::None;
 
-//    switch (m_state) {
-//        case InterpreterState::Wait:
-//            m_pausing_var.notify_one();
-//            break;
-//        case InterpreterState::None:
-//            break;
-//        case InterpreterState::WaitToPrint:
-//            // print something
-//            m_pausing_var.notify_one();
-//            break;
-//        case InterpreterState::WaitToRead:
-//            // wright something somewhere
-//            m_pausing_var.notify_one();
-//            break;
-//    }
+    //    switch (m_state) {
+    //        case InterpreterState::Wait:
+    //            m_pausing_var.notify_one();
+    //            break;
+    //        case InterpreterState::None:
+    //            break;
+    //        case InterpreterState::WaitToPrint:
+    //            // print something
+    //            m_pausing_var.notify_one();
+    //            break;
+    //        case InterpreterState::WaitToRead:
+    //            // wright something somewhere
+    //            m_pausing_var.notify_one();
+    //            break;
+    //    }
 }
 
 void Interpreter::pause(InterpreterState state) {
@@ -54,7 +54,7 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
     if (!strcmp(tree->value, current_state.c_str())) {
         if (get_next_label(tree->value) != nullptr) {
             if (!begin_interpretation(get_next_label(tree->value)->place, current_state)) {
-//                if (top_level) std::cout << "DOMEDSADASDS" << std::endl;
+                //                if (top_level) std::cout << "DOMEDSADASDS" << std::endl;
 
                 return false;
             }
@@ -66,7 +66,7 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
         !strcmp(tree->value, ".block .long") || !strcmp(tree->value, ".block .double") ||
         !strcmp(tree->value, ".block .ascii")) {
 
-        int count;   // размер массива
+        int count; // размер массива
         if (find_symbol(tree->children[1]->value)) {
             string value = get_symbol_value(tree->children[1]->value);
             count = atoi(value.c_str());
@@ -74,7 +74,7 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
             count = atoi(tree->children[1]->value);
         }
 
-        string value;   // начальное значение элементов массива
+        string value; // начальное значение элементов массива
         if (find_symbol(tree->children[2]->value)) {
             value = get_symbol_value(tree->children[2]->value);
         } else {
@@ -109,8 +109,8 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
 
     if (!strcmp(tree->value, "call")) {
         char *function_name = tree->children[0]->value;
-        if (!strcmp(function_name, "iwrite") || !strcmp(function_name, "fwrite") ||
-            !strcmp(function_name, "cwrite") || !strcmp(function_name, "swrite")) {
+        if (!strcmp(function_name, "iwrite") || !strcmp(function_name, "fwrite") || !strcmp(function_name, "cwrite") ||
+            !strcmp(function_name, "swrite")) {
             if (m_parameters_queue.empty()) {
                 g_syntax_errors += "Call error! Line " + to_string(tree->line) + ". No input parameters.\n";
                 return false;
@@ -120,8 +120,7 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
             // вызов пользовательской функции (в этом случае возвращаемое значение не сохраняется)
             auto params_count = (int)atof(tree->children[1]->value);
             if (m_parameters_queue.size() < params_count) {
-                g_syntax_errors +=
-                    "Error! Line " + to_string(tree->line) + ". Not enough input parameters.\n";
+                g_syntax_errors += "Error! Line " + to_string(tree->line) + ". Not enough input parameters.\n";
                 return false;
             }
             user_function(tree, current_state);
@@ -141,7 +140,7 @@ bool Interpreter::begin_interpretation(Node *tree, std::string current_state, bo
         }
     }
 
-//    if (top_level) std::cout << "DOMEDSADASDS" << std::endl;
+    //    if (top_level) std::cout << "DOMEDSADASDS" << std::endl;
 
     return true;
 }
@@ -217,8 +216,8 @@ bool Interpreter::assignment_operation(Node *n, std::string current_state) {
     if (!strcmp((n->children[1])->value, "call")) {
         //Считывание ввода
         char *function_name = n->children[1]->children[0]->value;
-        if (!strcmp(function_name, "iread") || !strcmp(function_name, "fread") ||
-            !strcmp(function_name, "cread") || !strcmp(function_name, "sread")) {
+        if (!strcmp(function_name, "iread") || !strcmp(function_name, "fread") || !strcmp(function_name, "cread") ||
+            !strcmp(function_name, "sread")) {
             name = read_operation(n->children[1], current_state);
             edit_symbol(lvalue_name.c_str(), name.c_str());
         } else if (!strcmp(function_name, "tobyte") || !strcmp(function_name, "toword") ||
@@ -244,7 +243,6 @@ bool Interpreter::assignment_operation(Node *n, std::string current_state) {
 }
 
 std::string Interpreter::read_operation(Node *n, std::string current_state) {
-
 
     std::string res;
     if (m_remote_mode) {
@@ -323,18 +321,18 @@ std::string Interpreter::logical_or_comparison_operation(Node *n, std::string cu
     }
 
     switch (n->value[0]) {
-        case '>': {
-            return (a > b) ? "1" : "0";
-        }
-        case '<': {
-            return (a < b) ? "1" : "0";
-        }
-        case '^': {
-            return (a != b) ? "1" : "0";
-        }
-        case '!': {
-            return (b >= 1) ? "1" : "0";
-        }
+    case '>': {
+        return (a > b) ? "1" : "0";
+    }
+    case '<': {
+        return (a < b) ? "1" : "0";
+    }
+    case '^': {
+        return (a != b) ? "1" : "0";
+    }
+    case '!': {
+        return (b >= 1) ? "1" : "0";
+    }
     }
 
     return "";
@@ -380,28 +378,26 @@ std::string Interpreter::arithmetic_operation(Node *n, std::string current_state
     }
 
     switch (n->value[0]) {
-        case '+':
-            res = to_string(a + b);
-            break;
-        case '-':
-            res = to_string(a - b);
-            break;
-        case '*':
-            res = to_string(a * b);
-            break;
-        case '/': {
-            if (n->children[0]->data_type == IntType ||
-                n->children[0]->data_type == IdentType &&
-                    get_symbol_type(n->children[0]->value) == WordSymbolType)
-                res = to_string((double)(int(a / b)));
-            if (n->children[0]->data_type == DoubleType ||
-                n->children[0]->data_type == IdentType &&
-                    get_symbol_type(n->children[0]->value) == DoubleSymbolType)
-                res = to_string((double)(a / b));
-        } break;
-        case '%':
-            res = to_string((int)a % (int)b);
-            break;
+    case '+':
+        res = to_string(a + b);
+        break;
+    case '-':
+        res = to_string(a - b);
+        break;
+    case '*':
+        res = to_string(a * b);
+        break;
+    case '/': {
+        if (n->children[0]->data_type == IntType ||
+            n->children[0]->data_type == IdentType && get_symbol_type(n->children[0]->value) == WordSymbolType)
+            res = to_string((double)(int(a / b)));
+        if (n->children[0]->data_type == DoubleType ||
+            n->children[0]->data_type == IdentType && get_symbol_type(n->children[0]->value) == DoubleSymbolType)
+            res = to_string((double)(a / b));
+    } break;
+    case '%':
+        res = to_string((int)a % (int)b);
+        break;
     }
 
     return res;
@@ -412,22 +408,22 @@ void Interpreter::putparam_operation(Node *n, std::string current_state) {
 
     if (is_leaf(n->children[0]) && n->children[0]->data_type != IdentType) {
         switch (n->children[0]->data_type) {
-            case IntType:
-                temp.long_value = (long)atoi(n->children[0]->value);
-                m_parameters_queue.push(temp);
-                break;
-            case DoubleType:
-                temp.double_value = atof(n->children[0]->value);
-                m_parameters_queue.push(temp);
-                break;
-            case CharType:
-                temp.char_value = n->children[0]->value[0];
-                m_parameters_queue.push(temp);
-                break;
-            case StringType:
-                temp.string_value = n->children[0]->value;
-                m_parameters_queue.push(temp);
-                break;
+        case IntType:
+            temp.long_value = (long)atoi(n->children[0]->value);
+            m_parameters_queue.push(temp);
+            break;
+        case DoubleType:
+            temp.double_value = atof(n->children[0]->value);
+            m_parameters_queue.push(temp);
+            break;
+        case CharType:
+            temp.char_value = n->children[0]->value[0];
+            m_parameters_queue.push(temp);
+            break;
+        case StringType:
+            temp.string_value = n->children[0]->value;
+            m_parameters_queue.push(temp);
+            break;
         }
     } else {
         //Обычный идентификатор y $t1
@@ -473,7 +469,7 @@ void Interpreter::write_operation(Node *n, std::string current_state) {
     int count = atoi(n->children[1]->value);
     if (!strcmp(n->children[0]->value, "iwrite")) {
         for (int i = 0; i < count; i++) {
-//            printf("%d\n", m_parameters_queue.front().long_value);
+            //            printf("%d\n", m_parameters_queue.front().long_value);
             m_output = to_string(m_parameters_queue.front().long_value);
             m_parameters_queue.pop();
         }
@@ -481,7 +477,7 @@ void Interpreter::write_operation(Node *n, std::string current_state) {
 
     if (!strcmp(n->children[0]->value, "fwrite")) {
         for (int i = 0; i < count; i++) {
-//            printf("%g\n", m_parameters_queue.front().double_value);
+            //            printf("%g\n", m_parameters_queue.front().double_value);
             // %e Экспоненциальное представление числа (в виде мантиссы и порядка)
             // %f Десятичное число с плавающей точкой
             // %g Использует более короткий из форматов %e или %f
@@ -492,7 +488,7 @@ void Interpreter::write_operation(Node *n, std::string current_state) {
 
     if (!strcmp(n->children[0]->value, "cwrite")) {
         for (int i = 0; i < count; i++) {
-//            printf("%c\n", m_parameters_queue.front().char_value);
+            //            printf("%c\n", m_parameters_queue.front().char_value);
             m_output = to_string(m_parameters_queue.front().char_value);
             m_parameters_queue.pop();
         }
@@ -500,8 +496,10 @@ void Interpreter::write_operation(Node *n, std::string current_state) {
 
     if (!strcmp(n->children[0]->value, "swrite")) {
         for (int i = 0; i < count; i++) {
-//            printf("%s\n", m_parameters_queue.front().string_value);
-            m_output = string(m_parameters_queue.front().string_value);
+            //            printf("%s\n", m_parameters_queue.front().string_value);
+            char *str = m_parameters_queue.front().string_value;
+            if (str != nullptr)
+                m_output = string(str);
             m_parameters_queue.pop();
         }
     }
@@ -521,20 +519,16 @@ std::string Interpreter::user_function(Node *n, std::string current_state) {
     if (m_parameters_queue.front().word_value) {
         result = to_string(m_parameters_queue.front().word_value);
         m_parameters_queue.pop();
-    }
-    else if (m_parameters_queue.front().long_value) {
+    } else if (m_parameters_queue.front().long_value) {
         result = to_string(m_parameters_queue.front().long_value);
         m_parameters_queue.pop();
-    }
-    else if (m_parameters_queue.front().double_value > 0) {
+    } else if (m_parameters_queue.front().double_value > 0) {
         result = to_string(m_parameters_queue.front().double_value);
         m_parameters_queue.pop();
-    }
-    else if (m_parameters_queue.front().char_value) {
+    } else if (m_parameters_queue.front().char_value) {
         result = std::string(1, (char)m_parameters_queue.front().char_value);
         m_parameters_queue.pop();
-    }
-    else if (m_parameters_queue.front().string_value) {
+    } else if (m_parameters_queue.front().string_value) {
         result = m_parameters_queue.front().string_value;
         m_parameters_queue.pop();
     }
@@ -556,67 +550,56 @@ string Interpreter::format_array_name(Node *arr) {
 }
 
 std::string Interpreter::type_cast_operation(Node *n, std::string current_state) {
-    string res;
+    string result;
     string operand;
 
     if (m_parameters_queue.front().word_value)
         operand = to_string(m_parameters_queue.front().word_value);
-
-    else if (m_parameters_queue.front().long_value)
+    if (m_parameters_queue.front().long_value)
         operand = to_string(m_parameters_queue.front().long_value);
-
-    else if (m_parameters_queue.front().double_value > 1e-6)
+    if (m_parameters_queue.front().double_value > 1e-6)
         operand = to_string(m_parameters_queue.front().double_value);
-
-    else if (m_parameters_queue.front().char_value)
+    if (m_parameters_queue.front().char_value)
         operand = to_string(m_parameters_queue.front().char_value);
-
-    else if (m_parameters_queue.front().string_value)
+    if (m_parameters_queue.front().string_value)
         operand = string(m_parameters_queue.front().string_value);
     m_parameters_queue.pop();
 
     if (!strcmp(n->children[0]->value, "tobyte")) {
         //Три миллиона вариантов. Оставлю пока этот.
-        res = to_string((uint8_t)operand[0]);
-    }
-
-    if (!strcmp(n->children[0]->value, "toword")) {
+        result = to_string((uint8_t)operand[0]);
+    } else if (!strcmp(n->children[0]->value, "toword")) {
         short i = atoi(operand.c_str());
         if (i == 0 && operand != "0") {
             string error = "Error! Line " + to_string(n->line) + ". Error format conversion. (toword)\n";
             g_syntax_errors += error;
             return "";
         } else {
-            res = to_string((uint16_t)i);
+            result = to_string((uint16_t)i);
         }
-    }
-
-    if (!strcmp(n->children[0]->value, "tolong")) {
+    } else if (!strcmp(n->children[0]->value, "tolong")) {
         int i = atol(operand.c_str());
         if (i == 0 && operand != "0") {
-            string error = "Error! Line " + to_string(n->line) + ". Error format conversion. (tolong)\n";
+            string error = "Error! Line " + to_string(n->line) + ". Format conversion error. (tolong)\n";
             g_syntax_errors += error;
             return "";
         } else {
-            res = to_string((int32_t)i);
+            result = to_string((int32_t)i);
         }
-    }
-
-    if (!strcmp(n->children[0]->value, "todouble")) {
+    } else if (!strcmp(n->children[0]->value, "todouble")) {
         double i = atof(operand.c_str());
         if (i == 0.0 && (operand != "0" || operand != "0.0")) {
             string error = "Error! Line " + to_string(n->line) + ". Error format conversion. (todouble)\n";
             g_syntax_errors += error;
             return "";
         } else {
-            res = to_string((double)i);
+            result = to_string((double)i);
         }
-    }
-
-    if (!strcmp(n->children[0]->value, "toascii")) {
+    } else if (!strcmp(n->children[0]->value, "toascii")) {
         return operand;
     }
-    return res;
+    
+    return result;
 }
 
 void Interpreter::reset(Node *g_tree_root) {

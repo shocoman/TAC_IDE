@@ -255,10 +255,13 @@ std::string Function::get_as_code() const {
     std::string code;
     bool has_function_name = false;
     for (auto &b : basic_blocks) {
-        if (b->type == BasicBlock::Type::Normal) {
+        if (b->type == BasicBlock::Type::Normal || not b->quads.empty()) {
             if (function_name == b->get_name())
                 has_function_name = true;
-            code += fmt::format("\n{}:\n", b->get_name());
+            auto block_name = b->get_name();
+            if (block_name.front() == '#')
+                block_name.erase(block_name.begin());
+            code += fmt::format("{}:\n", block_name);
         }
         for (auto &q : b->quads)
             code += fmt::format("\t{}\n", q.fmt());

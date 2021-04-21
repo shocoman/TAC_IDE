@@ -1,8 +1,11 @@
 fact:
-    $t0 = getparam
+    $t0 = 0
+    $t1 = 1
+    getparam $t0
+fact_loop:
     $t1 = $t1 * $t0
     $t0 = $t0 - 1
-    iftrue $t0 goto fact
+    iftrue $t0 goto fact_loop
     return $t1
 
 main:

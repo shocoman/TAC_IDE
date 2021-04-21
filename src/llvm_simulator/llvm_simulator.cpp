@@ -70,14 +70,16 @@ void run_main_function() {
     llvm::ExecutionEngine *engine = llvm::EngineBuilder(std::move(g_module)).setErrorStr(&error_str).create();
     engine->finalizeObject();
 
+    std::cout << "--> Simulator started..." << std::endl;
     std::vector<llvm::GenericValue> args;
     llvm::GenericValue return_value = engine->runFunction(main_func, args);
 
+    std::cout << "--> Simulator finished. Function return value: ";
     auto return_type = main_func->getReturnType();
     if (return_type->isIntegerTy()) {
-        std::cout << "*** Return value: '" << return_value.IntVal.getSExtValue() << "' ***" << std::endl;
+        std::cout << '\"' << return_value.IntVal.getSExtValue() << '\"' << std::endl;
     } else if (return_type->isDoubleTy()) {
-        std::cout << "*** Return value: '" << return_value.DoubleVal << "' ***" << std::endl;
+        std::cout << '\"' << return_value.DoubleVal << '\"' << std::endl;
     }
 }
 

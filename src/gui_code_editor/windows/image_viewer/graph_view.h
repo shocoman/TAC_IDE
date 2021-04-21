@@ -14,7 +14,7 @@
 #include "convert_dot_to_image.hpp"
 #include "image_panel.hpp"
 
-class GraphView : public wxFrame {
+class GraphView : public wxDialog {
     ImagePanel *m_image_panel;
     wxBoxSizer *m_main_sizer;
 
@@ -28,7 +28,7 @@ class GraphView : public wxFrame {
     static GraphView *fromDotFile(wxWindow *parent, wxString dot_file_content);
     static GraphView *fromImageData(wxWindow *parent, std::vector<char> png_image_data);
 
-    bool ShowModal(bool show = true) {
-        return Show(show);
-    }
+//    bool ShowModal(bool show = true) {
+//        return Show(show);
+//    }
 };

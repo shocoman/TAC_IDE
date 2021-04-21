@@ -197,7 +197,7 @@ struct Quad {
         case Type::IfTrue:
             return "if " + get_op(0)->get_string() + " goto " + destination.value();
         case Type::IfFalse:
-            return "ifFalse " + get_op(0)->get_string() + " goto " + destination.value();
+            return "iffalse " + get_op(0)->get_string() + " goto " + destination.value();
         case Type::Goto:
             return "goto " + destination.value();
         case Type::Halt:

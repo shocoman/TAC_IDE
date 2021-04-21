@@ -24,11 +24,13 @@ main:
     expression = $t0 
     // Код для вычисления expression
     $t1 = expression  
-    ifFalse $t1 goto L1
+    iffalse $t1 goto L1
     b = 1  
     // код для statement1
     goto L2
-L1: b = 2
+L1: 
+    b = 2
 // код для statement2
-L2: halt
+L2: 
+    b = 0 // halt
 
