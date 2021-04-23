@@ -128,7 +128,7 @@ var_declaration:
                               {
                                   $$ = Quad($size, $initval, Quad::Type::ArrayDeclaration);
                                   $$.ops.push_back(Operand($type, Operand::Type::None));
-                                  $$.dest = Dest($label, Dest::Type::Var);
+                                  $$.dest = Dest($label, Dest::Type::Array);
                               };
 
 assignment:
@@ -137,7 +137,7 @@ assignment:
 ;
 
 array_assignment: "identifier" "[" term[i] "]" "=" term[rhs]   { $$ = Quad($i, $rhs, Quad::Type::ArraySet);
-                                                                   $$.dest = Dest($1, Dest::Type::Var); };
+                                                                   $$.dest = Dest($1, Dest::Type::Array); };
 
 
 if_statement:
@@ -164,7 +164,6 @@ value:
 |   "*" term                { $$ = Quad($2, {}, Quad::Type::Deref); }
 |   "-" term                { $$ = Quad($2, {}, Quad::Type::UMinus); }
 |   "&" term                { $$ = Quad($2, {}, Quad::Type::Ref); }
-|   term "[" term "]"       { $$ = Quad($1, $3, Quad::Type::ArrayGet); }
 |   term "+"  term          { $$ = Quad($1, $3, Quad::Type::Add); }
 |   term "-"  term          { $$ = Quad($1, $3, Quad::Type::Sub); }
 |   term "*"  term          { $$ = Quad($1, $3, Quad::Type::Mult); }
@@ -177,9 +176,12 @@ value:
 |   term ">="  term         { $$ = Quad($1, $3, Quad::Type::Gte); }
 |   term "==" term          { $$ = Quad($1, $3, Quad::Type::Eq); }
 |   term "!=" term          { $$ = Quad($1, $3, Quad::Type::Neq); }
+|   term "[" term "]"       {
+                             $1.type = Operand::Type::Array;
+                             $$ = Quad($1, $3, Quad::Type::ArrayGet); }
 |   "call"  "identifier"[id] "," "int"  {
         $$ = Quad(Operand($id, Operand::Type::None), Operand(std::to_string($4), Operand::Type::None), Quad::Type::Call);
-       };
+       }
 ;
 
 term:

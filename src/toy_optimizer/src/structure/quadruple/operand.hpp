@@ -7,7 +7,7 @@
 
 struct BasicBlock;
 struct Operand {
-    enum class Type { None, Var, LInt, LDouble, LBool, LChar, LString };
+    enum class Type { None, Var, Array, LInt, LDouble, LBool, LChar, LString };
 
     std::string value;
     Type type;
@@ -59,6 +59,7 @@ struct Operand {
         case Type::None:
         case Type::LString:
         case Type::Var:
+        case Type::Array:
         default:
             return std::nullopt;
         }
@@ -69,10 +70,11 @@ struct Operand {
     double get_double() const { return as_double().value(); }
 
     bool is_var() const { return type == Type::Var; }
+    bool is_array() const { return type == Type::Array; }
 
     bool is_none() const { return type == Type::None; }
 
-    bool is_constant() const { return !(is_var() || type == Type::None); }
+    bool is_constant() const { return !(is_var() || is_array() || is_none()); }
 
     bool is_int() const { return type == Type::LInt; }
 

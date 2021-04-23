@@ -4,24 +4,30 @@
 
 #include "value_numbering.hpp"
 
-void constant_folding(Quad &n) {
+void constant_folding(Quad &q) {
     // unary
-    if (n.ops.size() <= 1) {
-        if (n.type == Quad::Type::UMinus) {
-            n.ops[0] = Operand("-" + n.ops[0].value, n.ops[0].type);
-            n.type = Quad::Type::Assign;
+    if (q.ops.size() <= 1) {
+        if (q.type == Quad::Type::UMinus && q.ops[0].is_number()) {
+            auto &num = q.ops[0].value;
+            if (num[0] == '-')
+                num.erase(num.begin());
+            else
+                num.insert(0, "-");
+
+            q.ops[0] = Operand(num, q.ops[0].type);
+            q.type = Quad::Type::Assign;
         }
         return;
     }
 
-    bool is_lnum = n.get_op(0)->is_number();
-    bool is_rnum = n.get_op(1)->is_number();
+    bool is_lnum = q.get_op(0)->is_number();
+    bool is_rnum = q.get_op(1)->is_number();
 
-    double l = n.get_op(0)->as_double().value_or(0);
-    double r = n.get_op(1)->as_double().value_or(0);
+    double l = q.get_op(0)->as_double().value_or(0);
+    double r = q.get_op(1)->as_double().value_or(0);
     if (is_lnum && is_rnum) {
         double res = 0;
-        switch (n.type) {
+        switch (q.type) {
         case Quad::Type::Add:
             res = l + r;
             break;
@@ -43,7 +49,7 @@ void constant_folding(Quad &n) {
         default: {
             // relational operations
             bool res = false;
-            switch (n.type) {
+            switch (q.type) {
             case Quad::Type::Lt:
                 res = l < r;
                 break;
@@ -66,69 +72,69 @@ void constant_folding(Quad &n) {
                 break;
             }
 
-            n.ops[0] = Operand(res == false ? "false" : "true");
-            n.type = Quad::Type::Assign;
-            n.clear_op(1);
+            q.ops[0] = Operand(res == false ? "false" : "true");
+            q.type = Quad::Type::Assign;
+            q.clear_op(1);
             return;
         } break;
         }
-        if (std::all_of(n.ops.begin(), n.ops.end(), [](Operand &a) { return a.is_int(); }))
-            n.ops[0] = Operand(std::to_string((int)res));
+        if (std::all_of(q.ops.begin(), q.ops.end(), [](Operand &a) { return a.is_int(); }))
+            q.ops[0] = Operand(std::to_string((int)res));
         else
-            n.ops[0] = Operand(std::to_string(res));
+            q.ops[0] = Operand(std::to_string(res));
 
-        n.type = Quad::Type::Assign;
-        n.clear_op(1);
+        q.type = Quad::Type::Assign;
+        q.clear_op(1);
         return;
     }
 
     // algebraic identities
     // a - a = 0
-    if (n.type == Quad::Type::Sub && n.get_op(0) == n.get_op(1)) {
-        n.ops[0] = Operand("0");
-        n.clear_op(1);
-        n.type = Quad::Type::Assign;
+    if (q.type == Quad::Type::Sub && q.get_op(0) == q.get_op(1)) {
+        q.ops[0] = Operand("0");
+        q.clear_op(1);
+        q.type = Quad::Type::Assign;
     }
     // a / a = 1, a != 0
-    if (n.type == Quad::Type::Div && n.get_op(0) == n.get_op(1) && n.get_op(1)->value != "0") {
-        n.ops[0] = Operand("1");
-        n.clear_op(1);
-        n.type = Quad::Type::Assign;
+    if (q.type == Quad::Type::Div && q.get_op(0) == q.get_op(1) && q.get_op(1)->value != "0") {
+        q.ops[0] = Operand("1");
+        q.clear_op(1);
+        q.type = Quad::Type::Assign;
     }
 
     if (is_lnum || is_rnum) {
         // a * 0 = 0
-        if (n.type == Quad::Type::Mult && (l == 0 && is_lnum || r == 0 && is_rnum)) {
-            n.ops[0] = Operand("0", Operand::Type::LInt);
-            n.clear_op(1);
-            n.type = Quad::Type::Assign;
+        if (q.type == Quad::Type::Mult && (l == 0 && is_lnum || r == 0 && is_rnum)) {
+            q.ops[0] = Operand("0", Operand::Type::LInt);
+            q.clear_op(1);
+            q.type = Quad::Type::Assign;
         }
 
         if (is_lnum) {
             // 0 + a = a OR 1 * a = a
-            if (n.type == Quad::Type::Add && l == 0 || n.type == Quad::Type::Mult && l == 1) {
-                n.ops[0] = n.get_op(1).value();
-                n.clear_op(1);
-                n.type = Quad::Type::Assign;
+            if (q.type == Quad::Type::Add && l == 0 || q.type == Quad::Type::Mult && l == 1) {
+                q.ops[0] = q.get_op(1).value();
+                q.clear_op(1);
+                q.type = Quad::Type::Assign;
             }
             // 2 * a = a + a
-            else if (n.type == Quad::Type::Mult && l == 2) {
-                n.ops[0] = n.get_op(1).value();
-                n.type = Quad::Type::Add;
+            else if (q.type == Quad::Type::Mult && l == 2) {
+                q.ops[0] = q.get_op(1).value();
+                q.type = Quad::Type::Add;
             }
         }
 
         if (is_rnum) {
             // a + 0 = a OR a * 1 = a OR a - 0 = a OR a / 1 = a
-            if (n.type == Quad::Type::Add && r == 0 || n.type == Quad::Type::Mult && r == 1 ||
-                n.type == Quad::Type::Sub && r == 0 || n.type == Quad::Type::Div && r == 1) {
-                n.clear_op(1);
-                n.type = Quad::Type::Assign;
+            if (q.type == Quad::Type::Add && r == 0 || q.type == Quad::Type::Mult && r == 1 ||
+                q.type == Quad::Type::Sub && r == 0 || q.type == Quad::Type::Div && r == 1) {
+                q.clear_op(1);
+                q.type = Quad::Type::Assign;
             }
             // a * 2 = a + a
-            else if (n.type == Quad::Type::Mult && r == 2) {
-                n.ops[1] = n.get_op(0).value();
-                n.type = Quad::Type::Add;
+            else if (q.type == Quad::Type::Mult && r == 2) {
+                q.ops[1] = q.get_op(0).value();
+                q.type = Quad::Type::Add;
             }
         }
     }
@@ -208,5 +214,3 @@ void superlocal_value_numbering(Function &function) {
         SVN(b, t);
     }
 }
-
-

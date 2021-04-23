@@ -7,6 +7,7 @@ main:
     array: .block 10, word, 7
 
     $t0 = 5
+    array[$t0] = 9
     $t1 = 7.7
     $t2 = 't'
     $t3 = "Vasya"

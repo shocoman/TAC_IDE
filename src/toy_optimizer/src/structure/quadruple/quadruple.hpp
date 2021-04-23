@@ -80,7 +80,7 @@ struct Quad {
     }
 
     std::optional<std::string> get_lhs() const {
-        return dest && !is_jump() ? std::make_optional(dest.value().name) : std::nullopt;
+        return (dest && dest->type == Dest::Type::Var) ? std::make_optional(dest->name) : std::nullopt;
     }
 
     std::vector<std::string> get_used_vars() const {

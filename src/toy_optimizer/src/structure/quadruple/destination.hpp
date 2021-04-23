@@ -11,6 +11,7 @@ struct Dest {
     enum class Type {
         None,
         Var,
+        Array,
         Deref,
         JumpLabel,
     };
@@ -25,6 +26,8 @@ struct Dest {
     std::optional<std::string> fmt() const {
         switch (type) {
         case Type::Var:
+            return name;
+        case Type::Array:
             return name;
         case Type::Deref:
             return "*" + name;

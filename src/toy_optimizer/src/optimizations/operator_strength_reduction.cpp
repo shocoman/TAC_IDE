@@ -268,7 +268,8 @@ std::string OperatorStrengthReductionDriver::Apply(const std::string &node_name,
             auto [op2_block, op2_quad] = ir.use_def_graph.at(op2.value).defined_at;
 
             if (op1.is_constant() && op2.is_constant()) {
-                constant_folding(q);
+                if (Quad::is_foldable(q.type))
+                    constant_folding(q);
                 auto &block = f.id_to_block.at(ir.use_def_graph.at(node_name).defined_at.first);
                 block->quads.insert(block->quads.begin() + block->phi_functions, q);
             } else if (op1.is_constant()) {

@@ -125,12 +125,15 @@ struct SparseConditionalConstantPropagation {
                 return Value{.type = Value::Type::Bottom};
         } else if (constants.size() != quad_values.size()) {
             return Value{.type = Value::Type::Bottom};
-        } else if (constants.size() == 1) {
+        } else if (q.type == Quad::Type::Assign && constants.size() == 1) {
             return Value{.type = Value::Type::Constant, .constant = constants[0]};
         } else {
-            auto folded_quad = Quad(constants[0], constants[1], q.type);
-            constant_folding(folded_quad);
-            assert(folded_quad.type == Quad::Type::Assign);
+            auto folded_quad = Quad(constants[0], q.is_unary() ? Operand() : constants[1], q.type);
+            if (Quad::is_foldable(q.type))
+                constant_folding(folded_quad);
+            if(folded_quad.type != Quad::Type::Assign) {
+                return Value{.type = Value::Type::Bottom};
+            }
             return Value{.type = Value::Type::Constant, .constant = folded_quad.ops[0]};
         }
     };
@@ -173,7 +176,7 @@ struct SparseConditionalConstantPropagation {
         auto constant = Value{.type = Value::Type::Constant, .constant = cond_var};
         auto &value_at_use = cond_var.is_var() ? ir.values.at({cond_var_name, place}) : constant;
 
-        if (value_at_use.type != Value::Type::Bottom) {
+        if (value_at_use.type != Value::Type::Bottom && ir.use_def_graph.count(cond_var_name)) {
             auto value_at_def =
                 cond_var.is_constant()
                     ? value_at_use

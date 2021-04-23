@@ -16,7 +16,7 @@
 #include "../data_flow_analyses/dominators.hpp"
 #include "../structure/function.hpp"
 
-void constant_folding(Quad &n);
+void constant_folding(Quad &q);
 
 struct ValueNumberTableStack {
     using OpRecord = std::tuple<Quad::Type, std::vector<int>>;

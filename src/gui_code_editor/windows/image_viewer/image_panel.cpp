@@ -28,12 +28,9 @@ void ImagePanel::updateImage(const wxImage &image) {
     m_transformed_image = m_original_image.Copy();
     m_bitmap_image = wxBitmap(m_original_image);
     m_offset_x = GetParent()->GetSize().x / 2 - m_bitmap_image.GetWidth() / 2;
-    m_offset_y = GetParent()->GetSize().y / 2 - m_bitmap_image.GetHeight() / 2;
-    Refresh();
-
-    m_zoom = 1.0f;
-    m_offset_x = 0.0f;
     m_offset_y = 0.0f;
+    m_zoom = 1.0f;
+    Refresh();
 }
 
 void ImagePanel::OnSize(wxSizeEvent &event) {

@@ -18,10 +18,6 @@ Function &ConvertToSSADriver::run() {
 void ConvertToSSADriver::find_global_names() {
     for (auto &b : f.basic_blocks) {
         for (const auto &q : b->quads) {
-            // ignore arrays
-            if (q.type == Quad::Type::ArrayDeclaration || q.type == Quad::Type::ArraySet)
-                continue;
-
             for (auto &op : q.get_rhs_names(false))
                 ir.global_names.insert(op);
 
@@ -42,7 +38,7 @@ void ConvertToSSADriver::place_phi_functions() {
     ID2IDOM id_to_idom = get_immediate_dominators(function);
     ID2DF id_to_dominance_frontier = get_dominance_frontier(function, id_to_idom);
 
-    //    fmt::print("Global names: {}; All names: {}\n", global_names, all_names);
+    //    fmt::print("Global names: {}; All names: {}\n", ir.global_names, ir.all_names);
     //    fmt::print("Dominance Frontier:\n {}\n", id_to_dominance_frontier);
 
     LiveVariableAnalysisDriver liveness(function);
@@ -106,7 +102,6 @@ void ConvertToSSADriver::rename_variables() {
         // rename other operations of form 'x = y + z'
         for (int i = block->phi_functions; i < block->quads.size(); ++i) {
             auto &q = block->quads.at(i);
-            auto op1 = q.get_op(0), op2 = q.get_op(1);
 
             for (auto &op : q.ops)
                 if (op.is_var() && name_to_stack.count(op.value) > 0 && not name_to_stack.at(op.value).empty())
@@ -149,13 +144,15 @@ void ConvertToSSADriver::rename_variables() {
     // replace delimiter with '_'
     for (auto &b : f.basic_blocks) {
         for (auto &q : b->quads) {
+            if (q.dest && q.dest->type != Dest::Type::JumpLabel)
+                std::replace(q.dest->name.begin(), q.dest->name.end(), delim, '_');
+
             if (q.type == Quad::Type::Call)
                 continue;
 
             for (auto &op : q.ops)
-                std::replace(op.value.begin(), op.value.end(), delim, '_');
-            if (q.dest && q.dest->type != Dest::Type::JumpLabel)
-                std::replace(q.dest->name.begin(), q.dest->name.end(), delim, '_');
+                if (op.is_var())
+                    std::replace(op.value.begin(), op.value.end(), delim, '_');
         }
     }
 }
