@@ -119,9 +119,9 @@ quadruple:
 ;
 
 var_declaration:
-    label "." "identifier"[id] term
+    label "." "identifier"[id] term[initval]
                               {
-                                  $$ = Quad(Operand($id, Operand::Type::None), $term, Quad::Type::VarDeclaration);
+                                  $$ = Quad(Operand($id, Operand::Type::None), $initval, Quad::Type::VarDeclaration);
                                   $$.dest = Dest($label, Dest::Type::Var);
                               };
 |   label "." "block" term[size] "," "identifier"[type] "," term[initval]

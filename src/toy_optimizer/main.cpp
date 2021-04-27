@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     // endregion
 
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "192.168.194.241:0", true);
+        setenv("DISPLAY", "172.17.191.225:0", true);
 
     ParseDriver drv;
 
