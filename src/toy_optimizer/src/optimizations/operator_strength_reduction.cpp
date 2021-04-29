@@ -3,6 +3,7 @@
 //
 
 #include "operator_strength_reduction.hpp"
+#include "constant_folding.hpp"
 
 void OperatorStrengthReductionDriver::fill_in_use_def_graph() {
     for (auto &b : f.basic_blocks) {
@@ -21,7 +22,6 @@ void OperatorStrengthReductionDriver::fill_in_use_def_graph() {
 
 void OperatorStrengthReductionDriver::run() {
     // visit every unvisited node in ssa graph
-
     std::vector<std::pair<std::string, VariableInfo>> ssa_nodes;
     for (auto &[name, var_info] : ir.use_def_graph)
         ssa_nodes.emplace_back(name, var_info);
@@ -288,10 +288,11 @@ std::string OperatorStrengthReductionDriver::Apply(const std::string &node_name,
                 block->quads.insert(block->quads.begin() + op2_quad + 1, q);
             } else {
                 // Insert into postdominator of two blocks
-                assert("We shouldn't be here!");
+                assert("We shouldn't get here!");
             }
 
-            ir.use_def_graph.at(new_name).header.clear();
+            if (ir.use_def_graph.count(new_name))
+                ir.use_def_graph.at(new_name).header.clear();
             fill_in_use_def_graph();
         }
     }

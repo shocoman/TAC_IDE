@@ -33,6 +33,9 @@ std::string escape_string(const std::string &s) {
         case '\'':
             buffer.append("&#39;");
             break;
+        case '&':
+            buffer.append("&amp;");
+            break;
         default:
             buffer.push_back(ch);
             break;

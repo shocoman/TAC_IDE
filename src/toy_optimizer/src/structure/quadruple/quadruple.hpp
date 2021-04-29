@@ -18,8 +18,11 @@ struct Quad {
         Sub,
         Mult,
         Div,
+        Modulus,
         And,
         Or,
+        Xor,
+        Not,
         UMinus,
         Lt,
         Lte,
@@ -52,17 +55,14 @@ struct Quad {
 
     Quad() = default;
 
-    Quad(Operand op1, Operand op2, Type op_type, std::optional<Dest> dest = {})
-        : type(op_type), dest(std::move(dest)) {
+    Quad(Operand op1, Operand op2, Type op_type, std::optional<Dest> dest = {}) : type(op_type), dest(std::move(dest)) {
         if (!op1.value.empty())
             ops.emplace_back(std::move(op1));
         if (!op2.value.empty())
             ops.emplace_back(std::move(op2));
     }
 
-    std::optional<Operand> get_op(int i) const {
-        return i < ops.size() ? std::make_optional(ops.at(i)) : std::nullopt;
-    }
+    std::optional<Operand> get_op(int i) const { return i < ops.size() ? std::make_optional(ops.at(i)) : std::nullopt; }
 
     void clear_op(int i) {
         if (i < ops.size())
@@ -99,9 +99,13 @@ struct Quad {
     bool is_conditional_jump() const { return type == Type::IfTrue || type == Type::IfFalse; }
 
     bool is_assignment() const {
-        return not(type == Type::Return || type == Type::Nop || type == Type::Halt ||
-                   type == Type::Putparam || type == Type::Getparam || type == Type::ArraySet ||
-                   is_jump() || (type == Type::Call && !dest.has_value()));
+        return not(type == Type::Return || type == Type::Nop || type == Type::Halt || type == Type::Putparam ||
+                   type == Type::Getparam || type == Type::ArraySet || is_jump() ||
+                   (type == Type::Call && !dest.has_value()));
+    }
+    bool is_comparison() const {
+        return (type == Type::Lt || type == Type::Lte || type == Type::Gt || type == Type::Gte || type == Type::Eq ||
+                type == Type::Neq);
     }
 
     bool is_binary() const {
@@ -114,22 +118,20 @@ struct Quad {
     }
 
     static bool is_commutative(Type t) {
-        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq ||
-               t == Type::Neq || t == Type::And || t == Type::Or;
+        return t == Type::Add || t == Type::Mult || t == Type::Assign || t == Type::Eq || t == Type::Neq ||
+               t == Type::And || t == Type::Or;
     }
 
     static bool is_critical(Type t) {
         auto critical = {Type::Print,          Type::Return,           Type::Putparam, Type::Call,
                          Type::VarDeclaration, Type::ArrayDeclaration, Type::ArraySet};
-        return std::any_of(critical.begin(), critical.end(),
-                           [t](auto expr_type) { return t == expr_type; });
+        return std::any_of(critical.begin(), critical.end(), [t](auto expr_type) { return t == expr_type; });
     }
 
     static bool is_foldable(Type t) {
-        auto foldables = {Type::Add, Type::Sub, Type::Mult, Type::Div,    Type::Lt,  Type::Lte, Type::Gt,
-                          Type::Gte, Type::Eq,  Type::Neq,  Type::UMinus, Type::And, Type::Or};
-        return std::any_of(foldables.begin(), foldables.end(),
-                           [t](auto expr_type) { return t == expr_type; });
+        auto foldables = {Type::Add, Type::Sub, Type::Mult,   Type::Div, Type::Lt, Type::Lte, Type::Gt,  Type::Gte,
+                          Type::Eq,  Type::Neq, Type::UMinus, Type::And, Type::Or, Type::Not, Type::Xor, Type::Modulus};
+        return std::any_of(foldables.begin(), foldables.end(), [t](auto expr_type) { return t == expr_type; });
     }
 
     std::string fmt(bool only_rhs = false) const {
@@ -160,6 +162,12 @@ struct Quad {
         case Type::And:
             op = "&&";
             break;
+        case Type::Xor:
+            op = "^";
+            break;
+        case Type::Modulus:
+            op = "%";
+            break;
         case Type::UMinus:
             unary_op = "-";
             break;
@@ -189,6 +197,9 @@ struct Quad {
             break;
         case Type::Ref:
             unary_op = "&";
+            break;
+        case Type::Not:
+            unary_op = "!";
             break;
         case Type::ArrayGet:
             return command + get_op(0)->get_string() + "[" + get_op(1)->get_string() + "]";

@@ -11,8 +11,6 @@
 #include "structure/program.hpp"
 #include "utilities/parser/driver/driver.hpp"
 
-
-
 int main(int argc, char *argv[]) {
 
     // region CmdArg parse
@@ -42,9 +40,10 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/FactorialProgram.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/sccp_test.txt")
-//              drv.parse_from_file("../../../_Examples/Toy/new_sccp_test.txt")
+        //    drv.parse_from_file("../../../_Examples/Toy/new_sccp_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/sccp2.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/strength_reduction.txt")
+        drv.parse_from_file("../../../_Examples/Toy/constant_folding.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/copy_propagation.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/bob_maxcol.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/live_test.txt")
@@ -53,10 +52,12 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_swap_problem.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/ssa_lost_copy_problem.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/value_numbering.txt")
-//            drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
-//            drv.parse_from_file("../../../_Examples/edu_test.txt")
-            drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
+        //    drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
+        //    drv.parse_from_file("../../../_Examples/edu_test.txt")
+        //    drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
         ;
+
+
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
@@ -64,14 +65,23 @@ int main(int argc, char *argv[]) {
     //    run_convert_from_ssa(f);
 
     f.print_cfg("before.png");
-    run_convert_to_ssa(f);
-//    run_sparse_simple_constant_propagation(f);
-    run_sparse_conditional_constant_propagation(f);
-//    run_convert_from_ssa(f);
+//    run_convert_to_ssa(f);
+    //    run_sparse_simple_constant_propagation(f);
+    //    run_sparse_conditional_constant_propagation(f);
+    //    run_convert_from_ssa(f);
 
-//    for (auto &q : f.basic_blocks[1]->quads) {
-//        fmt::print("{}, Type: {}; UminusType: {}\n", q.fmt(), q.type, Quad::Type::UMinus);
-//    }
+    //    for (auto &q : f.basic_blocks[1]->quads) {
+    //        fmt::print("{}, Type: {}; UminusType: {}\n", q.fmt(), q.type, Quad::Type::UMinus);
+    //    }
+
+//    OperatorStrengthReductionDriver operator_strength_reduction_driver(f);
+//    operator_strength_reduction_driver.run();
+//
+//    run_useless_code_elimination(f);
+//    run_copy_propagation(f);
+//    run_useless_code_elimination(f);
+
+    run_constant_folding_on_every_quad(f);
 
     f.print_cfg("after.png");
 

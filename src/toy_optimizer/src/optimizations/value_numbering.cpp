@@ -3,142 +3,7 @@
 //
 
 #include "value_numbering.hpp"
-
-void constant_folding(Quad &q) {
-    // unary
-    if (q.ops.size() <= 1) {
-        if (q.type == Quad::Type::UMinus && q.ops[0].is_number()) {
-            auto &num = q.ops[0].value;
-            if (num[0] == '-')
-                num.erase(num.begin());
-            else
-                num.insert(0, "-");
-
-            q.ops[0] = Operand(num, q.ops[0].type);
-            q.type = Quad::Type::Assign;
-        }
-        return;
-    }
-
-    bool is_lnum = q.get_op(0)->is_number();
-    bool is_rnum = q.get_op(1)->is_number();
-
-    double l = q.get_op(0)->as_double().value_or(0);
-    double r = q.get_op(1)->as_double().value_or(0);
-    if (is_lnum && is_rnum) {
-        double res = 0;
-        switch (q.type) {
-        case Quad::Type::Add:
-            res = l + r;
-            break;
-        case Quad::Type::Sub:
-            res = l - r;
-            break;
-        case Quad::Type::Mult:
-            res = l * r;
-            break;
-        case Quad::Type::Div:
-            res = l / r;
-            break;
-        case Quad::Type::And:
-            res = l && r;
-            break;
-        case Quad::Type::Or:
-            res = l || r;
-            break;
-        default: {
-            // relational operations
-            bool res = false;
-            switch (q.type) {
-            case Quad::Type::Lt:
-                res = l < r;
-                break;
-            case Quad::Type::Lte:
-                res = l <= r;
-                break;
-            case Quad::Type::Gt:
-                res = l > r;
-                break;
-            case Quad::Type::Gte:
-                res = l >= r;
-                break;
-            case Quad::Type::Eq:
-                res = l == r;
-                break;
-            case Quad::Type::Neq:
-                res = l != r;
-                break;
-            default:
-                break;
-            }
-
-            q.ops[0] = Operand(res == false ? "false" : "true");
-            q.type = Quad::Type::Assign;
-            q.clear_op(1);
-            return;
-        } break;
-        }
-        if (std::all_of(q.ops.begin(), q.ops.end(), [](Operand &a) { return a.is_int(); }))
-            q.ops[0] = Operand(std::to_string((int)res));
-        else
-            q.ops[0] = Operand(std::to_string(res));
-
-        q.type = Quad::Type::Assign;
-        q.clear_op(1);
-        return;
-    }
-
-    // algebraic identities
-    // a - a = 0
-    if (q.type == Quad::Type::Sub && q.get_op(0) == q.get_op(1)) {
-        q.ops[0] = Operand("0");
-        q.clear_op(1);
-        q.type = Quad::Type::Assign;
-    }
-    // a / a = 1, a != 0
-    if (q.type == Quad::Type::Div && q.get_op(0) == q.get_op(1) && q.get_op(1)->value != "0") {
-        q.ops[0] = Operand("1");
-        q.clear_op(1);
-        q.type = Quad::Type::Assign;
-    }
-
-    if (is_lnum || is_rnum) {
-        // a * 0 = 0
-        if (q.type == Quad::Type::Mult && (l == 0 && is_lnum || r == 0 && is_rnum)) {
-            q.ops[0] = Operand("0", Operand::Type::LInt);
-            q.clear_op(1);
-            q.type = Quad::Type::Assign;
-        }
-
-        if (is_lnum) {
-            // 0 + a = a OR 1 * a = a
-            if (q.type == Quad::Type::Add && l == 0 || q.type == Quad::Type::Mult && l == 1) {
-                q.ops[0] = q.get_op(1).value();
-                q.clear_op(1);
-                q.type = Quad::Type::Assign;
-            }
-            // 2 * a = a + a
-            else if (q.type == Quad::Type::Mult && l == 2) {
-                q.ops[0] = q.get_op(1).value();
-                q.type = Quad::Type::Add;
-            }
-        }
-
-        if (is_rnum) {
-            // a + 0 = a OR a * 1 = a OR a - 0 = a OR a / 1 = a
-            if (q.type == Quad::Type::Add && r == 0 || q.type == Quad::Type::Mult && r == 1 ||
-                q.type == Quad::Type::Sub && r == 0 || q.type == Quad::Type::Div && r == 1) {
-                q.clear_op(1);
-                q.type = Quad::Type::Assign;
-            }
-            // a * 2 = a + a
-            else if (q.type == Quad::Type::Mult && r == 2) {
-                q.ops[1] = q.get_op(0).value();
-                q.type = Quad::Type::Add;
-            }
-        }
-    }
-}
+#include "constant_folding.hpp"
 
 void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
     for (auto &q : quads) {
@@ -190,6 +55,8 @@ void local_value_numbering(std::vector<Quad> &quads, ValueNumberTableStack &t) {
 }
 
 void superlocal_value_numbering(Function &function) {
+    // value numbering on superblocks
+
     std::vector<BasicBlock *> work_list = {function.get_entry_block()};
     std::unordered_set<int> visited_blocks;
 
@@ -213,4 +80,102 @@ void superlocal_value_numbering(Function &function) {
         work_list.pop_back();
         SVN(b, t);
     }
+}
+
+////////////////////////////////////////////////////////////////////////
+/////////////// DOMINATOR BASED VALUE NUMBERING ////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+void GlobalValueNumberingDriver::global_value_numbering(BasicBlock *b,
+                                                        GlobalValueNumberingDriver::ValueNumberTableStack &t) {
+    t.push_table();
+
+    // process every phi function
+    for (int i = 0; i < b->phi_functions; ++i) {
+        auto &phi = b->quads.at(i);
+        std::set<Operand> operands(phi.ops.begin(), phi.ops.end());
+        // phi is meaningless (all operands are equal)
+        if (std::equal(phi.ops.begin() + 1, phi.ops.end(), phi.ops.begin())) {
+            ir.removed_quads.emplace_back(b->get_name(), phi.fmt());
+
+            t.set_value_number_for_name(phi.dest->name, phi.ops[0].value);
+            b->quads.erase(b->quads.begin() + i);
+            --b->phi_functions;
+            --i;
+        }
+        // or phi is redundant (same as one of the previous phi functions)
+        else if (auto v = t.get_phi_node_by_operation(operands); v.has_value()) {
+            ir.removed_quads.emplace_back(b->get_name(), phi.fmt());
+
+            t.set_value_number_for_name(phi.dest->name, v.value());
+            b->quads.erase(b->quads.begin() + i);
+            --b->phi_functions;
+            --i;
+        } else {
+            t.set_value_number_for_name(phi.dest->name, phi.dest->name);
+            t.set_phi_node_for_value(operands, phi.dest->name);
+        }
+    }
+
+    // work through each assignment of the form 'x = y op z'
+    for (int quad_i = b->phi_functions; quad_i < b->quads.size(); ++quad_i) {
+        auto &q = b->quads.at(quad_i);
+        if (!q.is_assignment())
+            continue;
+
+        // overwrite 'x' and 'y' with saved value number
+        for (auto &op : q.ops) {
+            if (auto v = t.get_value_number_by_name(op.value); v.has_value())
+                op = Operand(v.value());
+        }
+
+        if (Quad::is_foldable(q.type))
+            constant_folding(q);
+
+        std::vector<std::string> expr;
+        for (auto &op : q.ops)
+            expr.push_back(op.value);
+        if (Quad::is_commutative(q.type))
+            std::sort(expr.begin(), expr.end());
+        auto op_hash_key = std::tuple{q.type, expr};
+
+        auto v = t.get_value_number_by_operation(op_hash_key);
+        if (v.has_value()) {
+            ir.removed_quads.emplace_back(b->get_name(), q.fmt());
+
+            t.set_value_number_for_name(q.dest->name, v.value());
+            b->quads.erase(b->quads.begin() + quad_i);
+            --quad_i;
+        } else {
+            t.set_value_number_for_name(q.dest->name, q.dest->name);
+            t.set_operation_for_value_number(op_hash_key, q.dest->name);
+        }
+    }
+
+    // update phi functions for each successor
+    for (auto succ : b->successors) {
+        for (int i = 0; i < succ->phi_functions; ++i) {
+            auto &phi = succ->quads[i];
+            for (auto &op : phi.ops) {
+                auto v = t.get_value_number_by_name(op.value);
+                if (v.has_value())
+                    op = Operand(v.value(), op.type, op.phi_predecessor);
+            }
+        }
+    }
+
+    // call for each child in dominator tree
+    for (auto &[child_id, parent_id] : ir.id_to_idom)
+        if (b->id == parent_id)
+            global_value_numbering(f.id_to_block.at(child_id), t);
+
+    t.pop_table();
+}
+
+void GlobalValueNumberingDriver::run() {
+    ir.id_to_idom = get_immediate_dominators(f);
+
+    auto entry = f.get_entry_block();
+    ValueNumberTableStack t;
+    global_value_numbering(entry, t);
 }

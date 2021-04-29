@@ -16,7 +16,6 @@
 #include "../utilities/graph_writer/graph_writer.hpp"
 #include "../utilities/new_name_generator.hpp"
 #include "../utilities/quad_preparation.hpp"
-#include "value_numbering.hpp"
 
 struct ConvertToSSADriver {
     struct IntermediateResults {

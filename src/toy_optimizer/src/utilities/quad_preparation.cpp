@@ -73,9 +73,9 @@ std::vector<Function> split_basic_blocks_into_functions(BasicBlocks blocks,
     return functions;
 }
 
-BasicBlocks construct_basic_blocks_from_indices(
-    const std::vector<Quad> &quads, std::unordered_map<int, std::string> &id_to_label,
-    std::unordered_map<int, std::optional<std::string>> &leader_indices) {
+BasicBlocks construct_basic_blocks_from_indices(const std::vector<Quad> &quads,
+                                                std::unordered_map<int, std::string> &id_to_label,
+                                                std::unordered_map<int, std::optional<std::string>> &leader_indices) {
     BasicBlocks nodes;
     BasicBlock *curr_node = nullptr;
     for (int i = 0, node_number = 0; i <= quads.size(); i++) {
@@ -93,15 +93,17 @@ BasicBlocks construct_basic_blocks_from_indices(
         if (i < quads.size())
             curr_node->quads.push_back(quads[i]);
     }
-    if (curr_node && !curr_node->quads.empty())
+    if (curr_node)
         nodes.emplace_back(curr_node);
+
     return nodes;
 }
 
 std::unordered_map<int, std::optional<std::string>>
-get_leading_quad_indices(const std::vector<Quad> &quads,
-                         std::unordered_map<int, std::string> &id_to_label) {
-    std::unordered_map<int, std::optional<std::string>> leader_indices = {{0, std::nullopt}};
+get_leading_quad_indices(const std::vector<Quad> &quads, std::unordered_map<int, std::string> &id_to_label) {
+    std::unordered_map<int, std::optional<std::string>> leader_indices = {
+        {0, id_to_label.count(0) ? std::make_optional(id_to_label.at(0)) : std::nullopt}};
+
     for (int i = 0; i < quads.size(); i++) {
         // search through labels
         if (id_to_label.find(i) != id_to_label.end())
@@ -119,10 +121,7 @@ bool is_builtin_function(const std::string &func_name) {
         "sread",  "toascii", "tobyte", "toword", "tolong", "todouble",
     };
 
-    return std::any_of(built_in_functions.begin(), built_in_functions.end(),
-                       [&](auto &f) { return func_name == f; });
+    return std::any_of(built_in_functions.begin(), built_in_functions.end(), [&](auto &f) { return func_name == f; });
 }
 
-void NNNothing() {
-    std::cout << "LOL_NOTHING!" << std::endl;
-}
+void NNNothing() { std::cout << "LOL_NOTHING!" << std::endl; }

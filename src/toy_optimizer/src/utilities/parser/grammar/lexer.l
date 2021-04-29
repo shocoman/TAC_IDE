@@ -52,6 +52,9 @@ empty_line ^{blank}*\n
 "&"     return yy::Parser::make_REF(loc);
 "&&"     return yy::Parser::make_AND(loc);
 "||"     return yy::Parser::make_OR(loc);
+"!"     return yy::Parser::make_NOT(loc);
+"^"     return yy::Parser::make_XOR(loc);
+"%"     return yy::Parser::make_MODULUS(loc);
 
 "<"     return yy::Parser::make_CMP_LT(loc);
 "<="    return yy::Parser::make_CMP_LTE(loc);

@@ -15,7 +15,7 @@ class FunctionChooser : public wxDialog {
 
   public:
     FunctionChooser(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString &title = wxT("Function Chooser"),
-                    const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxDefaultSize,
+                    const wxPoint &pos = wxDefaultPosition, const wxSize &size = wxSize(300, 130),
                     long style = wxDEFAULT_DIALOG_STYLE);
     FunctionChooser(wxWindow *parent, wxArrayString function_names);
 

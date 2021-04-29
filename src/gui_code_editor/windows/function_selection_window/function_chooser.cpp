@@ -14,7 +14,7 @@ FunctionChooser::FunctionChooser(wxWindow *parent, wxWindowID id, const wxString
     wxBoxSizer *bSizer1;
     bSizer1 = new wxBoxSizer(wxVERTICAL);
 
-    m_staticText1 = new wxStaticText(this, wxID_ANY, wxT("Choose function:"), wxDefaultPosition, wxDefaultSize, 0);
+    m_staticText1 = new wxStaticText(this, wxID_ANY, wxT("Выберите функцию:"), wxDefaultPosition, wxDefaultSize, 0);
     m_staticText1->Wrap(-1);
     bSizer1->Add(m_staticText1, 0, wxALL | wxEXPAND, 5);
 
@@ -28,7 +28,7 @@ FunctionChooser::FunctionChooser(wxWindow *parent, wxWindowID id, const wxString
 
     this->SetSizer(bSizer1);
     this->Layout();
-    bSizer1->Fit(this);
+//    bSizer1->Fit(this);
 
     this->Centre(wxBOTH);
 

@@ -9,8 +9,8 @@
 #include <map>
 #include <set>
 
-#include "../optimizations/value_numbering.hpp"
-#include "../structure/function.hpp"
+#include "../structure/program.hpp"
+#include "constant_folding.hpp"
 
 struct SparseConditionalConstantPropagation {
     using Place = std::pair<int, int>;

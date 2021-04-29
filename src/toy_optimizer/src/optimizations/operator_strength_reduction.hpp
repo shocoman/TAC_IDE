@@ -12,7 +12,7 @@
 #include "../data_flow_analyses/dominators.hpp"
 #include "../structure/function.hpp"
 #include "../utilities/new_name_generator.hpp"
-#include "value_numbering.hpp"
+
 
 struct VariableInfo {
     using Place = std::pair<int, int>;

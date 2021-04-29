@@ -51,6 +51,9 @@
     REF     "&"
     AND     "&&"
     OR      "||"
+    NOT     "!"
+    XOR     "^"
+    MODULUS "%"
 
     CMP_LT  "<"
     CMP_LTE "<="
@@ -82,9 +85,10 @@
 %nterm <std::string> label
 %nterm <Operand> term
 
+%left "||" "&&" "^"
 %left "<" ">" "==" "!="
 %left "+" "-";
-%left "*" "/";
+%left "*" "/" "%";
 
 // %printer { yyo << $$; } <*>;
 %start program;
@@ -164,12 +168,15 @@ value:
 |   "*" term                { $$ = Quad($2, {}, Quad::Type::Deref); }
 |   "-" term                { $$ = Quad($2, {}, Quad::Type::UMinus); }
 |   "&" term                { $$ = Quad($2, {}, Quad::Type::Ref); }
+|   "!" term                { $$ = Quad($2, {}, Quad::Type::Not); }
 |   term "+"  term          { $$ = Quad($1, $3, Quad::Type::Add); }
 |   term "-"  term          { $$ = Quad($1, $3, Quad::Type::Sub); }
 |   term "*"  term          { $$ = Quad($1, $3, Quad::Type::Mult); }
 |   term "&&"  term         { $$ = Quad($1, $3, Quad::Type::And); }
 |   term "||"  term         { $$ = Quad($1, $3, Quad::Type::Or); }
+|   term "^"  term          { $$ = Quad($1, $3, Quad::Type::Xor); }
 |   term "/"  term          { $$ = Quad($1, $3, Quad::Type::Div); }
+|   term "%"  term          { $$ = Quad($1, $3, Quad::Type::Modulus); }
 |   term "<"  term          { $$ = Quad($1, $3, Quad::Type::Lt); }
 |   term "<="  term         { $$ = Quad($1, $3, Quad::Type::Lte); }
 |   term ">"  term          { $$ = Quad($1, $3, Quad::Type::Gt); }

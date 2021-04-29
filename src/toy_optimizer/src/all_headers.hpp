@@ -8,6 +8,7 @@
 #include "optimizations/copy_propagation.hpp"
 #include "optimizations/ssa.hpp"
 #include "optimizations/value_numbering.hpp"
+#include "optimizations/constant_folding.hpp"
 #include "optimizations/lazy_code_motion.hpp"
 #include "optimizations/operator_strength_reduction.hpp"
 #include "optimizations/sparse_conditional_constant_propagation.hpp"

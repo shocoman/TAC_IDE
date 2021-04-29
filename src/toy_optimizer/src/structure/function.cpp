@@ -207,7 +207,7 @@ void Function::reverse_graph() {
 }
 
 BasicBlock *Function::get_entry_block() const {
-    for (const auto &b : basic_blocks)
+    for (auto &b : basic_blocks)
         if (b->type == BasicBlock::Type::Entry)
             return b.get();
     return nullptr;

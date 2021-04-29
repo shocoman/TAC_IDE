@@ -6,7 +6,8 @@
 #define TAC_PARSER_SPARSE_SIMPLE_CONSTANT_PROPAGATION_HPP
 
 #include "../data_flow_analyses/data_flow_analyses.hpp"
-#include "value_numbering.hpp"
+#include "constant_folding.hpp"
+
 
 struct SparseSimpleConstantPropagationDriver {
     using Location = std::pair<int, int>;
