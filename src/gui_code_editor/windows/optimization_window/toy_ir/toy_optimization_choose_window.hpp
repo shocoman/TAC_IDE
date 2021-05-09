@@ -35,12 +35,14 @@ class ToyOptimizationChooseWindow : public OptimizationChooseDialog {
     void CopyPropagationTutorial(wxCommandEvent &event);
     void LazyCodeMotionTutorial(wxCommandEvent &event);
     void GlobalValueNumberingTutorial(wxCommandEvent &event);
+    void ConstantFoldingTutorial(wxCommandEvent &event);
 
     void LiveVariableAnalysisTutorial(wxCommandEvent &event);
     void ReachingDefinitionsTutorial(wxCommandEvent &event);
     void UseDefGraphTutorial(wxCommandEvent &event);
     void DepthFirstTreeTutorial(wxCommandEvent &event);
     void DominatorsTutorial(wxCommandEvent &event);
+    void CriticalEdgesTutorial(wxCommandEvent &event);
 
 };
 

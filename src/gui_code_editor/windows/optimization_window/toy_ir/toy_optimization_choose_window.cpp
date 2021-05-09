@@ -37,12 +37,14 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
     AddButton(true, wxT("Operator Strength Reduction"), &This::OperatorStrengthReductionTutorial);
     AddButton(true, wxT("Copy Propagation"), &This::CopyPropagationTutorial);
     AddButton(true, wxT("Global Value Numbering"), &This::GlobalValueNumberingTutorial);
+    AddButton(true, wxT("Constant Folding"), &This::ConstantFoldingTutorial);
 
     AddButton(false, wxT("Depth First Search Tree"), &This::DepthFirstTreeTutorial);
     AddButton(false, wxT("Live Variable Analyses"), &This::LiveVariableAnalysisTutorial);
     AddButton(false, wxT("Reaching Definitions"), &This::ReachingDefinitionsTutorial);
     AddButton(false, wxT("Use Def Graph"), &This::UseDefGraphTutorial);
     AddButton(false, wxT("Dominator Tree"), &This::DominatorsTutorial);
+    AddButton(false, wxT("Critical Edges"), &This::CriticalEdgesTutorial);
 }
 
 void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
@@ -560,6 +562,69 @@ void ToyOptimizationChooseWindow::GlobalValueNumberingTutorial(wxCommandEvent &e
     window->LoadHTMLFile("../_Tutorial/GVN/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function.basic_blocks = std::move(global_value_numbering.f.basic_blocks);
+        UpdateGraphImage();
+        window->Close();
+    });
+    window->ShowModal();
+}
+
+void ToyOptimizationChooseWindow::ConstantFoldingTutorial(wxCommandEvent &event) {
+    auto *window = new ToyOptimizationDescriptionWindow(this);
+    Function f = m_chosen_function;
+    run_constant_folding_on_every_quad(f);
+
+    window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
+        wxWindow *wnd = nullptr;
+        if (tag.HasParam("RESULT")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = f.print_cfg();
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        }
+        return wnd;
+    });
+
+    window->LoadHTMLFile("../_Tutorial/ConstantFolding/text.html");
+    window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        m_chosen_function.basic_blocks = std::move(f.basic_blocks);
+        UpdateGraphImage();
+        window->Close();
+    });
+    window->ShowModal();
+}
+
+void ToyOptimizationChooseWindow::CriticalEdgesTutorial(wxCommandEvent &event) {
+    auto *window = new ToyOptimizationDescriptionWindow(this);
+    CriticalEdgesDriver critical_edges_driver(m_chosen_function);
+    critical_edges_driver.split_critical_edges();
+
+    window->SetHtmlTagParserCallback([&](const wxHtmlTag &tag, wxWindow *parent) {
+        wxWindow *wnd = nullptr;
+
+        if (tag.HasParam("SHOW_CRITICAL")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = critical_edges_driver.print_critical_edges();
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        } else if (tag.HasParam("SPLIT_EDGES")) {
+            wnd = new wxButton(parent, wxID_ANY, window->GetTagContent(tag));
+            wnd->Bind(wxEVT_BUTTON, [&](auto &evt) {
+                auto graph_data = critical_edges_driver.f.print_cfg();
+                auto graph_viewer = new GraphView(this, LoadImageFromData(graph_data));
+                graph_viewer->ShowModal();
+            });
+        }
+        return wnd;
+    });
+
+    window->LoadHTMLFile("../_Tutorial/CriticalEdges/text.html");
+    window->m_accept_optimization->SetLabel(wxT("Расщепить рёбра"));
+    window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
+        m_chosen_function.basic_blocks = std::move(critical_edges_driver.f.basic_blocks);
         UpdateGraphImage();
         window->Close();
     });

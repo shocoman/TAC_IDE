@@ -184,7 +184,7 @@ std::vector<char> print_depth_first_search_tree(Function &f) {
                         style = dot_writer.legend_marks[(int)edge_type][2];
 
             std::unordered_map<std::string, std::string> attributes = {
-                {"label", s->lbl_name.value_or("")},
+                {"label", s->label_name.value_or("")},
                 {"color", color},
                 {"style", style},
             };

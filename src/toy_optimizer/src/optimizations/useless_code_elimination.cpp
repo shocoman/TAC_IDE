@@ -79,7 +79,7 @@ void UselessCodeEliminationDriver::remove_noncritical_operations() {
 
                     auto closest_post_dominator = f.id_to_block.at(post_dom_id);
                     q.type = Quad::Type::Goto;
-                    q.dest = Dest(closest_post_dominator->lbl_name.value(), Dest::Type::JumpLabel);
+                    q.dest = Dest(closest_post_dominator->label_name.value(), Dest::Type::JumpLabel);
                     b->remove_successors();
                     b->add_successor(closest_post_dominator);
                 } else if (q.type != Quad::Type::Goto) {
@@ -167,8 +167,8 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
                         pred->add_successor(succ);
                         // correct jump operation
                         auto &jump = pred->quads.back();
-                        if (jump.dest->name == b->lbl_name.value())
-                            jump.dest->name = succ->lbl_name.value();
+                        if (jump.dest->name == b->label_name.value())
+                            jump.dest->name = succ->label_name.value();
                     }
                     b->remove_successors();
                     b->remove_predecessors();
@@ -179,7 +179,7 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
                 // combine two blocks into one (merge 'b' into 'succ')
                 else if (succ->predecessors.size() == 1) {
                     // update predecessors' jump operations
-                    succ->lbl_name = b->lbl_name;
+                    succ->label_name = b->label_name;
                     // remove last jump
                     if (b->quads.back().type == Quad::Type::Goto)
                         b->quads.pop_back();

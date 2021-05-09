@@ -63,8 +63,8 @@ target_include_directories(toy_ide PUBLIC src src/gui_code_editor)
 target_link_libraries(toy_ide PUBLIC fmt::fmt BisonParser)
 
 
-### Graphviz ########################################
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_plugins")
+#### Graphviz ########################################
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/src/toy_optimizer/cmake_plugins")
 find_package(Graphviz)
 target_include_directories(toy_ide PUBLIC "${graphviz_INCLUDE_DIRECTORIES}")
 

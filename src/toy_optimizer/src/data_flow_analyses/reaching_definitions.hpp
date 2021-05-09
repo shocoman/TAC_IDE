@@ -156,7 +156,7 @@ struct ReachingDefinitionsDriver {
             dot_writer.set_attribute(node_name, "subscript", fmt::format("<BR/>id={}", b->id));
 
             for (auto &s : b->successors)
-                dot_writer.add_edge(node_name, s->get_name(), {{"label", s->lbl_name.value_or("")}});
+                dot_writer.add_edge(node_name, s->get_name(), {{"label", s->label_name.value_or("")}});
         }
 
         std::string filename = "graphs/reach_defs.png";

@@ -19,7 +19,7 @@ struct Function {
 
     Function(BasicBlocks blocks) : basic_blocks(std::move(blocks)) {
         if (!basic_blocks.empty())
-            function_name = basic_blocks.at(0)->lbl_name.value_or(function_name);
+            function_name = basic_blocks.at(0)->label_name.value_or(function_name);
 
         connect_blocks();
         add_missing_jumps();
@@ -39,7 +39,7 @@ struct Function {
         }
 
         if (!basic_blocks.empty())
-            function_name = basic_blocks.at(0)->lbl_name.value_or(function_name);
+            function_name = basic_blocks.at(0)->label_name.value_or(function_name);
         connect_blocks();
         add_missing_jumps();
         add_entry_and_exit_block();

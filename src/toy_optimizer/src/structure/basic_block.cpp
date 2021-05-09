@@ -11,24 +11,28 @@ std::string BasicBlock::get_name() const {
         return "# Entry #";
     else if (type == BasicBlock::Type::Exit)
         return "# Exit #";
-    else if (lbl_name.has_value())
-        return lbl_name.value();
-    else if (!node_name.empty())
-        return node_name;
+    else if (label_name.has_value())
+        return label_name.value();
     else
         return fmt::format("#BB_{}", id);
 }
 
 std::string BasicBlock::fmt() const {
     std::string out;
+    out = get_name() + "\n";
     for (auto &q : quads)
-        out += q.fmt() + "\n";
+        out += fmt::format("\t{}\n", q.fmt());
     return out;
 }
 
 void BasicBlock::add_successor(BasicBlock *s) {
     successors.emplace(s);
     s->predecessors.emplace(this);
+}
+
+void BasicBlock::remove_successor(BasicBlock *s) {
+    successors.erase(s);
+    s->predecessors.erase(this);
 }
 
 void BasicBlock::remove_successors() {
@@ -52,7 +56,7 @@ BasicBlock *BasicBlock::get_fallthrough_successor() {
 
     auto &jump_target = quads.back().dest->name;
     for (auto &s : successors)
-        if (!s->lbl_name.has_value() || *s->lbl_name != jump_target)
+        if (!s->label_name.has_value() || *s->label_name != jump_target)
             return s;
     return nullptr;
 }
@@ -63,7 +67,7 @@ BasicBlock *BasicBlock::get_jumped_to_successor() {
 
     auto &jump_target = quads.back().dest->name;
     for (auto &s : successors)
-        if (s->lbl_name.has_value() && *s->lbl_name == jump_target)
+        if (s->get_name() == jump_target)
             return s;
     return nullptr;
 }

@@ -4,6 +4,8 @@
 
 #include "quad_preparation.hpp"
 
+#define START_LABEL_NAME "_start"
+
 std::vector<Function> collect_quads_into_functions(std::unordered_map<std::string, int> &labels,
                                                    std::vector<Quad> &quads) {
     const auto main_function = "main";
@@ -21,7 +23,7 @@ std::vector<Function> collect_quads_into_functions(std::unordered_map<std::strin
         function_names.insert(main_function);
 
     // add global label (function) if need one
-    std::string start_label = "_start";
+    std::string start_label = START_LABEL_NAME;
     auto starts_with_label = false;
     for (auto &[name, pos] : labels) {
         if (pos == 0) {
@@ -60,7 +62,7 @@ std::vector<Function> split_basic_blocks_into_functions(BasicBlocks blocks,
     std::vector<BasicBlocks> basic_block_groups;
 
     for (auto &b : blocks) {
-        if (basic_block_groups.empty() || function_names.count(b->lbl_name.value_or("")) > 0) {
+        if (basic_block_groups.empty() || function_names.count(b->label_name.value_or("")) > 0) {
             basic_block_groups.emplace_back();
         }
         basic_block_groups.back().emplace_back(std::move(b));
@@ -85,15 +87,16 @@ BasicBlocks construct_basic_blocks_from_indices(const std::vector<Quad> &quads,
                 nodes.emplace_back(curr_node);
             curr_node = new BasicBlock();
             curr_node->id = node_number++;
-            curr_node->node_name = curr_node->get_name();
 
             if (auto lbl = id_to_label.find(i); lbl != id_to_label.end())
-                curr_node->lbl_name = lbl->second;
+                curr_node->label_name = lbl->second;
         }
         if (i < quads.size())
             curr_node->quads.push_back(quads[i]);
     }
-    if (curr_node)
+
+    bool file_was_empty = leader_indices.size() == 1 && leader_indices[0].value_or("") == START_LABEL_NAME;
+    if (curr_node && (!curr_node->quads.empty() || file_was_empty))
         nodes.emplace_back(curr_node);
 
     return nodes;
@@ -123,5 +126,3 @@ bool is_builtin_function(const std::string &func_name) {
 
     return std::any_of(built_in_functions.begin(), built_in_functions.end(), [&](auto &f) { return func_name == f; });
 }
-
-void NNNothing() { std::cout << "LOL_NOTHING!" << std::endl; }

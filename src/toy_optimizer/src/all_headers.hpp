@@ -24,5 +24,6 @@
 #include "data_flow_analyses/dominators.hpp"
 #include "data_flow_analyses/set_utilities.hpp"
 #include "data_flow_analyses/ssa_graph.hpp"
+#include "data_flow_analyses/critical_edges.hpp"
 
 #endif // TOY_OPTIMIZER_SRC_TOY_OPTIMIZER_SRC_ALL_HEADERS_HPP

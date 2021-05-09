@@ -1,4 +1,5 @@
 #include <any>
+#include <data_flow_analyses/critical_edges.hpp>
 #include <iostream>
 #include <optimizations/ssa.hpp>
 #include <queue>
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
     // endregion
 
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "172.17.191.225:0", true);
+        setenv("DISPLAY", "172.18.67.241:0", true);
 
     ParseDriver drv;
 
@@ -43,9 +44,9 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/new_sccp_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/sccp2.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/strength_reduction.txt")
-        drv.parse_from_file("../../../_Examples/Toy/constant_folding.txt")
+        //        drv.parse_from_file("../../../_Examples/Toy/constant_folding.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/copy_propagation.txt")
-        //    drv.parse_from_file("../../../_Examples/Toy/bob_maxcol.txt")
+                drv.parse_from_file("../../../_Examples/Toy/bob_maxcol.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/live_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/ref_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/copy_propagation2.txt")
@@ -55,9 +56,8 @@ int main(int argc, char *argv[]) {
         //    drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
         //    drv.parse_from_file("../../../_Examples/edu_test.txt")
         //    drv.parse_from_file("../../../_Examples/Toy/Examples/TempIdents.txt")
+//        drv.parse_from_file("../../../_Examples/Toy/critical_edges.txt")
         ;
-
-
 
     auto functions = collect_quads_into_functions(drv.labels, drv.quadruples);
     auto &f = functions[0];
@@ -65,7 +65,13 @@ int main(int argc, char *argv[]) {
     //    run_convert_from_ssa(f);
 
     f.print_cfg("before.png");
-//    run_convert_to_ssa(f);
+    CriticalEdgesDriver critical_edges(f);
+    critical_edges.print_critical_edges();
+
+    critical_edges.split_critical_edges();
+    f.print_cfg("after.png");
+
+    //    run_convert_to_ssa(f);
     //    run_sparse_simple_constant_propagation(f);
     //    run_sparse_conditional_constant_propagation(f);
     //    run_convert_from_ssa(f);
@@ -74,16 +80,16 @@ int main(int argc, char *argv[]) {
     //        fmt::print("{}, Type: {}; UminusType: {}\n", q.fmt(), q.type, Quad::Type::UMinus);
     //    }
 
-//    OperatorStrengthReductionDriver operator_strength_reduction_driver(f);
-//    operator_strength_reduction_driver.run();
-//
-//    run_useless_code_elimination(f);
-//    run_copy_propagation(f);
-//    run_useless_code_elimination(f);
+    //    OperatorStrengthReductionDriver operator_strength_reduction_driver(f);
+    //    operator_strength_reduction_driver.run();
+    //
+    //    run_useless_code_elimination(f);
+    //    run_copy_propagation(f);
+    //    run_useless_code_elimination(f);
 
-    run_constant_folding_on_every_quad(f);
+    //    run_constant_folding_on_every_quad(f);
 
-    f.print_cfg("after.png");
+    //    f.print_cfg("after.png");
 
     //    superlocal_value_numbering(f);
     //    dominator_based_value_numbering(f);

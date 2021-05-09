@@ -27,7 +27,8 @@ std::vector<char> Function::print_cfg(std::string filename, std::unordered_map<i
         dot_writer.set_node_text(node_name, quad_lines);
 
         // attribute for correct branch display
-        if (auto branch_target = n->get_jumped_to_successor(); branch_target && n->successors.size() > 1) {
+        auto branch_target = n->get_jumped_to_successor();
+        if (branch_target && n->successors.size() > 1) {
             dot_writer.set_attribute(node_name, "true_branch", branch_target->get_name());
         }
 
@@ -39,7 +40,7 @@ std::vector<char> Function::print_cfg(std::string filename, std::unordered_map<i
         // print edges
         for (auto &s : n->successors) {
             std::unordered_map<std::string, std::string> attributes = {
-                {"label", s->lbl_name.value_or("")}, // {"color", "brown"}, {"style", "dashed"},
+                {"label", s->get_name()}, // {"color", "brown"}, {"style", "dashed"},
             };
 
             dot_writer.add_edge(node_name, s->get_name(), attributes);
@@ -62,7 +63,7 @@ std::vector<char> Function::print_cfg(std::string filename, std::unordered_map<i
 
 void Function::print_to_console() const {
     for (auto &b : basic_blocks) {
-        std::cout << " *** BasicBlock: " << b->node_name << "; " << b->lbl_name.value_or("NONE")
+        std::cout << " *** BasicBlock: " << b->get_name() << "; " << b->label_name.value_or("NONE")
                   << "; Successors: " << b->successors.size() << "; Predecessors: " << b->predecessors.size() << " \n"
                   << b->fmt();
     }
@@ -78,7 +79,7 @@ void Function::connect_blocks() {
         if (!b->quads.empty() && b->quads.back().is_jump()) {
             auto &jump_target = b->quads.back().dest->name;
             auto block = std::find_if(basic_blocks.begin(), basic_blocks.end(), [&](auto &e) {
-                return e->lbl_name.has_value() && e->lbl_name.value() == jump_target;
+                return e->label_name.has_value() && e->label_name.value() == jump_target;
             });
 
             if (block->get() != nullptr)
@@ -96,7 +97,7 @@ void Function::add_missing_jumps() {
             continue;
         auto &last_q = b->quads.back();
         if (last_q.type != Quad::Type::Return && !last_q.is_jump() && !b->successors.empty()) {
-            Dest dest((*b->successors.begin())->lbl_name.value(), Dest::Type::JumpLabel);
+            Dest dest((*b->successors.begin())->label_name.value(), Dest::Type::JumpLabel);
             Quad jump({}, {}, Quad::Type::Goto, dest);
             b->quads.push_back(jump);
         }
@@ -222,8 +223,8 @@ BasicBlock *Function::get_exit_block() const {
 
 void Function::print_basic_block_info() const {
     for (const auto &b : basic_blocks) {
-        fmt::print("ID: {:2}; LABEL NAME: {:4}; PREDS: {:2}; SUCCS: {:2}\n", b->id, b->lbl_name.value_or("NONE"),
-                   b->predecessors.size(), b->successors.size());
+        fmt::print("ID: {:2}; BLOCK_NAME: {:10}; LABEL NAME: {:4}; PREDS: {:2}; SUCCS: {:2}\n", b->id, b->get_name(),
+                   b->label_name.value_or("NONE"), b->predecessors.size(), b->successors.size());
     }
 }
 
@@ -239,11 +240,27 @@ void Function::remove_blocks_without_predecessors() {
 }
 
 void Function::update_block_ids() {
+    std::unordered_map<BasicBlock *, BasicBlock *> jump_targets;
+
+    for (const auto &b : basic_blocks) {
+        auto *succ = b->get_jumped_to_successor();
+        if (succ != nullptr) {
+            jump_targets[b.get()] = succ;
+        }
+    }
+
     id_to_block.clear();
     int id = 0;
     for (auto &b : basic_blocks) {
         b->id = id++;
         id_to_block[b->id] = b.get();
+    }
+
+    // rename jump targets accordingly
+    for (auto &b : basic_blocks) {
+        if (jump_targets.count(b.get()) > 0) {
+            b->quads.back().dest->name = jump_targets.at(b.get())->get_name();
+        }
     }
 }
 

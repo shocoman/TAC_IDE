@@ -9,6 +9,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 
 #include "quadruple/quadruple.hpp"
 
@@ -17,11 +18,10 @@ struct BasicBlock {
 
     int id;
     Type type = Type::Normal;
-    std::string node_name;
-    std::optional<std::string> lbl_name;
+    std::optional<std::string> label_name;
     std::vector<Quad> quads;
-    std::unordered_set<BasicBlock *> successors;
-    std::unordered_set<BasicBlock *> predecessors;
+    std::unordered_set<BasicBlock *> successors, predecessors;
+    BasicBlock* true_branch = nullptr, *false_branch = nullptr;
     int phi_functions = 0;
 
     std::string get_name() const;
@@ -29,6 +29,7 @@ struct BasicBlock {
 
     int append_quad(Quad q);
     void add_successor(BasicBlock *s);
+    void remove_successor(BasicBlock *s);
     void remove_successors();
     void remove_predecessors();
 

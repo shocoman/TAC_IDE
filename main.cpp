@@ -8,7 +8,7 @@
 
 int main(int argc, char **argv) {
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "192.168.24.33:0", true);
+        setenv("DISPLAY", "172.18.67.241:0", true);
 
     wxApp *pApp = new TheApp();
     wxApp::SetInstance(pApp);
@@ -21,6 +21,9 @@ int main(int argc, char **argv) {
     // cleaning up...
     wxTheApp->OnExit();
     wxEntryCleanup();
+
+    std::vector v =  {1,2,3};
+
 
     return 0;
 }

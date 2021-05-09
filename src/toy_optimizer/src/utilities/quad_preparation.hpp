@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <fmt/ranges.h>
 
 #include "../structure/basic_block.hpp"
 #include "../structure/function.hpp"
