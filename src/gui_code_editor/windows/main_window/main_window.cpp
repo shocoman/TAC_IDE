@@ -280,7 +280,7 @@ void MainWindowFrame::CreateMenu() {
 
     // Project menu
     wxMenu *menuProject = new wxMenu;
-    menuProject->AppendSubMenu(menuTacDialect, wxT("TAC dialect"));
+    menuProject->AppendSubMenu(menuTacDialect, wxT("Диалект трёхадресного кода"));
 
     // Examples submenu
     auto examplesFolderName = "_Examples";
@@ -314,7 +314,7 @@ void MainWindowFrame::CreateMenu() {
         }
 
         menuProject->AppendSeparator();
-        menuProject->AppendSubMenu(name_to_menu.at(examplesFolderName), "Examples");
+        menuProject->AppendSubMenu(name_to_menu.at(examplesFolderName), wxT("Примеры"));
     }
 
     // Tools menu

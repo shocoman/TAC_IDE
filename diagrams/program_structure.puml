@@ -1,0 +1,69 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+class Operand {
+    Type type
+    String value
+    BasicBlock* predecessor
+    {method} ...
+}
+
+class Destination {
+    Type type
+    String name
+
+    {method} ...
+}
+
+class Quad {
+    Type type
+    Destination destination
+    Operand[] operands
+
+    String format()
+    {method} ...
+}
+
+class BasicBlock {
+    Type type
+    int id
+    String label_name
+    Quad[] quads;
+    Set<BasicBlock*> predecessors
+    Set<BasicBlock*> successors
+
+    String format()
+    void add_successor(BasicBlock*)
+    void remove_successor(BasicBlock*)
+    void append_quad(Quad)
+}
+
+class Function {
+    String name
+    BasicBlock[] basic_blocks
+    Map<int, BasicBlock*> id_to_block
+
+    String get_as_code()
+    void reverse_graph()
+    BasicBlock* get_entry_block()
+    BasicBlock* get_exit_block()
+    Byte[] print_cfg()
+}
+
+class Program {
+    Function[] functions
+
+    {static} Program make_from_file(String file_name)
+    {static} Program make_from_program_code(String code)
+    String get_as_code()
+}
+
+
+Quad --> Destination
+Quad --> Operand
+BasicBlock -->Quad
+Function -> BasicBlock
+Program --> Function
+
+@enduml

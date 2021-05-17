@@ -73,15 +73,26 @@ void UselessCodeEliminationDriver::remove_noncritical_operations() {
                 if (q.is_conditional_jump()) {
                     // replace quad with jump to closest "marked" postdominator
                     int post_dom_id = b->id;
+
+                    bool found_unmarked_block = true;
                     do {
+                        if (ir.id_to_ipostdom.count(post_dom_id) == 0) {
+                            found_unmarked_block = false;
+                            break;
+                        }
                         post_dom_id = ir.id_to_ipostdom.at(post_dom_id);
                     } while (ir.marked_blocks.count(post_dom_id) == 0);
 
-                    auto closest_post_dominator = f.id_to_block.at(post_dom_id);
-                    q.type = Quad::Type::Goto;
-                    q.dest = Dest(closest_post_dominator->label_name.value(), Dest::Type::JumpLabel);
-                    b->remove_successors();
-                    b->add_successor(closest_post_dominator);
+                    if (found_unmarked_block) {
+                        auto closest_post_dominator = f.id_to_block.at(post_dom_id);
+                        q.type = Quad::Type::Goto;
+                        q.dest = Dest(closest_post_dominator->label_name.value(), Dest::Type::JumpLabel);
+                        b->remove_successors();
+                        b->add_successor(closest_post_dominator);
+                    } else {
+                        q.type = Quad::Type::Nop;
+                        b->remove_successors();
+                    }
                 } else if (q.type != Quad::Type::Goto) {
                     if (b->quads[q_index].type == Quad::Type::PhiNode)
                         --b->phi_functions;

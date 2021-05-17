@@ -21,7 +21,6 @@ struct BasicBlock {
     std::optional<std::string> label_name;
     std::vector<Quad> quads;
     std::unordered_set<BasicBlock *> successors, predecessors;
-    BasicBlock* true_branch = nullptr, *false_branch = nullptr;
     int phi_functions = 0;
 
     std::string get_name() const;

@@ -23,6 +23,8 @@ bool TheApp::OnInit() {
     m_frame->Layout();
     m_frame->Show(true);
 
+
+
     //    wxFileInputStream input(wxT("../_Examples/Toy/bob_maxcol.txt"));
     //    wxTextInputStream text(input, wxT("\x09"), wxConvUTF8);
     //    wxString code;

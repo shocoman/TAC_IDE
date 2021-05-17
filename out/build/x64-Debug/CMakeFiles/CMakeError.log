@@ -1,0 +1,20 @@
+Performing C++ SOURCE FILE Test has_std_17_flag failed with the following output:
+Change Dir: D:/programming/c/tac_parser/out/build/x64-Debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_e22ba && [1/2] Building CXX object CMakeFiles\cmTC_e22ba.dir\src.cxx.obj
+cl : Command line warning D9002 : ignoring unknown option '-std=c++17'
+[2/2] Linking CXX executable cmTC_e22ba.exe
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test has_std_1z_flag failed with the following output:
+Change Dir: D:/programming/c/tac_parser/out/build/x64-Debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_6e262 && [1/2] Building CXX object CMakeFiles\cmTC_6e262.dir\src.cxx.obj
+cl : Command line warning D9002 : ignoring unknown option '-std=c++1z'
+[2/2] Linking CXX executable cmTC_6e262.exe
+
+
+Source file was:
+int main() { return 0; }

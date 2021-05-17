@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+left to right direction
+
+
+TheApp -> MainWindowFrame
+
+MainWindowFrame -> CodeEditorFrame
+MainWindowFrame -> GraphWindow
+
+GraphWindow -> ImagePanel
+
+MainWindowFrame -> LLVMIROptimizationWindow
+MainWindowFrame -> ToyIROptimizationWindow
+
+LLVMIROptimizationWindow --> FunctionSelectionWindow
+ToyIROptimizationWindow --> FunctionSelectionWindow
+
+ToyIROptimizationWindow --> GraphWindow
+ToyIROptimizationWindow --> PassDescriptionWindow
+
+
+class TheApp {
+    StartProgram()
+}
+
+class MainWindowFrame {
+    OpenOptimizationWindow()
+    ShowControlFlowGraph()
+}
+
+class GraphWindow {
+    LoadImageFromDotFile()
+    LoadImageFromData()
+}
+
+class ImagePanel {
+    Zoom()
+    Pan()
+}
+
+class FunctionSelectionWindow {
+    GetSelectedFunction()
+}
+
+class ToyIROptimizationWindow {
+    ApplyOptimization()
+}
+
+class LLVMIROptimizationWindow {
+    ApplyOptimization()
+}
+
+@enduml

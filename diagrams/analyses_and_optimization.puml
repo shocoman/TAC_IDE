@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Pass {
+    Function function
+    void run()
+}
+
+left to right direction
+
+
+Pass <|- ConstantFolding
+Pass <|- CopyPropagation
+Pass <|- LazyCodeMotion
+Pass <|- OperatorStrengthReduction
+Pass <|-l SparseSimpleConstantPropagation
+Pass <|-l SparseConditionalConstantPropagation
+Pass <|-l SSAForm
+Pass <|-l UselessCodeElimination
+Pass <|-l GlobalValueNumbering
+
+
+Pass <|-- CriticalEdges
+Pass <|-- LiveVariableAnalysis
+Pass <|-- ReachingDefinitions
+Pass <|-- UseDefGraph
+Pass <|-- DominatorTree
+
+class CriticalEdges {
+    Bytes[] show_on_graph()
+    void split()
+}
+
+class LiveVariableAnalysis {
+    String[] get_uninitialized_variables()
+}
+
+class ReachingDefinitions {
+    Bytes[] show_on_graph()
+}
+
+class UseDefGraph {
+    Bytes[] print_graph()
+}
+
+class DominatorTree {
+    Bytes[] print_tree()
+}
+
+class SSAForm {
+    void convert_to_ssa()
+    void convert_from_ssa()
+}
+
+@enduml
