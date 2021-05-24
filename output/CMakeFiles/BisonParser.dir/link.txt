@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC  -pthread -shared -Wl,-soname,libBisonParser.so -o libBisonParser.so CMakeFiles/BisonParser.dir/src/toy_optimizer/src/utilities/parser/driver/driver.cpp.o CMakeFiles/BisonParser.dir/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp.o CMakeFiles/BisonParser.dir/src/toy_optimizer/src/utilities/parser/compiled_parser/parser.cpp.o 
