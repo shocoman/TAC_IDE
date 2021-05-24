@@ -1,0 +1,14 @@
+B0:
+    i = 1
+    goto B1
+B1:
+    if i goto B3
+B2:
+    s = 0
+    goto B3
+B3:
+    s = s + i
+    i = i + 1
+    if i goto B1
+B4:
+    return i

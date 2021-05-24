@@ -22,8 +22,5 @@ int main(int argc, char **argv) {
     wxTheApp->OnExit();
     wxEntryCleanup();
 
-    std::vector v =  {1,2,3};
-
-
     return 0;
 }

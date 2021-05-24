@@ -1,0 +1,136 @@
+
+// 'a' to the power of 'b'
+//  $START:
+//      a = 4
+//      b=4
+//      b = 6 - a
+//      c = 6 - a
+//      tmp = a
+//  $LOOP_START:
+//      rel = b == 0
+//      if rel goto $END
+//
+//      tmp = tmp * a
+//      a = b + 2
+//      z = b
+//      b = b - 1
+//      if 0 goto $LOOP_START
+//      goto $START
+//  $END:
+//      return
+
+// B0:
+//     m = a + b
+//     n = a + b
+//     $t1 = a > b
+//     if $t1 goto B2
+// B1:
+//     p = c + d
+//     r = c + d
+//     goto B6
+// B2:
+//     q = a + b
+//     r = c + d
+//     $t2 = a > b
+//     if $t2 goto B4
+// B3:
+//     e = b + 18
+//     s = a + b
+//     u = e + func
+//     goto B5
+// B4:
+//     e = a + 17
+//     t = c + d
+//     u = e + func
+//     goto B5
+// B5:
+//     v = a + b
+//     w = c + d
+//     x = e + func
+//     goto B6
+// B6:
+//    y = a + b
+//    z = c + d
+
+B0:
+    i = 1
+B1:
+    if i goto B3
+B2:
+    s = 0
+B3:
+    s = s + i
+    i = i + 1
+    if i goto B1
+B4:
+    PRINT = s
+
+
+// B0:
+//     i=i
+//     if i goto B5
+// B1:
+//     goto B2
+// B2:
+//     i=i
+//     goto B3
+// B4:
+//    i=i
+//    goto B3
+// B5:
+//     if i goto B4
+// B3:
+//     if i goto B2
+//     goto B4
+
+
+B0:
+    i = 1
+    a = 0
+    b = 0
+    c = 0
+    d = 0
+B1:
+    a = 40
+    c = 0
+    $t1 = a < c
+    if $t1 goto B5
+B2:
+    b = 0
+    c = 0
+    d = 0
+B3:
+    y = a + b
+    z = c + d
+    i = i + 1
+    $t2 = i < 100
+    if $t2 goto B1
+B4:
+    return
+B5:
+    a = 0
+    d = 0
+    $t3 = a < d
+    if $t3 goto B8
+B6:
+    d = 0
+B7:
+    b = 0
+    goto B3
+B8:
+    c = 0
+    goto B7
+
+
+
+// B1:
+//     a = 30
+//     $t1 = true
+//     if $t1 goto B3
+// B2:
+//     a = a + 1
+//     goto B4
+// B3:
+//     a = a + 2
+// B4:
+//     d = a

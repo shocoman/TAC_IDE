@@ -5,34 +5,35 @@
 #ifndef TAC_SIMULATOR_TEST_OPTIMIZATIONSELECT_HPP
 #define TAC_SIMULATOR_TEST_OPTIMIZATIONSELECT_HPP
 
-#include <llvm-11/llvm/Bitcode/BitcodeWriter.h>
-#include <llvm-11/llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm-11/llvm/ExecutionEngine/GenericValue.h>
-#include <llvm-11/llvm/ExecutionEngine/MCJIT.h>
-#include <llvm-11/llvm/IR/Constants.h>
-#include <llvm-11/llvm/IR/Function.h>
-#include <llvm-11/llvm/IR/IRBuilder.h>
-#include <llvm-11/llvm/IR/InstrTypes.h>
-#include <llvm-11/llvm/IR/Instruction.h>
-#include <llvm-11/llvm/IR/LLVMContext.h>
-#include <llvm-11/llvm/IR/LegacyPassManager.h>
-#include <llvm-11/llvm/IR/Module.h>
-#include <llvm-11/llvm/IRReader/IRReader.h>
-#include <llvm-11/llvm/Support/SourceMgr.h>
-#include <llvm-11/llvm/Support/TargetRegistry.h>
-#include <llvm-11/llvm/Support/TargetSelect.h>
-#include <llvm-11/llvm/Support/raw_os_ostream.h>
-#include <llvm-11/llvm/Transforms/InstCombine/InstCombine.h>
-#include <llvm-11/llvm/Transforms/Scalar.h>
-#include <llvm-11/llvm/Transforms/Scalar/GVN.h>
-#include <llvm-11/llvm/Analysis/CFGPrinter.h>
-#include <llvm-11/llvm/Analysis/CallPrinter.h>
-#include <llvm-11/llvm/Analysis/DomPrinter.h>
-#include <llvm-11/llvm/Analysis/CallGraph.h>
-#include <llvm-11/llvm/Analysis/DOTGraphTraitsPass.h>
-#include <llvm-11/llvm/Support/GraphWriter.h>
-#include <llvm-11/llvm/AsmParser/Parser.h>
-
+#if LLVM_FOUND
+    #include <llvm-11/llvm/Bitcode/BitcodeWriter.h>
+    #include <llvm-11/llvm/ExecutionEngine/ExecutionEngine.h>
+    #include <llvm-11/llvm/ExecutionEngine/GenericValue.h>
+    #include <llvm-11/llvm/ExecutionEngine/MCJIT.h>
+    #include <llvm-11/llvm/IR/Constants.h>
+    #include <llvm-11/llvm/IR/Function.h>
+    #include <llvm-11/llvm/IR/IRBuilder.h>
+    #include <llvm-11/llvm/IR/InstrTypes.h>
+    #include <llvm-11/llvm/IR/Instruction.h>
+    #include <llvm-11/llvm/IR/LLVMContext.h>
+    #include <llvm-11/llvm/IR/LegacyPassManager.h>
+    #include <llvm-11/llvm/IR/Module.h>
+    #include <llvm-11/llvm/IRReader/IRReader.h>
+    #include <llvm-11/llvm/Support/SourceMgr.h>
+    #include <llvm-11/llvm/Support/TargetRegistry.h>
+    #include <llvm-11/llvm/Support/TargetSelect.h>
+    #include <llvm-11/llvm/Support/raw_os_ostream.h>
+    #include <llvm-11/llvm/Transforms/InstCombine/InstCombine.h>
+    #include <llvm-11/llvm/Transforms/Scalar.h>
+    #include <llvm-11/llvm/Transforms/Scalar/GVN.h>
+    #include <llvm-11/llvm/Analysis/CFGPrinter.h>
+    #include <llvm-11/llvm/Analysis/CallPrinter.h>
+    #include <llvm-11/llvm/Analysis/DomPrinter.h>
+    #include <llvm-11/llvm/Analysis/CallGraph.h>
+    #include <llvm-11/llvm/Analysis/DOTGraphTraitsPass.h>
+    #include <llvm-11/llvm/Support/GraphWriter.h>
+    #include <llvm-11/llvm/AsmParser/Parser.h>
+#endif
 
 #include <wx/notebook.h>
 #include <wx/sizer.h>
@@ -70,10 +71,10 @@ static std::vector<std::pair<std::string, std::string>> g_optimization_descripti
                       "successful are removing non-obviously dead instructions."},
     {"GuardWidening", "GuardWidening - An optimization over the @llvm.experimental.guard intrinsic that "
                       "(optimistically) combines multiple guards into one to have fewer checks at runtime."},
-    {"LoopGuardWidening",
-     "LoopGuardWidening - Analogous to the GuardWidening pass, but restricted to a single loop at a time for "
-     "use within a LoopPassManager.  Desired effect is to widen guards into preheader or a single guard "
-     "within loop if that's not possible."},
+//    {"LoopGuardWidening",
+//     "LoopGuardWidening - Analogous to the GuardWidening pass, but restricted to a single loop at a time for "
+//     "use within a LoopPassManager.  Desired effect is to widen guards into preheader or a single guard "
+//     "within loop if that's not possible."},
     {"BitTrackingDCE", "BitTrackingDCE - This pass uses a bit-tracking DCE algorithm in order to remove "
                        "computations of dead bits."},
     {"SROA", "SROA - Replace aggregates or pieces of aggregates with scalar SSA values."},
@@ -149,19 +150,19 @@ static std::vector<std::pair<std::string, std::string>> g_optimization_descripti
     {"PartiallyInlineLibCalls",
      "PartiallyInlineLibCalls - Tries to inline the fast path of library calls such as sqrt."},
     {"SeparateConstOffsetFromGEP", "SeparateConstOffsetFromGEP - Split GEPs for better CSE"},
-    {"SpeculativeExecution", "SpeculativeExecution - Aggressively hoist instructions to enable speculative "
-                             "execution on targets where branches are expensive."},
-    {"SpeculativeExecutionIfHasBranchDivergence",
-     "Same as createSpeculativeExecutionPass, but does nothing unless "
-     "TargetTransformInfo::hasBranchDivergence() is true."},
+//    {"SpeculativeExecution", "SpeculativeExecution - Aggressively hoist instructions to enable speculative "
+//                             "execution on targets where branches are expensive."},
+//    {"SpeculativeExecutionIfHasBranchDivergence",
+//     "Same as createSpeculativeExecutionPass, but does nothing unless "
+//     "TargetTransformInfo::hasBranchDivergence() is true."},
     {"StraightLineStrengthReduce", "StraightLineStrengthReduce - This pass strength-reduces some certain "
                                    "instruction patterns in straight-line code."},
     {"PlaceSafepoints", "PlaceSafepoints - Rewrite any IR calls to gc.statepoints and insert any safepoint "
                         "polls (method entry, backedge) that might be required.  This pass does not generate "
                         "explicit relocation sequences - that's handled by RewriteStatepointsForGC which can "
                         "be run at an arbitrary point in the pass order following this pass."},
-    {"RewriteStatepointsForGCLegacy", "RewriteStatepointsForGC - Rewrite any gc.statepoints which do not yet "
-                                      "have explicit relocations to include explicit relocations."},
+//    {"RewriteStatepointsForGCLegacy", "RewriteStatepointsForGC - Rewrite any gc.statepoints which do not yet "
+//                                      "have explicit relocations to include explicit relocations."},
     {"Float2Int", "Float2Int - Demote floats to ints where possible."},
     {"NaryReassociate", "NaryReassociate - Simplify n-ary operations by reassociation."},
     {"LoopDistribute", "LoopDistribute - Distribute loops."},

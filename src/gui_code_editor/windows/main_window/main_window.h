@@ -53,9 +53,11 @@ class MainWindowFrame : public wxFrame {
     void SetIRDialect(int id);
     void FileOpen(wxString fname);
     void CloseTab(bool remove_tab);
+    void DisplayLLVMNotfoundMessage();
 
     EditorCtrl* GetSelectedEditor();
     EditorCtrl*AddNewEditorTab();
+
   private:
     wxMenuBar *m_menuBar;
     void CreateMenu();

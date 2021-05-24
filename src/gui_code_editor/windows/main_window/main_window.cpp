@@ -276,6 +276,7 @@ void MainWindowFrame::CreateMenu() {
     wxMenu *menuTacDialect = new wxMenu;
     menuTacDialect->AppendRadioItem(myID_TOY_DIALECT, wxT("Toy IR"));
     menuTacDialect->AppendRadioItem(myID_LLVMIR_DIALECT, wxT("LLVM IR"));
+//    menuTacDialect->Enable(myID_LLVMIR_DIALECT, LLVM_FOUND);
     menuTacDialect->Bind(wxEVT_MENU, [&](wxCommandEvent &evt) { SetIRDialect(evt.GetId()); });
 
     // Project menu
@@ -284,7 +285,7 @@ void MainWindowFrame::CreateMenu() {
 
     // Examples submenu
     auto examplesFolderName = "_Examples";
-    auto examplesFolderPath = wxString::Format("../%s", examplesFolderName);
+    auto examplesFolderPath = wxString::Format("%s", examplesFolderName);
     if (wxDir::Exists(examplesFolderPath)) {
         std::map<wxString, wxMenu *> name_to_menu;
 
@@ -295,7 +296,8 @@ void MainWindowFrame::CreateMenu() {
 
             wxFileName file_name(path);
             auto dirs = file_name.GetDirs();
-            dirs.Remove("..");
+            if (dirs.Index("..") != wxNOT_FOUND)
+                dirs.Remove("..");
 
             for (int i = 0; i < dirs.size(); ++i) {
                 auto &dir = dirs[i];
@@ -413,9 +415,14 @@ void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
     wxString program_file = "_test.txt";
     GetSelectedEditor()->SaveFile(program_file, false);
 
-    wxString simulatorFileName = "???";
+    wxString simulatorFileName;
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
+#if LLVM_FOUND
         simulatorFileName = "llvm_simulator";
+#else
+        DisplayLLVMNotfoundMessage();
+        return;
+#endif
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
         simulatorFileName = "tac_simulator_exe";
     }
@@ -425,21 +432,22 @@ void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
 
     const wxString &command = appPath.GetFullPath() + " " + program_file;
     fmt::print("CMD: {}\n", command);
-    int ret = wxExecute(command, wxEXEC_ASYNC);
-    //    if (ret == -1)
-    //        wxMessageBox(wxString::Format(wxT("Что-то пошло не так...\nОшибка: '%s'\nКоманда: %s"),
-    //        std::strerror(errno), command));
+    wxExecute(command, wxEXEC_ASYNC);
 }
 
 void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
     wxString code = GetSelectedEditor()->GetText().ToAscii();
 
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
+#if LLVM_FOUND
         auto *m_optimization_window = new LLVMOptimizationWindow(this, "Optimization window", code);
         if (m_optimization_window->ShowModal() == wxID_OK) {
             auto *new_editor = AddNewEditorTab();
             new_editor->SetText(m_optimization_window->output_code);
         }
+#else
+        DisplayLLVMNotfoundMessage();
+#endif
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
         Program program;
         try {
@@ -474,10 +482,16 @@ void MainWindowFrame::OnOptimizationWindow(wxCommandEvent &event) {
     }
 }
 
+void MainWindowFrame::DisplayLLVMNotfoundMessage() {
+    wxString error_text = wxT("Так как во время сборки и компиляции программы не была найдена библиотека LLVM, данная опция вам недоступна.");
+    wxMessageBox(error_text, wxT("Произошла ошибка!"), wxCENTER | wxOK | wxICON_ERROR);
+}
+
 void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
     wxString code = GetSelectedEditor()->GetText().ToAscii();
 
     if (m_menuBar->IsChecked(myID_LLVMIR_DIALECT)) {
+#if LLVM_FOUND
         llvm::LLVMContext context;
         llvm::SMDiagnostic err;
         auto module = parseAssemblyString(code.ToStdString(), err, context);
@@ -510,6 +524,9 @@ void MainWindowFrame::OnDisplayCFG(wxCommandEvent &event) {
             auto *graph_view = GraphView::fromDotFile(this, ostream.str());
             graph_view->ShowModal();
         }
+#else
+        DisplayLLVMNotfoundMessage();
+#endif
     } else if (m_menuBar->IsChecked(myID_TOY_DIALECT)) {
         Program program;
         try {

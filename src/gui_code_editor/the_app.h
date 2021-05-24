@@ -17,14 +17,14 @@
 //--------------------------------------------------------------
 
 #define APP_NAME wxT("Three Address Code IDE")
-#define APP_DESCR _("See readme.txt")
-
-#define APP_LICENCE wxT("")
-
-#define APP_VERSION wxT("0.1.alpha")
-#define APP_BUILD __DATE__
-
-#define APP_WEBSITE wxT("http://")
+//#define APP_DESCR _("See readme.txt")
+//
+//#define APP_LICENCE wxT("")
+//
+//#define APP_VERSION wxT("0.1.alpha")
+//#define APP_BUILD __DATE__
+//
+//#define APP_WEBSITE wxT("http://")
 
 #define NONAME _("Untitled")
 
@@ -47,6 +47,6 @@ class TheApp : public wxApp {
 };
 
 // created dynamically by wxWidgets
-// DECLARE_APP (App);
+DECLARE_APP(TheApp);
 
-#endif   // IDE3ACAPP_H
+#endif // IDE3ACAPP_H

@@ -1,0 +1,21 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <h3>Sparse Simple Constant Propagation</h3>
+    <p>Подробнее о работе алгоритма можно узнать в книге "Engineering a Compiler. 2nd Edition".</p>
+    <p>Алгоритм для распространения констант, то есть замена переменных на соответствующие константы, когда это
+        возможно. Алгоритм работает только над SSA-формой кода. Его основная особенность в том, что константы
+        распространяются только по тем инструкциям, которые были или могут быть обновлены.</p>
+    <hr>
+    <p>Ниже на рисунке показан пример работы алгоритма ('b' заменяется на 3)</p>
+    <center><img src="imgs/const_prop.png"></center>
+
+    <hr>
+    <ABYSS RESULT_GRAPH></ABYSS>
+</body>
+
+</html>

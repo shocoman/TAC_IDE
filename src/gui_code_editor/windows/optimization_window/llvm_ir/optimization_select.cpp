@@ -11,12 +11,12 @@ EVT_LISTBOX(OPTIMIZATION_CHECK_BOX, LLVMOptimizationWindow::OnCheckboxClicked)
 END_EVENT_TABLE()
 
 LLVMOptimizationWindow::LLVMOptimizationWindow(wxFrame *frame, const wxString &title, wxString code)
-    : wxDialog(frame, wxID_ANY, title, wxDefaultPosition, wxSize(600, 400)), m_program_code(code) {
+    : wxDialog(frame, wxID_ANY, title, wxDefaultPosition, wxSize(600, 600)), m_program_code(code) {
     SetTitle("Optimization Window");
 
     m_optimizations = new wxCheckListBox(this, OPTIMIZATION_CHECK_BOX);
     for (auto &[name, desc] : g_optimization_descriptions) {
-        m_optimizations->Append(name);
+        int id = m_optimizations->Append(name);
     }
 
     m_optimization_description =
@@ -55,6 +55,8 @@ void LLVMOptimizationWindow::OnCheckboxClicked(wxCommandEvent &event) {
 }
 
 void LLVMOptimizationWindow::parse_and_optimize_code() {
+
+#if LLVM_FOUND
     using namespace llvm;
     LLVMContext context;
     SMDiagnostic err;
@@ -73,6 +75,7 @@ void LLVMOptimizationWindow::parse_and_optimize_code() {
     m_optimizations->GetCheckedItems(selected_checkboxes);
     for (auto &s : selected_checkboxes) {
         auto &[n, desc] = g_optimization_descriptions[s];
+
         if (n == "ConstantPropagation")
             fpm->add(createConstantPropagationPass());
         if (n == "AlignmentFromAssumptions")
@@ -228,4 +231,7 @@ void LLVMOptimizationWindow::parse_and_optimize_code() {
     llvm::raw_string_ostream ostream(string_stream);
     module->print(ostream, nullptr);
     output_code = ostream.str();
+
+    EndModal(wxID_OK);
+#endif
 }

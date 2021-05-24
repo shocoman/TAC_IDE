@@ -1,0 +1,27 @@
+main:
+    size: .word 0
+    putparam "Enter a size of array:"
+    call swrite, 1
+    size = call iread, 0
+    arr: .block size, long, 0
+    putparam "Enter an elements:"
+    call swrite, 1
+    $t1 = 0
+read:
+    $t2 = call iread, 0
+    arr[$t1] = $t2
+    $t1 = $t1+1
+    $t3 = $t1-size
+    iftrue $t3 goto read
+    //end
+    putparam "New array:"
+    call swrite, 1
+    $t1 = 0
+write:
+    $t2 = arr[$t1]
+    putparam $t2
+    call iwrite, 1 
+    $t1 = $t1+1
+    $t3 = $t1-size
+    iftrue $t3 goto write
+

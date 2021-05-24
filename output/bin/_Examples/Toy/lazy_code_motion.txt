@@ -1,0 +1,24 @@
+
+B1:
+    r1 = 2 + 4
+    r2 = r1
+    r3 = 2 + 5
+    r4 = r3
+
+    r17 = 17
+    r18 = 18
+    r19 = 19
+
+    r5 = r2 > r4
+    if r5 goto B3
+B2:
+    r20 = r17 * r18
+    r21 = r19 + r20
+    r8 = r21
+    r6 = r2 + 1
+    r2 = r6
+
+    r7 = r2 > r4
+    if r7 goto B2
+B3:
+    return 0

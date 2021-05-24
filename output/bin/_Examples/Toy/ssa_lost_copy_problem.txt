@@ -1,0 +1,11 @@
+B1:
+    i = 1
+B2:
+    y = i
+    i = i + 1
+    if 0 goto B2
+B3:
+    z = y + 5
+    return y
+    return i
+    return z

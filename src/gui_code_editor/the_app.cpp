@@ -17,13 +17,11 @@ bool TheApp::OnInit() {
     m_frame = new MainWindowFrame(nullptr, APP_NAME, wxDefaultPosition, wxSize(960, 640),
                                   wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE);
     //    m_frame->FileOpen("../_Examples/Toy/new_sccp_test.txt");
-    m_frame->FileOpen("../_Examples/edu_test.txt");
+    m_frame->FileOpen("_Examples/edu_test.txt");
 
     // open application frame
     m_frame->Layout();
     m_frame->Show(true);
-
-
 
     //    wxFileInputStream input(wxT("../_Examples/Toy/bob_maxcol.txt"));
     //    wxTextInputStream text(input, wxT("\x09"), wxConvUTF8);
@@ -42,4 +40,4 @@ bool TheApp::OnInit() {
     return true;
 }
 
-// IMPLEMENT_APP(ide3acApp);
+// IMPLEMENT_APP(TheApp);
