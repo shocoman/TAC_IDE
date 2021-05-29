@@ -298,9 +298,13 @@ void SparseConditionalConstantPropagation::rewrite_program() {
             if (def_q.ops[0].value != constant.value)
                 ir.changed_places.insert(use_def_info.defined_at);
 
-            def_q.type = Quad::Type::Assign;
-            def_q.ops[0] = constant;
-            def_q.ops.erase(def_q.ops.begin() + 1, def_q.ops.end());
+            if (def_q.type != Quad::Type::VarDeclaration && def_q.type != Quad::Type::ArrayDeclaration) {
+                def_q.type = Quad::Type::Assign;
+                def_q.ops[0] = constant;
+                def_q.ops.erase(def_q.ops.begin() + 1, def_q.ops.end());
+            } else {
+                def_q.ops[1] = constant;
+            }
 
             for (auto &[block_id, quad_num] : use_def_info.used_at) {
                 auto &use_q = f.id_to_block.at(block_id)->quads.at(quad_num);

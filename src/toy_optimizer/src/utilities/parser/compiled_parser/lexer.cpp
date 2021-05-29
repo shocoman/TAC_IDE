@@ -1,6 +1,6 @@
-#line 2 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 2 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 
-#line 4 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 4 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -580,8 +580,8 @@ static const flex_int16_t yy_rule_linenum[38] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
-#line 2 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 1 "src/utilities/parser/grammar/lexer.l"
+#line 2 "src/utilities/parser/grammar/lexer.l"
     //#pragma warning (disable : 4005)
     #include <climits>
     #include <cstring>
@@ -590,15 +590,15 @@ char *yytext;
     #include <functional>
     #include <map>
     #include "../driver/driver.hpp"
-#line 594 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 594 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 #define YY_NO_INPUT 1
-#line 15 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 15 "src/utilities/parser/grammar/lexer.l"
     yy::Parser::symbol_type make_NUMBER(const std::string& s, const yy::Parser::location_type& loc, bool);
     yy::Parser::symbol_type make_IDENTIFIER(const std::string& s, const yy::Parser::location_type& loc);
 
     #define YY_USER_ACTION loc.columns(yyleng); // update location
-#line 601 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
-#line 602 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 601 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
+#line 602 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 
 #define INITIAL 0
 
@@ -879,16 +879,16 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 34 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 34 "src/utilities/parser/grammar/lexer.l"
 
 
 
-#line 38 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 38 "src/utilities/parser/grammar/lexer.l"
     yy::location& loc = drv.location;
     loc.step();
 
 
-#line 892 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 892 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -968,204 +968,204 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 42 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 42 "src/utilities/parser/grammar/lexer.l"
 loc.lines(yyleng); loc.step();
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 43 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 43 "src/utilities/parser/grammar/lexer.l"
 loc.lines(yyleng); loc.step(); return yy::Parser::make_NEWLINE(loc);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 44 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 44 "src/utilities/parser/grammar/lexer.l"
 loc.step();
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 45 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 45 "src/utilities/parser/grammar/lexer.l"
 loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 46 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 46 "src/utilities/parser/grammar/lexer.l"
 loc.lines(yytext[yyleng-1] == '\n' ? 1 : 0); loc.step();
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 48 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 48 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_ASSIGN(loc);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 49 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 49 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_PLUS(loc);
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 50 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 50 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_MINUS(loc);
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 51 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 51 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_MULT(loc);
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 52 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 52 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_DIV(loc);
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 53 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 53 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_REF(loc);
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 54 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 54 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_AND(loc);
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 55 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 55 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_OR(loc);
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 56 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 56 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_NOT(loc);
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 57 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 57 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_XOR(loc);
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 58 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 58 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_MODULUS(loc);
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 60 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 60 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_LT(loc);
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 61 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 61 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_LTE(loc);
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 62 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 62 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_GT(loc);
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 63 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 63 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_GTE(loc);
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 64 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 64 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_EQ(loc);
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 65 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 65 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CMP_NEQ(loc);
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 68 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 68 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_DOT(loc);
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 69 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 69 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_COMMA(loc);
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 70 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 70 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_SEMI(loc);
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 71 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 71 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_COLON(loc);
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 72 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 72 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_LPAREN(loc);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 73 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 73 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_RPAREN(loc);
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 74 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 74 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_LBRACKET(loc);
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 75 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 75 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_RBRACKET(loc);
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 78 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 78 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_CHAR(yytext[1], loc);
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 79 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 79 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_BOOL(yytext, loc);
 	YY_BREAK
 case 33:
 /* rule 33 can match eol */
 YY_RULE_SETUP
-#line 80 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 80 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_STRING(yytext, loc);
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 81 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 81 "src/utilities/parser/grammar/lexer.l"
 return make_NUMBER(yytext, loc, false);
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 82 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 82 "src/utilities/parser/grammar/lexer.l"
 return make_NUMBER(yytext, loc, true);
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 83 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 83 "src/utilities/parser/grammar/lexer.l"
 return make_IDENTIFIER(yytext, loc);
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 85 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 85 "src/utilities/parser/grammar/lexer.l"
 {
             throw yy::Parser::syntax_error(loc, "invalid character: " + std::string(yytext));
         }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 90 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 90 "src/utilities/parser/grammar/lexer.l"
 return yy::Parser::make_EOF(loc);
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 91 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 91 "src/utilities/parser/grammar/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1169 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/cmake-build-debug/../src/utilities/parser/compiled_parser/lexer.cpp"
+#line 1169 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/lexer.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2272,7 +2272,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 91 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/lexer.l"
+#line 91 "src/utilities/parser/grammar/lexer.l"
 
 
 yy::Parser::symbol_type make_NUMBER(const std::string& s, const yy::Parser::location_type& loc, bool is_int) {

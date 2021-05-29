@@ -107,7 +107,7 @@ void ToyOptimizationChooseWindow::ConvertToSSATutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/ToSSA/text.html");
+    window->LoadHTMLFile("./_Tutorial/ToSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         if (not uninitialized_vars.empty()) {
             wxString msg = wxString::Format(wxT("Не были инициализированы следующие переменные: '%s'. "
@@ -153,7 +153,7 @@ void ToyOptimizationChooseWindow::UseDefGraphTutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/UseDefGraph/text.html");
+    window->LoadHTMLFile("./_Tutorial/UseDefGraph/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -174,7 +174,7 @@ void ToyOptimizationChooseWindow::DominatorsTutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/Dominators/text.html");
+    window->LoadHTMLFile("./_Tutorial/Dominators/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -198,7 +198,7 @@ void ToyOptimizationChooseWindow::ReachingDefinitionsTutorial(wxCommandEvent &ev
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/ReachingDefinition/text.html");
+    window->LoadHTMLFile("./_Tutorial/ReachingDefinition/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -227,7 +227,7 @@ void ToyOptimizationChooseWindow::LiveVariableAnalysisTutorial(wxCommandEvent &e
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/LivenessAnalysis/text.html");
+    window->LoadHTMLFile("./_Tutorial/LivenessAnalysis/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -252,7 +252,7 @@ void ToyOptimizationChooseWindow::LazyCodeMotionTutorial(wxCommandEvent &event) 
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/LCM/text.html");
+    window->LoadHTMLFile("./_Tutorial/LCM/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function = lazy_code_motion.f;
         UpdateGraphImage();
@@ -288,7 +288,7 @@ void ToyOptimizationChooseWindow::CopyPropagationTutorial(wxCommandEvent &event)
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/CopyPropagation/text.html");
+    window->LoadHTMLFile("./_Tutorial/CopyPropagation/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function = copy_propagation.f;
         UpdateGraphImage();
@@ -332,7 +332,7 @@ void ToyOptimizationChooseWindow::OperatorStrengthReductionTutorial(wxCommandEve
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/OSR/text.html");
+    window->LoadHTMLFile("./_Tutorial/OSR/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function = operator_strength_reduction.f;
         UpdateGraphImage();
@@ -360,7 +360,7 @@ void ToyOptimizationChooseWindow::UselessCodeEliminationTutorial(wxCommandEvent 
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/UCE/text.html");
+    window->LoadHTMLFile("./_Tutorial/UCE/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function = useless_code_elimination.f;
         UpdateGraphImage();
@@ -396,7 +396,7 @@ void ToyOptimizationChooseWindow::SSCPTutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/SSCP/text.html");
+    window->LoadHTMLFile("./_Tutorial/SSCP/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function = sparse_simple_constant_propagation.f;
         UpdateGraphImage();
@@ -430,7 +430,7 @@ void ToyOptimizationChooseWindow::ConvertFromSSATutorial(wxCommandEvent &event) 
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/FromSSA/text.html");
+    window->LoadHTMLFile("./_Tutorial/FromSSA/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_ssa_form_is_active = false;
         m_cfg_sizer->GetStaticBox()->SetLabel(wxT("Граф потока управления"));
@@ -476,7 +476,7 @@ void ToyOptimizationChooseWindow::SCCPTutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/SCCP/text.html");
+    window->LoadHTMLFile("./_Tutorial/SCCP/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function.basic_blocks = std::move(sparse_conditional_constant.f.basic_blocks);
         UpdateGraphImage();
@@ -502,7 +502,7 @@ void ToyOptimizationChooseWindow::DepthFirstTreeTutorial(wxCommandEvent &event) 
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/DFSTree/text.html");
+    window->LoadHTMLFile("./_Tutorial/DFSTree/text.html");
     window->m_accept_optimization->Hide();
     window->ShowModal();
 }
@@ -559,7 +559,7 @@ void ToyOptimizationChooseWindow::GlobalValueNumberingTutorial(wxCommandEvent &e
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/GVN/text.html");
+    window->LoadHTMLFile("./_Tutorial/GVN/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function.basic_blocks = std::move(global_value_numbering.f.basic_blocks);
         UpdateGraphImage();
@@ -586,7 +586,7 @@ void ToyOptimizationChooseWindow::ConstantFoldingTutorial(wxCommandEvent &event)
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/ConstantFolding/text.html");
+    window->LoadHTMLFile("./_Tutorial/ConstantFolding/text.html");
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function.basic_blocks = std::move(f.basic_blocks);
         UpdateGraphImage();
@@ -621,7 +621,7 @@ void ToyOptimizationChooseWindow::CriticalEdgesTutorial(wxCommandEvent &event) {
         return wnd;
     });
 
-    window->LoadHTMLFile("../_Tutorial/CriticalEdges/text.html");
+    window->LoadHTMLFile("./_Tutorial/CriticalEdges/text.html");
     window->m_accept_optimization->SetLabel(wxT("Расщепить рёбра"));
     window->m_accept_optimization->Bind(wxEVT_BUTTON, [&](auto &evt) {
         m_chosen_function.basic_blocks = std::move(critical_edges_driver.f.basic_blocks);

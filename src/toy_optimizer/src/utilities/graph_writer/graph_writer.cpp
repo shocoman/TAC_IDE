@@ -158,10 +158,12 @@ std::vector<char> GraphWriter::render_to_file(const std::string &filename) {
 
     // print graph as png image to a file
     gvLayout(gvc, g, "dot");
+#ifdef DISPLAY_GRAPHS
     int res = gvRenderFilename(gvc, g, "png", (char *)filename.c_str());
     gvRenderFilename(gvc, g, "dot", (char *)"graph_in_text.dot");
     if (res)
         printf("Graphviz error. Something wrong with graph rendering: %i", res);
+#endif
 
     // render to file
     unsigned int buffer_length = 0;

@@ -1,0 +1,19 @@
+main:
+    a: .double 1.0
+    b: .double 2.5
+    $t0 = a + b
+    $t1 = $t0 > 0
+    if $t1 goto PositiveBranch
+
+NegativeBranch:
+    putparam "C is negative"
+    call swrite, 1
+    goto End
+    
+PositiveBranch:
+    putparam "C is positive"
+    call swrite, 1
+    goto End
+
+End:
+    return $t0

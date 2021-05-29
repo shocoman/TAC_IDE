@@ -125,8 +125,15 @@ quadruple:
 var_declaration:
     label "." "identifier"[id] term[initval]
                               {
-                                  $$ = Quad(Operand($id, Operand::Type::None), $initval, Quad::Type::VarDeclaration);
-                                  $$.dest = Dest($label, Dest::Type::Var);
+                                Operand init_value = $initval;
+                                std::string s = init_value.get_string();
+                                if ($id == "long" || $id == "byte" || $id == "word")
+                                { init_value.type = Operand::Type::LInt; }
+                                else if ($id == "double") { init_value.type = Operand::Type::LDouble; }
+                                else if ($id == "ascii") { init_value.type = Operand::Type::LChar; }
+
+                                $$ = Quad(Operand($id, Operand::Type::None), init_value, Quad::Type::VarDeclaration);
+                                $$.dest = Dest($label, Dest::Type::Var);
                               };
 |   label "." "block" term[size] "," "identifier"[type] "," term[initval]
                               {

@@ -1,0 +1,191 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+left to right direction
+
+class Operand {
+    Type type
+    String value
+    BasicBlock* predecessor
+    {method} ...
+}
+
+class Destination {
+    Type type
+    String name
+
+    {method} ...
+}
+
+class Quad {
+    Type type
+    Destination destination
+    Operand[] operands
+
+    String format()
+    {method} ...
+}
+
+class BasicBlock {
+    Type type
+    int id
+    String label_name
+    Quad[] quads;
+    Set<BasicBlock*> predecessors
+    Set<BasicBlock*> successors
+
+    String format()
+    void add_successor(BasicBlock*)
+    void remove_successor(BasicBlock*)
+    void append_quad(Quad)
+}
+
+class Function {
+    String name
+    BasicBlock[] basic_blocks
+    Map<int, BasicBlock*> id_to_block
+
+    String get_as_code()
+    void reverse_graph()
+    BasicBlock* get_entry_block()
+    BasicBlock* get_exit_block()
+    Byte[] print_cfg()
+}
+
+class Program {
+    Function[] functions
+
+    {static} Program make_from_file(String file_name)
+    {static} Program make_from_program_code(String code)
+    String get_as_code()
+}
+
+
+Quad --> Destination
+Quad --> Operand
+BasicBlock -->Quad
+Function -> BasicBlock
+Program --> Function
+
+
+
+
+TheApp -> MainWindowFrame
+
+MainWindowFrame -> CodeEditorFrame
+MainWindowFrame -> GraphWindow
+
+GraphWindow -> ImagePanel
+
+MainWindowFrame -> LLVMIROptimizationWindow
+MainWindowFrame -> ToyIROptimizationWindow
+
+LLVMIROptimizationWindow --> FunctionSelectionWindow
+ToyIROptimizationWindow --> FunctionSelectionWindow
+
+ToyIROptimizationWindow --> GraphWindow
+ToyIROptimizationWindow --> PassDescriptionWindow
+
+
+class TheApp {
+    StartProgram()
+}
+
+class MainWindowFrame {
+    OpenOptimizationWindow()
+    ShowControlFlowGraph()
+}
+
+class GraphWindow {
+    LoadImageFromDotFile()
+    LoadImageFromData()
+}
+
+class ImagePanel {
+    Zoom()
+    Pan()
+}
+
+class FunctionSelectionWindow {
+    GetSelectedFunction()
+}
+
+class ToyIROptimizationWindow {
+    ApplyOptimization()
+}
+
+class LLVMIROptimizationWindow {
+    ApplyOptimization()
+}
+
+
+
+interface Pass {
+    Function function
+    void run()
+}
+
+Pass <|- ConstantFolding
+Pass <|- CopyPropagation
+Pass <|- LazyCodeMotion
+Pass <|- OperatorStrengthReduction
+Pass <|-l SparseSimpleConstantPropagation
+Pass <|-l SparseConditionalConstantPropagation
+Pass <|-l SSAForm
+Pass <|-l UselessCodeElimination
+Pass <|-l GlobalValueNumbering
+
+
+Pass <|-- CriticalEdges
+Pass <|-- LiveVariableAnalysis
+Pass <|-- ReachingDefinitions
+Pass <|-- UseDefGraph
+Pass <|-- DominatorTree
+
+class CriticalEdges {
+    Bytes[] show_on_graph()
+    void split()
+}
+
+class LiveVariableAnalysis {
+    String[] get_uninitialized_variables()
+}
+
+class ReachingDefinitions {
+    Bytes[] show_on_graph()
+}
+
+class UseDefGraph {
+    Bytes[] print_graph()
+}
+
+class DominatorTree {
+    Bytes[] print_tree()
+}
+
+class SSAForm {
+    void convert_to_ssa()
+    void convert_from_ssa()
+}
+
+
+ToyIROptimizationWindow -> Pass
+ToyIROptimizationWindow --> Program
+
+GraphWindow --> GraphWrite
+
+class GraphWrite {
+    node_attributes[]
+    node_names[]
+    node_texts[]
+    edges[]
+
+    set_node_text()
+    set_node_name()
+    add_edge()
+    render_to_file()
+    set_title()
+    set_attribute()
+}
+
+@enduml

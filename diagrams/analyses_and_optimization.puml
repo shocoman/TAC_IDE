@@ -1,13 +1,14 @@
 @startuml
 'https://plantuml.com/class-diagram
 
+
+
+left to right direction
+
 interface Pass {
     Function function
     void run()
 }
-
-left to right direction
-
 
 Pass <|- ConstantFolding
 Pass <|- CopyPropagation

@@ -37,6 +37,14 @@ struct Operand {
     std::string get_string() const {
         if (type == Type::LChar)
             return "'" + value + "'";
+        if (type == Type::LBool)
+            return value == "true" ? "1" : "0";
+        else if (type == Type::LDouble) {
+            auto s = value;
+            if (s.find('.') >= s.length())
+                s += ".0";
+            return s;
+        }
         else
             return value;
     }

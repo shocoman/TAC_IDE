@@ -32,7 +32,7 @@
 
 
 /**
- ** \file ../src/utilities/parser/compiled_parser/parser.hpp
+ ** \file /mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/parser.hpp
  ** Define the yy::parser class.
  */
 
@@ -42,16 +42,16 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
-# define YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
+#ifndef YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
+# define YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 11 "/media/victor/264C09FD4C09C90F1/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
+#line 11 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/grammar/parser.y"
 
     #include <string>
     struct ParseDriver;
     #include "../../../structure/quadruple/quadruple.hpp"
 
-#line 55 "../src/utilities/parser/compiled_parser/parser.hpp"
+#line 55 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/parser.hpp"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -185,7 +185,7 @@
 #endif
 
 namespace yy {
-#line 189 "../src/utilities/parser/compiled_parser/parser.hpp"
+#line 189 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/parser.hpp"
 
 
 
@@ -2278,9 +2278,9 @@ switch (yykind)
   }
 
 } // yy
-#line 2282 "../src/utilities/parser/compiled_parser/parser.hpp"
+#line 2282 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/parser.hpp"
 
 
 
 
-#endif // !YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED
+#endif // !YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_PARSER_HPP_INCLUDED

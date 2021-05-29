@@ -31,12 +31,12 @@
 // version 2.2 of Bison.
 
 /**
- ** \file ../src/utilities/parser/compiled_parser/location.hh
+ ** \file /mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/location.hh
  ** Define the yy::location class.
  */
 
-#ifndef YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED
-# define YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED
+#ifndef YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED
+# define YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED
 
 # include <iostream>
 # include <string>
@@ -54,7 +54,7 @@
 # endif
 
 namespace yy {
-#line 58 "../src/utilities/parser/compiled_parser/location.hh"
+#line 58 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/location.hh"
 
   /// A point in a source file.
   class position
@@ -299,6 +299,6 @@ namespace yy {
   }
 
 } // yy
-#line 303 "../src/utilities/parser/compiled_parser/location.hh"
+#line 303 "/mnt/d/programming/c/tac_parser/src/toy_optimizer/src/utilities/parser/compiled_parser/location.hh"
 
-#endif // !YY_YY_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED
+#endif // !YY_YY_MNT_D_PROGRAMMING_C_TAC_PARSER_SRC_TOY_OPTIMIZER_SRC_UTILITIES_PARSER_COMPILED_PARSER_LOCATION_HH_INCLUDED

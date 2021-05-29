@@ -128,19 +128,19 @@ void UselessCodeEliminationDriver::remove_unreachable_blocks() {
 
 void UselessCodeEliminationDriver::merge_basic_blocks() {
     // temporary remove entry and exit block (hack)
-    //    auto RemoveBlock = [&](auto b_type) {
-    //        auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
-    //                                  [b_type](auto &b) { return b->type == b_type; });
-    //        if (block != f.basic_blocks.end()) {
-    //            f.id_to_block.erase(block->get()->id);
-    //            block->get()->remove_successors();
-    //            block->get()->remove_predecessors();
-    //            f.basic_blocks.erase(block);
-    //        }
-    //    };
-    //
-    //    RemoveBlock(BasicBlock::Type::Entry);
-    //    RemoveBlock(BasicBlock::Type::Exit);
+        auto RemoveBlock = [&](auto b_type) {
+            auto block = std::find_if(f.basic_blocks.begin(), f.basic_blocks.end(),
+                                      [b_type](auto &b) { return b->type == b_type; });
+            if (block != f.basic_blocks.end()) {
+                f.id_to_block.erase(block->get()->id);
+                block->get()->remove_successors();
+                block->get()->remove_predecessors();
+                f.basic_blocks.erase(block);
+            }
+        };
+
+        RemoveBlock(BasicBlock::Type::Entry);
+        RemoveBlock(BasicBlock::Type::Exit);
 
     // Clean Pass (merge blocks, etc)
     bool changed = true;
@@ -195,7 +195,7 @@ void UselessCodeEliminationDriver::merge_basic_blocks() {
                     if (b->quads.back().type == Quad::Type::Goto)
                         b->quads.pop_back();
                     // copy operations
-                    succ->quads.insert(succ->quads.end(), b->quads.begin(), b->quads.end());
+                    succ->quads.insert(succ->quads.begin(), b->quads.begin(), b->quads.end());
                     succ->update_phi_positions();
                     // copy predecessors
                     for (auto &p : b->predecessors)
