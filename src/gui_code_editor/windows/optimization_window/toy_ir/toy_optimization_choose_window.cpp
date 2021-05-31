@@ -11,7 +11,7 @@ ToyOptimizationChooseWindow::ToyOptimizationChooseWindow(wxWindow *parent, Funct
 
     m_back_to_code_btn->Bind(wxEVT_BUTTON, [&](auto &evt) {
         if (m_ssa_form_is_active) {
-            wxString msg = wxT("Для возврата обратно к коду, программа должна быть выведена из SSA-формы. "
+            wxString msg = wxT("Для возврата обратно к коду программа должна быть выведена из SSA-формы. "
                                "Вы уверены, что хотите продолжить?");
             auto dialog = new wxMessageDialog(this, msg, wxMessageBoxCaptionStr, wxYES_NO);
             if (dialog->ShowModal() != wxID_YES)

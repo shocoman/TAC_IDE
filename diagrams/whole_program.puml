@@ -1,32 +1,64 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-left to right direction
+skinparam classBackgroundColor Gold/LightGoldenRodYellow
 
-class Operand {
+'left to right direction
+
+skinparam classFontSize 20
+
+together {
+
+class Operand #LightGreen/LightGoldenRodYellow {
     Type type
     String value
     BasicBlock* predecessor
-    {method} ...
+
+    get_string()
+    as_double()
+    get_int()
+    get_double()
+    is_var()
+    is_array()
+    is_none()
+    is_constant()
+    is_int()
+    is_double()
+    is_number()
+    is_true()
+    clear()
 }
 
-class Destination {
+class Destination #LightGreen/LightGoldenRodYellow{
     Type type
     String name
 
-    {method} ...
+    fmt()
 }
 
-class Quad {
+class Quad #LightGreen/LightGoldenRodYellow{
     Type type
     Destination destination
     Operand[] operands
 
-    String format()
-    {method} ...
+   String format()
+   get_op()
+   clear_op()
+   get_rhs_names()
+   get_lhs()
+   get_used_vars()
+   is_jump()
+   is_unary()
+   is_conditional_jump()
+   is_assignment()
+   is_comparison()
+   is_binary()
+   is_commutative()
+   is_critical()
+   is_foldable()
 }
 
-class BasicBlock {
+class BasicBlock #LightGreen/LightGoldenRodYellow{
     Type type
     int id
     String label_name
@@ -40,7 +72,7 @@ class BasicBlock {
     void append_quad(Quad)
 }
 
-class Function {
+class Function #LightGreen/LightGoldenRodYellow{
     String name
     BasicBlock[] basic_blocks
     Map<int, BasicBlock*> id_to_block
@@ -52,13 +84,203 @@ class Function {
     Byte[] print_cfg()
 }
 
-class Program {
+class Program #LightGreen/LightGoldenRodYellow{
     Function[] functions
 
     {static} Program make_from_file(String file_name)
     {static} Program make_from_program_code(String code)
     String get_as_code()
+    get_function_names()
+    get_function_by_name()
 }
+
+
+
+
+class TheApp #LightBlue/LightGoldenRodYellow {
+    StartProgram()
+}
+
+class MainWindowFrame #LightBlue/LightGoldenRodYellow {
+    OpenOptimizationWindow()
+    ShowControlFlowGraph()
+}
+
+class GraphWindow #LightBlue/LightGoldenRodYellow {
+    LoadImageFromDotFile()
+    LoadImageFromData()
+}
+
+class ImagePanel #LightBlue/LightGoldenRodYellow {
+    Zoom()
+    Pan()
+}
+
+class FunctionSelectionWindow #LightBlue/LightGoldenRodYellow {
+    GetSelectedFunction()
+}
+
+class ToyIROptimizationWindow #LightBlue/LightGoldenRodYellow {
+    ApplyOptimization()
+}
+
+class LLVMIROptimizationWindow #LightBlue/LightGoldenRodYellow {
+    ApplyOptimization()
+}
+
+class CodeEditorFrame #LightBlue/LightGoldenRodYellow {}
+class PassDescriptionWindow #LightBlue/LightGoldenRodYellow {}
+
+class GraphWrite #LightBlue/LightGoldenRodYellow {
+    node_attributes[]
+    node_names[]
+    node_texts[]
+    edges[]
+    String graph_title
+
+    set_node_text()
+    set_node_name()
+    add_edge()
+    render_to_file()
+    set_title()
+    set_attribute()
+}
+
+}
+
+
+
+together {
+
+interface Pass {
+    Function function
+    void run()
+}
+
+
+class CriticalEdges #Orange/LightGoldenRodYellow {
+    Bytes[] show_on_graph()
+    void split()
+}
+
+class LiveVariableAnalysis #Orange/LightGoldenRodYellow {
+    calculate_upwardexposed_uses_and_definitions()
+    run_live_variable_analysis()
+    get_uninitialized_variables()
+    print_upwardexposed_and_definitions()
+    print_live_variable_analysis()
+    all_variables_are_initialized()
+    live_at_entry()
+    live_at_exit()
+}
+
+class ReachingDefinitions #Orange/LightGoldenRodYellow {
+    get_results()
+    collect_definitions()
+    calculate_gen_kill_sets()
+    calculate_reaching_definitions()
+    print_gen_kill_defs()
+    print_reaching_definitions()
+}
+
+class UseDefGraph #Orange/LightGoldenRodYellow {
+    update_graph()
+    compute_use_def_chains()
+    print_to_console_def_use_chains()
+    print_use_def_chains_graph()
+}
+
+class DominatorTree #Orange/LightGoldenRodYellow {
+    Bytes[] print_tree()
+}
+
+class SSAForm {
+    void convert_to_ssa()
+    find_global_names()
+    place_phi_functions()
+    rename_variables()
+    void convert_from_ssa()
+    schedule_copies()
+    insert_copies()
+}
+
+class UselessCodeElimination {
+    compute_reverse_dominance_frontier()
+    remove_noncritical_operations()
+    remove_unreachable_blocks()
+    merge_basic_blocks()
+}
+
+class GlobalValueNumbering {
+    global_value_numbering()
+}
+
+class SparseSimpleConstantPropagation {
+    initialize()
+    print_values()
+    evaluate_over_lattice(Quad &q)
+    fill_use_def_graph()
+    propagate(std::vector<std::string> &work_list)
+    rewrite_program()
+}
+
+class SparseConditionalConstantPropagation {
+    fill_in_use_def_graph()
+    init_worklist()
+    propagate()
+    evaluate_over_lattice()
+    evaluate_assign()
+    evaluate_conditional()
+    evaluate_phi_operands()
+    evaluate_phi_result()
+    evaluate_all_phis_in_block()
+    evaluate_phi()
+    print_result_info()
+    rewrite_program()
+    collect_useless_blocks()
+    remove_useless_blocks()
+    print_sccp_result_graph()
+}
+
+class LazyCodeMotion {
+    preprocess()
+    get_earliest_expressions()
+    get_latest_expressions()
+    get_available_expressions_lazy_code_motion()
+    get_postponable_expressions()
+    get_used_expressions()
+    print_lazy_code_motion_graphs()
+}
+
+class OperatorStrengthReduction {
+    fill_in_use_def_graph()
+    IsCandidateOperation()
+    IsSCCValidIV()
+    IsRegionConst()
+    ClassifyIV()
+    ProcessSCC()
+    DFS()
+    PrintSSAGraph()
+    Replace()
+    Reduce()
+    Apply()
+}
+
+class CopyPropagation {
+    run_on_ssa()
+    preprocess()
+    collect_all_assignments()
+    calculate_gen_and_killed_assignments()
+    print_gen_killed_sets_on_graph()
+    print_copy_propagation_for_block()
+    calculate_copy_propagation_for_blocks()
+    run_propagation()
+    print_copies_with_uses()
+    run_real_copy_propagation()
+}
+
+}
+'''''''''''''''''''''''''''''''''''''''''''
 
 
 Quad --> Destination
@@ -68,7 +290,7 @@ Function -> BasicBlock
 Program --> Function
 
 
-
+'''''''''''''''''''''''''''''''''''''''''''
 
 TheApp -> MainWindowFrame
 
@@ -86,106 +308,31 @@ ToyIROptimizationWindow --> FunctionSelectionWindow
 ToyIROptimizationWindow --> GraphWindow
 ToyIROptimizationWindow --> PassDescriptionWindow
 
+'''''''''''''''''''''''''''''''''''''''''''
 
-class TheApp {
-    StartProgram()
-}
-
-class MainWindowFrame {
-    OpenOptimizationWindow()
-    ShowControlFlowGraph()
-}
-
-class GraphWindow {
-    LoadImageFromDotFile()
-    LoadImageFromData()
-}
-
-class ImagePanel {
-    Zoom()
-    Pan()
-}
-
-class FunctionSelectionWindow {
-    GetSelectedFunction()
-}
-
-class ToyIROptimizationWindow {
-    ApplyOptimization()
-}
-
-class LLVMIROptimizationWindow {
-    ApplyOptimization()
-}
-
-
-
-interface Pass {
-    Function function
-    void run()
-}
-
-Pass <|- ConstantFolding
-Pass <|- CopyPropagation
-Pass <|- LazyCodeMotion
-Pass <|- OperatorStrengthReduction
-Pass <|-l SparseSimpleConstantPropagation
-Pass <|-l SparseConditionalConstantPropagation
-Pass <|-l SSAForm
-Pass <|-l UselessCodeElimination
-Pass <|-l GlobalValueNumbering
-
+Pass <|--- ConstantFolding
+Pass <|--- CopyPropagation
+Pass <|--- LazyCodeMotion
+Pass <|---- OperatorStrengthReduction
+Pass <|---- SparseSimpleConstantPropagation
+Pass <|---- SparseConditionalConstantPropagation
+Pass <|----- SSAForm
+Pass <|----- UselessCodeElimination
+Pass <|----- GlobalValueNumbering
 
 Pass <|-- CriticalEdges
 Pass <|-- LiveVariableAnalysis
 Pass <|-- ReachingDefinitions
-Pass <|-- UseDefGraph
-Pass <|-- DominatorTree
+Pass <|--- UseDefGraph
+Pass <|--- DominatorTree
 
-class CriticalEdges {
-    Bytes[] show_on_graph()
-    void split()
-}
-
-class LiveVariableAnalysis {
-    String[] get_uninitialized_variables()
-}
-
-class ReachingDefinitions {
-    Bytes[] show_on_graph()
-}
-
-class UseDefGraph {
-    Bytes[] print_graph()
-}
-
-class DominatorTree {
-    Bytes[] print_tree()
-}
-
-class SSAForm {
-    void convert_to_ssa()
-    void convert_from_ssa()
-}
-
+'''''''''''''''''''''''''''''''''''''''''''
 
 ToyIROptimizationWindow -> Pass
 ToyIROptimizationWindow --> Program
 
 GraphWindow --> GraphWrite
 
-class GraphWrite {
-    node_attributes[]
-    node_names[]
-    node_texts[]
-    edges[]
 
-    set_node_text()
-    set_node_name()
-    add_edge()
-    render_to_file()
-    set_title()
-    set_attribute()
-}
 
 @enduml
