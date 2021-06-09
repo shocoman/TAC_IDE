@@ -8,7 +8,7 @@
 
 int main(int argc, char **argv) {
     if (getenv("DISPLAY") == nullptr)
-        setenv("DISPLAY", "192.168.93.209:0", true);
+        setenv("DISPLAY", "172.17.146.225:0", true);
 
     wxApp *pApp = new TheApp();
     wxApp::SetInstance(pApp);

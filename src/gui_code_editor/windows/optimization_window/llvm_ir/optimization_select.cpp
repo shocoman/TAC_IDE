@@ -27,7 +27,7 @@ LLVMOptimizationWindow::LLVMOptimizationWindow(wxFrame *frame, const wxString &t
     m_hbox->AddSpacer(10);
     m_hbox->Add(m_optimization_description, 0, wxALL | wxALIGN_CENTER);
 
-    m_button = new wxButton(this, OPT_BUTTON, "Apply");
+    m_button = new wxButton(this, OPT_BUTTON, wxT("Применить"));
     m_vbox = new wxBoxSizer(wxVERTICAL);
     m_vbox->Add(m_hbox, 0, wxEXPAND);
     m_vbox->Add(m_button, 0, wxEXPAND, 10);

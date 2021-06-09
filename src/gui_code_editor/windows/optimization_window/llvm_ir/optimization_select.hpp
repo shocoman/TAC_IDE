@@ -41,6 +41,7 @@
 #include <wx/stc/stc.h>
 #include <wx/textctrl.h>
 #include <wx/wx.h>
+#include <wx/chartype.h>
 
 #include <memory>
 #include <string>
@@ -48,133 +49,60 @@
 #include <sstream>
 
 // region Optimization descriptions
-static std::vector<std::pair<std::string, std::string>> g_optimization_descriptions = {
-    {"ConstantPropagation", "ConstantPropagation - A worklist driven constant propagation pass"},
-    {"AlignmentFromAssumptions",
-     "AlignmentFromAssumptions - Use assume intrinsics to set load/store alignments."},
-    {"SCCP", "SCCP - Sparse conditional constant propagation."},
-    {"DeadInstElimination", "DeadInstElimination - This pass quickly removes trivially dead instructions "
-                            "without modifying the CFG of the function.  It is a FunctionPass."},
-    {"RedundantDbgInstElimination",
-     "RedundantDbgInstElimination - This pass removes redundant dbg intrinsics without modifying the CFG of "
-     "the function.  It is a FunctionPass."},
-    {"DeadCodeElimination",
-     "DeadCodeElimination - This pass is more powerful than DeadInstElimination, because it is worklist "
-     "driven that can potentially revisit instructions when their other instructions become dead, to "
-     "eliminate chains of dead computations."},
-    {"DeadStoreElimination", "DeadStoreElimination - This pass deletes stores that are post-dominated by "
-                             "must-aliased stores and are not loaded used between the stores."},
-    {"CallSiteSplitting",
-     "CallSiteSplitting - This pass split call-site based on its known argument values."},
-    {"AggressiveDCE", "AggressiveDCE - This pass uses the SSA based Aggressive DCE algorithm.  This "
-                      "algorithm assumes instructions are dead until proven otherwise, which makes it more "
-                      "successful are removing non-obviously dead instructions."},
-    {"GuardWidening", "GuardWidening - An optimization over the @llvm.experimental.guard intrinsic that "
-                      "(optimistically) combines multiple guards into one to have fewer checks at runtime."},
-//    {"LoopGuardWidening",
-//     "LoopGuardWidening - Analogous to the GuardWidening pass, but restricted to a single loop at a time for "
-//     "use within a LoopPassManager.  Desired effect is to widen guards into preheader or a single guard "
-//     "within loop if that's not possible."},
-    {"BitTrackingDCE", "BitTrackingDCE - This pass uses a bit-tracking DCE algorithm in order to remove "
-                       "computations of dead bits."},
-    {"SROA", "SROA - Replace aggregates or pieces of aggregates with scalar SSA values."},
-    {"InductiveRangeCheckElimination", "InductiveRangeCheckElimination - Transform loops to elide range "
-                                       "checks on linear functions of the induction variable."},
-    {"IndVarSimplify", "InductionVariableSimplify - Transform induction variables in a program to all use a "
-                       "single canonical induction variable per loop."},
-    {"LICM", "LICM - This pass is a loop invariant code motion and memory promotion pass."},
-    {"LoopSink", "LoopSink - This pass sinks invariants from preheader to loop body where frequency is lower "
-                 "than loop preheader."},
-    {"LoopPredication", "LoopPredication - This pass does loop predication on guards."},
-    {"LoopInterchange", "LoopInterchange - This pass interchanges loops to provide a more cache-friendly "
-                        "memory access patterns."},
-    {"LoopStrengthReduce", "LoopStrengthReduce - This pass is strength reduces GEP instructions that use a "
-                           "loop's canonical induction variable as one of their indices."},
-    {"LoopUnswitch", "LoopUnswitch - This pass is a simple loop unswitching pass."},
-    {"LoopInstSimplify", "LoopInstSimplify - This pass simplifies instructions in a loop's body."},
-    {"LoopUnroll", "LoopUnroll - This pass is a simple loop unrolling pass."},
-    {"SimpleLoopUnroll", "Create an unrolling pass for full unrolling that uses exact trip count only."},
-    {"LoopUnrollAndJam", "LoopUnrollAndJam - This pass is a simple loop unroll and jam pass."},
-    {"LoopReroll", "LoopReroll - This pass is a simple loop rerolling pass."},
-    {"LoopRotate", "LoopRotate - This pass is a simple loop rotating pass."},
-    {"LoopIdiom", "LoopIdiom - This pass recognizes and replaces idioms in loops."},
-    {"LoopVersioningLICM", "LoopVersioningLICM - This pass is a loop versioning pass for LICM."},
-    {"DemoteRegisterToMemory",
-     "DemoteRegisterToMemoryPass - This pass is used to demote registers to memory references. In basically "
-     "undoes the PromoteMemoryToRegister pass to make cfg hacking easier."},
-    {"Reassociate",
-     "Reassociate - This pass reassociates commutative expressions in an order that is designed to promote "
-     "better constant propagation, GCSE, LICM, PRE... For example:  4 + (x + 5)  ->  x + (4 + 5)"},
-    {"JumpThreading",
-     "JumpThreading - Thread control through mult-pred/multi-succ blocks where some preds always go to some "
-     "succ. Thresholds other than minus one override the internal BB duplication default threshold."},
-    {"CFGSimplification", "CFGSimplification - Merge basic blocks, eliminate unreachable blocks, simplify "
-                          "terminator instructions, convert switches to lookup tables, etc."},
-    {"FlattenCFG", "FlattenCFG - flatten CFG, reduce number of conditional branches by using parallel-and "
-                   "and parallel-or mode, etc..."},
-    {"StructurizeCFG",
-     "CFG Structurization - Remove irreducible control flow When SkipUniformRegions is true the "
-     "structizer will not structurize/ regions that only contain uniform branches."},
-    {"TailCallElimination", "TailCallElimination - This pass eliminates call instructions to the current "
-                            "function which occur immediately before return instructions."},
-    {"EarlyCSE", "EarlyCSE - This pass performs a simple and fast CSE pass over the dominator tree."},
-    {"GVNHoist", "GVNHoist - This pass performs a simple and fast GVN pass over the dominator tree to hoist "
-                 "common expressions from sibling branches."},
-    {"GVNSink", "GVNSink - This pass uses an 'inverted' value numbering to decide the similarity of "
-                "expressions and sinks similar expressions into successors."},
-    {"MergedLoadStoreMotion", "MergedLoadStoreMotion - This pass merges loads and stores in diamonds. Loads "
-                              "are hoisted into the lesson_header, while stores sink into the footer."},
-    {"NewGVN",
-     "GVN - This pass performs global value numbering and redundant load elimination cotemporaneously."},
-    {"DivRemPairs", "DivRemPairs - Hoist/decompose integer division and remainder instructions."},
-    {"MemCpyOpt", "MemCpyOpt - This pass performs optimizations related to eliminating memcpy calls and/or "
-                  "combining multiple stores into memset's."},
-    {"LoopDeletion",
-     "LoopDeletion - This pass performs DCE of non-infinite loops that it can prove are dead."},
-    {"ConstantHoisting", "ConstantHoisting - This pass prepares a function for expensive constants."},
-    {"Sinking", "Sink - Code Sinking"},
-    {"LowerAtomic", "LowerAtomic - Lower atomic intrinsics to non-atomic form"},
-    {"LowerGuardIntrinsic", "LowerGuardIntrinsic - Lower guard intrinsics to normal control flow."},
-    {"LowerMatrixIntrinsics", "LowerMatrixIntrinsics - Lower matrix intrinsics to vector operations."},
-    {"LowerWidenableCondition", "LowerWidenableCondition - Lower widenable condition to i1 true."},
-    {"MergeICmpsLegacy", "MergeICmps - Merge integer comparison chains into a memcmp"},
-    {"CorrelatedValuePropagation", "ValuePropagation - Propagate CFG-derived value information"},
-    {"InferAddressSpaces",
-     "InferAddressSpaces - Modify users of addrspacecast instructions with values in the source address "
-     "space if using the destination address space is slower on the target. If AddressSpace is left to its "
-     "default value, it will be obtained from the TargetTransformInfo."},
-    {"LowerExpectIntrinsic",
-     "LowerExpectIntrinsics - Removes llvm.expect intrinsics and creates 'block_weights' metadata."},
-    {"LowerConstantIntrinsics", "LowerConstantIntrinsicss - Expand any remaining llvm.objectsize and "
-                                "llvm.is.constant intrinsic calls, even for the unknown cases."},
-    {"PartiallyInlineLibCalls",
-     "PartiallyInlineLibCalls - Tries to inline the fast path of library calls such as sqrt."},
-    {"SeparateConstOffsetFromGEP", "SeparateConstOffsetFromGEP - Split GEPs for better CSE"},
-//    {"SpeculativeExecution", "SpeculativeExecution - Aggressively hoist instructions to enable speculative "
-//                             "execution on targets where branches are expensive."},
-//    {"SpeculativeExecutionIfHasBranchDivergence",
-//     "Same as createSpeculativeExecutionPass, but does nothing unless "
-//     "TargetTransformInfo::hasBranchDivergence() is true."},
-    {"StraightLineStrengthReduce", "StraightLineStrengthReduce - This pass strength-reduces some certain "
-                                   "instruction patterns in straight-line code."},
-    {"PlaceSafepoints", "PlaceSafepoints - Rewrite any IR calls to gc.statepoints and insert any safepoint "
-                        "polls (method entry, backedge) that might be required.  This pass does not generate "
-                        "explicit relocation sequences - that's handled by RewriteStatepointsForGC which can "
-                        "be run at an arbitrary point in the pass order following this pass."},
-//    {"RewriteStatepointsForGCLegacy", "RewriteStatepointsForGC - Rewrite any gc.statepoints which do not yet "
-//                                      "have explicit relocations to include explicit relocations."},
-    {"Float2Int", "Float2Int - Demote floats to ints where possible."},
-    {"NaryReassociate", "NaryReassociate - Simplify n-ary operations by reassociation."},
-    {"LoopDistribute", "LoopDistribute - Distribute loops."},
-    {"LoopFuse", "LoopFuse - Fuse loops."},
-    {"LoopLoadElimination", "LoopLoadElimination - Perform loop-aware load elimination."},
-    {"LoopVersioning", "LoopVersioning - Perform loop multi-versioning."},
-    {"LoopDataPrefetch", "LoopDataPrefetch - Perform data prefetching in loops."},
-    {"LibCallsShrinkWrap", "LibCallsShrinkWrap - Shrink-wraps a call to function if the result is not used."},
-    {"LoopSimplifyCFG", "LoopSimplifyCFG - This pass performs basic CFG simplification on loops, primarily "
-                        "to help other loop passes."},
-    {"WarnMissedTransformations",
-     "WarnMissedTransformations - This pass emits warnings for leftover forced transformations."},
+static std::vector<std::pair<wxString, wxString>> g_optimization_descriptions = {
+    {wxT("ConstantPropagation"), wxT("ConstantPropagation - это оптимизационный проход, отвечающий за распространение констант (замену переменных на их значения).")},
+    {wxT("AlignmentFromAssumptions" ), wxT("AlignmentFromAssumptions - Использование предполагаемых интринсиков для загрузки/записи в память.")},
+    {wxT("SCCP" ), wxT("SCCP - Разрежённое условное распространение констант.")},
+    {wxT("DeadInstElimination" ), wxT("DeadInstElimination - Удаление ненужных (мёртвых) инструкций без модификации графа потока управления функции.")},
+    {wxT("RedundantDbgInstElimination" ), wxT("RedundantDbgInstElimination - удаление отладочных инструкций без изменения графа потока управления функции.")},
+    {wxT("DeadCodeElimination" ), wxT("DeadCodeElimination -  Данный проход это улучшенная версия 'DeadInstElimination', поскольку может повторно посещать инструкции, после того как их операнды оказались ненужными. Это позволяет устранить целую цепь бесполезных инструкций за один проход.")},
+    {wxT("DeadStoreElimination" ), wxT("DeadStoreElimination - Данный проход удаляет ненужные записи в память, если известно, что записанное значение в программе использоваться не будет.")},
+    {wxT("CallSiteSplitting" ), wxT("CallSiteSplitting - Проход разделяет место вызова функции в зависимости от известных значений аргументов.")},
+    {wxT("AggressiveDCE" ), wxT("AggressiveDCE - Агрессивная версия DeadCodeElimination, основанная на SSA-форме. Данный алгоритм подразумевает, что инструкции не нужны, пока не доказано обратное. Это позволяет удалять неочевидные, но бесполезные инструкции.")},
+    {wxT("BitTrackingDCE" ), wxT("BitTrackingDCE - Проход использует версию алгоритма DeadCodeElimination для отслеживания битов, чтобы убрать в программе их ненужные вычисления.")},
+    {wxT("SROA" ), wxT("SROA - Замена агрегатов или частей агрегатов на скалярные SSA значения.")},
+    {wxT("InductiveRangeCheckElimination" ), wxT("InductiveRangeCheckElimination - В циклах убирает проверки на выход за пределы массива в линейных функциях с индукционными переменными.")},
+    {wxT("IndVarSimplify" ), wxT("InductionVariableSimplify - Преобразовывает индукционные переменные в программе в одну индукционную на цикл.")},
+    {wxT("LICM" ), wxT("LICM - Вынесение кода за пределы циклов.")},
+    {wxT("LoopSink" ), wxT("LoopSink - Перенос инвариантов из заголовка цикла в его тело.")},
+    {wxT("LoopInterchange" ), wxT("LoopInterchange - Данный проход меняет вложенные циклы местами для ускорения доступа благодаря процессорному кешированию")},
+    {wxT("LoopStrengthReduce" ), wxT("LoopStrengthReduce - Снижение стоимости операций внутри цикла с индукционной переменной.")},
+    {wxT("LoopUnswitch" ), wxT("LoopUnswitch - Размыкание цикла, то есть вынесение условных интсрукций (if) за пределы цикла для возможного его распараллеливания.")},
+    {wxT("LoopInstSimplify" ), wxT("LoopInstSimplify - Упрощение инструкций в теле цикла.")},
+    {wxT("LoopUnroll" ), wxT("LoopUnroll - Разворачивание циклов.")},
+    {wxT("SimpleLoopUnroll" ), wxT("Разворачивание цикла равно столько раз, сколько будет выполняться цикл.")},
+    {wxT("LoopUnrollAndJam" ), wxT("LoopUnrollAndJam - Разворачивание и последующее сжатие цикла.")},
+    {wxT("LoopReroll" ), wxT("LoopReroll - Повторное разворачивание нескольких циклов.")},
+    {wxT("LoopRotate" ), wxT("LoopRotate - Поворот цикла.")},
+    {wxT("LoopIdiom" ), wxT("LoopIdiom - Замена идиом в цикле.")},
+    {wxT("DemoteRegisterToMemory" ), wxT("DemoteRegisterToMemoryPass - Замена работы с регистрами на работу с ссылками в памяти.")},
+    {wxT("Reassociate" ), wxT("Reassociate - Данный проход меняет порядок коммутативных выражений для дальнейшего облегчения распространения констант и других процедур. Например:  4 + (x + 5)  ->  x + (4 + 5)")},
+    {wxT("CFGSimplification" ), wxT("CFGSimplification - Слияние базовых блоков, устранение недостижимых базовых блоков, упрощение терминальных инструкций, конвертация инструкции 'switch' в простой просмотр таблицы и так далее.")},
+    {wxT("FlattenCFG" ), wxT("FlattenCFG - Сплющивание графа потока управления, уменьшение количества условных переходов с помощью режимов распараллеливания и т.д.")},
+    {wxT("StructurizeCFG" ), wxT("CFG Structurization -  Устраниение 'неприводимости' графа.")},
+    {wxT("TailCallElimination" ), wxT("TailCallElimination - Устранение хвостовой рекурсии.")},
+    {wxT("EarlyCSE" ), wxT("EarlyCSE - Удаление общих подвыражений на дереве доминаторов.")},
+    {wxT("GVNHoist" ), wxT("GVNHoist - Проход глобальной нумерации значений, выполняемый на дереве доминаторов, чтобы поднять общие подвыражения вверх по графу.")},
+    {wxT("GVNSink" ), wxT("GVNSink - Этот проход реализует обратную нумерацию значений, чтобы определить похожие выражения и вынести их вних по графу.")},
+    {wxT("NewGVN" ), wxT("GVN - Глобальная нумерация значений и устранение ненужных доступов в память одновременно.")},
+    {wxT("DivRemPairs" ), wxT("DivRemPairs - Декомпозиция инструкций для целочисленного деления и взятия остатка.")},
+    {wxT("MemCpyOpt" ), wxT("MemCpyOpt -  Устанение вызовов к 'memcpy' или комбинация нескольких 'memcpy' в один.")},
+    {wxT("LoopDeletion" ), wxT("LoopDeletion - Устранение небесконечных циклов, когда известно, что они ненужны")},
+    {wxT("ConstantHoisting" ), wxT("ConstantHoisting - Вынесение дорогостоящих констант вверх по графу.")},
+    {wxT("LowerAtomic" ), wxT("LowerAtomic - Понижение атомичных (потокобезопасных) интринсиков до не-атомичной формы")},
+    {wxT("LowerMatrixIntrinsics" ), wxT("LowerMatrixIntrinsics - Понижение матричных интринсиков до векторных операций.")},
+    {wxT("MergeICmpsLegacy" ), wxT("MergeICmps - Слияние серий целочисленных сравненений в 'memcmp'.")},
+    {wxT("CorrelatedValuePropagation" ), wxT("ValuePropagation - Распространение информации для значений, полученных из графа.")},
+    {wxT("LowerExpectIntrinsic" ), wxT("LowerExpectIntrinsics - Удаление llvm.expect интринсиков и создание метаданных 'block_weights'.")},
+    {wxT("LowerConstantIntrinsics" ), wxT("LowerConstantIntrinsicss - Распространение оставшихся интринсик-вызовов llvm.objectsize и llvm.is.constant.")},
+    {wxT("PartiallyInlineLibCalls" ), wxT("PartiallyInlineLibCalls - Инлайнинг вызовов к стандартной библиотеке, например 'sqrt'.")},
+    {wxT("StraightLineStrengthReduce" ), wxT("StraightLineStrengthReduce - Уменьшение стоимости операций некоторых в линейном коде.")},
+    {wxT("Float2Int" ), wxT("Float2Int - Конвертация чисел с плавающей запятой в целочисленные, где это возможно.")},
+    {wxT("NaryReassociate" ), wxT("NaryReassociate - Упрощение n-арных операций перемещением.")},
+    {wxT("LoopDistribute" ), wxT("LoopDistribute - Дистрибьюция циклов.")},
+    {wxT("LoopFuse" ), wxT("LoopFuse - Склеивание циклов.")},
+    {wxT("LoopLoadElimination" ), wxT("LoopLoadElimination - Устранение загрузок из памяти с учётом циклов.")},
+    {wxT("LoopSimplifyCFG" ), wxT("LoopSimplifyCFG - Данный прохож выполняет базовые упрощения графа потока управления, в основном, чтобы упростить задачу остальным проходам.")},
 };
 // endregion
 
