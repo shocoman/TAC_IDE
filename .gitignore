@@ -1,5 +1,6 @@
 .idea/
 cmake-build-debug/
+output/
 cmake-build-debug-coverage/
 .vs/
 

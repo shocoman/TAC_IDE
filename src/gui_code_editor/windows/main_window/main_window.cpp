@@ -431,7 +431,7 @@ void MainWindowFrame::OnSimulatorRun(wxCommandEvent &event) {
     appPath.SetFullName(simulatorFileName);
 
     const wxString &command = appPath.GetFullPath() + " " + program_file;
-    fmt::print("CMD: {}\n", command);
+    fmt::print("CMD: {}\n", command.ToStdString());
     wxExecute(command, wxEXEC_ASYNC);
 }
 

@@ -388,7 +388,7 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
         wxString debug = fmt::format("{:2}; ", len);
         switch (token_type) {
         case TokenType::Other: {
-            debug += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Other: '{}'\n", GetIdentifier(curr_pos, len).ToStdString());
 
             // llvm @-identifier
             auto [next_token_type, next_len] = ReadNextToken(curr_pos + len);
@@ -407,12 +407,12 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             break;
         }
         case TokenType::Number: {
-            debug += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Number: '{}'\n", GetIdentifier(curr_pos, len).ToStdString());
             chosen_style = mySTC_TYPE_NUMBER;
             break;
         }
         case TokenType::Identifier: {
-            debug += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Identifier: '{}'\n", GetIdentifier(curr_pos, len).ToStdString());
             wxString mb_keyword = GetIdentifier(curr_pos, len);
             mb_keyword.MakeLower();
             if (std::find(g_tac_keywords.begin(), g_tac_keywords.end(), mb_keyword) != g_tac_keywords.end()) {
@@ -451,7 +451,7 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             if (token_type == TokenType::Eof || GetIdentifier(j, length) != wxT('.')) {
                 // label
                 chosen_style = mySTC_TYPE_LABEL;
-                debug += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length));
+                debug += fmt::format("Label: '{}'\n", GetIdentifier(curr_pos, length).ToStdString());
                 basic_block_leaders.insert(LineFromPosition(curr_pos));
             } else {
                 // just a var declaration
@@ -459,12 +459,12 @@ void EditorCtrl::UpdateCodeHighlighting(int startPos, int endPos) {
             break;
         }
         case TokenType::String: {
-            debug += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("String: '{}'\n", GetIdentifier(curr_pos, len).ToStdString());
             chosen_style = mySTC_TYPE_STRING;
             break;
         }
         case TokenType::Char: {
-            debug += fmt::format("Char: '{}'\n", GetIdentifier(curr_pos, len));
+            debug += fmt::format("Char: '{}'\n", GetIdentifier(curr_pos, len).ToStdString());
             chosen_style = mySTC_TYPE_CHARACTER;
             break;
         }
