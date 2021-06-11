@@ -6,6 +6,7 @@
 #define TAC_PARSER_FUNCTION_HPP
 
 #include <algorithm>
+#include <functional>
 
 #include "../utilities/graph_writer/graph_writer.hpp"
 #include "basic_block.hpp"
