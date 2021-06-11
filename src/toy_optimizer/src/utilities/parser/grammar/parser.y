@@ -16,7 +16,6 @@
 
 %code {
     #include "../parser/driver/driver.hpp"
-    #include <fmt/ranges.h>
 }
 
 %param { ParseDriver& drv }
@@ -201,9 +200,9 @@ value:
 term:
     "identifier"    { $$ = Operand($1, Operand::Type::Var); }
 |   "string"        { $$ = Operand($1, Operand::Type::LString); }
-|   "char"          { $$ = Operand(fmt::format("{}", $1), Operand::Type::LChar); }
-|   "int"           { $$ = Operand(fmt::format("{}", $1), Operand::Type::LInt); }
-|   "float"         { $$ = Operand(fmt::format("{}", $1), Operand::Type::LDouble); }
+|   "char"          { $$ = Operand(std::to_string($1), Operand::Type::LChar); }
+|   "int"           { $$ = Operand(std::to_string($1), Operand::Type::LInt); }
+|   "float"         { $$ = Operand(std::to_string($1), Operand::Type::LDouble); }
 |   "bool"          { $$ = Operand($1, Operand::Type::LBool); }
 ;
 
