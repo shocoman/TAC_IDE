@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 #message("Folders: ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ")
 
+
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(src/toy_optimizer EXCLUDE_FROM_ALL)
 list(TRANSFORM TOY_OPTIMIZER_SOURCE_FILES PREPEND "src/toy_optimizer/")
@@ -28,7 +30,13 @@ set_target_properties(tac_simulator PROPERTIES
 
 
 #### LLVM ########################################
+option(ENABLE_LLVM "Build project with LLVM if possible" ON)
 find_package(LLVM CONFIG)
+#message("Enable? : ${ENABLE_LLVM}")
+IF (NOT ENABLE_LLVM)
+    SET(LLVM_FOUND 0)
+    SET(llvm_libs "")
+ENDIF()
 IF (${LLVM_FOUND})
     MESSAGE("Found LLVM")
     include_directories(${LLVM_INCLUDE_DIRS})
@@ -36,9 +44,9 @@ IF (${LLVM_FOUND})
     add_executable(llvm_simulator ${CMAKE_CURRENT_SOURCE_DIR}/src/llvm_simulator/llvm_simulator.cpp)
     llvm_map_components_to_libnames(llvm_libs support core irreader mcjit jitlink x86asmparser x86codegen)
     target_link_libraries(llvm_simulator ${llvm_libs})
-ELSE (${LLVM_FOUND})
+ELSE ()
     MESSAGE("Could not locate LLVM. Skipping...")
-ENDIF (${LLVM_FOUND})
+ENDIF ()
 
 
 ### Flex/Bison ###
